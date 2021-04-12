@@ -13,7 +13,10 @@ class ConnectionPostgres extends ConnectionBase implements ConnectionInterface {
     public entities: string) {
     super();
     }
-  getRow() {
+  public getQuery(): string {
+    return this.getQuery();
+  }
+  public getRow() {
     let tempData: any[] = [];
 
     return tempData;

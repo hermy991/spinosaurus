@@ -11,7 +11,7 @@ class ConnectionBase {
     protected orderByPart: string = ""
     ){}
 
-  public getQuery() {
+  public getQuery(): string {
     let query = "";
     query += `
 ${SelectOperations.getQuery(...this.selectData)}
@@ -44,7 +44,7 @@ ORDER BY ${this.orderByPart}
     
   }
 
-  select(... columns: Array<string|Array<string>>) {
+  public select(... columns: Array<string|Array<string>>) {
     for(let i = 0; i < columns.length; i++) {
       const tempValue = columns[i];
       if(typeof tempValue === "string"){
@@ -56,7 +56,7 @@ ORDER BY ${this.orderByPart}
     }
   }
 
-  addSelect(column: Array<string> | string, as?: string){
+  public addSelect(column: Array<string> | string, as?: string){
     if(Array.isArray(column)){
       this.selectData.push(column.slice(0, 2));
     }
@@ -67,6 +67,10 @@ ORDER BY ${this.orderByPart}
       }
       this.selectData.push(column);
     }
+  }
+
+  public from(entity: string, as: string, ons: Array<string> | string){
+    
   }
 
 }

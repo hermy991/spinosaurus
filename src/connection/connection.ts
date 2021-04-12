@@ -29,9 +29,32 @@ class Connection {
     }
   }
 
+  public getQuery() {
+    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
+    return defConnectionDefinition.getQuery();
+  }
+
   public getRaw() {
-    let defConnectionDefinition = this.connectionDefinitions[this.defIndex];
+    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
     return defConnectionDefinition.getRow();
+  }
+
+  public select() {
+    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
+    defConnectionDefinition.select();
+    return this;
+  }
+
+  public addSelect(column: Array<string> | string, as?: string) {
+    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
+    defConnectionDefinition.addSelect(column);
+    return this;
+  }
+
+  public from(entity: string, as: string, ons: Array<string> | string) {
+    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
+    defConnectionDefinition.from(entity, as, ons);
+    return this;
   }
 
 }
