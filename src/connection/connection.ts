@@ -1,17 +1,20 @@
 
-import {ConnectionPostgres} from './connection_postgres.ts';
+import {ConnectionPostgres} from './postgres/connection_postgres.ts';
+import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.ts';
 class Connection {
   private defIndex: number;
   public connectionDefinitions: Array<ConnectionPostgres>;
 
-  public constructor(conn?: ConnectionPostgres | Array<ConnectionPostgres>, def: number | string = 0 ) {
+  public constructor(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
 
     this.connectionDefinitions = [];
-    if(Array.isArray(conn)){
-      this.connectionDefinitions = conn;
-    }
-    else if(typeof conn == "object"){
-      this.connectionDefinitions = [conn];
+    if(conn instanceof ConnectionPostgresOptions){
+      if(Array.isArray(conn)){
+        this.connectionDefinitions = conn as Array<ConnectionPostgres>;
+      }
+      else if(typeof conn == "object"){
+        this.connectionDefinitions = [conn as ConnectionPostgres];
+      }
     }
 
     this.defIndex = 0;
