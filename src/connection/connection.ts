@@ -1,29 +1,28 @@
 import {IConnectionOptions} from './iconnection_options.ts'
 
 import {ConnectionPostgres} from './postgres/connection_postgres.ts';
-import {IConnectionPostgresOptions} from './postgres/iconnection_postgres_options.ts'
+import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.ts'
 import {IConnectionPostgresOperations} from './postgres/iconnection_postgres_operations.ts'
 class Connection implements IConnectionPostgresOperations {
   private defIndex: number;
   public connections: Array<ConnectionPostgres>;
 
-  public constructor(conn?: IConnectionPostgresOptions | Array<IConnectionPostgresOptions>, def: number | string = 0 ) {
+  public constructor(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
 
     this.connections = [];
 
     if(Array.isArray(conn)){
-      const conns = conn as Array<IConnectionOptions>;
+      const conns = conn;
       for(let i = 0; i < conns.length; i++){
         if(conns[i].type === "postgres"){
-          const oconn = conns[i] as IConnectionPostgresOptions;
-          this.connections.push(oconn as ConnectionPostgres);
+          const conn = conns[i];
+          this.connections.push(new ConnectionPostgres(conn.name, conn.type, conn.host, conn.port, conn.username, conn.password, conn.database, conn.synchronize, conn.entities, conn.hostaddr));
         }
       }
     }
     else if (conn) {
-      const oconn = conn as IConnectionOptions;
-      if(oconn.type === "postgres"){
-        this.connections.push(oconn as ConnectionPostgres);
+      if(conn.type === "postgres"){
+        this.connections.push(new ConnectionPostgres(conn.name, conn.type, conn.host, conn.port, conn.username, conn.password, conn.database, conn.synchronize, conn.entities, conn.hostaddr));
       }
     }
 
@@ -42,7 +41,7 @@ class Connection implements IConnectionPostgresOperations {
     }
   }
 
-  public select(... conditions: Array<Array<string>>) {
+  public select(... conditions: Array<[string, string?]>) {
     const defConn = this.connections[this.defIndex];
     defConn.select(... conditions);
     return this;
@@ -50,7 +49,7 @@ class Connection implements IConnectionPostgresOperations {
 
   public addSelect(column: string, as?: string) {
     const defConn = this.connections[this.defIndex];
-    defConn.addSelect(column);
+    defConn.addSelect(column, as);
     return this;
   }
 
@@ -68,7 +67,7 @@ class Connection implements IConnectionPostgresOperations {
   throw new Error("Method not implemented.");
   }
 
-  orderBy(...columns: string[][]) {
+  orderBy(...columns: Array<[string, string?]>) {
     throw new Error("Method not implemented.");
   }
 
@@ -76,12 +75,12 @@ class Connection implements IConnectionPostgresOperations {
     throw new Error("Method not implemented.");
   }
 
-  public getQuery() {
+  getQuery(): string {
     const defConn = this.connections[this.defIndex];
     return defConn.getQuery();
   }
 
-  public getRaw() {
+  getRaw() {
     const defConn = this.connections[this.defIndex];
     return defConn.getRaw();
   }

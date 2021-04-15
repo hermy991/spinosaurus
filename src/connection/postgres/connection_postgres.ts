@@ -1,10 +1,12 @@
+//import {ConnectionPostgresOptions} from './connection_postgres_options.ts'
 import {IConnectionPostgresOptions} from './iconnection_postgres_options.ts'
 import {IConnectionPostgresOperations} from './iconnection_postgres_operations.ts'
+import {SelectBuilding} from '../select/select_building.ts';
 class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostgresOperations {
-  
-  constructor(public name: string, 
-    public type: string = "postgres", 
-    public host: string = "localhost", 
+  sb: SelectBuilding = new SelectBuilding();
+  constructor(public name: string,
+    public type: string = "postgres",
+    public host: string = "localhost",
     public port: number = 5432,
     public username: string,
     public password: string,
@@ -12,16 +14,15 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     public synchronize: boolean = false,
     public entities: string,
     public hostaddr?: string
-    ) {    }
-  select(... conditions: Array<Array<string>>): any {
-    throw Error("Method not implemented");
+  ) {    }
+  select(... columns: Array<[string, string?]>): void {
+    this.sb.select(... columns);
   };
-  addSelect(column: string, as?: string): any {
-    throw Error("Method not implemented");
+  addSelect(column: string, as?: string): void {
+    this.sb.addSelect(column, as);
   };
   from(entity: string, as?: string): any {
-    throw Error("Method not implemented");
-    
+    this.sb.from(entity, as);
   }
   where(... conditions: Array<Array<string>>): any {
     throw Error("Method not implemented");
@@ -31,7 +32,7 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     throw Error("Method not implemented");
 
   }
-  orderBy(... columns: Array<Array<string>>): any {
+  orderBy(... columns: Array<[string, string?]>): any {
     throw Error("Method not implemented");
 
   }
@@ -41,7 +42,7 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
   }
   /* Returns*/
   getQuery(): string {
-    return "";
+    return this.sb.getQuery();
   }
   getRaw(): Array<any>{
     return [];

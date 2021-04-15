@@ -4,8 +4,8 @@ export interface IConnectionOptions {
   host: string;
   port: number;
   username: string;
-  password: string,
-  database: string,
+  password: string;
+  database: string;
   synchronize: boolean;
   entities: string;
 }
