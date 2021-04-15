@@ -5,9 +5,9 @@ import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.
 import {IConnectionPostgresOperations} from './postgres/iconnection_postgres_operations.ts'
 class Connection implements IConnectionPostgresOperations {
   private defIndex: number;
-  public connections: Array<ConnectionPostgres>;
+  connections: Array<ConnectionPostgres>;
 
-  public constructor(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
+  constructor(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
 
     this.connections = [];
 
@@ -41,25 +41,25 @@ class Connection implements IConnectionPostgresOperations {
     }
   }
 
-  public select(... conditions: Array<[string, string?]>) {
+  select(... conditions: Array<[string, string?]>) {
     const defConn = this.connections[this.defIndex];
     defConn.select(... conditions);
     return this;
   }
 
-  public addSelect(column: string, as?: string) {
+  addSelect(column: string, as?: string) {
     const defConn = this.connections[this.defIndex];
     defConn.addSelect(column, as);
     return this;
   }
 
-  public from(entity: string, as?: string) {
+  from(entity: string, as?: string) {
     const defConn = this.connections[this.defIndex];
     defConn.from(entity, as);
     return this;
   }
 
-  public where(...conditions: string[][]) {
+  where(...conditions: string[][]) {
     throw new Error("Method not implemented.");
   }
   

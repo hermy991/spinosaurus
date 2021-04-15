@@ -1,3 +1,1 @@
-import { Connection } from "./src/connection/connection.ts";
-
-export { Connection };
+export { Connection } from "./src/connection/connection.ts";

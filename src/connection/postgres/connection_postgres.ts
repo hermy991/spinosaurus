@@ -2,6 +2,9 @@
 import {IConnectionPostgresOptions} from './iconnection_postgres_options.ts'
 import {IConnectionPostgresOperations} from './iconnection_postgres_operations.ts'
 import {SelectBuilding} from '../select/select_building.ts';
+import {POOL_CONNECTIONS} from '../connection_variables.ts'
+import {filterConnectionProps} from '../connection_operations.ts'
+import {Pool} from 'postgres/mod.ts';
 class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostgresOperations {
   sb: SelectBuilding = new SelectBuilding();
   constructor(public name: string,
@@ -45,7 +48,22 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     return this.sb.getQuery();
   }
   getRaw(): Array<any>{
-    return [];
+    const keyConf = {
+      // applicationName";
+      database: "database",
+      host: "hostname",
+      password: "password",
+      port: "port",
+      // tls?: TLSOptions,
+      username: "user",
+      hostaddr: "hostname"
+    }
+    let data: Array<any> = [];
+    const driverConf = filterConnectionProps(keyConf, this);
+    const pool = new Pool(driverConf, 4);
+
+
+    return data;
   }
   /* Returns entities*/
   getOne(): any {

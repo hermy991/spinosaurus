@@ -1,5 +1,5 @@
 {
     "imports": {
-       "spinosaurus/": "../spinosaurus/"
+       "postgres/": "https://deno.land/x/postgres/"
     }
  }

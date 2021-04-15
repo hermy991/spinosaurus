@@ -33,7 +33,7 @@ class SelectBuilding {
       const [column, as] = this.selectData[i];
       query += `${column}` + (as ? ' AS ' + as: '');
       if(i + 1 !== this.selectData.length){
-        query = ",\n"
+        query += ",\n"
       }
     }
     return `SELECT ${query} `;
