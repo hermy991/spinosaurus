@@ -1,6 +1,6 @@
 import {SelectOperations} from '../select/select_operations.ts'
 
-class ConnectionBase {
+class ConnectionOperations {
 
   constructor(
     protected selectData: Array<Array<string>> = [["*"]],
@@ -75,4 +75,4 @@ ORDER BY ${this.orderByPart}
 
 }
 
-export {ConnectionBase}
+export {ConnectionOperations}

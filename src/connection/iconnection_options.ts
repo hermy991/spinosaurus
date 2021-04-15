@@ -1,4 +1,4 @@
-export interface ConnectionInterface {
+export interface IConnectionOptions {
   name: string;
   type: string;
   host: string;

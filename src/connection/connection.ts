@@ -1,19 +1,29 @@
+import {IConnectionOptions} from './iconnection_options.ts'
 
 import {ConnectionPostgres} from './postgres/connection_postgres.ts';
-import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.ts';
-class Connection {
+import {IConnectionPostgresOptions} from './postgres/iconnection_postgres_options.ts'
+import {IConnectionPostgresOperations} from './postgres/iconnection_postgres_operations.ts'
+class Connection implements IConnectionPostgresOperations {
   private defIndex: number;
-  public connectionDefinitions: Array<ConnectionPostgres>;
+  public connections: Array<ConnectionPostgres>;
 
-  public constructor(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
+  public constructor(conn?: IConnectionPostgresOptions | Array<IConnectionPostgresOptions>, def: number | string = 0 ) {
 
-    this.connectionDefinitions = [];
-    if(conn instanceof ConnectionPostgresOptions){
-      if(Array.isArray(conn)){
-        this.connectionDefinitions = conn as Array<ConnectionPostgres>;
+    this.connections = [];
+
+    if(Array.isArray(conn)){
+      const conns = conn as Array<IConnectionOptions>;
+      for(let i = 0; i < conns.length; i++){
+        if(conns[i].type === "postgres"){
+          const oconn = conns[i] as IConnectionPostgresOptions;
+          this.connections.push(oconn as ConnectionPostgres);
+        }
       }
-      else if(typeof conn == "object"){
-        this.connectionDefinitions = [conn as ConnectionPostgres];
+    }
+    else if (conn) {
+      const oconn = conn as IConnectionOptions;
+      if(oconn.type === "postgres"){
+        this.connections.push(oconn as ConnectionPostgres);
       }
     }
 
@@ -23,8 +33,8 @@ class Connection {
     }
     else if (typeof def === "string"){
       this.defIndex = 0;
-      for(let i = 0; i < this.connectionDefinitions.length; i++){
-        if(this.connectionDefinitions[i].name === def){
+      for(let i = 0; i < this.connections.length; i++){
+        if(this.connections[i].name === def){
           this.defIndex = i;
           break;
         }
@@ -32,32 +42,56 @@ class Connection {
     }
   }
 
+  public select(... conditions: Array<Array<string>>) {
+    const defConn = this.connections[this.defIndex];
+    defConn.select(... conditions);
+    return this;
+  }
+
+  public addSelect(column: string, as?: string) {
+    const defConn = this.connections[this.defIndex];
+    defConn.addSelect(column);
+    return this;
+  }
+
+  public from(entity: string, as?: string) {
+    const defConn = this.connections[this.defIndex];
+    defConn.from(entity, as);
+    return this;
+  }
+
+  public where(...conditions: string[][]) {
+    throw new Error("Method not implemented.");
+  }
+  
+  addWhere(...conditions: string[]) {
+  throw new Error("Method not implemented.");
+  }
+
+  orderBy(...columns: string[][]) {
+    throw new Error("Method not implemented.");
+  }
+
+  addOrderBy(columns: string,direction?: string) {
+    throw new Error("Method not implemented.");
+  }
+
   public getQuery() {
-    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
-    return defConnectionDefinition.getQuery();
+    const defConn = this.connections[this.defIndex];
+    return defConn.getQuery();
   }
 
   public getRaw() {
-    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
-    return defConnectionDefinition.getRow();
+    const defConn = this.connections[this.defIndex];
+    return defConn.getRaw();
   }
 
-  public select() {
-    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
-    defConnectionDefinition.select();
-    return this;
+  getOne(): any {
+    const defConn = this.connections[this.defIndex];
+    return defConn.getOne();
   }
-
-  public addSelect(column: Array<string> | string, as?: string) {
-    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
-    defConnectionDefinition.addSelect(column);
-    return this;
-  }
-
-  public from(entity: string, as: string, ons: Array<string> | string) {
-    const defConnectionDefinition = this.connectionDefinitions[this.defIndex];
-    defConnectionDefinition.from(entity, as, ons);
-    return this;
+  getMany(): Array<any> {
+    return [];
   }
 
 }
