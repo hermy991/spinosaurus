@@ -9,9 +9,10 @@ export interface IConnectionOperations {
   addOrderBy(columns: string, direction?: string): any; // ("column1") | ("column1 ASC") | ("column1", "ASC")
   /* Returns*/
   getQuery(): string;
-  getRaw(): Array<any>;
+  getRaw(): Promise<Array<any>>;
+  getRawArray(): Promise<Array<any>>;
   /* Returns entities*/
-  getOne(): any;
-  getMany(): Array<any>;
+  getOne(): Promise<any>;
+  getMany(): Promise<Array<any>>;
 }
 

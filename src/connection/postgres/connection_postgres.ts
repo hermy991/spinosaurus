@@ -2,9 +2,11 @@
 import {IConnectionPostgresOptions} from './iconnection_postgres_options.ts'
 import {IConnectionPostgresOperations} from './iconnection_postgres_operations.ts'
 import {SelectBuilding} from '../select/select_building.ts';
-import {POOL_CONNECTIONS} from '../connection_variables.ts'
+import {initConnection} from './connection_postgres_pool.ts';
 import {filterConnectionProps} from '../connection_operations.ts'
-import {Pool} from 'postgres/mod.ts';
+//import {Pool} from 'postgres/mod.ts';
+import {Pool} from '../../../deps.ts';
+import {KEY_CONFIG} from './connection_postgres_variables.ts'
 class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostgresOperations {
   sb: SelectBuilding = new SelectBuilding();
   constructor(public name: string,
@@ -47,29 +49,33 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
   getQuery(): string {
     return this.sb.getQuery();
   }
-  getRaw(): Array<any>{
-    const keyConf = {
-      // applicationName";
-      database: "database",
-      host: "hostname",
-      password: "password",
-      port: "port",
-      // tls?: TLSOptions,
-      username: "user",
-      hostaddr: "hostname"
-    }
-    let data: Array<any> = [];
-    const driverConf = filterConnectionProps(keyConf, this);
-    const pool = new Pool(driverConf, 4);
-
-
-    return data;
+  async getRaw(): Promise<Array<any>> {
+    const driverConf = filterConnectionProps(KEY_CONFIG, this);
+    // console.log({driverConf})
+    const pool = (initConnection(driverConf) as Pool);
+    const client = await pool.connect();
+    const query = this.getQuery()
+    const result = await client.queryObject(query);
+    client.release();
+    //Promise pro = 
+    return result.rows;
+  }
+  async getRawArray(): Promise<Array<any>> {
+    const driverConf = filterConnectionProps(KEY_CONFIG, this);
+    // console.log({driverConf})
+    const pool = (initConnection(driverConf) as Pool);
+    const client = await pool.connect();
+    const query = this.getQuery()
+    const result = await client.queryArray(query);
+    client.release();
+    //Promise pro = 
+    return result.rows;
   }
   /* Returns entities*/
-  getOne(): any {
+  async getOne(): Promise<any> {
     return {};
   }
-  getMany(): Array<any> {
+  async getMany(): Promise<Array<any>> {
     return [];
   }
 }

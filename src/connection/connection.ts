@@ -80,16 +80,21 @@ class Connection implements IConnectionPostgresOperations {
     return defConn.getQuery();
   }
 
-  getRaw() {
+  async getRaw(): Promise<any>{
     const defConn = this.connections[this.defIndex];
     return defConn.getRaw();
   }
 
-  getOne(): any {
+  async getRawArray(): Promise<any>{
+    const defConn = this.connections[this.defIndex];
+    return defConn.getRawArray();
+  }
+
+  async getOne(): Promise<any> {
     const defConn = this.connections[this.defIndex];
     return defConn.getOne();
   }
-  getMany(): Array<any> {
+  async getMany(): Promise<Array<any>> {
     return [];
   }
 
