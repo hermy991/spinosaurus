@@ -6,7 +6,8 @@ class SelectBuilding {
     ){  }
   select(... columns: Array<[string, string?]>): void {
     this.selectData = [];
-    columns.forEach(x => this.selectData.push(x) );
+    // columns.forEach(x => this.selectData.push(x) );
+    columns.forEach(x => this.addSelect(x[0], x.length > 1 ? x[1]: undefined));
   }
   addSelect(column: string, as?: string): void {
     const currColumn: [string, string?] = [column]
