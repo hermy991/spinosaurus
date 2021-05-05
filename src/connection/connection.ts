@@ -59,12 +59,16 @@ class Connection implements IConnectionPostgresOperations {
     return this;
   }
 
-  where(...conditions: string[][]) {
-    throw new Error("Method not implemented.");
+  where(... conditions: Array<string>) {
+    const defConn = this.connections[this.defIndex];
+    defConn.where(... conditions);
+    return this;
   }
   
-  addWhere(...conditions: string[]) {
-  throw new Error("Method not implemented.");
+  addWhere(condition: string) {
+    const defConn = this.connections[this.defIndex];
+    defConn.where(condition);
+    return this;
   }
 
   orderBy(...columns: Array<[string, string?]>) {

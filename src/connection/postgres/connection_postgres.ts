@@ -26,15 +26,14 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
   addSelect(column: string, as?: string): void {
     this.sb.addSelect(column, as);
   };
-  from(entity: string, as?: string): any {
+  from(entity: string, as?: string): void {
     this.sb.from(entity, as);
   }
-  where(... conditions: Array<Array<string>>): any {
-    throw Error("Method not implemented");
-
+  where(... conditions: Array<string>): void {
+    this.sb.where(... conditions);
   }
-  addWhere(... conditions: Array<string>): any {
-    throw Error("Method not implemented");
+  addWhere(condition: string): any {
+    this.sb.addWhere(condition)
 
   }
   orderBy(... columns: Array<[string, string?]>): any {
@@ -50,14 +49,15 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     return this.sb.getQuery();
   }
   async getRaw(): Promise<Array<any>> {
-    const driverConf = filterConnectionProps(KEY_CONFIG, this);
+    let driverConf = filterConnectionProps(KEY_CONFIG, this);
     // console.log({driverConf})
+    // driverConf["tls"] = { enforce: false };
     const pool = (initConnection(driverConf) as Pool);
     const client = await pool.connect();
     const query = this.getQuery()
     const result = await client.queryObject(query);
     client.release();
-    //Promise pro = 
+    await pool.end();
     return result.rows;
   }
   async getRawArray(): Promise<Array<any>> {
