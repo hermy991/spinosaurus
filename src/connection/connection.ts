@@ -41,6 +41,18 @@ class Connection implements IConnectionPostgresOperations {
     }
   }
 
+  async test(): Promise<boolean> {
+    const defConn = this.connections[this.defIndex];
+    const res = await defConn.test();
+    return res;
+  }
+
+  selectDistinct(... conditions: Array<[string, string?]>) {
+    const defConn = this.connections[this.defIndex];
+    defConn.selectDistinct(... conditions);
+    return this;
+  }
+
   select(... conditions: Array<[string, string?]>) {
     const defConn = this.connections[this.defIndex];
     defConn.select(... conditions);
@@ -71,12 +83,16 @@ class Connection implements IConnectionPostgresOperations {
     return this;
   }
 
-  orderBy(...columns: Array<[string, string?]>) {
-    throw new Error("Method not implemented.");
+  orderBy(... columns: Array<[string, string?]>) {
+    const defConn = this.connections[this.defIndex];
+    defConn.orderBy(... columns);
+    return this;
   }
 
-  addOrderBy(columns: string,direction?: string) {
-    throw new Error("Method not implemented.");
+  addOrderBy(column: string, direction?: string) {
+    const defConn = this.connections[this.defIndex];
+    defConn.addOrderBy(column, direction);
+    return this;
   }
 
   getQuery(): string {
@@ -84,12 +100,12 @@ class Connection implements IConnectionPostgresOperations {
     return defConn.getQuery();
   }
 
-  async getRaw(): Promise<any>{
+  async getRaw(): Promise<Array<any>>{
     const defConn = this.connections[this.defIndex];
     return defConn.getRaw();
   }
 
-  async getRawArray(): Promise<any>{
+  async getRawArray(): Promise<Array<any>>{
     const defConn = this.connections[this.defIndex];
     return defConn.getRawArray();
   }

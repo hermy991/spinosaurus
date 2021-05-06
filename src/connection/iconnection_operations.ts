@@ -1,5 +1,8 @@
 export interface IConnectionOperations {
+  /* Basic Connection Operations*/
+  test(): Promise<boolean>;
   /* Basic SQL Operations*/
+  selectDistinct(... columns: Array<[string, string?]>): any;
   select(... columns: Array<[string, string?]>): any;
   addSelect(column: string, as?: string): any;
   from(entity: string, as?: string): any; // ("Table", "t", ["t.column1 = 'a'"]) 

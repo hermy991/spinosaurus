@@ -20,6 +20,29 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     public entities: string,
     public hostaddr?: string
   ) {    }
+  /* Basic Connection Operations*/
+  
+  async test(): Promise<boolean> {
+    let driverConf = filterConnectionProps(KEY_CONFIG, this);
+    // console.log({driverConf})
+    // driverConf["tls"] = { enforce: false };
+    try{
+      const pool = (initConnection(driverConf) as Pool);
+      const client = await pool.connect();
+      const query = this.getQuery()
+      client.release();
+      await pool.end();
+      return true;
+    }
+    catch(err){
+      return false;
+    }
+  }
+  /* Basic SQL Operations*/
+
+  selectDistinct(... columns: Array<[string, string?]>): void {
+    this.sb.selectDistinct(... columns);
+  };
   select(... columns: Array<[string, string?]>): void {
     this.sb.select(... columns);
   };
@@ -37,12 +60,10 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
 
   }
   orderBy(... columns: Array<[string, string?]>): any {
-    throw Error("Method not implemented");
-
+    this.sb.orderBy(... columns);
   }
-  addOrderBy(columns: string, direction?: string): any {
-    throw Error("Method not implemented");
-
+  addOrderBy(column: string, direction?: string): any {
+    this.sb.addOrderBy(column, direction);
   }
   /* Returns*/
   getQuery(): string {
