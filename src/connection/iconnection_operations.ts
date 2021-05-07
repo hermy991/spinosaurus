@@ -1,7 +1,11 @@
 export interface IConnectionOperations {
   /* Basic Connection Operations*/
   test(): Promise<boolean>;
-  /* Basic SQL Operations*/
+  /* DDL SQL Operations*/
+  create(entity: string, schema?: string): any;
+  columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>): any;
+  addColumn(columnName: string, datatype: string, length?: number, nulleable?:boolean): any;
+  /* DML SQL Operations*/
   selectDistinct(... columns: Array<[string, string?]>): any;
   select(... columns: Array<[string, string?]>): any;
   addSelect(column: string, as?: string): any;

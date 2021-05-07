@@ -25,7 +25,7 @@ class SelectBuilding {
   addSelect(column: string, as?: string): void {
     const currColumn: [string, string?] = [column]
     if(as){
-      as = `"${as.replaceAll(`"`, "").trim()}"`;
+      as = `${as.replaceAll(`"`, "").trim()}`;
       currColumn.push(as);
     }
     this.selectData.push(currColumn);
@@ -68,7 +68,7 @@ class SelectBuilding {
     let query = "";
     for(let i = 0; i < this.selectData.length; i++){
       const [column, as] = this.selectData[i];
-      query += `${column}` + (as ? ' AS ' + as: '');
+      query += `${column}` + (as ? ` AS "${as.replaceAll(`"`, "").trim()}"` : '');
       if(i + 1 !== this.selectData.length){
         query += ", "
       }
@@ -115,7 +115,7 @@ class SelectBuilding {
   }
 
   getQuery(){
-    let query = `\n${this.getSelectQuery()}\n${this.getFromQuery()}`;
+    let query = `${this.getSelectQuery()}\n${this.getFromQuery()}`;
     if(this.whereData.length){
       query += `\n${this.getWhereQuery()}`;
     }

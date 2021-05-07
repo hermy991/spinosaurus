@@ -1,5 +1,0 @@
-{
-    "imports": {
-       "postgres/": "https://deno.land/x/postgres/"
-    }
- }

@@ -47,6 +47,23 @@ class Connection implements IConnectionPostgresOperations {
     return res;
   }
 
+  
+  create(entity: string, schema?: string) {
+    const defConn = this.connections[this.defIndex];
+    defConn.create(entity, schema);
+    return this;
+  }
+  columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>) {
+    const defConn = this.connections[this.defIndex];
+    defConn.columns(... columns);
+    return this;
+  }
+  addColumn(columnName: string, datatype: string, length?: number, nulleable?:boolean) {
+    const defConn = this.connections[this.defIndex];
+    defConn.addColumn(columnName, datatype, length, nulleable);
+    return this;
+  }
+
   selectDistinct(... conditions: Array<[string, string?]>) {
     const defConn = this.connections[this.defIndex];
     defConn.selectDistinct(... conditions);

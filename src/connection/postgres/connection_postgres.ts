@@ -1,14 +1,20 @@
 //import {ConnectionPostgresOptions} from './connection_postgres_options.ts'
 import {IConnectionPostgresOptions} from './iconnection_postgres_options.ts'
 import {IConnectionPostgresOperations} from './iconnection_postgres_operations.ts'
-import {SelectBuilding} from '../select/select_building.ts';
+import {SelectBuilding} from '../../select/select_building.ts';
+import {CreateBuilding} from '../../create/create_building.ts';
 import {initConnection} from './connection_postgres_pool.ts';
 import {filterConnectionProps} from '../connection_operations.ts'
 //import {Pool} from 'postgres/mod.ts';
-import {Pool} from '../../../deps.ts';
+import {postgres} from '../../../deps.ts';
 import {KEY_CONFIG} from './connection_postgres_variables.ts'
+
 class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostgresOperations {
+  currBuilding: "sb" | "cb" | undefined = undefined;
+  
   sb: SelectBuilding = new SelectBuilding();
+  cb: CreateBuilding = new CreateBuilding();
+
   constructor(public name: string,
     public type: string = "postgres",
     public host: string = "localhost",
@@ -27,7 +33,7 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     // console.log({driverConf})
     // driverConf["tls"] = { enforce: false };
     try{
-      const pool = (initConnection(driverConf) as Pool);
+      const pool = (initConnection(driverConf) as postgres.Pool);
       const client = await pool.connect();
       const query = this.getQuery()
       client.release();
@@ -38,12 +44,25 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
       return false;
     }
   }
-  /* Basic SQL Operations*/
-
+  /** DDL SQL Operations*/
+  create(entity: string, schema?: string): void {
+    this.currBuilding = "cb";
+    this.cb.create(entity, schema);
+  }
+  columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>): void {
+    this.cb.columns(... columns);
+  }
+  addColumn(columnName: string, datatype: string, length?: number, nulleable?:boolean): void {
+    this.cb.addColumn({columnName, datatype, length, nulleable});
+  }
+  
+  /** DML SQL Operation*/
   selectDistinct(... columns: Array<[string, string?]>): void {
+    this.currBuilding = "sb";
     this.sb.selectDistinct(... columns);
   };
   select(... columns: Array<[string, string?]>): void {
+    this.currBuilding = "sb";
     this.sb.select(... columns);
   };
   addSelect(column: string, as?: string): void {
@@ -67,13 +86,14 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
   }
   /* Returns*/
   getQuery(): string {
-    return this.sb.getQuery();
+    if(this.currBuilding){
+      return this[this.currBuilding].getQuery();
+    }
+    return "";
   }
   async getRaw(): Promise<Array<any>> {
     let driverConf = filterConnectionProps(KEY_CONFIG, this);
-    // console.log({driverConf})
-    // driverConf["tls"] = { enforce: false };
-    const pool = (initConnection(driverConf) as Pool);
+    const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
     const query = this.getQuery()
     const result = await client.queryObject(query);
@@ -83,13 +103,11 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
   }
   async getRawArray(): Promise<Array<any>> {
     const driverConf = filterConnectionProps(KEY_CONFIG, this);
-    // console.log({driverConf})
-    const pool = (initConnection(driverConf) as Pool);
+    const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
     const query = this.getQuery()
     const result = await client.queryArray(query);
     client.release();
-    //Promise pro = 
     return result.rows;
   }
   /* Returns entities*/

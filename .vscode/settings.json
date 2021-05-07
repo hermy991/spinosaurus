@@ -17,6 +17,5 @@
   },
   "peacock.color": "#dd0531",
   "deno.enable": true,
-  "deno.importMap": "./importmap.json",
   "deno.unstable": true
 }
