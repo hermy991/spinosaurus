@@ -46,7 +46,12 @@ class Connection implements IConnectionPostgresOperations {
     const res = await defConn.test();
     return res;
   }
-
+  
+  async checkObject(req: { name: string, namespace?: string }): Promise<{ name: string, namespace?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }> {
+    const defConn = this.connections[this.defIndex];
+    const res = await defConn.checkObject(req);
+    return res;
+  };
   
   create(entity: string, schema?: string) {
     const defConn = this.connections[this.defIndex];
@@ -61,6 +66,11 @@ class Connection implements IConnectionPostgresOperations {
   addColumn(columnName: string, datatype: string, length?: number, nulleable?:boolean) {
     const defConn = this.connections[this.defIndex];
     defConn.addColumn(columnName, datatype, length, nulleable);
+    return this;
+  }
+  drop(entity: string, schema?: string) {
+    const defConn = this.connections[this.defIndex];
+    defConn.drop(entity, schema);
     return this;
   }
 
@@ -82,9 +92,9 @@ class Connection implements IConnectionPostgresOperations {
     return this;
   }
 
-  from(entity: string, as?: string) {
+  from(entity: string, as?: string, schema?: string) {
     const defConn = this.connections[this.defIndex];
-    defConn.from(entity, as);
+    defConn.from(entity, as, schema);
     return this;
   }
 
@@ -117,14 +127,24 @@ class Connection implements IConnectionPostgresOperations {
     return defConn.getQuery();
   }
 
-  async getRaw(): Promise<Array<any>>{
+  async execute(): Promise<any>{
     const defConn = this.connections[this.defIndex];
-    return defConn.getRaw();
+    return defConn.execute();
   }
 
-  async getRawArray(): Promise<Array<any>>{
+  async getRawOne(): Promise<Array<any>>{
     const defConn = this.connections[this.defIndex];
-    return defConn.getRawArray();
+    return defConn.getRawOne();
+  }
+
+  async getRawMany(): Promise<Array<any>>{
+    const defConn = this.connections[this.defIndex];
+    return defConn.getRawMany();
+  }
+
+  async getRawMultiple(): Promise<Array<any>>{
+    const defConn = this.connections[this.defIndex];
+    return defConn.getRawMultiple();
   }
 
   async getOne(): Promise<any> {

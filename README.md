@@ -9,7 +9,7 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 ## Query
 ### Example 1, retriving data from raw sql
 ```typescript
-db.select().from("User").getRaw();
+db.select().from("User").getRawMany();
 ```
 ### Example 2, retriving data and set in objects
 ```typescript

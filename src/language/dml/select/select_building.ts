@@ -2,7 +2,7 @@ import {SelectOperations} from './select_operations.ts';
 class SelectBuilding {
   
   private selectData: Array<[string, string?]> = [];
-  private fromData: [string, string?] | null = null;
+  private fromData: [string, string?, string?] | null = null;
   private whereData: Array<string> = [];
   private orderByData: Array<[string, string?]> = [];
 
@@ -31,8 +31,8 @@ class SelectBuilding {
     this.selectData.push(currColumn);
   }
 
-  from(entity: string, as?: string): void {
-    this.fromData = [entity, as];
+  from(entity: string, as?: string, schema?: string): void {
+    this.fromData = [entity, as, schema];
   }
 
   where(... conditions: Array<string>) {
@@ -80,8 +80,14 @@ class SelectBuilding {
     if(!this.fromData){
       return ``;
     }
-    let [from, as] = this.fromData;
-    let query = `${from}${as ? ' AS "' + as + '"': ''}`;
+    let [from, as, schema] = this.fromData;
+    let query = `"${from.replace(/["]/ig, "")}"`;
+    if(schema){
+      query = `"${schema.replace(/["]/ig, "")}".${query}`
+    }
+    if(as){
+      query = `${query} AS "${as.replace(/["]/ig, "")}"`;
+    }
     return `FROM ${query}`;
   }
 
