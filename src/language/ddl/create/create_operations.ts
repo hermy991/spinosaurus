@@ -1,6 +1,0 @@
-
-class CreateOperations {
-  
-}
-
-export {CreateOperations}

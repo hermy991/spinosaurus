@@ -1,4 +1,3 @@
-import {DropOperations} from './drop_operations.ts';
 class DropBuilding {
   
   private nameData: [string, string | undefined] | null = null;
@@ -9,7 +8,8 @@ class DropBuilding {
   constructor(){  }
 
 
-  drop(entity: string, schema?: string): void {
+  drop(req: {entity: string, schema?: string}): void {
+    let {entity, schema} = req;
     this.nameData = [`${entity.replace(/["\n\t]+/ig, "").trim()}`, schema];
   }
 

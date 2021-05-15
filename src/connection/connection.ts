@@ -53,9 +53,9 @@ class Connection implements IConnectionPostgresOperations {
     return res;
   };
   
-  create(entity: string, schema?: string) {
+  create(req: {entity: string, schema?: string}) {
     const defConn = this.connections[this.defIndex];
-    defConn.create(entity, schema);
+    defConn.create(req);
     return this;
   }
   columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>) {
@@ -68,57 +68,98 @@ class Connection implements IConnectionPostgresOperations {
     defConn.addColumn(columnName, datatype, length, nulleable);
     return this;
   }
-  drop(entity: string, schema?: string) {
+  drop(req: {entity: string, schema?: string}) {
     const defConn = this.connections[this.defIndex];
-    defConn.drop(entity, schema);
+    defConn.drop(req);
     return this;
   }
 
-  selectDistinct(... conditions: Array<[string, string?]>) {
+  selectDistinct(... columns: Array<{column: string, as?: string} | [string, string?]>) {
     const defConn = this.connections[this.defIndex];
-    defConn.selectDistinct(... conditions);
+    let tempColumns: Array<{column: string, as?: string}> = [];
+    for(let i = 0; i < columns.length; i++){
+      if(Array.isArray(columns[i])){
+        let [column, as] = (columns[i] as [string, string?]);
+        tempColumns.push({column, as});
+      }
+      else {
+        tempColumns.push(columns[i] as {column: string, as?: string});
+      }
+    }
+    defConn.selectDistinct(... tempColumns);
     return this;
   }
 
-  select(... conditions: Array<[string, string?]>) {
+  select(... columns: Array<{column: string, as?: string} | [string, string?]>) {
     const defConn = this.connections[this.defIndex];
-    defConn.select(... conditions);
+    let tempColumns: Array<{column: string, as?: string}> = [];
+    for(let i = 0; i < columns.length; i++){
+      if(Array.isArray(columns[i])){
+        let [column, as] = (columns[i] as [string, string?]);
+        tempColumns.push({column, as});
+      }
+      else {
+        tempColumns.push(columns[i] as {column: string, as?: string});
+      }
+    }
+    defConn.select(... tempColumns);
     return this;
   }
 
-  addSelect(column: string, as?: string) {
+  addSelect(req: {column: string, as?: string}) {
     const defConn = this.connections[this.defIndex];
-    defConn.addSelect(column, as);
+    defConn.addSelect(req);
     return this;
   }
 
-  from(entity: string, as?: string, schema?: string) {
+  from(req: {entity: string, schema?: string, as?: string}) {
     const defConn = this.connections[this.defIndex];
-    defConn.from(entity, as, schema);
+    defConn.from(req);
     return this;
   }
 
-  where(... conditions: Array<string>) {
+  where(conditions: Array<string>| string, params?: { [x:string]: string | number | Date }) {
     const defConn = this.connections[this.defIndex];
-    defConn.where(... conditions);
+    conditions = typeof conditions == "string" ? [conditions] : conditions;
+    defConn.where(conditions, params);
     return this;
   }
   
-  addWhere(condition: string) {
+  addWhere(conditions: Array<string>, params?: { [x:string]: string | number | Date }) {
     const defConn = this.connections[this.defIndex];
-    defConn.where(condition);
+    defConn.where(conditions, params);
     return this;
   }
 
-  orderBy(... columns: Array<[string, string?]>) {
+  orderBy(... columns: Array<{column: string, direction?: string} | [string, string?]>) {
     const defConn = this.connections[this.defIndex];
-    defConn.orderBy(... columns);
+    let tempColumns: Array<{column: string, direction?: string}> = [];
+    for(let i = 0; i < columns.length; i++){
+      if(Array.isArray(columns[i])){
+        let [column, direction] = (columns[i] as [string, string?]);
+        tempColumns.push({column, direction});
+      }
+      else {
+        tempColumns.push(columns[i] as {column: string, direction?: string});
+      }
+    }
+    defConn.orderBy(... tempColumns);
     return this;
   }
 
-  addOrderBy(column: string, direction?: string) {
+  addOrderBy(... columns: Array<{column: string, direction?: string} | [string, string?]>) {
     const defConn = this.connections[this.defIndex];
-    defConn.addOrderBy(column, direction);
+    let tempColumns: Array<{column: string, direction?: string}> = [];
+    for(let i = 0; i < columns.length; i++){
+      if(Array.isArray(columns[i])){
+        let [column, direction] = (columns[i] as [string, string?]);
+        tempColumns.push({column, direction});
+      }
+      else {
+        tempColumns.push(columns[i] as {column: string, direction?: string});
+      }
+    }
+    defConn.addOrderBy(... tempColumns);
     return this;
   }
 

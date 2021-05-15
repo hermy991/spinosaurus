@@ -1,64 +1,51 @@
-import {SelectOperations} from './select_operations.ts';
+import {interpolate} from "../../tools/sql.ts";
+
 class SelectBuilding {
   
-  private selectData: Array<[string, string?]> = [];
-  private fromData: [string, string?, string?] | null = null;
+  private selectData: Array<{column: string, as?: string}> = [];
+  private fromData: { entity: string, schema?: string, as?: string } | null = null;
   private whereData: Array<string> = [];
-  private orderByData: Array<[string, string?]> = [];
+  private orderByData: Array<{column: string, direction?: string}> = [];
 
   /*FLAGS*/
   private distinct: boolean = false;
 
   constructor(){  }
 
-  selectDistinct(... columns: Array<[string, string?]>): void {
+  selectDistinct(... columns: Array<{column: string, as?: string}>): void {
     this.distinct = true;
     this.select(... columns);
   }
 
-  select(... columns: Array<[string, string?]>): void {
+  select(... columns: Array<{column: string, as?: string}>): void {
     this.selectData = [];
-    // columns.forEach(x => this.selectData.push(x) );
-    columns.forEach(x => this.addSelect(x[0], x.length > 1 ? x[1]: undefined));
+    columns.forEach(x => this.addSelect(x));
   }
 
-  addSelect(column: string, as?: string): void {
-    const currColumn: [string, string?] = [column]
-    if(as){
-      as = `${as.replaceAll(`"`, "").trim()}`;
-      currColumn.push(as);
-    }
-    this.selectData.push(currColumn);
+  addSelect(req: {column: string, as?: string}): void {
+    this.selectData.push(req);
   }
 
-  from(entity: string, as?: string, schema?: string): void {
-    this.fromData = [entity, as, schema];
+  from(req: {entity: string, schema?: string, as?: string }): void {
+    this.fromData = req;
   }
 
-  where(... conditions: Array<string>) {
+  where(conditions: Array<string>, params?: { [x:string]: string | number | Date }) {
     this.whereData = [];
-    conditions.forEach(x => this.addWhere(x));
+    this.addWhere(conditions, params)
   }
 
-  addWhere(condition: string){
-    if(condition && condition.trim()){
-      this.whereData.push(condition.trim());
-    }
+  addWhere(conditions: Array<string>, params?: { [x:string]: string | number | Date }){
+    this.whereData.push(... interpolate(conditions, params));
   }
 
-  orderBy(... columns: Array<[string, string?]>): void {
+  orderBy(... columns: Array<{column: string, direction?: string}>): void {
     this.orderByData = [];
-    // columns.forEach(x => this.selectData.push(x) );
-    columns.forEach(x => this.addOrderBy(x[0], x.length > 1 ? x[1]: undefined));
+    columns.forEach(x => this.addOrderBy(x));
   }
   
-  addOrderBy(column: string, as?: string): void {
-    const currColumn: [string, string?] = [column]
-    if(as){
-      as = `${as.replaceAll(`"`, "").trim()}`;
-      currColumn.push(as);
-    }
-    this.orderByData.push(currColumn);
+  addOrderBy(... columns: Array<{column: string, direction?: string}>): void {
+    columns.forEach(x => this.orderByData.push(x));
   }
   
   getSelectQuery(){
@@ -67,7 +54,7 @@ class SelectBuilding {
     }
     let query = "";
     for(let i = 0; i < this.selectData.length; i++){
-      const [column, as] = this.selectData[i];
+      const {column, as} = this.selectData[i];
       query += `${column}` + (as ? ` AS "${as.replaceAll(`"`, "").trim()}"` : '');
       if(i + 1 !== this.selectData.length){
         query += ", "
@@ -80,8 +67,8 @@ class SelectBuilding {
     if(!this.fromData){
       return ``;
     }
-    let [from, as, schema] = this.fromData;
-    let query = `"${from.replace(/["]/ig, "")}"`;
+    let {entity, as, schema} = this.fromData;
+    let query = `"${entity.replace(/["]/ig, "")}"`;
     if(schema){
       query = `"${schema.replace(/["]/ig, "")}".${query}`
     }
@@ -111,8 +98,8 @@ class SelectBuilding {
     }
     let query = "";
     for(let i = 0; i < this.orderByData.length; i++){
-      const [column, as] = this.orderByData[i];
-      query += `${column}` + (as ? ' ' + as.toUpperCase(): '');
+      const { column, direction } = this.orderByData[i];
+      query += `${column}` + (direction ? ' ' + direction.toUpperCase(): '');
       if(i + 1 !== this.orderByData.length){
         query += ", ";
       }

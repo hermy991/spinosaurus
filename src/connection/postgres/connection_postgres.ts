@@ -32,8 +32,6 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
   
   async test(): Promise<boolean> {
     let driverConf = filterConnectionProps(KEY_CONFIG, this);
-    // console.log({driverConf})
-    // driverConf["tls"] = { enforce: false };
     try{
       const pool = (initConnection(driverConf) as postgres.Pool);
       const client = await pool.connect();
@@ -101,9 +99,9 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
     return res;
   }
   /** DDL SQL Operations*/
-  create(entity: string, schema?: string): void {
+  create(req: {entity: string, schema?: string}): void {
     this.currBuilding = "cb";
-    this.cb.create(entity, schema);
+    this.cb.create(req);
   }
   columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean } | string>): void {
     if(this.currBuilding == "cb"){
@@ -117,39 +115,39 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
     this.cb.addColumn({columnName, datatype, length, nulleable});
   }
 
-  drop(entity: string, schema?: string): void {
+  drop(req: {entity: string, schema?: string}): void {
     this.currBuilding = "db";
-    this.db.drop(entity, schema);
+    this.db.drop(req);
   }
   
   /** DML SQL Operation*/
-  selectDistinct(... columns: Array<[string, string?]>): void {
+  selectDistinct(... columns: Array<{column: string, as?: string}>): void {
     this.currBuilding = "sb";
     this.sb.selectDistinct(... columns);
   };
-  select(... columns: Array<[string, string?]>): void {
+  select(... columns: Array<{column: string, as?: string}>): void {
     this.currBuilding = "sb";
     this.sb.select(... columns);
   };
-  addSelect(column: string, as?: string): void {
-    this.sb.addSelect(column, as);
+  addSelect(req: {column: string, as?: string}): void {
+    this.sb.addSelect(req);
   };
   
-  from(entity: string, as?: string, schema?: string): void {
-    this.sb.from(entity, as, schema);
+  from(req: {entity: string, schema?: string, as?: string}): void {
+    this.sb.from(req);
   }
-  where(... conditions: Array<string>): void {
-    this.sb.where(... conditions);
+  where(conditions: Array<string>, params?: { [x:string]: string | number | Date }): void {
+    this.sb.where(conditions, params);
   }
-  addWhere(condition: string): any {
-    this.sb.addWhere(condition)
+  addWhere(conditions: Array<string>, params?: { [x:string]: string | number | Date }): any {
+    this.sb.addWhere(conditions, params)
 
   }
-  orderBy(... columns: Array<[string, string?]>): any {
+  orderBy(... columns: Array<{column: string, direction?: string}>): any {
     this.sb.orderBy(... columns);
   }
-  addOrderBy(column: string, direction?: string): any {
-    this.sb.addOrderBy(column, direction);
+  addOrderBy(... columns: Array<{column: string, direction?: string}>): any {
+    this.sb.addOrderBy(... columns);
   }
   /* Returns*/
   getQuery(): string {

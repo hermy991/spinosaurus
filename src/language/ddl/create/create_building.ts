@@ -1,4 +1,3 @@
-import {CreateOperations} from './create_operations.ts';
 class CreateBuilding {
   
   private nameData: [string, string | undefined] | null = null;
@@ -8,8 +7,8 @@ class CreateBuilding {
 
   constructor(){  }
 
-
-  create(entity: string, schema?: string): void {
+  create(req: {entity: string, schema?: string}): void {
+    let {entity, schema} = req;
     this.nameData = [`${entity.replace(/["\n\t]+/ig, "")}`, schema];
   }
 
