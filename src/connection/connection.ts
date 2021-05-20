@@ -1,8 +1,10 @@
 import {IConnectionOptions} from './iconnection_options.ts'
-
 import {ConnectionPostgres} from './postgres/connection_postgres.ts';
 import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.ts'
 import {IConnectionPostgresOperations} from './postgres/iconnection_postgres_operations.ts'
+import {ExecutorDrop} from './executors/executor_drop.ts'
+
+
 class Connection implements IConnectionPostgresOperations {
   private defIndex: number;
   connections: Array<ConnectionPostgres>;
@@ -70,8 +72,10 @@ class Connection implements IConnectionPostgresOperations {
   }
   drop(req: {entity: string, schema?: string}) {
     const defConn = this.connections[this.defIndex];
-    defConn.drop(req);
-    return this;
+    // defConn.drop(req);
+    let executor: ExecutorDrop = new ExecutorDrop(defConn);
+    executor.drop(req);
+    return executor;
   }
 
   selectDistinct(... columns: Array<{column: string, as?: string} | [string, string?]>) {

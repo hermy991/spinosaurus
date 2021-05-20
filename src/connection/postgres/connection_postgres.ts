@@ -108,7 +108,8 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
       this.cb.columns(... (columns as Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>));
     }
     else if (this.currBuilding == "db"){
-      this.db.columns(... (columns as Array<string>));
+      let carr = columns.map(x => typeof x == "string" ? x : x.columnName);
+      this.db.columns(... carr);
     }
   }
   addColumn(columnName: string, datatype: string, length?: number, nulleable?:boolean): void {
