@@ -1,4 +1,4 @@
-class CreateBuilding {
+export class CreateBuilding {
   
   private nameData: [string, string | undefined] | null = null;
   private columnsData: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }> = [];
@@ -71,4 +71,3 @@ class CreateBuilding {
     return query;
   }
 }
-export {CreateBuilding}

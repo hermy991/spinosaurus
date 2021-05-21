@@ -1,6 +1,6 @@
 import {interpolate} from "../../tools/sql.ts";
 
-class SelectBuilding {
+export class SelectBuilding {
   
   private selectData: Array<{column: string, as?: string}> = [];
   private fromData: { entity: string, schema?: string, as?: string } | null = null;
@@ -118,4 +118,3 @@ class SelectBuilding {
     return query;
   }
 }
-export {SelectBuilding}

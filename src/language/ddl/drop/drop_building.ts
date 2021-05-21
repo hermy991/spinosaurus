@@ -1,4 +1,4 @@
-class DropBuilding {
+export class DropBuilding {
   
   private nameData: [string, string | undefined] | null = null;
   private columnsData: Array<string> = [];
@@ -7,13 +7,13 @@ class DropBuilding {
 
   constructor(){  }
 
-
   drop(req: {entity: string, schema?: string}): void {
     let {entity, schema} = req;
     this.nameData = [`${entity.replace(/["\n\t]+/ig, "").trim()}`, schema];
   }
 
-  columns(... columns: Array<string>): void {
+  columns(columns: Array<string> | string): void {
+    columns = typeof columns == "string" ? [columns] : columns;
     this.columnsData = [];
     columns.forEach(x => { 
       this.addColumn(x);
@@ -25,7 +25,7 @@ class DropBuilding {
     this.columnsData.push(column);
   }
 
-  getEntityQuery(type: "drop" | "alter"){
+  getEntityQuery(type: "drop" | "alter"): string {
     if(!this.nameData){
       return ``;
     }
@@ -40,9 +40,10 @@ class DropBuilding {
     else if(type == "alter"){
       return `ALTER TABLE ${query}`;
     }
+    return ``;
   }
   
-  getColumnsQuery(){
+  getColumnsQuery(): string {
     if(!this.columnsData.length){
       return ``;
     }
@@ -58,10 +59,10 @@ class DropBuilding {
     return `${query}`;
   }
 
-  getQuery(){
+  getQuery(): string {
     let query = ``;
-    if(this.columns.length){
-      query = `${this.getEntityQuery('alter')}\n${this.getColumnsQuery}`
+    if(this.columnsData.length){
+      query = `${this.getEntityQuery('alter')}\n${this.getColumnsQuery()}`
     }
     else {
       query = `${this.getEntityQuery('drop')}`;
@@ -69,4 +70,3 @@ class DropBuilding {
     return query;
   }
 }
-export {DropBuilding}

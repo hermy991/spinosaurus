@@ -1,11 +1,11 @@
-import {IConnectionOptions} from './iconnection_options.ts'
 import {ConnectionPostgres} from './postgres/connection_postgres.ts';
 import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.ts'
-import {IConnectionPostgresOperations} from './postgres/iconnection_postgres_operations.ts'
 import {ExecutorDrop} from './executors/executor_drop.ts'
+import {ExecutorCreate} from './executors/executor_create.ts'
+import {ExecutorSelect} from './executors/executor_select.ts'
 
 
-class Connection implements IConnectionPostgresOperations {
+class Connection {
   private defIndex: number;
   connections: Array<ConnectionPostgres>;
 
@@ -57,147 +57,30 @@ class Connection implements IConnectionPostgresOperations {
   
   create(req: {entity: string, schema?: string}) {
     const defConn = this.connections[this.defIndex];
-    defConn.create(req);
-    return this;
+    let executor = new ExecutorCreate(defConn);
+    executor.create(req);
+    return executor;
   }
-  columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>) {
-    const defConn = this.connections[this.defIndex];
-    defConn.columns(... columns);
-    return this;
-  }
-  addColumn(columnName: string, datatype: string, length?: number, nulleable?:boolean) {
-    const defConn = this.connections[this.defIndex];
-    defConn.addColumn(columnName, datatype, length, nulleable);
-    return this;
-  }
+
   drop(req: {entity: string, schema?: string}) {
     const defConn = this.connections[this.defIndex];
-    // defConn.drop(req);
     let executor: ExecutorDrop = new ExecutorDrop(defConn);
     executor.drop(req);
     return executor;
   }
 
-  selectDistinct(... columns: Array<{column: string, as?: string} | [string, string?]>) {
-    const defConn = this.connections[this.defIndex];
-    let tempColumns: Array<{column: string, as?: string}> = [];
-    for(let i = 0; i < columns.length; i++){
-      if(Array.isArray(columns[i])){
-        let [column, as] = (columns[i] as [string, string?]);
-        tempColumns.push({column, as});
-      }
-      else {
-        tempColumns.push(columns[i] as {column: string, as?: string});
-      }
-    }
-    defConn.selectDistinct(... tempColumns);
-    return this;
-  }
-
   select(... columns: Array<{column: string, as?: string} | [string, string?]>) {
     const defConn = this.connections[this.defIndex];
-    let tempColumns: Array<{column: string, as?: string}> = [];
-    for(let i = 0; i < columns.length; i++){
-      if(Array.isArray(columns[i])){
-        let [column, as] = (columns[i] as [string, string?]);
-        tempColumns.push({column, as});
-      }
-      else {
-        tempColumns.push(columns[i] as {column: string, as?: string});
-      }
-    }
-    defConn.select(... tempColumns);
-    return this;
+    let executor: ExecutorSelect = new ExecutorSelect(defConn);
+    executor.select(... columns);
+    return executor;
   }
 
-  addSelect(req: {column: string, as?: string}) {
+  selectDistinct(... columns: Array<{column: string, as?: string} | [string, string?]>) {
     const defConn = this.connections[this.defIndex];
-    defConn.addSelect(req);
-    return this;
-  }
-
-  from(req: {entity: string, schema?: string, as?: string}) {
-    const defConn = this.connections[this.defIndex];
-    defConn.from(req);
-    return this;
-  }
-
-  where(conditions: Array<string>| string, params?: { [x:string]: string | number | Date }) {
-    const defConn = this.connections[this.defIndex];
-    conditions = typeof conditions == "string" ? [conditions] : conditions;
-    defConn.where(conditions, params);
-    return this;
-  }
-  
-  addWhere(conditions: Array<string>, params?: { [x:string]: string | number | Date }) {
-    const defConn = this.connections[this.defIndex];
-    defConn.where(conditions, params);
-    return this;
-  }
-
-  orderBy(... columns: Array<{column: string, direction?: string} | [string, string?]>) {
-    const defConn = this.connections[this.defIndex];
-    let tempColumns: Array<{column: string, direction?: string}> = [];
-    for(let i = 0; i < columns.length; i++){
-      if(Array.isArray(columns[i])){
-        let [column, direction] = (columns[i] as [string, string?]);
-        tempColumns.push({column, direction});
-      }
-      else {
-        tempColumns.push(columns[i] as {column: string, direction?: string});
-      }
-    }
-    defConn.orderBy(... tempColumns);
-    return this;
-  }
-
-  addOrderBy(... columns: Array<{column: string, direction?: string} | [string, string?]>) {
-    const defConn = this.connections[this.defIndex];
-    let tempColumns: Array<{column: string, direction?: string}> = [];
-    for(let i = 0; i < columns.length; i++){
-      if(Array.isArray(columns[i])){
-        let [column, direction] = (columns[i] as [string, string?]);
-        tempColumns.push({column, direction});
-      }
-      else {
-        tempColumns.push(columns[i] as {column: string, direction?: string});
-      }
-    }
-    defConn.addOrderBy(... tempColumns);
-    return this;
-  }
-
-  getQuery(): string {
-    const defConn = this.connections[this.defIndex];
-    return defConn.getQuery();
-  }
-
-  async execute(): Promise<any>{
-    const defConn = this.connections[this.defIndex];
-    return defConn.execute();
-  }
-
-  async getRawOne(): Promise<Array<any>>{
-    const defConn = this.connections[this.defIndex];
-    return defConn.getRawOne();
-  }
-
-  async getRawMany(): Promise<Array<any>>{
-    const defConn = this.connections[this.defIndex];
-    return defConn.getRawMany();
-  }
-
-  async getRawMultiple(): Promise<Array<any>>{
-    const defConn = this.connections[this.defIndex];
-    return defConn.getRawMultiple();
-  }
-
-  async getOne(): Promise<any> {
-    const defConn = this.connections[this.defIndex];
-    return defConn.getOne();
-  }
-  async getMany(): Promise<Array<any>> {
-    return [];
+    let executor: ExecutorSelect = new ExecutorSelect(defConn);
+    executor.selectDistinct(... columns);
+    return executor;
   }
 
 }

@@ -2,8 +2,6 @@
 import {IConnectionPostgresOptions} from './iconnection_postgres_options.ts'
 import {IConnectionPostgresOperations} from './iconnection_postgres_operations.ts'
 import {SelectBuilding} from '../../language/dml/select/select_building.ts';
-import {CreateBuilding} from '../../language/ddl/create/create_building.ts';
-import {DropBuilding} from '../../language/ddl/drop/drop_building.ts';
 import {initConnection} from './connection_postgres_pool.ts';
 import {filterConnectionProps} from '../connection_operations.ts'
 //import {Pool} from 'postgres/mod.ts';
@@ -11,11 +9,9 @@ import {postgres} from '../../../deps.ts';
 import {KEY_CONFIG} from './connection_postgres_variables.ts'
 
 class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostgresOperations {
-  currBuilding: "sb" | "cb" | "db" | undefined = undefined;
+  currBuilding: "sb" | undefined = undefined;
   
   sb: SelectBuilding = new SelectBuilding();
-  cb: CreateBuilding = new CreateBuilding();
-  db: DropBuilding = new DropBuilding();
 
   constructor(public name: string,
     public type: string = "postgres",
@@ -50,7 +46,7 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
     req.name = req.name.replace(/'/ig, "''");
-    req.namespace = (req.namespace || "").replace(/'/ig, "''");
+    req.namespace = (req.namespace || "public").replace(/'/ig, "''");
     const query = `
 SELECT * 
 FROM pg_catalog.pg_class c
@@ -98,58 +94,7 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
     };
     return res;
   }
-  /** DDL SQL Operations*/
-  create(req: {entity: string, schema?: string}): void {
-    this.currBuilding = "cb";
-    this.cb.create(req);
-  }
-  columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean } | string>): void {
-    if(this.currBuilding == "cb"){
-      this.cb.columns(... (columns as Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>));
-    }
-    else if (this.currBuilding == "db"){
-      let carr = columns.map(x => typeof x == "string" ? x : x.columnName);
-      this.db.columns(... carr);
-    }
-  }
-  addColumn(columnName: string, datatype: string, length?: number, nulleable?:boolean): void {
-    this.cb.addColumn({columnName, datatype, length, nulleable});
-  }
-
-  drop(req: {entity: string, schema?: string}): void {
-    this.currBuilding = "db";
-    this.db.drop(req);
-  }
   
-  /** DML SQL Operation*/
-  selectDistinct(... columns: Array<{column: string, as?: string}>): void {
-    this.currBuilding = "sb";
-    this.sb.selectDistinct(... columns);
-  };
-  select(... columns: Array<{column: string, as?: string}>): void {
-    this.currBuilding = "sb";
-    this.sb.select(... columns);
-  };
-  addSelect(req: {column: string, as?: string}): void {
-    this.sb.addSelect(req);
-  };
-  
-  from(req: {entity: string, schema?: string, as?: string}): void {
-    this.sb.from(req);
-  }
-  where(conditions: Array<string>, params?: { [x:string]: string | number | Date }): void {
-    this.sb.where(conditions, params);
-  }
-  addWhere(conditions: Array<string>, params?: { [x:string]: string | number | Date }): any {
-    this.sb.addWhere(conditions, params)
-
-  }
-  orderBy(... columns: Array<{column: string, direction?: string}>): any {
-    this.sb.orderBy(... columns);
-  }
-  addOrderBy(... columns: Array<{column: string, direction?: string}>): any {
-    this.sb.addOrderBy(... columns);
-  }
   /* Returns*/
   getQuery(): string {
     if(this.currBuilding){
@@ -157,47 +102,47 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
     }
     return "";
   }
-  async execute(): Promise<any> {
+  async execute(query: string): Promise<any> {
     let driverConf = filterConnectionProps(KEY_CONFIG, this);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
-    const query = this.getQuery();
+    //const query = this.getQuery();
     const result = await client.queryArray(query);
     client.release();
     await pool.end();
     return result;
   }
-  async getRawOne(): Promise<any> {
-    const rows = await this.getRawMany();
+  async getOne(query: string): Promise<any> {
+    return {};
+  }
+  async getRawOne(query: string): Promise<any> {
+    const rows = await this.getRawMany(query);
     return rows.length ? rows[0] : null;
   }
-  async getRawMany(): Promise<Array<any>> {
+  async getMany(query: string): Promise<Array<any>> {
+    return [];
+  }
+  async getRawMany(query: string): Promise<Array<any>> {
     let driverConf = filterConnectionProps(KEY_CONFIG, this);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
-    const query = this.getQuery();
+    //const query = this.getQuery();
     const result = await client.queryObject(query);
     client.release();
     await pool.end();
     return result.rows;
   }
-  async getRawMultiple(): Promise<Array<any>> {
+  async getRawMultiple(query: string): Promise<Array<any>> {
     let driverConf = filterConnectionProps(KEY_CONFIG, this);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
-    const query = this.getQuery();
+    // const query = this.getQuery();
     const result = await client.queryObject(query);
     client.release();
     await pool.end();
     return result.rows;
   }
   /* Returns entities*/
-  async getOne(): Promise<any> {
-    return {};
-  }
-  async getMany(): Promise<Array<any>> {
-    return [];
-  }
 }
 
 export {ConnectionPostgres}
