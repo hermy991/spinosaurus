@@ -13,13 +13,13 @@ export class ExecutorUpdate {
     return this;
   }
 
-  set(columns: Array<{column: string, expression: string | number | Date} | [string, string | number | Date]>): ExecutorUpdate {
-    this.ub.set(columns);
+  set(... columns: Array<{[x: string]: string | number | Date } | [string, string | number | Date | null]>): ExecutorUpdate {
+    this.ub.set(... columns);
     return this;
   }
 
-  addSet(req: {column: string, expression: string | number | Date} | [string, string | number | Date]): ExecutorUpdate {
-    this.ub.addSet(req);
+  addSet(columns: {[x: string]: string | number | Date } | [string, string | number | Date | null]): ExecutorUpdate {
+    this.ub.addSet(columns);
     return this;
   }
 

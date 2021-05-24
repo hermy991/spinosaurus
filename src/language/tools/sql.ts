@@ -1,15 +1,13 @@
-export function stringify(value: string | number | Date): string {
-  let sql: string = "NULL";
-  if(typeof(value) == "number"){
-    sql = `${value}`;
-  }
-  if(typeof(value) == "string"){
-    sql = `'${(value ? value.replace(/'/ig, "''") : "")}'`;
-  }
-  if(typeof(value) == "object" && new Date() instanceof Date){
-    sql = `TO_DATE('${value.getFullYear()}-${((value.getMonth() + 1) + "").padStart(2, "0")}-${(value.getDate() + "").padStart(2, "0")}', 'YYYY-MM-DD')`;
-  }
-  return sql;
+export function stringify(value: string | number | Date | null): string {
+  if(value === null)
+    return 'NULL';
+  else if(typeof(value) == "number")
+    return `${value}`;
+  else if(typeof(value) == "string")
+    return `'${(value ? value.replace(/'/ig, "''") : "")}'`;
+  else if(typeof(value) == "object" && new Date() instanceof Date)
+    return `TO_DATE('${value.getFullYear()}-${((value.getMonth() + 1) + "").padStart(2, "0")}-${(value.getDate() + "").padStart(2, "0")}', 'YYYY-MM-DD')`;
+  return `NULL`;
 }
 
 export function interpolate(conditions: Array<string>, params?: { [x:string]: string | number | Date }): Array<string> {
@@ -35,9 +33,10 @@ export function interpolate(conditions: Array<string>, params?: { [x:string]: st
   return data;
 }
 
-export function clearNames(req: {left: string, identifiers: Array<string> | string, right: string}){
+export function clearNames(req: {left: string, identifiers: Array<string | undefined> | string, right: string}){
   let {left, identifiers, right} = req;
   identifiers = typeof identifiers == "string" ? [identifiers] : identifiers;
-  identifiers.forEach(identifier => (identifier).replace(new RegExp(`[\\${left}\\${right}]`, 'ig'), ``));
-  return identifiers.join(".");
+  let tempIdentifiers: string[] = []
+  identifiers.filter(x => x).forEach(x => tempIdentifiers.push(`${left}${(x || "").replace(new RegExp(`[\\${left}\\${right}]`, 'ig'), ``)}${right}`));
+  return tempIdentifiers.join(".");
 }

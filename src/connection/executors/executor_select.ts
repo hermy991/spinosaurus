@@ -3,7 +3,10 @@ import {SelectBuilding} from "../../language/dml/select/select_building.ts"
 
 export class ExecutorSelect {
   sb: SelectBuilding = new SelectBuilding();
-  constructor(public conn: ConnectionPostgres){  }
+  constructor(public conn: ConnectionPostgres){ 
+    let conf = { delimiters: conn.delimiters }
+    this.sb = new SelectBuilding(conf);
+  }
   
   /** DML SQL Operation*/
   select(... columns: Array<{column: string, as?: string} | [string, string?]>): ExecutorSelect {
@@ -50,7 +53,7 @@ export class ExecutorSelect {
     this.sb.addWhere(conditions, params);
     return this;
   }
-  orderBy(... columns: Array<{column: string, direction?: string} | [string, string?]>): ExecutorSelect {
+  orderBy(... columns: Array<{column: string, direction?: "ASC"|"DESC"} | [string, ("ASC"|"DESC")?]>): ExecutorSelect {
     let tempColumns: Array<{column: string, direction?: string}> = [];
     for(let i = 0; i < columns.length; i++){
       if(Array.isArray(columns[i])){
@@ -64,7 +67,7 @@ export class ExecutorSelect {
     this.sb.orderBy(... tempColumns);
     return this;
   }
-  addOrderBy(... columns: Array<{column: string, direction?: string} | [string, string?]>): ExecutorSelect {
+  addOrderBy(... columns: Array<{column: string, direction?: "ASC"|"DESC"} | [string, ("ASC"|"DESC")?]>): ExecutorSelect {
     let tempColumns: Array<{column: string, direction?: string}> = [];
     for(let i = 0; i < columns.length; i++){
       if(Array.isArray(columns[i])){

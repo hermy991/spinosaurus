@@ -11,7 +11,7 @@ export class SelectBuilding extends BaseBuilding {
   /*FLAGS*/
   private distinct: boolean = false;
 
-  constructor(public conf : { delimiters: [string, string?]}){
+  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
     super(conf);
   }
 
@@ -69,10 +69,7 @@ export class SelectBuilding extends BaseBuilding {
       return ``;
     }
     let {entity, schema, as} = this.fromData;
-    let query = `"${entity.replace(/["]/ig, "")}"`;
-    if(schema){
-      query = `"${schema.replace(/["]/ig, "")}".${query}`
-    }
+    let query = `${clearNames({left: this.left, identifiers: [schema, entity], right: this.right})}`;
     if(as){
       query = `${query} AS "${as.replace(/["]/ig, "")}"`;
     }

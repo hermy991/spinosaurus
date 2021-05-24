@@ -37,10 +37,7 @@ export class InsertBuilding extends BaseBuilding {
       return ``;
     }
     let {entity, schema} = this.entityData;
-    let query = `${clearNames({ left: this.left, identifiers: entity, right: this.right })}`;
-    if(schema){
-      query = `${clearNames({ left: this.left, identifiers: [schema, entity], right: this.right })}`
-    }
+    let query = `${clearNames({ left: this.left, identifiers: [schema, entity], right: this.right })}`;
     return `INSERT INTO ${query}`;
   }
   
@@ -56,11 +53,8 @@ export class InsertBuilding extends BaseBuilding {
     return `(${[... columns].join(", ")})`;
   }
 
-  getValueQuery(obj: any){
-    let columns: string[] = [];
-    for(let value of obj){
-      columns.push(stringify(value));
-    }
+  getValueQuery(obj: { [x:string]: string | number | Date }){
+    let columns: string[] = Object.values(obj).map(x => stringify(x));
     if(!columns.length){
       return undefined;
     }
@@ -70,6 +64,7 @@ export class InsertBuilding extends BaseBuilding {
   getValuesQuery(data: Array<any> | any){
     data = Array.isArray(data) ? data : [data];
     let objs: Array<string> = [];
+
     for(let obj of data){
       let value = this.getValueQuery(obj);
       if(value){
@@ -84,6 +79,7 @@ export class InsertBuilding extends BaseBuilding {
       return ``;
     }
     let inserts: string[] = [];
+
     this.valuesData.forEach(x => inserts.push(`${this.getEntityQuery()}\n${this.getColumnsQuery()}\n${this.getValuesQuery(x)}`));
     return inserts.join(";\n");
   }

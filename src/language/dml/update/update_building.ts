@@ -10,7 +10,7 @@ import {BaseBuilding} from "../base_building.ts"
 export class UpdateBuilding extends BaseBuilding {
   
   private entityData: { entity: string, schema?: string} | null = null;
-  private setData: Array<[string, string | number | Date]> = [];
+  private setData: Array<[string, string | number | Date | null]> = [];
   private whereData: Array<string> = [];
 
   constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
@@ -27,19 +27,17 @@ export class UpdateBuilding extends BaseBuilding {
     }
   }
 
-  set(columns: Array<{column: string, expression: string | number | Date} | [string, string | number | Date]>){
+  set(... columns: Array<{[x: string]: string | number | Date } | [string, string | number | Date | null]>){
     this.setData = []
     columns.forEach(x => this.addSet(x));
   }
 
-  addSet(req: {column: string, expression: string | number | Date} | [string, string | number | Date]){
-    if(Array.isArray(req)){
-      let [column, expression] = req;
-      this.setData.push([column, expression])
+  addSet(columns: {[x: string]: string | number | Date } | [string, string | number | Date | null]){
+    if(Array.isArray(columns)){
+      this.setData.push(columns);
     }
     else {
-      let {column, expression} = req;
-      this.setData.push([column, expression])
+      Object.entries(columns).forEach(x => this.setData.push(x));
     }
   }
 
@@ -61,7 +59,7 @@ export class UpdateBuilding extends BaseBuilding {
     if(schema){
       query = `${clearNames({ left: this.left, identifiers: [schema, entity], right: this.right })}`
     }
-    return `UPDATE TABLE ${query}`;
+    return `UPDATE ${query}`;
   }
   
   getSetQuery(){
