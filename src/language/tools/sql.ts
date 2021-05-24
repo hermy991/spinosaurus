@@ -34,3 +34,10 @@ export function interpolate(conditions: Array<string>, params?: { [x:string]: st
   }
   return data;
 }
+
+export function clearNames(req: {left: string, identifiers: Array<string> | string, right: string}){
+  let {left, identifiers, right} = req;
+  identifiers = typeof identifiers == "string" ? [identifiers] : identifiers;
+  identifiers.forEach(identifier => (identifier).replace(new RegExp(`[\\${left}\\${right}]`, 'ig'), ``));
+  return identifiers.join(".");
+}

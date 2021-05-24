@@ -9,9 +9,8 @@ import {postgres} from '../../../deps.ts';
 import {KEY_CONFIG} from './connection_postgres_variables.ts'
 
 class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostgresOperations {
-  currBuilding: "sb" | undefined = undefined;
-  
-  sb: SelectBuilding = new SelectBuilding();
+
+  delimiters: [string, string?] = [`"`];
 
   constructor(public name: string,
     public type: string = "postgres",
@@ -31,7 +30,7 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     try{
       const pool = (initConnection(driverConf) as postgres.Pool);
       const client = await pool.connect();
-      const query = this.getQuery()
+      // const query = this.getQuery()
       client.release();
       await pool.end();
       return true;
@@ -95,13 +94,6 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
     return res;
   }
   
-  /* Returns*/
-  getQuery(): string {
-    if(this.currBuilding){
-      return this[this.currBuilding].getQuery();
-    }
-    return "";
-  }
   async execute(query: string): Promise<any> {
     let driverConf = filterConnectionProps(KEY_CONFIG, this);
     const pool = (initConnection(driverConf) as postgres.Pool);

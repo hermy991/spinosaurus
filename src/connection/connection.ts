@@ -3,6 +3,9 @@ import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.
 import {ExecutorDrop} from './executors/executor_drop.ts'
 import {ExecutorCreate} from './executors/executor_create.ts'
 import {ExecutorSelect} from './executors/executor_select.ts'
+import {ExecutorRename} from './executors/executor_rename.ts'
+import {ExecutorInsert} from './executors/executor_insert.ts'
+import {ExecutorUpdate} from './executors/executor_update.ts'
 
 
 class Connection {
@@ -69,6 +72,13 @@ class Connection {
     return executor;
   }
 
+  rename(from: {entity: string, schema?: string}, to?: {entity: string, schema?: string}){
+    const defConn = this.connections[this.defIndex];
+    let executor: ExecutorRename = new ExecutorRename(defConn);
+    executor.rename(from, to);
+    return executor;
+  }
+
   select(... columns: Array<{column: string, as?: string} | [string, string?]>) {
     const defConn = this.connections[this.defIndex];
     let executor: ExecutorSelect = new ExecutorSelect(defConn);
@@ -80,6 +90,20 @@ class Connection {
     const defConn = this.connections[this.defIndex];
     let executor: ExecutorSelect = new ExecutorSelect(defConn);
     executor.selectDistinct(... columns);
+    return executor;
+  }
+
+  update(req: {entity: string, schema?: string } | [string, string?]) {
+    const defConn = this.connections[this.defIndex];
+    let executor: ExecutorUpdate = new ExecutorUpdate(defConn);
+    executor.update(req);
+    return executor;
+  }
+
+  insert(req: {entity: string, schema?: string } | [string, string?]) {
+    const defConn = this.connections[this.defIndex];
+    let executor: ExecutorInsert = new ExecutorInsert(defConn);
+    executor.insert(req);
     return executor;
   }
 

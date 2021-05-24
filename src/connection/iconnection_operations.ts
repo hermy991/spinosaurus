@@ -18,7 +18,7 @@ export interface IConnectionOperations {
   // addOrderBy(... columns: Array<{ column: string, direction?: string }>): any; // ("column1") | ("column1 ASC") | ("column1", "ASC")
   /* Returns*/
   // execute(query: string): Promise<any>;
-  getQuery(): string;
+  // getQuery(): string;
   getRawOne(query: string): Promise<Array<any>>;
   getRawMany(query: string): Promise<Array<any>>;
   getRawMultiple(query: string): Promise<Array<any>>;

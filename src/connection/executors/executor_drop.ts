@@ -5,7 +5,7 @@ export class ExecutorDrop {
   db: DropBuilding = new DropBuilding();
   constructor(public conn: ConnectionPostgres){  }
 
-  drop(req: {entity: string, schema?: string}){
+  drop(req: {entity: string, schema?: string}): ExecutorDrop {
     this.db.drop(req);
     return this;
   }

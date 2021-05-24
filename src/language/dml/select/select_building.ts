@@ -1,6 +1,7 @@
-import {interpolate} from "../../tools/sql.ts";
+import {interpolate, clearNames} from "../../tools/sql.ts";
+import {BaseBuilding} from "../base_building.ts"
 
-export class SelectBuilding {
+export class SelectBuilding extends BaseBuilding {
   
   private selectData: Array<{column: string, as?: string}> = [];
   private fromData: { entity: string, schema?: string, as?: string } | null = null;
@@ -10,7 +11,9 @@ export class SelectBuilding {
   /*FLAGS*/
   private distinct: boolean = false;
 
-  constructor(){  }
+  constructor(public conf : { delimiters: [string, string?]}){
+    super(conf);
+  }
 
   selectDistinct(... columns: Array<{column: string, as?: string}>): void {
     this.distinct = true;
@@ -52,22 +55,20 @@ export class SelectBuilding {
     if(!this.selectData.length){
       return `SELECT ${this.distinct ? "DISTINCT " : ""}* `;
     }
-    let query = "";
+    let columns: string[] = [];
     for(let i = 0; i < this.selectData.length; i++){
       const {column, as} = this.selectData[i];
-      query += `${column}` + (as ? ` AS "${as.replaceAll(`"`, "").trim()}"` : '');
-      if(i + 1 !== this.selectData.length){
-        query += ", "
-      }
+      let tempCol = `${column}` + (as ? ` AS ${clearNames({left: this.left, identifiers: as, right: this.right})}` : '');
+      columns.push(tempCol);
     }
-    return `SELECT ${this.distinct ? "DISTINCT " : ""}${query}`;
+    return `SELECT ${this.distinct ? "DISTINCT " : ""}${columns.join(", ")}`;
   }
   
   getFromQuery(){
     if(!this.fromData){
       return ``;
     }
-    let {entity, as, schema} = this.fromData;
+    let {entity, schema, as} = this.fromData;
     let query = `"${entity.replace(/["]/ig, "")}"`;
     if(schema){
       query = `"${schema.replace(/["]/ig, "")}".${query}`
@@ -82,29 +83,25 @@ export class SelectBuilding {
     if(!this.whereData.length){
       return ``;
     }
-    let query = ``;
+    let conditions: string[] = [];
     for(let i = 0; i<this.whereData.length; i++){
-      query += this.whereData[i];
-      if(i + 1 !== this.whereData.length){
-        query += " ";
-      }
+      let tempWhere = this.whereData[i];
+      conditions.push(tempWhere);
     }
-    return `WHERE ${query}` ;
+    return `WHERE ${conditions.join(" ")}` ;
   }
   
   getOrderByQuery(){
     if(!this.orderByData.length){
       return ``;
     }
-    let query = "";
+    let orders: string[] = [];
     for(let i = 0; i < this.orderByData.length; i++){
       const { column, direction } = this.orderByData[i];
-      query += `${column}` + (direction ? ' ' + direction.toUpperCase(): '');
-      if(i + 1 !== this.orderByData.length){
-        query += ", ";
-      }
+      let tempOrder = `${column}` + (direction ? ' ' + direction.toUpperCase(): '');
+      orders.push(tempOrder);
     }
-    return `ORDER BY ${query}`;
+    return `ORDER BY ${orders.join(", ")}`;
   }
 
   getQuery(){
