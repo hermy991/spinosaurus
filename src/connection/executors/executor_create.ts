@@ -20,6 +20,16 @@ export class ExecutorCreate {
     return this;
   }
 
+  data(data: Array<any> | any): ExecutorCreate {
+    this.cb.data(data);
+    return this;
+  }
+
+  addData(data: Array<any> | any): ExecutorCreate {
+    this.cb.addColumn(data);
+    return this;
+  }
+
   getQuery(): string {
     const query = this.cb.getQuery();
     return query;

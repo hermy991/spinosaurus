@@ -1,12 +1,13 @@
-export class RenameBuilding {
+import {BaseBuilding} from "../../base_building.ts";
+export class RenameBuilding extends BaseBuilding {
   
   private fromData: [string, string?] | undefined = undefined;
   private toData: [string, string?] | undefined = undefined;
   private columnsData: Array<[string, string]> = [];
 
-  /*FLAGS*/
-
-  constructor(){  }
+  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
+    super(conf);
+  }
 
   rename(from: {entity: string, schema?: string}, to?: {entity: string, schema?: string}): void {
     this.fromData = [`${from.entity.replace(/["\n\t]+/ig, "").trim()}`, from.schema];

@@ -1,5 +1,5 @@
 import {stringify, interpolate, clearNames} from "../../tools/sql.ts";
-import {BaseBuilding} from "../base_building.ts"
+import {BaseBuilding} from "../../base_building.ts";
 /*****************************
  * TODO
  * columns(columns: Array<string>)
@@ -24,9 +24,11 @@ export class InsertBuilding extends BaseBuilding {
       this.entityData = req;
     }
   }
+  
   values(data: Array<any> | any){
     this.addValues(data);
   }
+
   addValues(data: Array<any> | any){
     data = Array.isArray(data) ? data : [data];
     this.valuesData.push(... data);

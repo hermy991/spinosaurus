@@ -1,11 +1,13 @@
-export class CreateBuilding {
+import {BaseBuilding} from "../../base_building.ts"
+import {InsertBuilding} from "../../dml/insert/insert_building.ts"
+export class CreateBuilding extends BaseBuilding {
   
-  private nameData: [string, string | undefined] | null = null;
+  private nameData: [string, string?] | null = null;
   private columnsData: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }> = [];
-
-  /*FLAGS*/
-
-  constructor(){  }
+  private valuesData: Array<any> = [];
+  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
+    super(conf);
+  }
 
   create(req: {entity: string, schema?: string}): void {
     let {entity, schema} = req;
@@ -25,6 +27,15 @@ export class CreateBuilding {
       column.length = undefined;
     }
     this.columnsData.push(column);
+  }
+
+  data(data: Array<any> | any){
+    this.addData(data);
+  }
+
+  addData(data: Array<any> | any){
+    data = Array.isArray(data) ? data : [data];
+    this.valuesData.push(... data);
   }
 
   getNameQuery(){
@@ -66,8 +77,21 @@ export class CreateBuilding {
     return `( ${query} )`;
   }
 
+  getInsertsQuery(){
+    if(!this.nameData){
+      return ``;
+    }
+    let ib = new InsertBuilding(this.conf);
+    ib.insert(this.nameData);
+    ib.values(this.valuesData);
+    return ib.getQuery();
+  }
+
   getQuery(){
     let query = `${this.getNameQuery()}\n${this.getColumnsQuery()}`;
+    if(this.valuesData.length){
+      query += `;\n${this.getInsertsQuery()}`;
+    }
     return query;
   }
 }

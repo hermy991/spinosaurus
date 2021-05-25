@@ -1,11 +1,13 @@
-export class DropBuilding {
+import {BaseBuilding} from "../../base_building.ts"
+
+export class DropBuilding extends BaseBuilding {
   
   private nameData: [string, string | undefined] | null = null;
   private columnsData: Array<string> = [];
 
-  /*FLAGS*/
-
-  constructor(){  }
+  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
+    super(conf);
+  }
 
   drop(req: {entity: string, schema?: string}): void {
     let {entity, schema} = req;

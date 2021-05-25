@@ -1,5 +1,5 @@
 import {interpolate, clearNames} from "../../tools/sql.ts";
-import {BaseBuilding} from "../base_building.ts"
+import {BaseBuilding} from "../../base_building.ts"
 
 export class SelectBuilding extends BaseBuilding {
   
