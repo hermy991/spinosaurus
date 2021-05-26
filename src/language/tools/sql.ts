@@ -1,6 +1,8 @@
-export function stringify(value: string | number | Date | null): string {
+export function stringify(value: string | number| boolean | Date | null): string {
   if(value === null)
     return 'NULL';
+  else if(typeof(value) == "boolean")
+    return `'${value ? 1 : 0}'`;
   else if(typeof(value) == "number")
     return `${value}`;
   else if(typeof(value) == "string")

@@ -85,7 +85,7 @@ export class SelectBuilding extends BaseBuilding {
       let tempWhere = this.whereData[i];
       conditions.push(tempWhere);
     }
-    return `WHERE ${conditions.join(" ")}` ;
+    return `WHERE ${conditions.join(" ")}`;
   }
   
   getOrderByQuery(){
