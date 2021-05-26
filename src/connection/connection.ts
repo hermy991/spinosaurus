@@ -6,6 +6,7 @@ import {ExecutorSelect} from './executors/executor_select.ts'
 import {ExecutorRename} from './executors/executor_rename.ts'
 import {ExecutorInsert} from './executors/executor_insert.ts'
 import {ExecutorUpdate} from './executors/executor_update.ts'
+import {ExecutorDelete} from './executors/executor_delete.ts'
 
 
 class Connection {
@@ -104,6 +105,13 @@ class Connection {
     const defConn = this.connections[this.defIndex];
     let executor: ExecutorInsert = new ExecutorInsert(defConn);
     executor.insert(req);
+    return executor;
+  }
+
+  delete(req: {entity: string, schema?: string } | [string, string?]) {
+    const defConn = this.connections[this.defIndex];
+    let executor: ExecutorDelete = new ExecutorDelete(defConn);
+    executor.delete(req);
     return executor;
   }
 
