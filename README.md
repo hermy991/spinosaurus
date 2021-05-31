@@ -1,10 +1,48 @@
 # Spinosaurus
 Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 
-# Suported Databases
-- [ ] Postgresql
-- [ ] MySql
-- [ ] Sql Server
+## Future
+- [ ] Supports both DataMapper and ActiveRecord (your choice)
+- [ ] Entities and columns
+- [ ] Database-specific column types
+- [ ] Entity manager
+- [ ] Repositories and custom repositories
+- [ ] Clean object relational model
+- [ ] Associations (relations)
+- [ ] Eager and lazy relations
+- [ ] Uni-directional, bi-directional and self-referenced relations
+- [ ] Supports multiple inheritance patterns
+- [ ] Cascades
+- [ ] Indices
+- [ ] Transactions
+- [ ] Migrations and automatic migrations generation
+- [ ] Connection pooling
+- [ ] Replication
+- [ ] Using multiple database connections
+- [ ] Working with multiple databases types
+- [ ] Cross-database and cross-schema queries
+- [ ] Elegant-syntax, flexible and powerful QueryBuilder
+- [ ] Left and inner joins
+- [ ] Proper pagination for queries using joins
+- [ ] Query caching
+- [ ] Streaming raw results
+- [ ] Logging
+- [ ] Listeners and subscribers (hooks)
+- [ ] Supports closure table pattern
+- [ ] Schema declaration in models or separate configuration files
+- [ ] Connection configuration in json / xml / yml / env formats
+- [ ] Database supports
+  - [x] Postgresql
+  - [ ] MySql / MariaDB
+  - [ ] Microsoft Sql Server
+  - [ ] Oracle
+- [ ] supports MongoDB NoSQL database
+- [ ] works in NodeJS / Browser / Ionic / Cordova / React Native / NativeScript / Expo / Electron platforms
+- [ ] TypeScript and JavaScript support
+- [ ] produced code is performant, flexible, clean and maintainable
+- [ ] follows all possible best practices
+- [ ] CLI
+
 # Query Builder
 ## Query
 ### Example 1, simple retriving data from db
