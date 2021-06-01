@@ -1,3 +1,4 @@
+import {path} from "../../deps.ts";
 import {ConnectionPostgres} from './postgres/connection_postgres.ts';
 import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.ts'
 import {ExecutorDrop} from './executors/executor_drop.ts'
@@ -10,7 +11,7 @@ import {ExecutorDelete} from './executors/executor_delete.ts'
 
 
 class Connection {
-  private defIndex: number;
+  defIndex: number;
   connections: Array<ConnectionPostgres>;
 
   constructor(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
@@ -21,8 +22,8 @@ class Connection {
       const conns = conn;
       for(let i = 0; i < conns.length; i++){
         if(conns[i].type === "postgres"){
-          const conn = conns[i];
-          this.connections.push(new ConnectionPostgres(conn.name, conn.type, conn.host, conn.port, conn.username, conn.password, conn.database, conn.synchronize, conn.entities, conn.hostaddr));
+          const temp = conns[i];
+          this.connections.push(new ConnectionPostgres(temp.name, temp.type, temp.host, temp.port, temp.username, temp.password, temp.database, temp.synchronize, temp.entities, temp.hostaddr));
         }
       }
     }
@@ -45,6 +46,17 @@ class Connection {
         }
       }
     }
+
+    //  this.synchronize();
+
+    // console.log("\n");
+    // console.log(`import.meta = `, import.meta);
+    // console.log(`import.meta.url = `, import.meta.url);
+    // console.log(`new URL("", import.meta.url).pathname = `, new URL("", import.meta.url).pathname);
+    // console.log(`new URL(".", import.meta.url).pathname = `, new URL(".", import.meta.url).pathname);
+    // console.log("import.meta.main : ", import.meta.main);
+    // console.log("");
+
   }
 
   async test(): Promise<boolean> {

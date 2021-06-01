@@ -7,5 +7,5 @@ export interface IConnectionOptions {
   password: string;
   database: string;
   synchronize: boolean;
-  entities: string;
+  entities: string | string[];
 }

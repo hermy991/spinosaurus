@@ -10,7 +10,7 @@ class ConnectionOptions implements IConnectionOptions {
     public password: string,
     public database: string,
     public synchronize: boolean,
-    public entities: string) {}
+    public entities: string | string[]) {}
 }
 
 export {ConnectionOptions}

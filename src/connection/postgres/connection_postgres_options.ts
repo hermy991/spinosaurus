@@ -10,7 +10,7 @@ class ConnectionPostgresOptions extends ConnectionOptions implements IConnection
     public password: string,
     public database: string,
     public synchronize: boolean,
-    public entities: string,
+    public entities: string | string[],
     public hostaddr?: string) {
       super(name, type, host, port, username, password, database, synchronize, entities);
     }
