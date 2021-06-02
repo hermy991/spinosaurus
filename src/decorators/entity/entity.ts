@@ -5,7 +5,7 @@ export function Entity(options?: EntityOptions): any {
   const currOptions = options;
   const path = new URL("", import.meta.url).pathname;
   return function (target: any) {
-    getMetadata().table.push({
+    getMetadata().tables.push({
       path,
       target,
       ...currOptions

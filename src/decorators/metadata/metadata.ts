@@ -10,9 +10,10 @@ declare global {
   }
 }
 
-export function getMetadata() {
+export function getMetadata(): MetadataStore {
   if(!window[GLOBAL_METADATA_KEY]){
-    return new MetadataStore();
+    window[GLOBAL_METADATA_KEY] = new MetadataStore();
   }
   return window[GLOBAL_METADATA_KEY];
+  
 }
