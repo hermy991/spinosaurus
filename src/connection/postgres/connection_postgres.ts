@@ -20,7 +20,7 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     public password: string,
     public database: string,
     public synchronize: boolean = false,
-    public entities: string,
+    public entities: string | string[],
     public hostaddr?: string
   ) {    }
   /* Basic Connection Operations*/
