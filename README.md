@@ -36,11 +36,15 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
   - [ ] MySql / MariaDB
   - [ ] Microsoft Sql Server
   - [ ] Oracle
-- [ ] supports MongoDB NoSQL database
-- [ ] works in NodeJS / Browser / Ionic / Cordova / React Native / NativeScript / Expo / Electron platforms
+- [ ] Supports MongoDB NoSQL database
+- [ ] works in platforms
+  - [ ] Deno
+  - [ ] NodeJS
+  - [ ] Browser
+  - [ ] Electron
 - [ ] TypeScript and JavaScript support
-- [ ] produced code is performant, flexible, clean and maintainable
-- [ ] follows all possible best practices
+- [ ] Produced code is performant, flexible, clean and maintainable
+- [ ] Follows all possible best practices
 - [ ] CLI
 
 # Query Builder
