@@ -2,6 +2,7 @@
 import {fs} from "../../../deps.ts";
 import {ConnectionPostgresOptions} from '../postgres/connection_postgres_options.ts'
 import {Connection} from "../connection.ts";
+import {GLOBAL_METADATA_KEY} from "../../decorators/metadata/metadata.ts"
 
 export async function createConnection(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
   const tconn = new Connection(conn, def);
@@ -22,7 +23,10 @@ export async function updateStore(entities: string []){
   for(const entity of entities){
     for await (const file of fs.expandGlob(entity)){
       const path = file.path.replaceAll(`\\`, `/`).replaceAll(`C:/`, `/`);
-      await import (path);
+      const mod = await import (path);
+      // for(let key in mod){
+
+      // }
     }
   }
 }
