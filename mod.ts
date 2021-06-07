@@ -4,4 +4,4 @@ export * from "./src/connection/connection.ts";
 export * from "./src/decorators/entities/entity.ts";
 export * from "./src/decorators/columns/column.ts"
 export * from "./src/connection/managers/manager_connection.ts";
-export {GLOBAL_METADATA_KEY} from "./src/decorators/metadata/metadata.ts";
+export {GLOBAL_METADATA_KEY, getMetadata} from "./src/decorators/metadata/metadata.ts";
