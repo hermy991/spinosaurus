@@ -52,10 +52,11 @@ export async function updateStore(entities: string []){
      * Mixed Column
      */
     for(const column of getMetadata().columns){
-      let target = new column.target;
+      let target = column.target;
       let instance = new column.table();
       let options: ColumnOptions = column.options;
-      const pd = Reflect.getOwnPropertyDescriptor(instance, target.name);
+      const propertyDescriptor = Object.getOwnPropertyDescriptor(instance, target.name);
+      column.descriptor = propertyDescriptor;
       
       /**
        * Option Column Lenght
@@ -115,16 +116,20 @@ export async function updateStore(entities: string []){
       /**
        * Class readonly
        */
-      target.insert = pd?.writable == true;
-      target.update = pd?.writable == true;
+      target.insert = !column.descriptor || column.descriptor?.writable == true;
+      target.update = !column.descriptor || column.descriptor?.writable == true;
       /**
        * Class access
        */
-      target.select = pd?.enumerable == true;
       
 
       let mixeds: ColumnOptions = Object.assign(target, options);
       column.mixeds = mixeds;
+      if(!column.mixeds.type){
+        throw(`Data type cannot be determined, use { type: "?" } or define the data type in the property.`);
+      }
+
+
     }
   }
 }
