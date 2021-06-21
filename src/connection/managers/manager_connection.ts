@@ -4,7 +4,7 @@ import {ConnectionPostgresOptions} from '../postgres/connection_postgres_options
 import {Connection} from "../connection.ts";
 import {EntityOptions} from "../../decorators/options/entity_options.ts";
 import {ColumnOptions} from "../../decorators/options/column_options.ts";
-import {getMetadata} from "../../decorators/metadata/metadata.ts"
+import {getMetadata, getColumnType} from "../../decorators/metadata/metadata.ts"
 // import {GLOBAL_METADATA_KEY} from "../../decorators/metadata/metadata.ts"
 
 export async function createConnection(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
@@ -55,6 +55,7 @@ export async function updateStore(entities: string []){
       let target = column.target;
       let instance = new column.table();
       let options: ColumnOptions = column.options;
+      let property = column.property;
       const propertyDescriptor = Object.getOwnPropertyDescriptor(instance, target.name);
       column.descriptor = propertyDescriptor;
       
@@ -68,45 +69,7 @@ export async function updateStore(entities: string []){
       /**
        * Class Column Type
        */
-      if(typeof instance[target.name] === "string"){
-        target.type = "text";
-        if(options.length){
-          target.type = `varchar(${options.length})`;
-        }
-      }
-      if(typeof instance[target.name] === "number"){
-        target.type = "numeric";
-        if(options.precision && options.scale){
-          target.type = `${target.type}(${options.precision}, ${options.scale})`;
-        }
-        if(options.precision){
-          target.type = `${target.type}(${options.precision})`;
-        }
-      }
-      if(typeof instance[target.name] === "bigint"){
-        target.type = "bigint";
-      }
-      if(typeof instance[target.name] === "boolean"){
-        target.type = "boolean";
-      }
-      if(instance[target.name] instanceof Date){
-        let tv: Date = instance[target.name];
-        // date
-        if(tv.getFullYear() > 0){
-          target.type = "date";
-        }
-        // time
-        else if (tv.getHours() + tv.getMinutes() + tv.getSeconds() > 0) {
-          target.type = "time";
-        }
-        // timestamp
-        if(tv.getFullYear() > 0 && tv.getHours() + tv.getMinutes() + tv.getSeconds() > 0){
-          target.type = "timestamp";
-        }
-      }
-      if(instance[target.name] instanceof ArrayBuffer){
-        target.type = "bytea";
-      }
+       options.type = getColumnType({type: property.type, options, value: instance[target.name]});
       /**
        * Class Default Data
        */
@@ -123,10 +86,10 @@ export async function updateStore(entities: string []){
        */
       
 
-      let mixeds: ColumnOptions = Object.assign(target, options);
-      column.mixeds = mixeds;
+       column.mixeds = <ColumnOptions>Object.assign(target, options);
       if(!column.mixeds.type){
-        throw(`Data type cannot be determined, use { type: "?" } or define the data type in the property.`);
+        //console.log({property, target, options, mixeds, value: instance[target.name]});
+        throw(`Property '${property.propertyKey}' Data type cannot be determined, use { type: "?" } or define the data type in the property.`);
       }
 
 
