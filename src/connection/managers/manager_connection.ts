@@ -86,7 +86,10 @@ export async function updateStore(entities: string []){
        */
       
 
-       column.mixeds = <ColumnOptions>Object.assign(target, options);
+      column.mixeds = <ColumnOptions>Object.assign(target, options);
+      if(column.mixeds.name == "number1"){
+        console.log({descriptor: column.descriptor});
+      }
       if(!column.mixeds.type){
         //console.log({property, target, options, mixeds, value: instance[target.name]});
         throw(`Property '${property.propertyKey}' Data type cannot be determined, use { type: "?" } or define the data type in the property.`);

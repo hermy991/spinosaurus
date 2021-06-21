@@ -15,22 +15,11 @@ export function getMetadata(): MetadataStore {
     window[GLOBAL_METADATA_KEY] = new MetadataStore();
   }
   return window[GLOBAL_METADATA_KEY];
-  
 }
 
 export function getColumnType(params: { type: any, options?: any, value?: any}): string | undefined {
   let {type, options, value} = params;
   let spitype = undefined;
-  // if(typeof type() == "string") {
-  //   console.log("string", {type})
-  // }
-  // if( type() instanceof String) {
-  //   console.log("String", {type})
-  // }
-  // else if(value == null){
-  //   console.log("null", {value})
-  // }
-  
 /**
  * Type by value
  */
@@ -38,9 +27,8 @@ export function getColumnType(params: { type: any, options?: any, value?: any}):
     // console.log({type, "value.constructor": value.constructor});
     type = value.constructor;
   }
-
 /**
- type Type when is explicit
+ * Type by explicit type
  */
   if(typeof type() == "string"){
     spitype = "text";
@@ -57,9 +45,12 @@ export function getColumnType(params: { type: any, options?: any, value?: any}):
   else if(type() instanceof Date){
     spitype = "timestamp";
   }
-  else if(type() instanceof ArrayBuffer){
+  else if(type() instanceof ArrayBuffer || type() instanceof Blob){
     spitype = "bytearray";
   }
+/**
+ * Type by options
+ */
   if(options){
     if(typeof type() == "string"){
       spitype = "text";
