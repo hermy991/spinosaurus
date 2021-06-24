@@ -30,35 +30,38 @@ export function getColumnType(params: { type: any, options?: any, value?: any}):
 /**
  * Type by explicit type
  */
-  if(typeof type() == "string"){
+  if(type.name === "ArrayBuffer" || type.name === "Blob"){
+    spitype = "bytearray";
+  }
+  else if(type.name === "String"){
     spitype = "text";
   }
-  else if(typeof type() == "number"){
+  else if(type.name === "Number"){
     spitype = "numeric";
   }
-  else if(typeof type() == "bigint"){
-    spitype = "bigint";
-  }
-  else if(typeof type() == "boolean"){
+  else if(type.name === "Boolean"){
     spitype = "boolean";
   }
-  else if(type() instanceof Date){
+  else if(type.name === "Date"){
     spitype = "timestamp";
   }
-  else if(type() instanceof ArrayBuffer || type() instanceof Blob){
+  else if(type.name === "BigInt"){
+    spitype = "bigint";
+  }
+  else if(type.name === "ArrayBuffer" || type.name === "Blob"){
     spitype = "bytearray";
   }
 /**
  * Type by options
  */
   if(options){
-    if(typeof type() == "string"){
+    if(type.name === "String"){
       spitype = "text";
       if(options.length){
         spitype = `varchar(${options.length})`;
       }
     }
-    else if(typeof type() == "number"){
+    else if(type.name === "Number"){
       spitype = "numeric";
       if(options.precision && options.scale){
         spitype = `${spitype}(${options.precision}, ${options.scale})`;
@@ -67,10 +70,11 @@ export function getColumnType(params: { type: any, options?: any, value?: any}):
         spitype = `${spitype}(${options.precision})`;
       }
     }
-    else if(type() instanceof Date){
+    else if(type.name === "Date"){
       spitype = "timestamp";
     }
-    if(options && options.type){
+
+    if(options.type){
       if(options.type == "numeric" && options.precision && options.scale){
         spitype = `${options.type}(${options.precision}, ${options.scale})`;
       }

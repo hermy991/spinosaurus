@@ -93,3 +93,9 @@ await db.insert(User)
 				.where([`"ege" >= 18`])
 				.execute();
 ```
+
+# Cotribuing
+## Test
+```bash
+deno test --unstable --import-map=./test/importmap.json --config=./test/tsconfig.json --allow-net --allow-read --allow-env=SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD test/start.ts
+```

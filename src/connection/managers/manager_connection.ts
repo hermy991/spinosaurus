@@ -18,6 +18,7 @@ export async function synchronize(conn: Connection){
   if(defConn.synchronize){
     const entities = typeof defConn.entities == "string" ? [defConn.entities] : defConn.entities;
     await updateStore(entities);
+    // await updateStore(entities);
 
   }
 }
@@ -58,14 +59,12 @@ export async function updateStore(entities: string []){
       let property = column.property;
       const propertyDescriptor = Object.getOwnPropertyDescriptor(instance, target.name);
       column.descriptor = propertyDescriptor;
-      
       /**
        * Option Column Lenght
        */
       if(options.length){
         options.length = Number(options.length);
       }
-      
       /**
        * Class Column Type
        */
@@ -87,11 +86,11 @@ export async function updateStore(entities: string []){
       
 
       column.mixeds = <ColumnOptions>Object.assign(target, options);
-      if(column.mixeds.name == "number1"){
-        console.log({descriptor: column.descriptor});
-      }
+      // if(column.mixeds.name == "number1"){
+      //   console.log({descriptor: column.descriptor});
+      // }
       if(!column.mixeds.type){
-        //console.log({property, target, options, mixeds, value: instance[target.name]});
+        //console.log("hola que lo que = ", {type: property.type, options, value: instance[target.name]});
         throw(`Property '${property.propertyKey}' Data type cannot be determined, use { type: "?" } or define the data type in the property.`);
       }
 

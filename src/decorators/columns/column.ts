@@ -9,6 +9,13 @@ export function Column(options: ColumnOptions = {}): any {
      */
     let table = entity instanceof Function ? <Function>entity : entity.constructor;
     let property = { propertyKey, type: reflect_metadata.Reflect.getMetadata("design:type", entity, propertyKey) };
+
+    if(propertyKey === "bigint2"){
+      // console.log(reflect_metadata.Reflect.getOwnMetadata("design:type", entity, propertyKey))
+      console.log(reflect_metadata.Reflect.getOwnMetadata("design:type", entity, propertyKey))
+    }
+
+
     let target: ColumnOptions = { name: propertyKey, type: getColumnType({type: property.type}) };
     let mixeds: ColumnOptions = Object.assign(target, options);
     
