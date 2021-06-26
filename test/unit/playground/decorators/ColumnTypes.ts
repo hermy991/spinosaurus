@@ -27,10 +27,10 @@ export class ColumnTypes1 {
   bigint1 = BigInt(100);
   
   @Column()
-  bigint2?: BigInt;
+  bigint2?: bigint;
   
   @Column()
-  bigint3?: BigInt = BigInt(100);
+  bigint3?: bigint = BigInt(100);
   
   @Column()
   boolean1 = true;
