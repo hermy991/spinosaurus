@@ -6,6 +6,8 @@ import {EntityOptions} from "../../decorators/options/entity_options.ts";
 import {ColumnOptions} from "../../decorators/options/column_options.ts";
 import {getMetadata, getColumnType} from "../../decorators/metadata/metadata.ts";
 import {ConnectionPostgres} from "../postgres/connection_postgres.ts";
+import {MetadataStore} from "../../decorators/metadata/metadata_store.ts"
+
 export async function createConnection(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
   const tconn = new Connection(conn, def);
   await synchronize(tconn);
@@ -19,8 +21,8 @@ export async function synchronize(conn: Connection){
     await updateStore(entities);
     // await validateScript(getMetadata(), defConn);
     let localMetadata = getMetadata();
-    let dbMetadata = await getDbMetadata(defConn);
-    let script = await generateScript(localMetadata, defConn);
+    let destinyMetadata = await getDestinyMetadata(defConn);
+    let script = generateScript(localMetadata, destinyMetadata);
 
   }
 }
@@ -101,15 +103,18 @@ export async function updateStore(entities: string []){
   }
 }
 
-export async function getDbMetadata(conn: ConnectionPostgres) {
-  let entities: any = {};
-  return entities;
+export async function getDestinyMetadata(conn: ConnectionPostgres): Promise<MetadataStore> {
+  let metadata: MetadataStore = new MetadataStore();
+  let entities = await conn.getEntitiesMetadata();
+
+
+  return metadata;
 }
-function generateScript(localMetadata: any, dbMetadata: any): string{
+
+export function generateScript(localMetadata: any, dbMetadata: any): string{
   let script = ""
   let dbdata = [];
 
 
-  console.log({conn});
   return script;
 }

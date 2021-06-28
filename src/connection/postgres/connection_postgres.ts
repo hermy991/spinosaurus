@@ -93,6 +93,12 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
     };
     return res;
   }
+
+  async getEntitiesMetadata(){
+    let entities: string[] = [];
+
+    return entities;
+  }
   
   async execute(query: string): Promise<any> {
     let driverConf = filterConnectionProps(KEY_CONFIG, this);
