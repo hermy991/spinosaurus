@@ -17,8 +17,8 @@ Deno.test(testMessage.replace(/\{\}/ig, "decorator entity should work"), async (
   // conX.entities = [new URL(".", import.meta.url).pathname + "playground/decorators/user.entity.ts"];
   conX.entities = [`${dirname}/playground/decorators/**/*.ts`];
   await createConnection(conX);
-  let metadata = getMetadata();
-  console.log(metadata);
+  // let metadata = getMetadata();
+  // console.log(metadata);
   // console.log(`ColumnTest1 = `, new ColumnTest1());
 
   // console.log("\n");

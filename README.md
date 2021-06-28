@@ -97,5 +97,5 @@ await db.insert(User)
 # Cotribuing
 ## Test
 ```bash
-deno test --unstable --import-map=./test/importmap.json --config=./test/tsconfig.json --allow-net --allow-read --allow-env=SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD test/start.ts
+deno test --unstable --import-map=./tests/importmap.json --config=./tests/tsconfig.json --allow-net --allow-read --allow-env=SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD tests/start.ts
 ```
