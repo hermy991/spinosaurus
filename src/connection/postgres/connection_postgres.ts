@@ -4,7 +4,9 @@ import {IConnectionPostgresOperations} from './iconnection_postgres_operations.t
 import {SelectBuilding} from '../../language/dml/select/select_building.ts';
 import {initConnection} from './connection_postgres_pool.ts';
 import {filterConnectionProps} from '../connection_operations.ts'
-//import {Pool} from 'postgres/mod.ts';
+import {MetadataStore} from '../../decorators/metadata/metadata_store.ts';
+import {EntityOptions} from '../../decorators/options/entity_options.ts'
+import {ColumnOptions} from '../../decorators/options/column_options.ts'
 import {postgres} from '../../../deps.ts';
 import {KEY_CONFIG} from './connection_postgres_variables.ts'
 
@@ -49,7 +51,7 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     const query = `
 SELECT * 
 FROM pg_catalog.pg_class c
-JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+INNER JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
 WHERE n.nspname not in ('pg_catalog', 'information_schema')
   AND n.nspname = '${req.namespace}'
   AND c.relname = '${req.name}'
@@ -94,10 +96,70 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
     return res;
   }
 
-  async getEntitiesMetadata(){
-    let entities: string[] = [];
+  async getMetadata(): Promise<MetadataStore>{
+    let metadata: MetadataStore = new MetadataStore();
+    let driverConf = filterConnectionProps(KEY_CONFIG, this);
+    const pool = (initConnection(driverConf) as postgres.Pool);
+    const client = await pool.connect();
 
-    return entities;
+    const query = `
+SELECT *
+FROM information_schema.columns c 
+WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
+    `;
+    const result = await client.queryObject(query);
+    client.release();
+    await pool.end();
+    let rows = result.rows;
+    rows = rows.sort((a, b) => <number>a.ordinal_position < <number>b.ordinal_position ? -1 : <number>a.ordinal_position > <number>b.ordinal_position ? 1 : 0)
+               .sort((a, b) => <string>a.table_name < <string>b.table_name ? -1 : <string>a.table_name > <string>b.table_name ? 1 : 0)
+               .sort((a, b) => <string>a.table_schema < <string>b.table_schema ? -1 : <string>a.table_schema > <string>b.table_schema ? 1 : 0)
+               .sort((a, b) => <string>a.table_catalog < <string>b.table_catalog ? -1 : <string>a.table_catalog > <string>b.table_catalog ? 1 : 0);
+    for(let i = 0; i<rows.length; i++){
+      let row = rows[i];
+      let table = metadata.tables.find(x => x.mixeds!.name = row.table_name);
+      if(!table){
+        let mixeds: EntityOptions = { 
+          database: <string>row.table_catalog,
+          schema: <string>row.table_schema,
+          name: <string>row.table_name
+        };
+        metadata.tables.push({
+          // target,
+          // options,
+          mixeds,
+          columns: []
+        });
+        table = metadata.tables[metadata.tables.length - 1];
+      }
+      let column = { 
+        // target,
+        entity: { name: <string>row.table_name },
+        // descriptor,
+        // property,
+        // options,
+        mixeds: <ColumnOptions> {
+          name: <string>row.column_name,
+          type: "",
+          nullable: row.is_nullable == "YES"
+        }
+      };
+      table.columns.push(column);
+      metadata.columns.push(column);
+    }
+
+
+
+
+    return metadata;
+  }
+
+  getColumnTypeReverse(columnType: string): string {
+    let r = "text";
+
+    
+
+    return r;
   }
   
   async execute(query: string): Promise<any> {

@@ -22,7 +22,7 @@ export async function synchronize(conn: Connection){
     // await validateScript(getMetadata(), defConn);
     let localMetadata = getMetadata();
     let destinyMetadata = await getDestinyMetadata(defConn);
-    let script = generateScript(localMetadata, destinyMetadata);
+    // let script = generateScript(localMetadata, destinyMetadata);
 
   }
 }
@@ -38,7 +38,7 @@ export async function updateStore(entities: string []){
      */
     for(const table of getMetadata().tables){
       for(const column of getMetadata().columns){
-        if(column.table === table.target){
+        if(column.entity.target === table.target){
           table.columns = Array.isArray(table.columns) ? table.columns : []; 
           table.columns.push(column);
         }
@@ -58,7 +58,7 @@ export async function updateStore(entities: string []){
      */
     for(const column of getMetadata().columns){
       let target = column.target;
-      let instance = new column.table();
+      let instance = new column.entity.target();
       let options: ColumnOptions = column.options;
       let property = column.property;
       const propertyDescriptor = Object.getOwnPropertyDescriptor(instance, target.name);
@@ -104,10 +104,7 @@ export async function updateStore(entities: string []){
 }
 
 export async function getDestinyMetadata(conn: ConnectionPostgres): Promise<MetadataStore> {
-  let metadata: MetadataStore = new MetadataStore();
-  let entities = await conn.getEntitiesMetadata();
-
-
+  let metadata: MetadataStore = await conn.getMetadata();
   return metadata;
 }
 

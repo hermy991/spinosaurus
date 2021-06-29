@@ -1,4 +1,5 @@
-import {MetadataStore} from "./metadata_store.ts"
+import {MetadataStore} from "./metadata_store.ts";
+import {ColumnType} from "../options/column_type.ts";
 
 
 export const GLOBAL_METADATA_KEY = "spinosaurusMetadataStore";
@@ -19,7 +20,7 @@ export function getMetadata(): MetadataStore {
 
 export function getColumnType(params: { type: any, options?: any, value?: any}): string | undefined {
   let {type, options, value} = params;
-  let spitype = undefined;
+  let spitype: ColumnType | undefined = undefined;
 /**
  * Type by value
  */
@@ -47,9 +48,6 @@ export function getColumnType(params: { type: any, options?: any, value?: any}):
   }
   else if(type.name === "BigInt"){
     spitype = "bigint";
-  }
-  else if(type.name === "ArrayBuffer" || type.name === "Blob"){
-    spitype = "bytearray";
   }
 /**
  * Type by options
