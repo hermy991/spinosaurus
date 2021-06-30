@@ -108,7 +108,7 @@ export async function getDestinyMetadata(conn: ConnectionPostgres): Promise<Meta
   return metadata;
 }
 
-export function generateScript(localMetadata: any, dbMetadata: any): string{
+export function generateScript(localMetadata: any, destinyMetadata: any): string{
   let script = ""
   let dbdata = [];
 

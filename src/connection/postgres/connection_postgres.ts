@@ -7,6 +7,7 @@ import {filterConnectionProps} from '../connection_operations.ts'
 import {MetadataStore} from '../../decorators/metadata/metadata_store.ts';
 import {EntityOptions} from '../../decorators/options/entity_options.ts'
 import {ColumnOptions} from '../../decorators/options/column_options.ts'
+import {ColumnType} from '../../decorators/options/column_type.ts'
 import {postgres} from '../../../deps.ts';
 import {KEY_CONFIG} from './connection_postgres_variables.ts'
 
@@ -139,10 +140,12 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
         // property,
         // options,
         mixeds: <ColumnOptions> {
-          name: <string>row.column_name,
-          type: "",
-          nullable: row.is_nullable == "YES"
-        }
+                      type: this.getColumnTypeReverse(<string>row.data_type),
+                      name: <string>row.column_name,
+                      length: <number>row.character_maximum_length,
+                      nullable: row.is_nullable == "YES",
+                      default: "??"
+                    }
       };
       table.columns.push(column);
       metadata.columns.push(column);
@@ -154,8 +157,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
     return metadata;
   }
 
-  getColumnTypeReverse(columnType: string): string {
-    let r = "text";
+  getColumnTypeReverse(columnType: string) {
+    let r: ColumnType = "text";
 
     
 

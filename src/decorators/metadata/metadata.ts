@@ -18,7 +18,7 @@ export function getMetadata(): MetadataStore {
   return window[GLOBAL_METADATA_KEY];
 }
 
-export function getColumnType(params: { type: any, options?: any, value?: any}): string | undefined {
+export function getColumnType(params: { type: any, options?: any, value?: any}) {
   let {type, options, value} = params;
   let spitype: ColumnType | undefined = undefined;
 /**
@@ -53,38 +53,23 @@ export function getColumnType(params: { type: any, options?: any, value?: any}):
  * Type by options
  */
   if(options){
-    if(type.name === "String"){
-      spitype = "text";
-      if(options.length){
-        spitype = `varchar(${options.length})`;
-      }
+    if(type.name === "String" && options.length){
+      spitype = `varchar`;
     }
     else if(type.name === "Number"){
-      spitype = "numeric";
-      if(options.precision && options.scale){
-        spitype = `${spitype}(${options.precision}, ${options.scale})`;
-      }
-      if(options.precision){
-        spitype = `${spitype}(${options.precision})`;
-      }
+      if(options.length == 2)
+        spitype = `smallint`;
+      else if(options.length == 4)
+        spitype = `integer`;
+      else if(options.length == 8)
+        spitype = `bigint`;
     }
-    else if(type.name === "Date"){
-      spitype = "timestamp";
+    else if(type.name === "Number" && options.precision){
+      spitype = "numeric";
     }
 
     if(options.type){
-      if(options.type == "numeric" && options.precision && options.scale){
-        spitype = `${options.type}(${options.precision}, ${options.scale})`;
-      }
-      else if(options.type == "numeric" && options.precision){
-        spitype = `${options.type}(${options.precision})`;
-      }
-      else if(options.type == "varchar" && options.length){
-        spitype = `${options.type}(${options.length})`;
-      }
-      else {
-        spitype = options.type
-      }
+      spitype = options.type
     }
 
   }

@@ -1,4 +1,5 @@
-
+import {ColumnType} from "./column_type.ts";
+import {DefaultType} from "./default_type.ts";
 /**
  * Describes all columns's entity options.
  */
@@ -6,7 +7,7 @@ export interface ColumnOptions {
   /**
    * Column type. One of the supported column types.
    */
-  type?: string; //ColumnType -
+  type?: ColumnType; //ColumnType -
   /**
    * Column name in the database table. By default the column name is generated from the name of the property. You can change it by specifying your own name.
    */ 
@@ -34,7 +35,7 @@ export interface ColumnOptions {
   /**
    * Adds database-level column's DEFAULT value.
    */ 
-  default?: string;
+  default?: DefaultType; // DefaultType
   /**
    * Database's column comment. Not supported by all database types.
    */
