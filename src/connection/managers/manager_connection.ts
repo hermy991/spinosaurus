@@ -22,6 +22,7 @@ export async function synchronize(conn: Connection){
     // await validateScript(getMetadata(), defConn);
     let localMetadata = getMetadata();
     let destinyMetadata = await getDestinyMetadata(defConn);
+    console.log({localMetadata, destinyMetadata});
     // let script = generateScript(localMetadata, destinyMetadata);
 
   }

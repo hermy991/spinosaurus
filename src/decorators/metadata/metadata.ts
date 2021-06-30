@@ -56,6 +56,9 @@ export function getColumnType(params: { type: any, options?: any, value?: any}) 
     if(type.name === "String" && options.length){
       spitype = `varchar`;
     }
+    else if(type.name === "Number" && options.precision){
+      spitype = "numeric";
+    }
     else if(type.name === "Number"){
       if(options.length == 2)
         spitype = `smallint`;
@@ -63,9 +66,6 @@ export function getColumnType(params: { type: any, options?: any, value?: any}) 
         spitype = `integer`;
       else if(options.length == 8)
         spitype = `bigint`;
-    }
-    else if(type.name === "Number" && options.precision){
-      spitype = "numeric";
     }
 
     if(options.type){

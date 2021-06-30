@@ -102,7 +102,6 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
     let driverConf = filterConnectionProps(KEY_CONFIG, this);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
-
     const query = `
 SELECT *
 FROM information_schema.columns c 

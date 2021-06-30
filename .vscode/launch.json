@@ -1,0 +1,28 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Deno Test: Debug",
+      "request": "launch",
+      "type": "node",
+      // "program": "main.ts",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "deno",
+      "runtimeArgs": [
+        "test",
+        "--unstable",
+        "--inspect",
+        "--import-map=./tests/importmap.json",
+        "--config=./tests/tsconfig.json",
+        "--allow-read",
+        "--allow-net",
+        "--allow-env=SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD",
+        "tests/start.ts"
+      ],
+      "port": 9229
+    }
+  ]
+}
