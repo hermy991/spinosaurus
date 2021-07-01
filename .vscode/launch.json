@@ -5,24 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Deno Test: Debug",
+      "name": "Deno Debug",
       "request": "launch",
-      "type": "node",
-      // "program": "main.ts",
+      "type": "pwa-node",
+      // "program": "tests/start.ts",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "deno",
       "runtimeArgs": [
-        "test",
+        "run",
         "--unstable",
-        "--inspect",
+        "--inspect-brk",
         "--import-map=./tests/importmap.json",
         "--config=./tests/tsconfig.json",
-        "--allow-read",
-        "--allow-net",
-        "--allow-env=SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD",
+        "--allow-all",
         "tests/start.ts"
       ],
-      "port": 9229
+      "attachSimplePort": 9229
     }
   ]
 }

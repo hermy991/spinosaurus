@@ -18,5 +18,7 @@
   "peacock.color": "#dd0531",
   "deno.enable": true,
   "deno.unstable": true,
-  "deno.importMap": "./tests/importmap.json"
+  "deno.importMap": "./tests/importmap.json",
+  "deno.config": "./tests/tsconfig.json",
+  "deno.lint": true
 }

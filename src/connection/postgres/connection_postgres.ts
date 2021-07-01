@@ -143,7 +143,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
                       name: <string>row.column_name,
                       length: <number>row.character_maximum_length,
                       nullable: row.is_nullable == "YES",
-                      default: "??"
+                      // default: "??"
                     }
       };
       table.columns.push(column);

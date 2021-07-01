@@ -22,8 +22,9 @@ export async function synchronize(conn: Connection){
     // await validateScript(getMetadata(), defConn);
     let localMetadata = getMetadata();
     let destinyMetadata = await getDestinyMetadata(defConn);
-    console.log({localMetadata, destinyMetadata});
-    // let script = generateScript(localMetadata, destinyMetadata);
+    // debugger;
+    // console.log({localMetadata, destinyMetadata});
+    let script = generateScript(localMetadata, destinyMetadata);
 
   }
 }
@@ -109,9 +110,24 @@ export async function getDestinyMetadata(conn: ConnectionPostgres): Promise<Meta
   return metadata;
 }
 
-export function generateScript(localMetadata: any, destinyMetadata: any): string{
-  let script = ""
-  let dbdata = [];
+export function generateScript(localMetadata: MetadataStore, destinyMetadata: MetadataStore): string{
+  let script = "";
+  /**
+   * TABLES
+   */
+  for(let i = 0; localMetadata.tables.length; i++){
+    let table = localMetadata.tables[i];
+    if(destinyMetadata.tables.some(x => x.mixeds.name == table.name)){
+      /**
+       * CHANGING
+       */
+    }
+    else {
+      /**
+       * NEW
+       */
+    }
+  }
 
 
   return script;
