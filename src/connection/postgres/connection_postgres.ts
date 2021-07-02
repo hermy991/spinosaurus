@@ -43,26 +43,63 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     }
   }
   
-  async checkObject(req: { name: string, namespace?: string }): Promise<{ name: string, namespace?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }> {
+  async checkObject(req: { name: string, schema?: string, database?: string }): Promise<{ name: string, schema?: string, database?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }> {
+    let res: { name: string, schema?: string, database?: string, exists: boolean, oid?: number, dbdata?: any, type?: string } = 
+             { name: req.name, schema: req.schema, database: req.database, exists: false };
     req.name = req.name.replace(/'/ig, "''");
-    req.namespace = (req.namespace || "public").replace(/'/ig, "''");
+    req.schema = (req.schema || "").replace(/'/ig, "''");
     /**
      * TODO
      * buscar el schema por defecto en el query
      */
     const query = `
-SELECT * 
+SELECT n."oid",
+"relname" "name",
+"nspname" "schema",
+"relnamespace",
+"reltype",
+"reloftype",
+"relowner",
+"relam",
+"relfilenode",
+"reltablespace",
+"relpages",
+"reltuples",
+"relallvisible",
+"reltoastrelid",
+"relhasindex",
+"relisshared",
+"relpersistence",
+"relkind",
+"relnatts",
+"relchecks",
+"relhasrules",
+"relhastriggers",
+"relhassubclass",
+"relrowsecurity",
+"relforcerowsecurity",
+"relispopulated",
+"relreplident",
+"relispartition",
+"relrewrite",
+"relfrozenxid",
+"relminmxid",
+"relacl",
+"reloptions",
+"relpartbound",
+"nspowner",
+"nspacl"
 FROM pg_catalog.pg_class c
 INNER JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
 WHERE n.nspname not in ('pg_catalog', 'information_schema')
-  AND n.nspname = '${req.namespace}'
-  AND c.relname = '${req.name}'
+  AND n.nspname = CASE WHEN '${req.schema}' = '' THEN current_schema() ELSE '${req.schema}' END -- schema
+  AND c.relname = '${req.name}' -- object
     `;
     const result = await this.execute(query);
     const rows = result.rows;
-    let type = "";
+    let type;
     if(rows.length){
-      switch(rows[0].relkind) {
+      switch(rows[0].type) {
         /*
         r = ordinary table, 
         i = index, 
@@ -86,13 +123,22 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
         case "p": type = "partitioned table"; break;
         case "I": type = "partitioned index"; break;
       }
+      res = { name: rows[0].name, 
+        schema: rows[0].schema, 
+        database: rows[0].database, 
+        exists: true,
+        oid: rows[0].oid,
+        dbdata: rows[0],
+        type
+      }
+      return res;
     }
-    let res = { ...req,  
-      exists: rows.length > 0,
-      oid: rows.length ? Number(rows[0].oid) : undefined,
-      dbdata: rows.length ? rows[0] : undefined,
-      type: rows.length ? type : undefined
-    };
+    // let res = { ...req,  
+    //   exists: rows.length > 0,
+    //   oid: rows.length ? Number(rows[0].oid) : undefined,
+    //   dbdata: rows.length ? rows[0] : undefined,
+    //   type: rows.length ? type : undefined
+    // };
     return res;
   }
 

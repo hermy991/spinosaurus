@@ -20,11 +20,11 @@ export async function synchronize(conn: Connection){
     const entities = typeof defConn.entities == "string" ? [defConn.entities] : defConn.entities;
     await updateStore(entities);
     // await validateScript(getMetadata(), defConn);
-    let localMetadata = getMetadata();
-    let destinyMetadata = await getDestinyMetadata(defConn);
+    const localMetadata = getMetadata();
+    const destinyMetadata = await getDestinyMetadata(defConn);
     // debugger;
     // console.log({localMetadata, destinyMetadata});
-    let script = generateScript(localMetadata, destinyMetadata);
+    const script = generateScript(localMetadata, destinyMetadata);
 
   }
 }
@@ -106,7 +106,7 @@ export async function updateStore(entities: string []){
 }
 
 export async function getDestinyMetadata(conn: ConnectionPostgres): Promise<MetadataStore> {
-  let metadata: MetadataStore = await conn.getMetadata();
+  const metadata: MetadataStore = await conn.getMetadata();
   return metadata;
 }
 

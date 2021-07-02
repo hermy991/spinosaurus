@@ -1,24 +1,11 @@
+import { MetadataStore } from "../decorators/metadata/metadata_store.ts";
+
 export interface IConnectionOperations {
   /* Basic Connection Operations*/
   test(): Promise<boolean>;
-  checkObject(req: { name: string, namespace?: string }): Promise<{ name: string, namespace?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }>;
-  /* DDL SQL Operations*/
-  // create(req: { entity: string, schema?: string }): any;
-  // columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>): any;
-  // addColumn(columnName: string, datatype: string, length?: number, nulleable?:boolean): any;
-  // drop(req: { entity: string, schema?: string }): any;
-  /* DML SQL Operations*/
-  // selectDistinct(... columns: Array<{ column: string, as?: string }>): any;
-  // select(... columns: Array<{ column: string, as?: string }>): any;
-  // addSelect(req: { column: string, as?: string }): any;
-  // from(req: { entity: string, as?: string, schema?: string }): any; // ("Table", "t", ["t.column1 = 'a'"]) 
-  // where(conditions: Array<string>, params?: { [x:string]: string | number | Date }): any; // (["column1 = 'a'"], ["column2 = 'b'"])
-  // addWhere(conditions: Array<string>, params?: { [x:string]: string | number | Date }): any; // (["column1 = 'a'"], ["column2 = 'b'"])
-  // orderBy(... columns: Array<{ column: string, direction?: string }>): any; // (["column1"], ["column2"]) | (["column1 ASC"], ["column2 DESC"]) | (["column1", "ASC"], ["column2", "DESC"]) | (["column1", "ASC"], ["column2"])
-  // addOrderBy(... columns: Array<{ column: string, direction?: string }>): any; // ("column1") | ("column1 ASC") | ("column1", "ASC")
-  /* Returns*/
-  // execute(query: string): Promise<any>;
-  // getQuery(): string;
+  checkObject(req: { name: string, schema?: string, database?: string }): Promise<{ name: string, schema?: string, database?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }>;
+  getCurrentSchema(): Promise<string>;
+  getMetadata(): Promise<MetadataStore>
   getRawOne(query: string): Promise<Array<any>>;
   getRawMany(query: string): Promise<Array<any>>;
   getRawMultiple(query: string): Promise<Array<any>>;

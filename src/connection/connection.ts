@@ -65,11 +65,11 @@ class Connection {
     return res;
   }
   
-  async checkObject(req: { name: string, namespace?: string }): Promise<{ name: string, namespace?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }> {
+  async checkObject(req: { name: string, schema?: string, database?: string }): Promise<{ name: string, schema?: string, database?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }> {
     const defConn = this.connections[this.defIndex];
     const res = await defConn.checkObject(req);
     return res;
-  };
+  }
   
   create(req: {entity: string, schema?: string}) {
     const defConn = this.connections[this.defIndex];
