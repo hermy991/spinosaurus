@@ -44,11 +44,12 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
   }
   
   async checkObject(req: { name: string, namespace?: string }): Promise<{ name: string, namespace?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }> {
-    let driverConf = filterConnectionProps(KEY_CONFIG, this);
-    const pool = (initConnection(driverConf) as postgres.Pool);
-    const client = await pool.connect();
     req.name = req.name.replace(/'/ig, "''");
     req.namespace = (req.namespace || "public").replace(/'/ig, "''");
+    /**
+     * TODO
+     * buscar el schema por defecto en el query
+     */
     const query = `
 SELECT * 
 FROM pg_catalog.pg_class c
@@ -57,10 +58,8 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
   AND n.nspname = '${req.namespace}'
   AND c.relname = '${req.name}'
     `;
-    const result = await client.queryObject(query);
-    client.release();
-    await pool.end();
-    let rows = result.rows;
+    const result = await this.execute(query);
+    const rows = result.rows;
     let type = "";
     if(rows.length){
       switch(rows[0].relkind) {
@@ -97,26 +96,33 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
     return res;
   }
 
+  async getCurrentSchema(): Promise<string> {
+    let schema = "";
+    const query = "SELECT current_schema()";
+    const result = await this.execute(query);
+    const rows = result.rows;
+    if(rows.length)
+      schema = rows[0].current_schema;
+    else
+      schema = "public";
+    return schema;
+  }
+
   async getMetadata(): Promise<MetadataStore>{
-    let metadata: MetadataStore = new MetadataStore();
-    let driverConf = filterConnectionProps(KEY_CONFIG, this);
-    const pool = (initConnection(driverConf) as postgres.Pool);
-    const client = await pool.connect();
+    const metadata: MetadataStore = new MetadataStore();
     const query = `
 SELECT *
 FROM information_schema.columns c 
 WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
     `;
-    const result = await client.queryObject(query);
-    client.release();
-    await pool.end();
-    let rows = result.rows;
+    const result = await this.execute(query);
+    let rows: any[] = result.rows;
     rows = rows.sort((a, b) => <number>a.ordinal_position < <number>b.ordinal_position ? -1 : <number>a.ordinal_position > <number>b.ordinal_position ? 1 : 0)
                .sort((a, b) => <string>a.table_name < <string>b.table_name ? -1 : <string>a.table_name > <string>b.table_name ? 1 : 0)
                .sort((a, b) => <string>a.table_schema < <string>b.table_schema ? -1 : <string>a.table_schema > <string>b.table_schema ? 1 : 0)
                .sort((a, b) => <string>a.table_catalog < <string>b.table_catalog ? -1 : <string>a.table_catalog > <string>b.table_catalog ? 1 : 0);
     for(let i = 0; i<rows.length; i++){
-      let row = rows[i];
+      const row = rows[i];
       let table = metadata.tables.find(x => x.mixeds!.name = row.table_name);
       if(!table){
         let mixeds: EntityOptions = { 
@@ -165,7 +171,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
   }
   
   async execute(query: string): Promise<any> {
-    let driverConf = filterConnectionProps(KEY_CONFIG, this);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
     //const query = this.getQuery();
@@ -174,6 +180,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
     await pool.end();
     return result;
   }
+
   async getOne(query: string): Promise<any> {
     return {};
   }
