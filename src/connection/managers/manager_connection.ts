@@ -22,9 +22,8 @@ export async function synchronize(conn: Connection){
     // await validateScript(getMetadata(), defConn);
     const localMetadata = getMetadata();
     const destinyMetadata = await getDestinyMetadata(defConn);
-    // debugger;
-    // console.log({localMetadata, destinyMetadata});
-    const script = generateScript(localMetadata, destinyMetadata);
+    
+    const script = generateScript({ conn: defConn, localMetadata, destinyMetadata});
 
   }
 }
@@ -110,22 +109,25 @@ export async function getDestinyMetadata(conn: ConnectionPostgres): Promise<Meta
   return metadata;
 }
 
-export function generateScript(localMetadata: MetadataStore, destinyMetadata: MetadataStore): string{
+export function generateScript(req: {conn: ConnectionPostgres, localMetadata: MetadataStore, destinyMetadata: MetadataStore }): string{
+  const {localMetadata, destinyMetadata} = req;
   let script = "";
   /**
    * TABLES
    */
-  for(let i = 0; localMetadata.tables.length; i++){
+  for(let i = 0; i<localMetadata.tables.length; i++){
     let table = localMetadata.tables[i];
-    if(destinyMetadata.tables.some(x => x.mixeds.name == table.name)){
+    if(destinyMetadata.tables.some(x => x.mixeds.name == table.mixeds.name)){
       /**
        * CHANGING
        */
+      console.log("CHANGING = ", table.mixeds);
     }
     else {
       /**
        * NEW
        */
+      console.log("     NEW = ", table.mixeds);
     }
   }
 

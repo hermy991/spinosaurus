@@ -8,7 +8,7 @@ const testMessage = "  {}";
 /*********************
  * ENTITY DDL QUERY
  *********************/
-Deno.test(testMessage.replace(/\{\}/ig, "create [create table] query should work"), async () => {
+Deno.test(testMessage.replace(/\{\}/ig, "create [create table] query should work"), () => {
   let db: Connection = new Connection(con1);
   let qs = db.create({ entity: "User", schema: "public"})
              .columns({columnName: "column1", datatype: "varchar" });
@@ -17,7 +17,7 @@ Deno.test(testMessage.replace(/\{\}/ig, "create [create table] query should work
   let querySpected = `CREATE TABLE "public"."User" ( "column1" VARCHAR )`.replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, querySpected);
 });
-Deno.test(testMessage.replace(/\{\}/ig, "create [create table with data] query should work"), async () => {
+Deno.test(testMessage.replace(/\{\}/ig, "create [create table with data] query should work"), () => {
   let db: Connection = new Connection(con1);
   let qs = db.create({ entity: "User", schema: "public"})
              .columns({columnName: "column1", datatype: "varchar" })

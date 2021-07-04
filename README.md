@@ -52,15 +52,15 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 ### Example 1, simple retriving data from db
 ```typescript
 let data = await db.select()
-									 .from("User")
-									 .getRawMany();
+                   .from("User")
+                   .getRawMany();
 ```
 ## Update
 ### Example 1, simple update data
 ```typescript
 await db.update("User")
-				.set({ userName: "yassett77", firstName: "Yassett"})
-				.execute();
+        .set({ userName: "yassett77", firstName: "Yassett"})
+        .execute();
 ```
 ### Example 1, simple update multiple data
 ```typescript
@@ -87,11 +87,11 @@ await db.insert("User")
 ```typescript
 import {User} from './user.ts';
 await db.insert(User)
-				.columns(["userName"])
-				.from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy"}, 
-				{ userName: "yassett77", firstName: "Yassett"}])
-				.where([`"ege" >= 18`])
-				.execute();
+        .columns(["userName"])
+        .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy"}, 
+        { userName: "yassett77", firstName: "Yassett"}])
+        .where([`"ege" >= 18`])
+        .execute();
 ```
 
 # Cotribuing

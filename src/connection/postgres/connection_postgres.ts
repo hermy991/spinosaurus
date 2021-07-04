@@ -53,49 +53,18 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
      * buscar el schema por defecto en el query
      */
     const query = `
-SELECT n."oid",
-"relname" "name",
-"nspname" "schema",
-"relnamespace",
-"reltype",
-"reloftype",
-"relowner",
-"relam",
-"relfilenode",
-"reltablespace",
-"relpages",
-"reltuples",
-"relallvisible",
-"reltoastrelid",
-"relhasindex",
-"relisshared",
-"relpersistence",
-"relkind",
-"relnatts",
-"relchecks",
-"relhasrules",
-"relhastriggers",
-"relhassubclass",
-"relrowsecurity",
-"relforcerowsecurity",
-"relispopulated",
-"relreplident",
-"relispartition",
-"relrewrite",
-"relfrozenxid",
-"relminmxid",
-"relacl",
-"reloptions",
-"relpartbound",
-"nspowner",
-"nspacl"
+SELECT n."oid"
+    , current_database() "database"
+    , n."nspname" "schema"
+    , c."relname" "name"
+    , c."relkind" "type"
 FROM pg_catalog.pg_class c
 INNER JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-WHERE n.nspname not in ('pg_catalog', 'information_schema')
+WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
   AND n.nspname = CASE WHEN '${req.schema}' = '' THEN current_schema() ELSE '${req.schema}' END -- schema
   AND c.relname = '${req.name}' -- object
     `;
-    const result = await this.execute(query);
+    const result = await this.execute(query, req.database ? {database: req.database} : undefined);
     const rows = result.rows;
     let type;
     if(rows.length){
@@ -144,7 +113,7 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema')
 
   async getCurrentSchema(): Promise<string> {
     let schema = "";
-    const query = "SELECT current_schema()";
+    const query = "SELECT current_schema() current_schema;";
     const result = await this.execute(query);
     const rows = result.rows;
     if(rows.length)
@@ -184,6 +153,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
         });
         table = metadata.tables[metadata.tables.length - 1];
       }
+      const type = {columnType: <string>row.data_type, length:<number>row.character_maximum_length, precision: <number>row.numeric_precision, scale: <number>row.numeric_scale };
       let column = { 
         // target,
         entity: { name: <string>row.table_name },
@@ -191,7 +161,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
         // property,
         // options,
         mixeds: <ColumnOptions> {
-                      type: this.getColumnTypeReverse(<string>row.data_type),
+                      type: this.getColumnTypeReverse(type),
                       name: <string>row.column_name,
                       length: <number>row.character_maximum_length,
                       nullable: row.is_nullable == "YES",
@@ -208,22 +178,41 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
     return metadata;
   }
 
-  getColumnTypeReverse(columnType: string) {
-    let r: ColumnType = "text";
+  getColumnTypeReverse(req: {columnType: string, length?: number, precision?: number, scale?: number}) {
+    const {columnType, length/*, precision, scale*/} = req;
+    let r: ColumnType;
+ 
+    const charAlikes = ["character", "character varying", "inet", "uuid", "macaddr", "macaddr8", "jsonb", "json", "xml", "cidr"];
 
-    
 
+    if(columnType == "bit")
+      r = "boolean";
+    else if(columnType == "bytea")
+      r = "bytearray";
+    else if(length && charAlikes.includes(columnType))
+      r = "varchar";
+    else if(charAlikes.includes(columnType))
+      r = "text";
+    else if(["double precision", "real", "money"].includes(columnType))
+      r = "numeric";
+    // else if(scale && ["numeric"].includes(columnType))
+    //   r = "integer";
+    else 
+      r = <ColumnType>columnType;
+      
+    if(!r)
+      return;
     return r;
   }
   
-  async execute(query: string): Promise<any> {
-    const driverConf = filterConnectionProps(KEY_CONFIG, this);
+  async execute(query: string, changes?: any): Promise<any> {
+    const driverConf = filterConnectionProps(KEY_CONFIG, this, changes);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
-    //const query = this.getQuery();
-    const result = await client.queryArray(query);
+    const result = await client.queryObject(query);
     client.release();
     await pool.end();
+    console.log("pool.size", pool.size);
     return result;
   }
 
@@ -238,7 +227,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
     return [];
   }
   async getRawMany(query: string): Promise<Array<any>> {
-    let driverConf = filterConnectionProps(KEY_CONFIG, this);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
     //const query = this.getQuery();
@@ -248,7 +237,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
     return result.rows;
   }
   async getRawMultiple(query: string): Promise<Array<any>> {
-    let driverConf = filterConnectionProps(KEY_CONFIG, this);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
     // const query = this.getQuery();
