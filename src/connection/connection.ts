@@ -1,6 +1,7 @@
 import {path} from "../../deps.ts";
 import {ConnectionPostgres} from './postgres/connection_postgres.ts';
 import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.ts'
+import {ColumnType} from '../decorators/options/column_type.ts'
 import {ExecutorDrop} from './executors/executor_drop.ts'
 import {ExecutorCreate} from './executors/executor_create.ts'
 import {ExecutorSelect} from './executors/executor_select.ts'
@@ -68,6 +69,24 @@ class Connection {
   async checkObject(req: { name: string, schema?: string, database?: string }): Promise<{ name: string, schema?: string, database?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }> {
     const defConn = this.connections[this.defIndex];
     const res = await defConn.checkObject(req);
+    return res;
+  }
+
+  async getCurrentDatabase(){
+    const defConn = this.connections[this.defIndex];
+    const res = await defConn.getCurrentDatabase();
+    return res;
+  }
+
+  async getCurrentSchema(){
+    const defConn = this.connections[this.defIndex];
+    const res = await defConn.getCurrentSchema();
+    return res;
+  }
+
+  getDbColumnType(req: { spitype: ColumnType, length?: number, precision?: number, scale?: number }){
+    const defConn = this.connections[this.defIndex];
+    const res = defConn.getDbColumnType(req);
     return res;
   }
   

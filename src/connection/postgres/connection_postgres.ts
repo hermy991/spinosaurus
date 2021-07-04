@@ -111,9 +111,19 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
     return res;
   }
 
+  async getCurrentDatabase(changes?: {database?: string}): Promise<string> {
+    let schema = "";
+    const query = "SELECT current_database() current_database";
+    const result = await this.execute(query, changes);
+    const rows = result.rows;
+    if(rows.length)
+      schema = rows[0].current_database;
+    return schema;
+  }
+
   async getCurrentSchema(): Promise<string> {
     let schema = "";
-    const query = "SELECT current_schema() current_schema;";
+    const query = `SELECT current_schema() "current_schema"`;
     const result = await this.execute(query);
     const rows = result.rows;
     if(rows.length)
@@ -121,6 +131,31 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
     else
       schema = "public";
     return schema;
+  }
+
+  getDbColumnType(req: { spitype: ColumnType, length?: number, precision?: number, scale?: number }): string{
+    const { spitype, length, precision, scale} = req;
+    let columnType: string;
+    if(spitype == "bytearray")
+      columnType = "bytea";
+    else 
+      columnType = spitype;
+    /// length, precision, scale
+    
+    if(["varchar", "bit", "bit varying", "character", "character varying"].includes(columnType) && length)
+      columnType = `${columnType}(${length})`;
+    if(columnType == "numeric" && precision && scale)
+      columnType = `${columnType}(${precision},${scale})`;
+    if(columnType == "numeric" && precision)
+      columnType = `${columnType}(${precision})`;
+    
+    if(columnType == "numeric" && !precision && length == 8)
+      columnType = `bigint`;
+    if(columnType == "numeric" && !precision && length == 4)
+      columnType = `integer`;
+    if(columnType == "numeric" && !precision && length == 2)
+      columnType = `smallint`;
+    return columnType;
   }
 
   async getMetadata(): Promise<MetadataStore>{
@@ -212,7 +247,6 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
     const result = await client.queryObject(query);
     client.release();
     await pool.end();
-    console.log("pool.size", pool.size);
     return result;
   }
 

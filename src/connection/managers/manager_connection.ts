@@ -23,7 +23,8 @@ export async function synchronize(conn: Connection){
     const localMetadata = getMetadata();
     const destinyMetadata = await getDestinyMetadata(defConn);
     
-    const script = generateScript({ conn: defConn, localMetadata, destinyMetadata});
+    const script = await generateScript({ conn, localMetadata, destinyMetadata});
+    console.log("script", script);
 
   }
 }
@@ -109,28 +110,41 @@ export async function getDestinyMetadata(conn: ConnectionPostgres): Promise<Meta
   return metadata;
 }
 
-export function generateScript(req: {conn: ConnectionPostgres, localMetadata: MetadataStore, destinyMetadata: MetadataStore }): string{
-  const {localMetadata, destinyMetadata} = req;
+export async function generateScript(req: {conn: Connection, localMetadata: MetadataStore, destinyMetadata: MetadataStore }): Promise<string>{
+  const {conn, localMetadata, destinyMetadata} = req;
+  const ddatabase = await conn.getCurrentDatabase();
+  const dschema = await conn.getCurrentSchema();
   let script = "";
   /**
    * TABLES
    */
   for(let i = 0; i<localMetadata.tables.length; i++){
-    let table = localMetadata.tables[i];
-    if(destinyMetadata.tables.some(x => x.mixeds.name == table.mixeds.name)){
+    const table = localMetadata.tables[i];
+    table.mixeds.database = table.mixeds.database || ddatabase;  
+    table.mixeds.schema = table.mixeds.schema || dschema;
+    if(table.mixeds.database != ddatabase)
+      continue;
+    const topts = table.mixeds;
+    if(destinyMetadata.tables.some(x => x.mixeds.name == topts.name)){
       /**
        * CHANGING
        */
-      console.log("CHANGING = ", table.mixeds);
+      //console.log("CHANGING = ", table.mixeds);
     }
     else {
       /**
        * NEW
        */
-      console.log("     NEW = ", table.mixeds);
+      //console.log("     NEW = ", topts);
+      const toColumn = (mixeds: ColumnOptions) => { 
+        return ({ columnName: mixeds.name, datatype: conn.getDbColumnType({spitype: <ColumnType>mixeds.type, length: <number>mixeds.length, precision: mixeds.precision, scale: mixeds.scale })
+      };
+      const columns = table.columns.map((x: { mixeds: ColumnOptions; }) => toColumn(x.mixeds));
+      const qs = conn.create({ entity: topts.name, schema: topts.schema})
+                     .columns(...columns);
+      const query = qs.getQuery() || "";
+      script += `${query}\n`;
     }
   }
-
-
   return script;
 }

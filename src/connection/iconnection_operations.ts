@@ -4,7 +4,9 @@ export interface IConnectionOperations {
   /* Basic Connection Operations*/
   test(): Promise<boolean>;
   checkObject(req: { name: string, schema?: string, database?: string }): Promise<{ name: string, schema?: string, database?: string, exists: boolean, oid?: number, dbdata?: any, type?: string }>;
+  getCurrentDatabase(): Promise<string>;
   getCurrentSchema(): Promise<string>;
+  getDbColumnType(req: { spitype: string, length?: number, precision?: number, scale?: number }): string;
   getMetadata(): Promise<MetadataStore>
   getRawOne(query: string): Promise<Array<any>>;
   getRawMany(query: string): Promise<Array<any>>;
