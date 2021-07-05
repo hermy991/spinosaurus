@@ -7,6 +7,7 @@ import {ColumnOptions} from "../../decorators/options/column_options.ts";
 import {getMetadata, getColumnType} from "../../decorators/metadata/metadata.ts";
 import {ConnectionPostgres} from "../postgres/connection_postgres.ts";
 import {MetadataStore} from "../../decorators/metadata/metadata_store.ts"
+import {ColumnType} from "../../decorators/options/column_type.ts"
 
 export async function createConnection(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
   const tconn = new Connection(conn, def);
@@ -22,9 +23,9 @@ export async function synchronize(conn: Connection){
     // await validateScript(getMetadata(), defConn);
     const localMetadata = getMetadata();
     const destinyMetadata = await getDestinyMetadata(defConn);
-    
-    const script = await generateScript({ conn, localMetadata, destinyMetadata});
-    console.log("script", script);
+    const script = await generateScript({conn, localMetadata, destinyMetadata});
+    //console.log("script", script.join(";\n"));
+    await defConn.execute(script.join(";\n"));
 
   }
 }
@@ -33,13 +34,14 @@ export async function updateStore(entities: string []){
   for(const entity of entities){
     for await (const file of fs.expandGlob(entity)){
       const path = file.path.replaceAll(`\\`, `/`).replaceAll(`C:/`, `/`);
-      const mod = await import (path);
+      const _ = await import (path);
     }
     /**
      * Link all objects
      */
-    for(const table of getMetadata().tables){
-      for(const column of getMetadata().columns){
+    const metadata = getMetadata();
+    for(const table of metadata.tables){
+      for(const column of metadata.columns){
         if(column.entity.target === table.target){
           table.columns = Array.isArray(table.columns) ? table.columns : []; 
           table.columns.push(column);
@@ -49,8 +51,8 @@ export async function updateStore(entities: string []){
     /**
      * Mixed Entity
      */
-    for(const table of getMetadata().tables){
-      let options: EntityOptions = table.options;
+    for(const table of metadata.tables){
+      const options: EntityOptions = table.options;
       let mixeds = { name: table.target.name };
       mixeds = Object.assign(mixeds, options);
       table.mixeds = mixeds;
@@ -58,11 +60,11 @@ export async function updateStore(entities: string []){
     /**
      * Mixed Column
      */
-    for(const column of getMetadata().columns){
-      let target = column.target;
-      let instance = new column.entity.target();
-      let options: ColumnOptions = column.options;
-      let property = column.property;
+    for(const column of metadata.columns){
+      const target = column.target;
+      const instance = new column.entity.target();
+      const options: ColumnOptions = column.options;
+      const property = column.property;
       const propertyDescriptor = Object.getOwnPropertyDescriptor(instance, target.name);
       column.descriptor = propertyDescriptor;
       /**
@@ -99,10 +101,15 @@ export async function updateStore(entities: string []){
         //console.log("hola que lo que = ", {type: property.type, options, value: instance[target.name]});
         throw(`Property '${property.propertyKey}' Data type cannot be determined, use { type: "?" } or define the data type in the property.`);
       }
-
-
     }
   }
+  const metadata = getMetadata();
+  for(const table of metadata.tables){
+    if(!table.columns.length){
+      throw(`Entity '${table.mixeds.name}' needs column(property) definition, use @Column, @PrimaryColumn, @PrimaryGeneratedColumn, etc.`);
+    }
+  }
+
 }
 
 export async function getDestinyMetadata(conn: ConnectionPostgres): Promise<MetadataStore> {
@@ -110,11 +117,11 @@ export async function getDestinyMetadata(conn: ConnectionPostgres): Promise<Meta
   return metadata;
 }
 
-export async function generateScript(req: {conn: Connection, localMetadata: MetadataStore, destinyMetadata: MetadataStore }): Promise<string>{
+export async function generateScript(req: {conn: Connection, localMetadata: MetadataStore, destinyMetadata: MetadataStore }): Promise<string[]>{
   const {conn, localMetadata, destinyMetadata} = req;
   const ddatabase = await conn.getCurrentDatabase();
   const dschema = await conn.getCurrentSchema();
-  let script = "";
+  const script: string[] = [];
   /**
    * TABLES
    */
@@ -135,15 +142,17 @@ export async function generateScript(req: {conn: Connection, localMetadata: Meta
       /**
        * NEW
        */
-      //console.log("     NEW = ", topts);
       const toColumn = (mixeds: ColumnOptions) => { 
-        return ({ columnName: mixeds.name, datatype: conn.getDbColumnType({spitype: <ColumnType>mixeds.type, length: <number>mixeds.length, precision: mixeds.precision, scale: mixeds.scale })
-      };
+        return ({ 
+          columnName: mixeds.name, 
+          datatype: conn.getDbColumnType({spitype: <ColumnType>mixeds.type, length: <number>mixeds.length, precision: mixeds.precision, scale: mixeds.scale })
+        });
+      }
       const columns = table.columns.map((x: { mixeds: ColumnOptions; }) => toColumn(x.mixeds));
       const qs = conn.create({ entity: topts.name, schema: topts.schema})
                      .columns(...columns);
       const query = qs.getQuery() || "";
-      script += `${query}\n`;
+      script.push(`${query}`);
     }
   }
   return script;

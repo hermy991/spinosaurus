@@ -22,7 +22,7 @@ export class ExecutorSelect {
     }
     this.sb.select(... tempColumns);
     return this;
-  };
+  }
   selectDistinct(... columns: Array<{column: string, as?: string} | [string, string?]>): ExecutorSelect {
     let tempColumns: Array<{column: string, as?: string}> = [];
     for(let i = 0; i < columns.length; i++){
@@ -36,11 +36,11 @@ export class ExecutorSelect {
     }
     this.sb.selectDistinct(... tempColumns);
     return this;
-  };
+  }
   addSelect(req: {column: string, as?: string}): ExecutorSelect {
     this.sb.addSelect(req);
     return this;
-  };
+  }
   from(req: {entity: string, schema?: string, as?: string}): ExecutorSelect {
     this.sb.from(req);
     return this;

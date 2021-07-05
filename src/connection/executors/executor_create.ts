@@ -20,6 +20,17 @@ export class ExecutorCreate {
     return this;
   }
 
+  uniques(... uniques: Array<{name?: string, columnNames: Array<string>}>): ExecutorCreate {
+    this.cb.uniques(...uniques);
+    return this;
+  }
+
+  addUnique(unique: {name?: string, columnNames: Array<string>}): ExecutorCreate{
+    this.cb.addUnique(unique);
+    return this;
+  }
+
+
   data(data: Array<any> | any): ExecutorCreate {
     this.cb.data(data);
     return this;

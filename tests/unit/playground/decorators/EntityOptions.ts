@@ -5,6 +5,7 @@ import {Entity, Column} from "spinosaurus/mod.ts"
  */
 @Entity({name: "EntityOptions1"})
 export class EntityOptions1 {
+  @Column()
   test1?: string;
   test2?: string;
   test3?: string;
@@ -12,6 +13,7 @@ export class EntityOptions1 {
 
 @Entity()
 export class EntityOptions2 {
+  @Column()
   test1?: string;
   test2?: string;
   test3?: string;
@@ -19,6 +21,7 @@ export class EntityOptions2 {
 
 @Entity({name: "EntityOptions3"})
 export class EntityOptions4 {
+  @Column()
   test1?: string;
   test2?: string;
   test3?: string;

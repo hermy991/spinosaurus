@@ -4,6 +4,7 @@ export class CreateBuilding extends BaseBuilding {
   
   private nameData: [string, string?] | null = null;
   private columnsData: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }> = [];
+  private uniquesData: Array<{name?: string, columnNames: Array<string>}> = [];
   private valuesData: Array<any> = [];
   constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
     super(conf);
@@ -27,6 +28,17 @@ export class CreateBuilding extends BaseBuilding {
       column.length = undefined;
     }
     this.columnsData.push(column);
+  }
+  
+  uniques(... uniques: Array<{name?: string, columnNames: Array<string>}>): void {
+    this.uniquesData = [];
+    uniques.forEach(x => { 
+      this.addUnique(x);
+    });
+  }
+
+  addUnique(unique: {name?: string, columnNames: Array<string>}): void {
+    this.uniquesData.push(unique);
   }
 
   data(data: Array<any> | any){
