@@ -14,6 +14,9 @@ import {KEY_CONFIG} from './connection_postgres_variables.ts'
 class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostgresOperations {
 
   delimiters: [string, string?] = [`"`];
+  transformer = {
+    
+  }
 
   constructor(public name: string,
     public type: string = "postgres",
@@ -25,11 +28,20 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     public synchronize: boolean = false,
     public entities: string | string[],
     public hostaddr?: string
-  ) {    }
+  ) {
+    this.transformer = { 
+      columnDefinition: this.columnDefinition,
+    };
+  }
   /* Basic Connection Operations*/
-  
+  columnDefinition(): string {
+    let sqls :string[] = [];
+    
+    return sqls.join(" ");
+  }
+
   async test(): Promise<boolean> {
-    let driverConf = filterConnectionProps(KEY_CONFIG, this);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this);
     try{
       const pool = (initConnection(driverConf) as postgres.Pool);
       const client = await pool.connect();

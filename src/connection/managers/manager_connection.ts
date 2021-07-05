@@ -1,6 +1,7 @@
 // import {path} from "../../../deps.ts";
 import {fs} from "../../../deps.ts";
-import {ConnectionPostgresOptions} from '../postgres/connection_postgres_options.ts'
+import {SpiColumnDefinition} from "../executors/types/spi_column_definition.ts";
+import {ConnectionPostgresOptions} from '../postgres/connection_postgres_options.ts';
 import {Connection} from "../connection.ts";
 import {EntityOptions} from "../../decorators/options/entity_options.ts";
 import {ColumnOptions} from "../../decorators/options/column_options.ts";
@@ -77,12 +78,19 @@ export async function updateStore(entities: string []){
        * Class Column Type
        */
        options.type = getColumnType({type: property.type, options, value: instance[target.name]});
-      /**
-       * Class Default Data
-       */
-      if(instance[target.name] != undefined /*&& instance[target.name] != null*/){
-        target.default = instance[target.name];
-      }
+       /**
+        * Class Null Data
+        */
+       if(target.name in instance){
+         /** Siempre tendrá valor*/
+         target.nullable = false;
+       }
+       /**
+        * Class Default Data
+        */
+       if(instance[target.name] != undefined){
+         target.default = instance[target.name];
+       }
       /**
        * Class readonly
        */
@@ -143,12 +151,18 @@ export async function generateScript(req: {conn: Connection, localMetadata: Meta
        * NEW
        */
       const toColumn = (mixeds: ColumnOptions) => { 
-        return ({ 
+
+        return ({
           columnName: mixeds.name, 
-          datatype: conn.getDbColumnType({spitype: <ColumnType>mixeds.type, length: <number>mixeds.length, precision: mixeds.precision, scale: mixeds.scale })
+          datatype: conn.getDbColumnType({spitype: <ColumnType>mixeds.type, length: <number>mixeds.length, precision: mixeds.precision, scale: mixeds.scale }),
+          nullable: mixeds.nullable
         });
       }
-      const columns = table.columns.map((x: { mixeds: ColumnOptions; }) => toColumn(x.mixeds));
+      const columns: SpiColumnDefinition[] = table.columns.map((x: { mixeds: ColumnOptions; }) => {
+        const {name, type, length, precision, scale, nullable} = x.mixeds;
+        return {};
+      });
+
       const qs = conn.create({ entity: topts.name, schema: topts.schema})
                      .columns(...columns);
       const query = qs.getQuery() || "";

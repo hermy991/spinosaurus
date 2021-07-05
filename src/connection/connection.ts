@@ -48,16 +48,6 @@ class Connection {
       }
     }
 
-    //  this.synchronize();
-
-    // console.log("\n");
-    // console.log(`import.meta = `, import.meta);
-    // console.log(`import.meta.url = `, import.meta.url);
-    // console.log(`new URL("", import.meta.url).pathname = `, new URL("", import.meta.url).pathname);
-    // console.log(`new URL(".", import.meta.url).pathname = `, new URL(".", import.meta.url).pathname);
-    // console.log("import.meta.main : ", import.meta.main);
-    // console.log("");
-
   }
 
   async test(): Promise<boolean> {
@@ -84,7 +74,7 @@ class Connection {
     return res;
   }
 
-  getDbColumnType(req: { spitype: ColumnType, length?: number, precision?: number, scale?: number }){
+  getDbColumnType(req: { spitype: ColumnType, length?: number, precision?: number, scale?: number}){
     const defConn = this.connections[this.defIndex];
     const res = defConn.getDbColumnType(req);
     return res;
@@ -92,56 +82,56 @@ class Connection {
   
   create(req: {entity: string, schema?: string}) {
     const defConn = this.connections[this.defIndex];
-    let executor = new ExecutorCreate(defConn);
+    const executor = new ExecutorCreate(defConn);
     executor.create(req);
     return executor;
   }
 
   drop(req: {entity: string, schema?: string}) {
     const defConn = this.connections[this.defIndex];
-    let executor: ExecutorDrop = new ExecutorDrop(defConn);
+    const executor: ExecutorDrop = new ExecutorDrop(defConn);
     executor.drop(req);
     return executor;
   }
 
   rename(from: {entity: string, schema?: string}, to?: {entity: string, schema?: string}){
     const defConn = this.connections[this.defIndex];
-    let executor: ExecutorRename = new ExecutorRename(defConn);
+    const executor: ExecutorRename = new ExecutorRename(defConn);
     executor.rename(from, to);
     return executor;
   }
 
   select(... columns: Array<{column: string, as?: string} | [string, string?]>) {
     const defConn = this.connections[this.defIndex];
-    let executor: ExecutorSelect = new ExecutorSelect(defConn);
+    const executor: ExecutorSelect = new ExecutorSelect(defConn);
     executor.select(... columns);
     return executor;
   }
 
   selectDistinct(... columns: Array<{column: string, as?: string} | [string, string?]>) {
     const defConn = this.connections[this.defIndex];
-    let executor: ExecutorSelect = new ExecutorSelect(defConn);
+    const executor: ExecutorSelect = new ExecutorSelect(defConn);
     executor.selectDistinct(... columns);
     return executor;
   }
 
   update(req: {entity: string, schema?: string } | [string, string?]) {
     const defConn = this.connections[this.defIndex];
-    let executor: ExecutorUpdate = new ExecutorUpdate(defConn);
+    const executor: ExecutorUpdate = new ExecutorUpdate(defConn);
     executor.update(req);
     return executor;
   }
 
   insert(req: {entity: string, schema?: string } | [string, string?]) {
     const defConn = this.connections[this.defIndex];
-    let executor: ExecutorInsert = new ExecutorInsert(defConn);
+    const executor: ExecutorInsert = new ExecutorInsert(defConn);
     executor.insert(req);
     return executor;
   }
 
   delete(req: {entity: string, schema?: string } | [string, string?]) {
     const defConn = this.connections[this.defIndex];
-    let executor: ExecutorDelete = new ExecutorDelete(defConn);
+    const executor: ExecutorDelete = new ExecutorDelete(defConn);
     executor.delete(req);
     return executor;
   }

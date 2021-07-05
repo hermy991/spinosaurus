@@ -1,5 +1,7 @@
-import {ConnectionPostgres} from "../postgres/connection_postgres.ts"
-import {CreateBuilding} from "../../language/ddl/create/create_building.ts"
+import {SpiColumnDefinition} from "./types/spi_column_definition.ts";
+import {SpiUniqueDefinition} from "./types/spi_unique_definition.ts";
+import {ConnectionPostgres} from "../postgres/connection_postgres.ts";
+import {CreateBuilding} from "../../language/ddl/create/create_building.ts";
 
 export class ExecutorCreate {
   cb: CreateBuilding = new CreateBuilding();
@@ -10,22 +12,22 @@ export class ExecutorCreate {
     return this;
   }
   
-  columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>): ExecutorCreate {
+  columns(... columns: Array<SpiColumnDefinition>): ExecutorCreate {
     this.cb.columns(... columns);
     return this;
   }
 
-  addColumn(columnName: string, datatype: string, length?: number, nulleable?:boolean): ExecutorCreate {
-    this.cb.addColumn({columnName, datatype, length, nulleable});
+  addColumn(req: SpiColumnDefinition): ExecutorCreate {
+    this.cb.addColumn(req);
     return this;
   }
 
-  uniques(... uniques: Array<{name?: string, columnNames: Array<string>}>): ExecutorCreate {
+  uniques(... uniques: Array<SpiUniqueDefinition>): ExecutorCreate {
     this.cb.uniques(...uniques);
     return this;
   }
 
-  addUnique(unique: {name?: string, columnNames: Array<string>}): ExecutorCreate{
+  addUnique(unique: SpiUniqueDefinition): ExecutorCreate{
     this.cb.addUnique(unique);
     return this;
   }

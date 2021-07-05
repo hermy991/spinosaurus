@@ -1,43 +1,43 @@
-import {BaseBuilding} from "../../base_building.ts"
+import {interpolate, clearNames} from "../../tools/sql.ts";
+import {SpiColumnDefinition} from "../../../connection/executors/types/spi_column_definition.ts";
+import {SpiUniqueDefinition} from "../../../connection/executors/types/spi_unique_definition.ts";
+import {BaseBuilding} from "../../base_building.ts";
 import {InsertBuilding} from "../../dml/insert/insert_building.ts"
 export class CreateBuilding extends BaseBuilding {
   
   private nameData: [string, string?] | null = null;
-  private columnsData: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }> = [];
+  private columnsData: Array<{ columnName: string, spitype: string, length?: number, nullable?:boolean }> = [];
   private uniquesData: Array<{name?: string, columnNames: Array<string>}> = [];
   private valuesData: Array<any> = [];
-  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
+  constructor(public conf : { delimiters: [string, string?], transformer?: { columnDefinition?:(...params: any) => any } } = { delimiters: [`"`]}){
     super(conf);
   }
 
   create(req: {entity: string, schema?: string}): void {
-    let {entity, schema} = req;
-    this.nameData = [`${entity.replace(/["\n\t]+/ig, "")}`, schema];
+    const {entity, schema} = req;
+    this.nameData = [`${entity}`, schema];
   }
 
-  columns(... columns: Array<{ columnName: string, datatype: string, length?: number, nulleable?:boolean }>): void {
+  columns(... columns: Array<SpiColumnDefinition>): void {
     this.columnsData = [];
     columns.forEach(x => { 
       this.addColumn(x);
     });
   }
 
-  addColumn(column: { columnName: string, datatype: string, length?: number, nulleable?:boolean }): void {
-    column.columnName = `${column.columnName.replace(/["\n\t]+/ig, "")}`
-    if(typeof column.length == "number" && column.length <= 0){
-      column.length = undefined;
-    }
+  addColumn(column: SpiColumnDefinition): void {
+    column.columnName = `${column.columnName}`;
     this.columnsData.push(column);
   }
   
-  uniques(... uniques: Array<{name?: string, columnNames: Array<string>}>): void {
+  uniques(... uniques: Array<SpiUniqueDefinition>): void {
     this.uniquesData = [];
     uniques.forEach(x => { 
       this.addUnique(x);
     });
   }
 
-  addUnique(unique: {name?: string, columnNames: Array<string>}): void {
+  addUnique(unique: SpiUniqueDefinition): void {
     this.uniquesData.push(unique);
   }
 
@@ -54,10 +54,10 @@ export class CreateBuilding extends BaseBuilding {
     if(!this.nameData){
       return ``;
     }
-    let [entity, schema] = this.nameData;
-    let query = `"${entity}"`;
+    const [entity, schema] = this.nameData;
+    let query = `${clearNames({left: this.left, identifiers: entity, right: this.right})}`;
     if(schema){
-      query = `"${schema}"."${entity}"`;
+      query = `${clearNames({left: this.left, identifiers: [schema, entity], right: this.right})}`;
     }
     return `CREATE TABLE ${query}`;
   }
@@ -66,34 +66,24 @@ export class CreateBuilding extends BaseBuilding {
     if(!this.columnsData.length){
       return ``;
     }
-    let query = "";
+    const query: string[] = [];
     for(let i = 0; i < this.columnsData.length; i++){
-
-      const {columnName, datatype, length, nulleable} = this.columnsData[i];
-      query += `"${columnName}"`;
-      if(length){
-        query += ` ${datatype.toUpperCase().trim()}(${length})`;
+      let sqlCol = "";
+      if(this.conf.transformer!.columnDefinition){
+        this.columnsData[i].columnName = `${this.columnsData[i].columnName}`.replace(/["]/ig, "");
+        this.columnsData[i].columnName = `${clearNames({left: this.left, identifiers: this.columnsData[i].columnName, right: this.right})}`;
+        sqlCol = this.conf.transformer!.columnDefinition(this.columnsData[i]);
       }
-      else {
-        query += ` ${datatype.toUpperCase().trim()}`;
-      }
-      /** NOT NULL */
-      if(nulleable === false){
-        query += ` NOT NULL`;
-      }
-      if(i + 1 !== this.columnsData.length){
-        query += ", "
-      }
-
+      query.push(sqlCol);
     }
-    return `( ${query} )`;
+    return `( ${query.join(", ")} )`;
   }
 
   getInsertsQuery(){
     if(!this.nameData){
       return ``;
     }
-    let ib = new InsertBuilding(this.conf);
+    const ib = new InsertBuilding(this.conf);
     ib.insert(this.nameData);
     ib.values(this.valuesData);
     return ib.getQuery();

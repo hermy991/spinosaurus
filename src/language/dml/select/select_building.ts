@@ -1,5 +1,5 @@
 import {interpolate, clearNames} from "../../tools/sql.ts";
-import {BaseBuilding} from "../../base_building.ts"
+import {BaseBuilding} from "../../base_building.ts";
 
 export class SelectBuilding extends BaseBuilding {
   
@@ -55,10 +55,10 @@ export class SelectBuilding extends BaseBuilding {
     if(!this.selectData.length){
       return `SELECT ${this.distinct ? "DISTINCT " : ""}* `;
     }
-    let columns: string[] = [];
+    const columns: string[] = [];
     for(let i = 0; i < this.selectData.length; i++){
       const {column, as} = this.selectData[i];
-      let tempCol = `${column}` + (as ? ` AS ${clearNames({left: this.left, identifiers: as, right: this.right})}` : '');
+      const tempCol = `${column}` + (as ? ` AS ${clearNames({left: this.left, identifiers: as, right: this.right})}` : '');
       columns.push(tempCol);
     }
     return `SELECT ${this.distinct ? "DISTINCT " : ""}${columns.join(", ")}`;
@@ -80,7 +80,7 @@ export class SelectBuilding extends BaseBuilding {
     if(!this.whereData.length){
       return ``;
     }
-    let conditions: string[] = [];
+    const conditions: string[] = [];
     for(let i = 0; i<this.whereData.length; i++){
       let tempWhere = this.whereData[i];
       conditions.push(tempWhere);
