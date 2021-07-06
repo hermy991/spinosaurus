@@ -24,7 +24,7 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 - [ ] Elegant-syntax, flexible and powerful QueryBuilder
 - [ ] Left and inner joins
 - [ ] Proper pagination for queries using joins
-- [ ] Query caching
+- [x] Query caching
 - [ ] Streaming raw results
 - [ ] Logging
 - [ ] Listeners and subscribers (hooks)
@@ -42,7 +42,9 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
   - [ ] NodeJS
   - [ ] Browser
   - [ ] Electron
-- [ ] TypeScript and JavaScript support
+- [ ] Language support
+  - [ ] JavaScript
+  - [ ] TypeScript
 - [ ] Produced code is performant, flexible, clean and maintainable
 - [ ] Follows all possible best practices
 - [ ] CLI
@@ -94,8 +96,20 @@ await db.insert(User)
         .execute();
 ```
 
-# Cotribuing
-## Test
+# Scripts (Velociraptor)
+<!-- ## Test file
 ```bash
-deno test --unstable --import-map=./tests/importmap.json --config=./tests/tsconfig.json --allow-net --allow-read --allow-env=SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD tests/start.ts
+deno run -qA https://code.velociraptor.run <SCRIPT>
+``` -->
+## Test all
+```bash
+deno run -qA https://code.velociraptor.run test
+```
+## Test SQL
+```bash
+deno run -qA https://code.velociraptor.run test:query
+```
+## Test Executor
+```bash
+deno run -qA https://code.velociraptor.run test:executor
 ```

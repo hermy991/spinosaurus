@@ -66,17 +66,17 @@ export class CreateBuilding extends BaseBuilding {
     if(!this.columnsData.length){
       return ``;
     }
-    const query: string[] = [];
+    const sqls: string[] = [];
     for(let i = 0; i < this.columnsData.length; i++){
-      let sqlCol = "";
+      let sql = "";
+      let columnName = `${this.columnsData[i].columnName}`.replace(/["]/ig, "");
+      columnName = `${clearNames({left: this.left, identifiers: columnName, right: this.right})}`;
       if(this.conf.transformer!.columnDefinition){
-        this.columnsData[i].columnName = `${this.columnsData[i].columnName}`.replace(/["]/ig, "");
-        this.columnsData[i].columnName = `${clearNames({left: this.left, identifiers: this.columnsData[i].columnName, right: this.right})}`;
-        sqlCol = this.conf.transformer!.columnDefinition(this.columnsData[i]);
+        sql = this.conf.transformer!.columnDefinition({...this.columnsData[i], columnName});
       }
-      query.push(sqlCol);
+      sqls.push(sql);
     }
-    return `( ${query.join(", ")} )`;
+    return `( ${sqls.join(", ")} )`;
   }
 
   getInsertsQuery(){

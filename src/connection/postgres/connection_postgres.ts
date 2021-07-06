@@ -1,15 +1,18 @@
 //import {ConnectionPostgresOptions} from './connection_postgres_options.ts'
-import {IConnectionPostgresOptions} from './iconnection_postgres_options.ts'
-import {IConnectionPostgresOperations} from './iconnection_postgres_operations.ts'
-import {SelectBuilding} from '../../language/dml/select/select_building.ts';
+import {stringify} from '../../language/tools/sql.ts';
+import {IConnectionPostgresOptions} from './iconnection_postgres_options.ts';
+import {IConnectionPostgresOperations} from './iconnection_postgres_operations.ts';
+// import {SelectBuilding} from '../../language/dml/select/select_building.ts';
+import {SpiColumnDefinition} from '../executors/types/spi_column_definition.ts';
+import {SpiColumnComment} from '../executors/types/spi_column_comment.ts';
 import {initConnection} from './connection_postgres_pool.ts';
-import {filterConnectionProps} from '../connection_operations.ts'
+import {filterConnectionProps} from '../connection_operations.ts';
 import {MetadataStore} from '../../decorators/metadata/metadata_store.ts';
-import {EntityOptions} from '../../decorators/options/entity_options.ts'
-import {ColumnOptions} from '../../decorators/options/column_options.ts'
-import {ColumnType} from '../../decorators/options/column_type.ts'
+import {EntityOptions} from '../../decorators/options/entity_options.ts';
+import {ColumnOptions} from '../../decorators/options/column_options.ts';
+import {ColumnType} from '../../decorators/options/column_type.ts';
 import {postgres} from '../../../deps.ts';
-import {KEY_CONFIG} from './connection_postgres_variables.ts'
+import {KEY_CONFIG} from './connection_postgres_variables.ts';
 
 class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostgresOperations {
 
@@ -34,10 +37,41 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     };
   }
   /* Basic Connection Operations*/
-  columnDefinition(): string {
-    let sqls :string[] = [];
-    
-    return sqls.join(" ");
+  columnDefinition(scd: SpiColumnDefinition): string  {
+    /**
+     * Column definition
+     */
+    const defs :string[] = [];
+    defs.push(scd.columnName);
+    defs.push(this.getDbColumnType(scd).toUpperCase());
+    if(scd.nullable == false)
+      defs.push(`NOT NULL`);
+    return defs.join(" ");
+  }
+  columnComment(scc: SpiColumnComment): string {
+    const { schema, entity, columnName, comment } = scc;
+    let sql = `COMMENT ON COLUMN ${ schema ? schema+"." : "" }${ entity }.${ columnName } IS `;
+    sql += `${ comment === null || comment === undefined ? 'NULL' : stringify(comment) }`;
+    return sql;
+  }
+  columnAlter(from: {schema?: string, entity: string, columnName: string}, changes: SpiColumnDefinition): string[] {
+    const {schema, entity, columnName} = from;
+    const querys: string[] = [];
+    const efrom = `${schema ? schema+".":""}${entity}`;
+    if(changes.columnName && columnName != changes.columnName){
+      querys.push(`${efrom} RENAME COLUMN ${columnName} TO ${changes.columnName}`);
+    }
+    // if(type){
+      //   let newType = `${type.toUpperCase()}`;
+      //   if(precision){
+      //     let psArr: (string|number)[] = [precision];
+      //     scale ? psArr.push(scale) : undefined;
+      //     length ? psArr.push(length) : undefined;
+      //     newType += `(${psArr.join(", ")})`;
+      //   }
+      //   querys.push(`${ename} ALTER COLUMN ${columnName} TYPE ${newType}`);
+      // }
+      return querys;
   }
 
   async test(): Promise<boolean> {
@@ -148,25 +182,22 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
   getDbColumnType(req: { spitype: ColumnType, length?: number, precision?: number, scale?: number }): string{
     const { spitype, length, precision, scale} = req;
     let columnType: string;
-    if(spitype == "bytearray")
+    if(["bytearray"].includes(spitype))
       columnType = "bytea";
-    else 
-      columnType = spitype;
-    /// length, precision, scale
-    
-    if(["varchar", "bit", "bit varying", "character", "character varying"].includes(columnType) && length)
-      columnType = `${columnType}(${length})`;
-    if(columnType == "numeric" && precision && scale)
-      columnType = `${columnType}(${precision},${scale})`;
-    if(columnType == "numeric" && precision)
-      columnType = `${columnType}(${precision})`;
-    
-    if(columnType == "numeric" && !precision && length == 8)
+    else if(["varchar"].includes(spitype) && length)
+      columnType = `character varying (${length})`;
+    else if(["numeric"].includes(spitype) && precision && scale)
+      columnType = `numeric (${precision},${scale})`;
+    else if(["numeric"].includes(spitype) && precision)
+      columnType = `numeric (${precision})`;
+    else if(["numeric"].includes(spitype) && !precision && length == 8)
       columnType = `bigint`;
-    if(columnType == "numeric" && !precision && length == 4)
+    else if(["numeric"].includes(spitype) && !precision && length == 4)
       columnType = `integer`;
-    if(columnType == "numeric" && !precision && length == 2)
+    else if(["numeric"].includes(spitype) && !precision && length == 2)
       columnType = `smallint`;
+    else
+      columnType = spitype;
     return columnType;
   }
 
@@ -228,10 +259,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
   getColumnTypeReverse(req: {columnType: string, length?: number, precision?: number, scale?: number}) {
     const {columnType, length/*, precision, scale*/} = req;
     let r: ColumnType;
- 
     const charAlikes = ["character", "character varying", "inet", "uuid", "macaddr", "macaddr8", "jsonb", "json", "xml", "cidr"];
-
-
     if(columnType == "bit")
       r = "boolean";
     else if(columnType == "bytea")

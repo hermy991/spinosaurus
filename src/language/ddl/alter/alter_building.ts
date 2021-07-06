@@ -1,13 +1,19 @@
 import {stringify, clearNames} from "../../tools/sql.ts"
 import {BaseBuilding} from "../../base_building.ts";
-import {DefColumn} from "../../def/def_column.ts";
+import {SpiColumnDefinition} from "../../../connection/executors/types/spi_column_definition.ts";
+import {SpiColumnComment} from "../../../connection/executors/types/spi_column_comment.ts";
 
 export class AlterBuilding extends BaseBuilding {
   
   private fromData: [string, string?] | undefined = undefined;
-  private columnsData: Array<[string, DefColumn]> = [];
+  private columnsData: Array<[string, SpiColumnDefinition]> = [];
 
-  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
+  constructor(public conf: { delimiters: [string, string?] } = { delimiters: [`"`]},
+              public transformer: { 
+                                    columnAlter?: (columnName: string, changes: SpiColumnDefinition) => string[], 
+                                    columnComment?: (scc: SpiColumnComment) => string
+                                  } = {}
+  ){
     super(conf);
   }
 
@@ -15,14 +21,14 @@ export class AlterBuilding extends BaseBuilding {
     this.fromData = [`${from.entity}`, from.schema];
   }
 
-  columns(... columns: Array<[string, DefColumn]>): void {
+  columns(... columns: Array<[string, SpiColumnDefinition]>): void {
     this.columnsData = [];
     columns.forEach(x => { 
       this.addColumn(x);
     });
   }
 
-  addColumn(column: [string, DefColumn]): void {
+  addColumn(column: [string, SpiColumnDefinition]): void {
     this.columnsData.push(column);
   }
 
@@ -30,8 +36,8 @@ export class AlterBuilding extends BaseBuilding {
     if(!this.fromData){
       return ``;
     }
-    let [entity, schema] = this.fromData;
-    let query = clearNames({ left: this.left, identifiers: [schema, entity], right: this.right })
+    const [entity, schema] = this.fromData;
+    const query = clearNames({ left: this.left, identifiers: [schema, entity], right: this.right })
     return `ALTER TABLE ${query}`;
   }
   
@@ -39,35 +45,36 @@ export class AlterBuilding extends BaseBuilding {
     if(!this.columnsData.length || !this.fromData){
       return ``;
     }
-    let [entity, schema] = this.fromData;
-    let querys: string[] = [];
-    let ename = this.getEntityQuery();
+    const [entity, schema] = this.fromData;
+    const querys: string[] = [];
+    const ename = this.getEntityQuery();
 
     for(let i = 0; i < this.columnsData.length; i++){
       let [columnName, def] = this.columnsData[0];
       columnName = clearNames({ left: this.left, identifiers: columnName, right: this.right });
-      let { type, name, length, nullable, defaul, comment, precision, scale } = def;
-      if(type){
-        let newType = `${type.toUpperCase()}`;
-        if(precision){
-          let psArr: (string|number)[] = [precision];
-          scale ? psArr.push(scale) : undefined;
-          length ? psArr.push(length) : undefined;
-          newType += `(${psArr.join(", ")})`;
-        }
-        querys.push(`${ename} ALTER COLUMN ${columnName} TYPE ${newType}`);
-      }
-      if(name){
-        querys.push(`${ename} RENAME COLUMN ${columnName} TO ${clearNames({ left: this.left, identifiers: name, right: this.right })}`);
-      }
-      if(nullable === false || nullable === true){
-        querys.push(`${ename} ALTER COLUMN ${columnName} ${ nullable ? 'DROP' : 'SET' } NOT NULL`);
-      }
+      const { type, name, length, nullable, defaul, comment, precision, scale } = def;
+      // if(type){
+      //   let newType = `${type.toUpperCase()}`;
+      //   if(precision){
+      //     let psArr: (string|number)[] = [precision];
+      //     scale ? psArr.push(scale) : undefined;
+      //     length ? psArr.push(length) : undefined;
+      //     newType += `(${psArr.join(", ")})`;
+      //   }
+      //   querys.push(`${ename} ALTER COLUMN ${columnName} TYPE ${newType}`);
+      // }
+      // if(name && columnName != name){
+      //   querys.push(`${ename} RENAME COLUMN ${columnName} TO ${clearNames({ left: this.left, identifiers: name, right: this.right })}`);
+      // }
+      // if(nullable === false || nullable === true){
+      //   querys.push(`${ename} ALTER COLUMN ${columnName} ${ nullable ? 'DROP' : 'SET' } NOT NULL`);
+      // }
       if('defaul' in def){
         querys.push(`${ename} ALTER COLUMN ${columnName} ${ defaul === null || defaul === undefined ? 'DROP DEFAULT' : 'SET DEFAULT ' + stringify(defaul) }`);
       }
-      if("comment" in def){
-        querys.push(`COMMENT ON COLUMN ${clearNames({ left: this.left, identifiers: [schema, entity, name || columnName], right: this.right })} IS ${ comment === null || comment === undefined ? 'NULL' : stringify(comment) }`);
+      if(def.comment && this.transformer.columnComment){
+        const qcol = this.transformer.columnComment({schema, entity, columnName: name || columnName, comment: def.comment});
+        querys.push(qcol);
       }
       /**
        * COLLATION

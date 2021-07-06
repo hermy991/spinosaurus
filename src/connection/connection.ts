@@ -1,14 +1,13 @@
-import {path} from "../../deps.ts";
+// import {path} from "../../deps.ts";
 import {ConnectionPostgres} from './postgres/connection_postgres.ts';
-import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.ts'
-import {ColumnType} from '../decorators/options/column_type.ts'
-import {ExecutorDrop} from './executors/executor_drop.ts'
-import {ExecutorCreate} from './executors/executor_create.ts'
-import {ExecutorSelect} from './executors/executor_select.ts'
-import {ExecutorRename} from './executors/executor_rename.ts'
-import {ExecutorInsert} from './executors/executor_insert.ts'
-import {ExecutorUpdate} from './executors/executor_update.ts'
-import {ExecutorDelete} from './executors/executor_delete.ts'
+import {ConnectionPostgresOptions} from './postgres/connection_postgres_options.ts';
+import {ExecutorDrop} from './executors/executor_drop.ts';
+import {ExecutorCreate} from './executors/executor_create.ts';
+import {ExecutorSelect} from './executors/executor_select.ts';
+import {ExecutorRename} from './executors/executor_rename.ts';
+import {ExecutorInsert} from './executors/executor_insert.ts';
+import {ExecutorUpdate} from './executors/executor_update.ts';
+import {ExecutorDelete} from './executors/executor_delete.ts';
 
 
 class Connection {
@@ -71,12 +70,6 @@ class Connection {
   async getCurrentSchema(){
     const defConn = this.connections[this.defIndex];
     const res = await defConn.getCurrentSchema();
-    return res;
-  }
-
-  getDbColumnType(req: { spitype: ColumnType, length?: number, precision?: number, scale?: number}){
-    const defConn = this.connections[this.defIndex];
-    const res = defConn.getDbColumnType(req);
     return res;
   }
   

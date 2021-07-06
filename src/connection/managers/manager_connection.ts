@@ -8,7 +8,6 @@ import {ColumnOptions} from "../../decorators/options/column_options.ts";
 import {getMetadata, getColumnType} from "../../decorators/metadata/metadata.ts";
 import {ConnectionPostgres} from "../postgres/connection_postgres.ts";
 import {MetadataStore} from "../../decorators/metadata/metadata_store.ts"
-import {ColumnType} from "../../decorators/options/column_type.ts"
 
 export async function createConnection(conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>, def: number | string = 0 ) {
   const tconn = new Connection(conn, def);
@@ -144,23 +143,17 @@ export async function generateScript(req: {conn: Connection, localMetadata: Meta
       /**
        * CHANGING
        */
-      //console.log("CHANGING = ", table.mixeds);
+      /**
+       * TODO
+       */
     }
     else {
       /**
        * NEW
        */
-      const toColumn = (mixeds: ColumnOptions) => { 
-
-        return ({
-          columnName: mixeds.name, 
-          datatype: conn.getDbColumnType({spitype: <ColumnType>mixeds.type, length: <number>mixeds.length, precision: mixeds.precision, scale: mixeds.scale }),
-          nullable: mixeds.nullable
-        });
-      }
-      const columns: SpiColumnDefinition[] = table.columns.map((x: { mixeds: ColumnOptions; }) => {
+      const columns: SpiColumnDefinition[] = table.columns.map((x: any) => {
         const {name, type, length, precision, scale, nullable} = x.mixeds;
-        return {};
+        return { columnName: name, spitype: type, length, precision, scale, nullable };
       });
 
       const qs = conn.create({ entity: topts.name, schema: topts.schema})

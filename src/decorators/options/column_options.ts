@@ -7,7 +7,7 @@ export interface ColumnOptions {
   /**
    * Column type. One of the supported column types.
    */
-  type?: ColumnType; //ColumnType -
+  spitype?: ColumnType; //ColumnType -
   /**
    * Column name in the database table. By default the column name is generated from the name of the property. You can change it by specifying your own name.
    */ 
