@@ -10,8 +10,8 @@ export class AlterBuilding extends BaseBuilding {
 
   constructor(public conf: { delimiters: [string, string?] } = { delimiters: [`"`]},
               public transformer: { 
-                                    columnAlter?: (columnName: string, changes: SpiColumnDefinition) => string[], 
-                                    columnComment?: (scc: SpiColumnComment) => string
+                                    columnAlter?: Function, 
+                                    columnComment?: Function
                                   } = {}
   ){
     super(conf);
@@ -45,37 +45,24 @@ export class AlterBuilding extends BaseBuilding {
     if(!this.columnsData.length || !this.fromData){
       return ``;
     }
-    const [entity, schema] = this.fromData;
-    const querys: string[] = [];
-    const ename = this.getEntityQuery();
+    let [entity, schema] = this.fromData;
+    entity = entity ? clearNames({ left: this.left, identifiers: entity, right: this.right }) : entity;
+    schema = schema ? clearNames({ left: this.left, identifiers: schema, right: this.right }) : schema;
+
+    let querys: string[] = [];
 
     for(let i = 0; i < this.columnsData.length; i++){
       let [columnName, def] = this.columnsData[0];
       columnName = clearNames({ left: this.left, identifiers: columnName, right: this.right });
-      const { type, name, length, nullable, defaul, comment, precision, scale } = def;
-      // if(type){
-      //   let newType = `${type.toUpperCase()}`;
-      //   if(precision){
-      //     let psArr: (string|number)[] = [precision];
-      //     scale ? psArr.push(scale) : undefined;
-      //     length ? psArr.push(length) : undefined;
-      //     newType += `(${psArr.join(", ")})`;
-      //   }
-      //   querys.push(`${ename} ALTER COLUMN ${columnName} TYPE ${newType}`);
-      // }
-      // if(name && columnName != name){
-      //   querys.push(`${ename} RENAME COLUMN ${columnName} TO ${clearNames({ left: this.left, identifiers: name, right: this.right })}`);
-      // }
-      // if(nullable === false || nullable === true){
-      //   querys.push(`${ename} ALTER COLUMN ${columnName} ${ nullable ? 'DROP' : 'SET' } NOT NULL`);
-      // }
-      if('defaul' in def){
-        querys.push(`${ename} ALTER COLUMN ${columnName} ${ defaul === null || defaul === undefined ? 'DROP DEFAULT' : 'SET DEFAULT ' + stringify(defaul) }`);
+      def.columnName = def.columnName ? clearNames({ left: this.left, identifiers: columnName, right: this.right }) : def.columnName;
+
+      if(this.transformer.columnAlter){
+        querys = [ ...querys, ...this.transformer.columnAlter({schema, entity, columnName}, def) ];
       }
       if(def.comment && this.transformer.columnComment){
-        const qcol = this.transformer.columnComment({schema, entity, columnName: name || columnName, comment: def.comment});
-        querys.push(qcol);
+        querys.push(this.transformer.columnComment({ schema, entity, columnName: def.columnName || columnName, comment: def.comment }));
       }
+
       /**
        * COLLATION
        * MYSQL

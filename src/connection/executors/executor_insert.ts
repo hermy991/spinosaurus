@@ -4,8 +4,7 @@ import {InsertBuilding} from "../../language/dml/insert/insert_building.ts"
 export class ExecutorInsert {
   ib: InsertBuilding = new InsertBuilding();
   constructor(public conn: ConnectionPostgres){
-    let conf = { delimiters: conn.delimiters }
-    this.ib = new InsertBuilding(conf);
+    this.ib = new InsertBuilding({ delimiters: conn.delimiters }, conn.transformer);
   }
 
   insert(req: {entity: string, schema?: string } | [string, string?]): ExecutorInsert {

@@ -3,7 +3,9 @@ import {DropBuilding} from "../../language/ddl/drop/drop_building.ts"
 
 export class ExecutorDrop {
   db: DropBuilding = new DropBuilding();
-  constructor(public conn: ConnectionPostgres){  }
+  constructor(public conn: ConnectionPostgres){
+    this.db = new DropBuilding({ delimiters: conn.delimiters }, conn.transformer);
+  }
 
   drop(req: {entity: string, schema?: string}): ExecutorDrop {
     this.db.drop(req);

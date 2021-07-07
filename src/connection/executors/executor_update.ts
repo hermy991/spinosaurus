@@ -4,8 +4,7 @@ import {UpdateBuilding} from "../../language/dml/update/update_building.ts"
 export class ExecutorUpdate {
   ub: UpdateBuilding = new UpdateBuilding();
   constructor(public conn: ConnectionPostgres){
-    const conf = { delimiters: conn.delimiters }
-    this.ub = new UpdateBuilding(conf);
+    this.ub = new UpdateBuilding({ delimiters: conn.delimiters }, conn.transformer);
   }
 
   update(req: {entity: string, schema?: string } | [string, string?]): ExecutorUpdate {

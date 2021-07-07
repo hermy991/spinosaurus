@@ -4,8 +4,7 @@ import {SelectBuilding} from "../../language/dml/select/select_building.ts"
 export class ExecutorSelect {
   sb: SelectBuilding = new SelectBuilding();
   constructor(public conn: ConnectionPostgres){ 
-    let conf = { delimiters: conn.delimiters }
-    this.sb = new SelectBuilding(conf);
+    this.sb = new SelectBuilding({ delimiters: conn.delimiters }, conn.transformer);
   }
   
   /** DML SQL Operation*/

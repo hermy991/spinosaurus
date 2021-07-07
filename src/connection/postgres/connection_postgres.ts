@@ -4,6 +4,7 @@ import {IConnectionPostgresOptions} from './iconnection_postgres_options.ts';
 import {IConnectionPostgresOperations} from './iconnection_postgres_operations.ts';
 // import {SelectBuilding} from '../../language/dml/select/select_building.ts';
 import {SpiColumnDefinition} from '../executors/types/spi_column_definition.ts';
+import {SpiColumnAdjust} from '../executors/types/spi_column_adjust.ts';
 import {SpiColumnComment} from '../executors/types/spi_column_comment.ts';
 import {initConnection} from './connection_postgres_pool.ts';
 import {filterConnectionProps} from '../connection_operations.ts';
@@ -18,7 +19,6 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
 
   delimiters: [string, string?] = [`"`];
   transformer = {
-    
   }
 
   constructor(public name: string,
@@ -34,6 +34,8 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
   ) {
     this.transformer = { 
       columnDefinition: this.columnDefinition,
+      columnAlter: this.columnAlter,
+      columnComment: this.columnComment,
     };
   }
   /* Basic Connection Operations*/
@@ -46,32 +48,35 @@ class ConnectionPostgres implements IConnectionPostgresOptions, IConnectionPostg
     defs.push(this.getDbColumnType(scd).toUpperCase());
     if(scd.nullable == false)
       defs.push(`NOT NULL`);
+    if("default" in scd)
+      defs.push(`DEFAULT ${stringify(scd.default)}`)
+
     return defs.join(" ");
+  }
+  columnAlter(from: {schema?: string, entity: string, columnName: string}, changes: SpiColumnAdjust): string[] {
+    const {schema, entity, columnName} = from;
+    const querys: string[] = [];
+    const efrom = `${schema ? schema+".":""}${entity}`;
+    if(changes.columnName && columnName != changes.columnName){
+      querys.push(`ALTER TABLE ${efrom} RENAME COLUMN ${columnName} TO ${changes.columnName}`);
+    }
+    const fcolumnName = changes.columnName || columnName;
+    if(changes.spitype){
+      querys.push(`ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} TYPE ${this.getDbColumnType(changes).toUpperCase()}`);
+    }
+    if("default" in changes){
+      querys.push(`ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${changes.default ? 'SET DEFAULT ' + stringify(changes.default)  : 'DROP DEFAULT' }`);
+    }
+    if(changes.nullable === false || changes.nullable === true){
+      querys.push(`ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${ changes.nullable ? 'DROP' : 'SET' } NOT NULL`);
+    }
+    return querys;
   }
   columnComment(scc: SpiColumnComment): string {
     const { schema, entity, columnName, comment } = scc;
     let sql = `COMMENT ON COLUMN ${ schema ? schema+"." : "" }${ entity }.${ columnName } IS `;
     sql += `${ comment === null || comment === undefined ? 'NULL' : stringify(comment) }`;
     return sql;
-  }
-  columnAlter(from: {schema?: string, entity: string, columnName: string}, changes: SpiColumnDefinition): string[] {
-    const {schema, entity, columnName} = from;
-    const querys: string[] = [];
-    const efrom = `${schema ? schema+".":""}${entity}`;
-    if(changes.columnName && columnName != changes.columnName){
-      querys.push(`${efrom} RENAME COLUMN ${columnName} TO ${changes.columnName}`);
-    }
-    // if(type){
-      //   let newType = `${type.toUpperCase()}`;
-      //   if(precision){
-      //     let psArr: (string|number)[] = [precision];
-      //     scale ? psArr.push(scale) : undefined;
-      //     length ? psArr.push(length) : undefined;
-      //     newType += `(${psArr.join(", ")})`;
-      //   }
-      //   querys.push(`${ename} ALTER COLUMN ${columnName} TYPE ${newType}`);
-      // }
-      return querys;
   }
 
   async test(): Promise<boolean> {
@@ -179,8 +184,10 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
     return schema;
   }
 
-  getDbColumnType(req: { spitype: ColumnType, length?: number, precision?: number, scale?: number }): string{
+  getDbColumnType(req: { spitype?: ColumnType, length?: number, precision?: number, scale?: number }): string{
     const { spitype, length, precision, scale} = req;
+    if(!spitype)
+      return "";
     let columnType: string;
     if(["bytearray"].includes(spitype))
       columnType = "bytea";

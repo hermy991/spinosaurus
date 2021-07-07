@@ -35,7 +35,7 @@ export interface ColumnOptions {
   /**
    * Adds database-level column's DEFAULT value.
    */ 
-  default?: DefaultType; // DefaultType
+  default?: DefaultType | Function; // DefaultType
   /**
    * Database's column comment. Not supported by all database types.
    */

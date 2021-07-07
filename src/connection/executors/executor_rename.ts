@@ -3,7 +3,9 @@ import {RenameBuilding} from "../../language/ddl/rename/rename_building.ts"
 
 export class ExecutorRename {
   rb: RenameBuilding = new RenameBuilding();
-  constructor(public conn: ConnectionPostgres){  }
+  constructor(public conn: ConnectionPostgres){ 
+    this.rb = new RenameBuilding({ delimiters: conn.delimiters }, conn.transformer);
+   }
 
   rename(from: {entity: string, schema?: string}, to?: {entity: string, schema?: string}): ExecutorRename {
     this.rb.rename(from, to);

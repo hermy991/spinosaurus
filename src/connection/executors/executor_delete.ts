@@ -4,8 +4,7 @@ import {DeleteBuilding} from "../../language/dml/delete/delete_building.ts"
 export class ExecutorDelete {
   ub: DeleteBuilding = new DeleteBuilding();
   constructor(public conn: ConnectionPostgres){
-    let conf = { delimiters: conn.delimiters }
-    this.ub = new DeleteBuilding(conf);
+    this.ub = new DeleteBuilding({ delimiters: conn.delimiters }, conn.transformer);
   }
 
   delete(req: {entity: string, schema?: string } | [string, string?]): ExecutorDelete {

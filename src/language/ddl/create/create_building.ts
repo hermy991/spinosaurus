@@ -9,7 +9,7 @@ export class CreateBuilding extends BaseBuilding {
   private columnsData: Array<{ columnName: string, spitype: string, length?: number, nullable?:boolean }> = [];
   private uniquesData: Array<{name?: string, columnNames: Array<string>}> = [];
   private valuesData: Array<any> = [];
-  constructor(public conf : { delimiters: [string, string?], transformer?: { columnDefinition?:(...params: any) => any } } = { delimiters: [`"`]}){
+  constructor(public conf : { delimiters: [string, string?] } = { delimiters: [`"`]}, public transformer?: { columnDefinition?: Function }){
     super(conf);
   }
 
@@ -71,8 +71,8 @@ export class CreateBuilding extends BaseBuilding {
       let sql = "";
       let columnName = `${this.columnsData[i].columnName}`.replace(/["]/ig, "");
       columnName = `${clearNames({left: this.left, identifiers: columnName, right: this.right})}`;
-      if(this.conf.transformer!.columnDefinition){
-        sql = this.conf.transformer!.columnDefinition({...this.columnsData[i], columnName});
+      if(this.transformer!.columnDefinition){
+        sql = this.transformer!.columnDefinition({...this.columnsData[i], columnName});
       }
       sqls.push(sql);
     }

@@ -1,4 +1,4 @@
-export function stringify(value: string | number| boolean | Date | null): string {
+export function stringify(value: string | number| boolean | Date | Function | null): string {
   if(value === null)
     return 'NULL';
   else if(typeof(value) == "boolean")
@@ -7,8 +7,10 @@ export function stringify(value: string | number| boolean | Date | null): string
     return `${value}`;
   else if(typeof(value) == "string")
     return `'${(value ? value.replace(/'/ig, "''") : "")}'`;
-  else if(typeof(value) == "object" && new Date() instanceof Date)
+  else if(typeof(value) == "object" && value instanceof Date)
     return `TO_DATE('${value.getFullYear()}-${((value.getMonth() + 1) + "").padStart(2, "0")}-${(value.getDate() + "").padStart(2, "0")}', 'YYYY-MM-DD')`;
+  else if(typeof(value) == "function" && value instanceof Function)
+    return value();
   return `NULL`;
 }
 
@@ -35,9 +37,9 @@ export function interpolate(conditions: Array<string>, params?: { [x:string]: st
   return data;
 }
 
-export function clearNames(req: {left: string, identifiers: Array<string | undefined> | string, right: string}){
+export function clearNames(req: {left: string, identifiers?: Array<string | undefined> | string, right: string}){
   let {left, identifiers, right} = req;
-  identifiers = typeof identifiers == "string" ? [identifiers] : identifiers;
+  identifiers = Array.isArray(identifiers) ? identifiers : [identifiers];
   const tempIdentifiers: string[] = []
   identifiers.filter(x => x).forEach(x => tempIdentifiers.push(`${left}${(x || "").replace(new RegExp(`[\\${left}\\${right}]`, 'ig'), ``)}${right}`));
   return tempIdentifiers.join(".");
