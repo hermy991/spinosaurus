@@ -1,13 +1,18 @@
-import {ConnectionPostgres} from "../postgres/connection_postgres.ts"
-import {InsertBuilding} from "../../language/dml/insert/insert_building.ts"
+import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
+import { InsertBuilding } from "../../language/dml/insert/insert_building.ts";
 
 export class ExecutorInsert {
   ib: InsertBuilding = new InsertBuilding();
-  constructor(public conn: ConnectionPostgres){
-    this.ib = new InsertBuilding({ delimiters: conn.delimiters }, conn.transformer);
+  constructor(public conn: ConnectionPostgres) {
+    this.ib = new InsertBuilding(
+      { delimiters: conn.delimiters },
+      conn.transformer,
+    );
   }
 
-  insert(req: {entity: string, schema?: string } | [string, string?]): ExecutorInsert {
+  insert(
+    req: { entity: string; schema?: string } | [string, string?],
+  ): ExecutorInsert {
     this.ib.insert(req);
     return this;
   }

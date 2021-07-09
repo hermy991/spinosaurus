@@ -1,5 +1,5 @@
-import {stringify, interpolate, clearNames} from "../../tools/sql.ts";
-import {BaseBuilding} from "../../base_building.ts";
+import { clearNames, interpolate, stringify } from "../../tools/sql.ts";
+import { BaseBuilding } from "../../base_building.ts";
 /*****************************
  * TODO
  * columns(columns: Array<string>)
@@ -7,84 +7,99 @@ import {BaseBuilding} from "../../base_building.ts";
  * use set and where in from implementation
  */
 export class InsertBuilding extends BaseBuilding {
-  
-  private entityData: { entity: string, schema?: string} | null = null;
+  private entityData: { entity: string; schema?: string } | null = null;
   private valuesData: Array<any> = [];
 
-  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]},
-              // public transformer: {} = {}
-  ){
+  constructor(
+    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
+    public transformer: {} = {},
+  ) {
     super(conf);
   }
 
-  insert(req: {entity: string, schema?: string } | [string, string?]): void {
-    if(Array.isArray(req)){
+  insert(req: { entity: string; schema?: string } | [string, string?]): void {
+    if (Array.isArray(req)) {
       const [entity, schema] = req;
-      this.entityData = {entity, schema};
-    }
-    else {
+      this.entityData = { entity, schema };
+    } else {
       this.entityData = req;
     }
   }
-  
-  values(data: Array<any> | any){
+
+  values(data: Array<any> | any) {
     this.addValues(data);
   }
 
-  addValues(data: Array<any> | any){
+  addValues(data: Array<any> | any) {
     data = Array.isArray(data) ? data : [data];
-    this.valuesData.push(... data);
+    this.valuesData.push(...data);
   }
-  
-  getEntityQuery(){
-    if(!this.entityData){
+
+  getEntityQuery() {
+    if (!this.entityData) {
       return ``;
     }
-    const {entity, schema} = this.entityData;
-    const query = `${clearNames({ left: this.left, identifiers: [schema, entity], right: this.right })}`;
+    const { entity, schema } = this.entityData;
+    const query = `${
+      clearNames({
+        left: this.left,
+        identifiers: [schema, entity],
+        right: this.right,
+      })
+    }`;
     return `INSERT INTO ${query}`;
   }
-  
-  getColumnsQuery(){
-    if(!this.valuesData.length){
+
+  getColumnsQuery() {
+    if (!this.valuesData.length) {
       return ``;
     }
     const columns: Set<string> = new Set();
-    this.valuesData.forEach(value => {
+    this.valuesData.forEach((value) => {
       const keys = Object.keys(value);
-      keys.forEach(key => columns.add(clearNames({ left: this.left, identifiers: key, right: this.right })));
+      keys.forEach((key) =>
+        columns.add(
+          clearNames({ left: this.left, identifiers: key, right: this.right }),
+        )
+      );
     });
-    return `(${[... columns].join(", ")})`;
+    return `(${[...columns].join(", ")})`;
   }
 
-  getValueQuery(obj: { [x:string]: string | number | Date }){
-    const columns: string[] = Object.values(obj).map(x => stringify(x));
-    if(!columns.length){
+  getValueQuery(obj: { [x: string]: string | number | Date }) {
+    const columns: string[] = Object.values(obj).map((x) => stringify(x));
+    if (!columns.length) {
       return undefined;
     }
     return `(${columns.join(", ")})`;
   }
 
-  getValuesQuery(data: Array<any> | any){
+  getValuesQuery(data: Array<any> | any) {
     data = Array.isArray(data) ? data : [data];
     const objs: Array<string> = [];
 
-    for(const obj of data){
+    for (const obj of data) {
       const value = this.getValueQuery(obj);
-      if(value){
+      if (value) {
         objs.push(value);
       }
     }
-    return `VALUES ${objs.join(", ")}`
+    return `VALUES ${objs.join(", ")}`;
   }
 
-  getQuery(){
-    if(!this.valuesData.length){
+  getQuery() {
+    if (!this.valuesData.length) {
       return ``;
     }
     const inserts: string[] = [];
 
-    this.valuesData.forEach(x => inserts.push(`${this.getEntityQuery()}\n${this.getColumnsQuery()}\n${this.getValuesQuery(x)}`));
+    this.valuesData.forEach((x) =>
+      inserts.push(
+        `${this.getEntityQuery()}\n${this.getColumnsQuery()}\n${
+          this.getValuesQuery(x)
+        }`,
+      )
+    );
     return inserts.join(";\n");
   }
 }

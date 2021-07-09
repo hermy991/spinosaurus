@@ -1,13 +1,16 @@
-import {ConnectionPostgres} from "../postgres/connection_postgres.ts"
-import {DropBuilding} from "../../language/ddl/drop/drop_building.ts"
+import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
+import { DropBuilding } from "../../language/ddl/drop/drop_building.ts";
 
 export class ExecutorDrop {
   db: DropBuilding = new DropBuilding();
-  constructor(public conn: ConnectionPostgres){
-    this.db = new DropBuilding({ delimiters: conn.delimiters }, conn.transformer);
+  constructor(public conn: ConnectionPostgres) {
+    this.db = new DropBuilding(
+      { delimiters: conn.delimiters },
+      conn.transformer,
+    );
   }
 
-  drop(req: {entity: string, schema?: string}): ExecutorDrop {
+  drop(req: { entity: string; schema?: string }): ExecutorDrop {
     this.db.drop(req);
     return this;
   }
@@ -19,12 +22,11 @@ export class ExecutorDrop {
   }
 
   addColumn(columns: string | Array<string>): ExecutorDrop {
-    if(Array.isArray(columns)){
-      for(let column of columns){
+    if (Array.isArray(columns)) {
+      for (let column of columns) {
         this.db.addColumn(column);
       }
-    }
-    else if (typeof columns == "string") {
+    } else if (typeof columns == "string") {
       this.db.addColumn(columns);
     }
     return this;

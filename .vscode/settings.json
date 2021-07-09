@@ -20,5 +20,7 @@
   "deno.unstable": true,
   "deno.importMap": "./tests/importmap.json",
   "deno.config": "./tests/tsconfig.json",
-  "deno.lint": true
+  "deno.lint": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "denoland.vscode-deno"
 }

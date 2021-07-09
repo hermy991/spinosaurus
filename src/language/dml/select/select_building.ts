@@ -1,114 +1,135 @@
-import {interpolate, clearNames} from "../../tools/sql.ts";
-import {BaseBuilding} from "../../base_building.ts";
+import { clearNames, interpolate } from "../../tools/sql.ts";
+import { BaseBuilding } from "../../base_building.ts";
 
 export class SelectBuilding extends BaseBuilding {
-  
-  private selectData: Array<{column: string, as?: string}> = [];
-  private fromData: { entity: string, schema?: string, as?: string } | null = null;
+  private selectData: Array<{ column: string; as?: string }> = [];
+  private fromData: { entity: string; schema?: string; as?: string } | null =
+    null;
   private whereData: Array<string> = [];
-  private orderByData: Array<{column: string, direction?: string}> = [];
+  private orderByData: Array<{ column: string; direction?: string }> = [];
 
   /*FLAGS*/
-  private distinct: boolean = false;
+  private distinct = false;
 
-  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]},
-              // public transformer: { } = {}
-  ){
+  constructor(
+    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
+    public transformer: {} = {},
+  ) {
     super(conf);
   }
 
-  selectDistinct(... columns: Array<{column: string, as?: string}>): void {
+  selectDistinct(...columns: Array<{ column: string; as?: string }>): void {
     this.distinct = true;
-    this.select(... columns);
+    this.select(...columns);
   }
 
-  select(... columns: Array<{column: string, as?: string}>): void {
+  select(...columns: Array<{ column: string; as?: string }>): void {
     this.selectData = [];
-    columns.forEach(x => this.addSelect(x));
+    columns.forEach((x) => this.addSelect(x));
   }
 
-  addSelect(req: {column: string, as?: string}): void {
+  addSelect(req: { column: string; as?: string }): void {
     this.selectData.push(req);
   }
 
-  from(req: {entity: string, schema?: string, as?: string }): void {
+  from(req: { entity: string; schema?: string; as?: string }): void {
     this.fromData = req;
   }
 
-  where(conditions: Array<string>, params?: { [x:string]: string | number | Date }) {
+  where(
+    conditions: Array<string>,
+    params?: { [x: string]: string | number | Date },
+  ) {
     this.whereData = [];
-    this.addWhere(conditions, params)
+    this.addWhere(conditions, params);
   }
 
-  addWhere(conditions: Array<string>, params?: { [x:string]: string | number | Date }){
-    this.whereData.push(... interpolate(conditions, params));
+  addWhere(
+    conditions: Array<string>,
+    params?: { [x: string]: string | number | Date },
+  ) {
+    this.whereData.push(...interpolate(conditions, params));
   }
 
-  orderBy(... columns: Array<{column: string, direction?: string}>): void {
+  orderBy(...columns: Array<{ column: string; direction?: string }>): void {
     this.orderByData = [];
-    columns.forEach(x => this.addOrderBy(x));
+    columns.forEach((x) => this.addOrderBy(x));
   }
-  
-  addOrderBy(... columns: Array<{column: string, direction?: string}>): void {
-    columns.forEach(x => this.orderByData.push(x));
+
+  addOrderBy(...columns: Array<{ column: string; direction?: string }>): void {
+    columns.forEach((x) => this.orderByData.push(x));
   }
-  
-  getSelectQuery(){
-    if(!this.selectData.length){
+
+  getSelectQuery() {
+    if (!this.selectData.length) {
       return `SELECT ${this.distinct ? "DISTINCT " : ""}* `;
     }
     const columns: string[] = [];
-    for(let i = 0; i < this.selectData.length; i++){
-      const {column, as} = this.selectData[i];
-      const tempCol = `${column}` + (as ? ` AS ${clearNames({left: this.left, identifiers: as, right: this.right})}` : '');
+    for (let i = 0; i < this.selectData.length; i++) {
+      const { column, as } = this.selectData[i];
+      const tempCol = `${column}` +
+        (as
+          ? ` AS ${
+            clearNames({ left: this.left, identifiers: as, right: this.right })
+          }`
+          : "");
       columns.push(tempCol);
     }
     return `SELECT ${this.distinct ? "DISTINCT " : ""}${columns.join(", ")}`;
   }
-  
-  getFromQuery(){
-    if(!this.fromData){
+
+  getFromQuery() {
+    if (!this.fromData) {
       return ``;
     }
-    const {entity, schema, as} = this.fromData;
-    let query = `${clearNames({left: this.left, identifiers: [schema, entity], right: this.right})}`;
-    if(as){
-      query = `${query} AS "${clearNames({left: this.left, identifiers: [as], right: this.right})}"`;
+    const { entity, schema, as } = this.fromData;
+    let query = `${
+      clearNames({
+        left: this.left,
+        identifiers: [schema, entity],
+        right: this.right,
+      })
+    }`;
+    if (as) {
+      query = `${query} AS "${
+        clearNames({ left: this.left, identifiers: [as], right: this.right })
+      }"`;
     }
     return `FROM ${query}`;
   }
 
-  getWhereQuery(){
-    if(!this.whereData.length){
+  getWhereQuery() {
+    if (!this.whereData.length) {
       return ``;
     }
     const conditions: string[] = [];
-    for(let i = 0; i<this.whereData.length; i++){
+    for (let i = 0; i < this.whereData.length; i++) {
       const tempWhere = this.whereData[i];
       conditions.push(tempWhere);
     }
     return `WHERE ${conditions.join(" ")}`;
   }
-  
-  getOrderByQuery(){
-    if(!this.orderByData.length){
+
+  getOrderByQuery() {
+    if (!this.orderByData.length) {
       return ``;
     }
     const orders: string[] = [];
-    for(let i = 0; i < this.orderByData.length; i++){
+    for (let i = 0; i < this.orderByData.length; i++) {
       const { column, direction } = this.orderByData[i];
-      const tempOrder = `${column}` + (direction ? ' ' + direction.toUpperCase(): '');
+      const tempOrder = `${column}` +
+        (direction ? " " + direction.toUpperCase() : "");
       orders.push(tempOrder);
     }
     return `ORDER BY ${orders.join(", ")}`;
   }
 
-  getQuery(){
+  getQuery() {
     let query = `${this.getSelectQuery()}\n${this.getFromQuery()}`;
-    if(this.whereData.length){
+    if (this.whereData.length) {
       query += `\n${this.getWhereQuery()}`;
     }
-    if(this.orderByData.length){
+    if (this.orderByData.length) {
       query += `\n${this.getOrderByQuery()}`;
     }
     return query;
