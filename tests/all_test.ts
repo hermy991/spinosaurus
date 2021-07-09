@@ -1,2 +1,2 @@
-import './query_test.ts';
-import './executor_test.ts';
+import "./query_test.ts";
+import "./executor_test.ts";

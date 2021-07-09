@@ -1,4 +1,4 @@
-import {IConnectionOptions} from '../iconnection_options.ts'
+import { IConnectionOptions } from "../iconnection_options.ts";
 export interface IConnectionPostgresOptions extends IConnectionOptions {
-  hostaddr?: string
+  hostaddr?: string;
 }

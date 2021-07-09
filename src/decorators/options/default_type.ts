@@ -1,8 +1,7 @@
-
-export type DefaultType = boolean 
+export type DefaultType =
+  | boolean
   | number
   | string
   | Date
   | ArrayBuffer
-  | Blob
-  ;
+  | Blob;

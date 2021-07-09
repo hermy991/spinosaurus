@@ -1,25 +1,21 @@
-
-
-
-export type NumericColumnType = "smallint" 
+export type NumericColumnType =
+  | "smallint"
   | "integer"
   | "bigint"
-  | "numeric"
-  ;
-export type CharacterColumnType = "text" 
-  | "varchar"
-  ;
+  | "numeric";
+export type CharacterColumnType =
+  | "text"
+  | "varchar";
 export type BinaryColumnType = "bytearray";
 export type BooleanColumnType = "boolean";
-export type DateTimeColumnType = "timestamp" 
-  | "date" 
-  | "time"
-  ;
+export type DateTimeColumnType =
+  | "timestamp"
+  | "date"
+  | "time";
 
-
-export type ColumnType = NumericColumnType 
-  | CharacterColumnType 
+export type ColumnType =
+  | NumericColumnType
+  | CharacterColumnType
   | BinaryColumnType
   | BooleanColumnType
-  | DateTimeColumnType
-  ;
+  | DateTimeColumnType;

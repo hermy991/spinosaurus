@@ -6,5 +6,5 @@ export const KEY_CONFIG = {
   port: "port",
   // tls?: TLSOptions,
   username: "user",
-  hostaddr: "hostname"
-}
+  hostaddr: "hostname",
+};

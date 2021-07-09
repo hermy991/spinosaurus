@@ -1,4 +1,3 @@
-import {IConnectionOperations} from '../iconnection_operations.ts'
+import { IConnectionOperations } from "../iconnection_operations.ts";
 export interface IConnectionPostgresOperations extends IConnectionOperations {
 }
-

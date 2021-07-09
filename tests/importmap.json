@@ -1,6 +1,6 @@
 {
-    "imports": {
-      "spinosaurus/": "../",
-      "deno/": "https://deno.land/std@0.99.0/"
-    }
- }
+  "imports": {
+    "spinosaurus/": "../",
+    "deno/": "https://deno.land/std@0.99.0/"
+  }
+}

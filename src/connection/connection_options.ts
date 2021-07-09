@@ -1,4 +1,4 @@
-import {IConnectionOptions} from './iconnection_options.ts'
+import { IConnectionOptions } from "./iconnection_options.ts";
 
 class ConnectionOptions implements IConnectionOptions {
   constructor(
@@ -10,7 +10,8 @@ class ConnectionOptions implements IConnectionOptions {
     public password: string,
     public database: string,
     public synchronize: boolean,
-    public entities: string | string[]) {}
+    public entities: string | string[],
+  ) {}
 }
 
-export {ConnectionOptions}
+export { ConnectionOptions };

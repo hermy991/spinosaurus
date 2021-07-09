@@ -1,7 +1,9 @@
 # Spinosaurus
+
 Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 
 ## Future
+
 - [ ] Supports both DataMapper and ActiveRecord (your choice)
 - [ ] Entities and columns
 - [ ] Database-specific column types
@@ -50,66 +52,98 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 - [ ] CLI
 
 # Query Builder
+
 ## Query
+
 ### Example 1, simple retriving data from db
+
 ```typescript
 let data = await db.select()
-                   .from("User")
-                   .getRawMany();
+  .from("User")
+  .getRawMany();
 ```
+
 ## Update
+
 ### Example 1, simple update data
+
 ```typescript
 await db.update("User")
-        .set({ userName: "yassett77", firstName: "Yassett"})
-        .execute();
+  .set({ userName: "yassett77", firstName: "Yassett" })
+  .execute();
 ```
+
 ### Example 1, simple update multiple data
+
 ```typescript
 await db.update("User")
-        .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy"},
-        { user_ID: 2, userName: "yassett77", firstName: "Yassett"}])
-        .execute();
+  .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy" }, {
+    user_ID: 2,
+    userName: "yassett77",
+    firstName: "Yassett",
+  }])
+  .execute();
 ```
+
 ## Insert
+
 ### Example 1, simple insert data
+
 ```typescript
 await db.insert("User")
-        .values([{ userName: "hermy991", firstName: "Hermy"}, { userName: "yassett77", firstName: "Yassett"}])
-        .execute();
+  .values([{ userName: "hermy991", firstName: "Hermy" }, {
+    userName: "yassett77",
+    firstName: "Yassett",
+  }])
+  .execute();
 ```
+
 ### Example 2, simple update multiple data
+
 ```typescript
 await db.insert("User")
-        .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy"}, 
-        { userName: "yassett77", firstName: "Yassett"}])
-        .execute();
+  .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy" }, {
+    userName: "yassett77",
+    firstName: "Yassett",
+  }])
+  .execute();
 ```
+
 ### Example 3, more simple update multiple data
+
 ```typescript
-import {User} from './user.ts';
+import { User } from "./user.ts";
 await db.insert(User)
-        .columns(["userName"])
-        .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy"}, 
-        { userName: "yassett77", firstName: "Yassett"}])
-        .where([`"ege" >= 18`])
-        .execute();
+  .columns(["userName"])
+  .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy" }, {
+    userName: "yassett77",
+    firstName: "Yassett",
+  }])
+  .where([`"ege" >= 18`])
+  .execute();
 ```
 
 # Scripts (Velociraptor)
+
 <!-- ## Test file
 ```bash
 deno run -qA https://code.velociraptor.run <SCRIPT>
 ``` -->
+
 ## Test all
+
 ```bash
 deno run -qA https://code.velociraptor.run test
 ```
+
 ## Test SQL
+
 ```bash
 deno run -qA https://code.velociraptor.run test:query
 ```
+
 ## Test Executor
+
 ```bash
 deno run -qA https://code.velociraptor.run test:executor
 ```

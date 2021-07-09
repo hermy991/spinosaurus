@@ -1,9 +1,9 @@
-import {Entity, Column} from "spinosaurus/mod.ts"
+import { Column, Entity } from "spinosaurus/mod.ts";
 
 /**
  * Entity Names
  */
-@Entity({name: "EntityOptions1"})
+@Entity({ name: "EntityOptions1" })
 export class EntityOptions1 {
   @Column()
   test1?: string;
@@ -19,7 +19,7 @@ export class EntityOptions2 {
   test3?: string;
 }
 
-@Entity({name: "EntityOptions3"})
+@Entity({ name: "EntityOptions3" })
 export class EntityOptions4 {
   @Column()
   test1?: string;

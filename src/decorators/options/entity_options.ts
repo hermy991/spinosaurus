@@ -1,4 +1,3 @@
-
 /**
  * Describes all entity's options.
  */

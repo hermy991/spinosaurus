@@ -1,26 +1,27 @@
-import {stringify, clearNames} from "../../tools/sql.ts"
-import {BaseBuilding} from "../../base_building.ts";
-import {SpiColumnDefinition} from "../../../connection/executors/types/spi_column_definition.ts";
-import {SpiColumnComment} from "../../../connection/executors/types/spi_column_comment.ts";
+import { clearNames, stringify } from "../../tools/sql.ts";
+import { BaseBuilding } from "../../base_building.ts";
+import { SpiColumnDefinition } from "../../../connection/executors/types/spi_column_definition.ts";
+import { SpiColumnComment } from "../../../connection/executors/types/spi_column_comment.ts";
 
 export class AlterBuilding extends BaseBuilding {
-  
   private fromData: [string, string?] | undefined = undefined;
   private columnsData: Array<[string, SpiColumnDefinition]> = [];
 
-  constructor(public conf: { delimiters: [string, string?] } = { delimiters: [`"`]},
-              public transformer: { columnAlter?: Function, columnComment?: Function } = {}
-  ){
+  constructor(
+    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
+    public transformer: { columnAlter?: Function; columnComment?: Function } =
+      {},
+  ) {
     super(conf);
   }
 
-  alter(from: {entity: string, schema?: string}): void {
+  alter(from: { entity: string; schema?: string }): void {
     this.fromData = [`${from.entity}`, from.schema];
   }
 
-  columns(... columns: Array<[string, SpiColumnDefinition]>): void {
+  columns(...columns: Array<[string, SpiColumnDefinition]>): void {
     this.columnsData = [];
-    columns.forEach(x => { 
+    columns.forEach((x) => {
       this.addColumn(x);
     });
   }
@@ -30,34 +31,62 @@ export class AlterBuilding extends BaseBuilding {
   }
 
   getEntityQuery(): string {
-    if(!this.fromData){
+    if (!this.fromData) {
       return ``;
     }
     const [entity, schema] = this.fromData;
-    const query = clearNames({ left: this.left, identifiers: [schema, entity], right: this.right })
+    const query = clearNames({
+      left: this.left,
+      identifiers: [schema, entity],
+      right: this.right,
+    });
     return `ALTER TABLE ${query}`;
   }
-  
+
   getColumnsQuery(): string {
-    if(!this.columnsData.length || !this.fromData){
+    if (!this.columnsData.length || !this.fromData) {
       return ``;
     }
     let [entity, schema] = this.fromData;
-    entity = entity ? clearNames({ left: this.left, identifiers: entity, right: this.right }) : entity;
-    schema = schema ? clearNames({ left: this.left, identifiers: schema, right: this.right }) : schema;
+    entity = entity
+      ? clearNames({ left: this.left, identifiers: entity, right: this.right })
+      : entity;
+    schema = schema
+      ? clearNames({ left: this.left, identifiers: schema, right: this.right })
+      : schema;
 
     let querys: string[] = [];
 
-    for(let i = 0; i < this.columnsData.length; i++){
+    for (let i = 0; i < this.columnsData.length; i++) {
       let [columnName, def] = this.columnsData[0];
-      columnName = clearNames({ left: this.left, identifiers: columnName, right: this.right });
-      def.columnName = def.columnName ? clearNames({ left: this.left, identifiers: columnName, right: this.right }) : def.columnName;
+      columnName = clearNames({
+        left: this.left,
+        identifiers: columnName,
+        right: this.right,
+      });
+      def.columnName = def.columnName
+        ? clearNames({
+          left: this.left,
+          identifiers: columnName,
+          right: this.right,
+        })
+        : def.columnName;
 
-      if(this.transformer.columnAlter){
-        querys = [ ...querys, ...this.transformer.columnAlter({schema, entity, columnName}, def) ];
+      if (this.transformer.columnAlter) {
+        querys = [
+          ...querys,
+          ...this.transformer.columnAlter({ schema, entity, columnName }, def),
+        ];
       }
-      if(def.comment && this.transformer.columnComment){
-        querys.push(this.transformer.columnComment({ schema, entity, columnName: def.columnName || columnName, comment: def.comment }));
+      if (def.comment && this.transformer.columnComment) {
+        querys.push(
+          this.transformer.columnComment({
+            schema,
+            entity,
+            columnName: def.columnName || columnName,
+            comment: def.comment,
+          }),
+        );
       }
 
       /**
@@ -69,9 +98,8 @@ export class AlterBuilding extends BaseBuilding {
        * POSTGRES
        *   ALTER TABLE users ALTER COLUMN name TYPE character varying(255) COLLATE "en_US"
        */
-
     }
-    return `${querys.join(';\n')}`;
+    return `${querys.join(";\n")}`;
   }
 
   getQuery(): string {
