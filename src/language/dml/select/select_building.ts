@@ -12,7 +12,7 @@ export class SelectBuilding extends BaseBuilding {
   private distinct: boolean = false;
 
   constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]},
-              public transformer: { } = {}
+              // public transformer: { } = {}
   ){
     super(conf);
   }
@@ -84,7 +84,7 @@ export class SelectBuilding extends BaseBuilding {
     }
     const conditions: string[] = [];
     for(let i = 0; i<this.whereData.length; i++){
-      let tempWhere = this.whereData[i];
+      const tempWhere = this.whereData[i];
       conditions.push(tempWhere);
     }
     return `WHERE ${conditions.join(" ")}`;
@@ -94,10 +94,10 @@ export class SelectBuilding extends BaseBuilding {
     if(!this.orderByData.length){
       return ``;
     }
-    let orders: string[] = [];
+    const orders: string[] = [];
     for(let i = 0; i < this.orderByData.length; i++){
       const { column, direction } = this.orderByData[i];
-      let tempOrder = `${column}` + (direction ? ' ' + direction.toUpperCase(): '');
+      const tempOrder = `${column}` + (direction ? ' ' + direction.toUpperCase(): '');
       orders.push(tempOrder);
     }
     return `ORDER BY ${orders.join(", ")}`;

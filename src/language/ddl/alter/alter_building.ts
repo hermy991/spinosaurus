@@ -9,10 +9,7 @@ export class AlterBuilding extends BaseBuilding {
   private columnsData: Array<[string, SpiColumnDefinition]> = [];
 
   constructor(public conf: { delimiters: [string, string?] } = { delimiters: [`"`]},
-              public transformer: { 
-                                    columnAlter?: Function, 
-                                    columnComment?: Function
-                                  } = {}
+              public transformer: { columnAlter?: Function, columnComment?: Function } = {}
   ){
     super(conf);
   }

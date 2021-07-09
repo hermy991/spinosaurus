@@ -9,7 +9,9 @@ export class CreateBuilding extends BaseBuilding {
   private columnsData: Array<{ columnName: string, spitype: string, length?: number, nullable?:boolean }> = [];
   private uniquesData: Array<{name?: string, columnNames: Array<string>}> = [];
   private valuesData: Array<any> = [];
-  constructor(public conf : { delimiters: [string, string?] } = { delimiters: [`"`]}, public transformer?: { columnDefinition?: Function }){
+  constructor(public conf : { delimiters: [string, string?] } = { delimiters: [`"`]},
+              public transformer: { columnDefinition?: Function } = {}
+  ){
     super(conf);
   }
 

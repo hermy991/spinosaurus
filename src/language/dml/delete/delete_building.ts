@@ -12,7 +12,9 @@ export class DeleteBuilding extends BaseBuilding {
   private entityData: { entity: string, schema?: string} | null = null;
   private whereData: Array<string> = [];
 
-  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
+  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]},
+              // public transformer: {} = {}
+  ){
     super(conf);
   }
 

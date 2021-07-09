@@ -5,7 +5,9 @@ export class DropBuilding extends BaseBuilding {
   private nameData: [string, string | undefined] | null = null;
   private columnsData: Array<string> = [];
 
-  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
+  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]},
+              // public transformer: {} = {}
+  ){
     super(conf);
   }
 

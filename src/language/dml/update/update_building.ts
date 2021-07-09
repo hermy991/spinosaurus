@@ -13,13 +13,15 @@ export class UpdateBuilding extends BaseBuilding {
   private setData: Array<[string, string | number | Date | null]> = [];
   private whereData: Array<string> = [];
 
-  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
+  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]},
+                              // public transformer: {} = {}
+  ){
     super(conf);
   }
 
   update(req: {entity: string, schema?: string } | [string, string?]): void {
     if(Array.isArray(req)){
-      let [entity, schema] = req;
+      const [entity, schema] = req;
       this.entityData = {entity, schema};
     }
     else {
@@ -54,7 +56,7 @@ export class UpdateBuilding extends BaseBuilding {
     if(!this.entityData){
       return ``;
     }
-    let {entity, schema} = this.entityData;
+    const {entity, schema} = this.entityData;
     let query = `${clearNames({ left: this.left, identifiers: entity, right: this.right })}`;
     if(schema){
       query = `${clearNames({ left: this.left, identifiers: [schema, entity], right: this.right })}`
@@ -66,10 +68,10 @@ export class UpdateBuilding extends BaseBuilding {
     if(!this.setData.length){
       return ``;
     }
-    let columns: string[] = [];
+    const columns: string[] = [];
     this.setData.forEach(col => {
-      let [column, value] = col;
-      let tempStr = `${clearNames({left: this.left, identifiers: column, right: this.right})} = ${stringify(value)}`;
+      const [column, value] = col;
+      const tempStr = `${clearNames({left: this.left, identifiers: column, right: this.right})} = ${stringify(value)}`;
       columns.push(tempStr);
     });
     return `SET ${columns.join(", ")}`;
@@ -79,9 +81,9 @@ export class UpdateBuilding extends BaseBuilding {
     if(!this.whereData.length){
       return ``;
     }
-    let conditions: string[] = [];
+    const conditions: string[] = [];
     for(let i = 0; i<this.whereData.length; i++){
-      let tempWhere = this.whereData[i];
+      const tempWhere = this.whereData[i];
       conditions.push(tempWhere);
     }
     return `WHERE ${conditions.join(" ")}`;

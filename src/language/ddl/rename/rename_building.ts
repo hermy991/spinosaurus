@@ -5,7 +5,9 @@ export class RenameBuilding extends BaseBuilding {
   private toData: [string, string?] | undefined = undefined;
   private columnsData: Array<[string, string]> = [];
 
-  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]}){
+  constructor(public conf : { delimiters: [string, string?]} = { delimiters: [`"`]},
+                              // public transformer: {} = {}
+  ){
     super(conf);
   }
 
