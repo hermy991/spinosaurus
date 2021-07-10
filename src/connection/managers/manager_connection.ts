@@ -90,7 +90,7 @@ export async function updateStore(entities: string[]) {
       /**
        * Class Column Type
        */
-      options.type = getColumnType({
+      options.spitype = getColumnType({
         type: property.type,
         options,
         value: instance[target.name],

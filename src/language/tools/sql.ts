@@ -1,7 +1,9 @@
 export function stringify(
-  value: string | number | boolean | Date | Function | null,
+  value: string | number | boolean | Date | Function | null | undefined,
 ): string {
-  if (value === null) {
+  if (value === undefined) {
+    return "NULL";
+  } else if (value === null) {
     return "NULL";
   } else if (typeof (value) == "boolean") {
     return `'${value ? 1 : 0}'`;

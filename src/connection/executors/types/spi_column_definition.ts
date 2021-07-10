@@ -11,6 +11,6 @@ export type SpiColumnDefinition = {
   precision?: number;
   scale?: number;
   nullable?: boolean;
-  default: ColumnType | Function;
+  default?: ColumnType | Function;
   comment?: string;
 };

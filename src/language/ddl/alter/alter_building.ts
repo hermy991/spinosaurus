@@ -1,7 +1,7 @@
 import { clearNames, stringify } from "../../tools/sql.ts";
 import { BaseBuilding } from "../../base_building.ts";
 import { SpiColumnDefinition } from "../../../connection/executors/types/spi_column_definition.ts";
-import { SpiColumnComment } from "../../../connection/executors/types/spi_column_comment.ts";
+// import { SpiColumnComment } from "../../../connection/executors/types/spi_column_comment.ts";
 
 export class AlterBuilding extends BaseBuilding {
   private fromData: [string, string?] | undefined = undefined;
@@ -103,7 +103,7 @@ export class AlterBuilding extends BaseBuilding {
   }
 
   getQuery(): string {
-    let query = `${this.getColumnsQuery()}`;
+    const query = `${this.getColumnsQuery()}`;
     return query;
   }
 }

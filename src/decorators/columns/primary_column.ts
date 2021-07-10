@@ -27,7 +27,7 @@ export function PrimaryColumn(options: ColumnOptions = {}): any {
     };
     const target: ColumnOptions = {
       name: propertyKey,
-      type: getColumnType({ type: property.type }),
+      spitype: getColumnType({ type: property.type }),
     };
     const special = { primary: true };
     const mixeds: ColumnOptions = Object.assign(target, options, special);

@@ -15,9 +15,9 @@ Deno.test(
     let qs = db.drop({ entity: "User", schema: "public" });
     let query = qs.getQuery() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-    let querySpected = `DROP TABLE "public"."User"`.replace(/[ \n\t]+/ig, " ")
+    let queryExpected = `DROP TABLE "public"."User"`.replace(/[ \n\t]+/ig, " ")
       .trim();
-    assertEquals(query, querySpected);
+    assertEquals(query, queryExpected);
   },
 );
 Deno.test(
@@ -28,8 +28,8 @@ Deno.test(
       .columns(["prueba"]);
     let query = qs.getQuery() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-    let querySpected = `ALTER TABLE "public"."User" DROP COLUMN "prueba"`
+    let queryExpected = `ALTER TABLE "public"."User" DROP COLUMN "prueba"`
       .replace(/[ \n\t]+/ig, " ").trim();
-    assertEquals(query, querySpected);
+    assertEquals(query, queryExpected);
   },
 );

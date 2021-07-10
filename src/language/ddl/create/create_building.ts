@@ -90,8 +90,13 @@ export class CreateBuilding extends BaseBuilding {
           right: this.right,
         })
       }`;
-      if (this.transformer!.columnDefinition) {
-        sql = this.transformer!.columnDefinition({
+
+      console.log(
+        "this.transformer.columnDefinition: ",
+        this.transformer.columnDefinition,
+      );
+      if (this.transformer.columnDefinition) {
+        sql = this.transformer.columnDefinition({
           ...this.columnsData[i],
           columnName,
         });
@@ -105,7 +110,7 @@ export class CreateBuilding extends BaseBuilding {
     if (!this.nameData) {
       return ``;
     }
-    const ib = new InsertBuilding(this.conf);
+    const ib = new InsertBuilding(this.conf, this.transformer);
     ib.insert(this.nameData);
     ib.values(this.valuesData);
     return ib.getQuery();

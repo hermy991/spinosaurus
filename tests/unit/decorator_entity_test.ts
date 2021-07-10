@@ -33,6 +33,6 @@ Deno.test(
     // console.log("import.meta.main : ", import.meta.main);
     // console.log("");
 
-    //assertEquals(query, querySpected);
+    //assertEquals(query, queryExpected);
   },
 );

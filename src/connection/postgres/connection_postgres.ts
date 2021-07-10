@@ -87,9 +87,7 @@ class ConnectionPostgres
     if (changes.nullable === false || changes.nullable === true) {
       querys.push(
         `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
-          changes.nullable
-            ? "DROP"
-            : "SET"
+          changes.nullable ? "DROP" : "SET"
         } NOT NULL`,
       );
     }

@@ -9,29 +9,29 @@ const testMessage = "  {}";
 
 Deno.test(
   testMessage.replace(/\{\}/ig, "delete [delete] query should work"),
-  async () => {
-    let db: Connection = new Connection(con1);
+  () => {
+    const db: Connection = new Connection(con1);
     let query = db.delete(["User"])
       .getQuery() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-    let querySpected = `DELETE FROM "User"`.replaceAll(/[ \n\t]+/ig, " ")
+    const queryExpected = `DELETE FROM "User"`.replaceAll(/[ \n\t]+/ig, " ")
       .trim();
-    assertEquals(query, querySpected);
+    assertEquals(query, queryExpected);
   },
 );
 Deno.test(
   testMessage.replace(/\{\}/ig, "delete [delete with where] query should work"),
-  async () => {
-    let db: Connection = new Connection(con1);
+  () => {
+    const db: Connection = new Connection(con1);
     let query = db.delete(["User"])
       .where([`"column1" = 10`])
       .getQuery() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-    let querySpected = `DELETE FROM "User" WHERE "column1" = 10`.replaceAll(
+    const queryExpected = `DELETE FROM "User" WHERE "column1" = 10`.replaceAll(
       /[ \n\t]+/ig,
       " ",
     ).trim();
-    assertEquals(query, querySpected);
+    assertEquals(query, queryExpected);
   },
 );
 Deno.test(
@@ -39,14 +39,14 @@ Deno.test(
     /\{\}/ig,
     "delete [delete with schema] query should work",
   ),
-  async () => {
-    let db: Connection = new Connection(con1);
+  () => {
+    const db: Connection = new Connection(con1);
     let query = db.delete(["User", "bill"])
       .where([`"column1" = 10`])
       .getQuery() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-    let querySpected = `DELETE FROM "bill"."User" WHERE "column1" = 10`
+    const queryExpected = `DELETE FROM "bill"."User" WHERE "column1" = 10`
       .replaceAll(/[ \n\t]+/ig, " ").trim();
-    assertEquals(query, querySpected);
+    assertEquals(query, queryExpected);
   },
 );

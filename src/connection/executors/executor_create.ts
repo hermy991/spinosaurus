@@ -6,6 +6,10 @@ import { CreateBuilding } from "../../language/ddl/create/create_building.ts";
 export class ExecutorCreate {
   cb: CreateBuilding = new CreateBuilding();
   constructor(public conn: ConnectionPostgres) {
+    this.cb = new CreateBuilding(
+      { delimiters: conn.delimiters },
+      conn.transformer,
+    );
   }
 
   create(req: { entity: string; schema?: string }): ExecutorCreate {

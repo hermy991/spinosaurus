@@ -1,7 +1,52 @@
 {
   "scripts": {
-    "test": "deno test --unstable --import-map=./tests/importmap.json --config=./tests/tsconfig.json --allow-net --allow-read --allow-env=SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD tests/all_test.ts",
-    "test:query": "deno test --unstable --import-map=./tests/importmap.json --config=./tests/tsconfig.json --allow-net --allow-read --allow-env=SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD tests/query_test.ts",
-    "test:executor": "deno test --unstable --import-map=./tests/importmap.json --config=./tests/tsconfig.json --allow-net --allow-read --allow-env=SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD tests/executor_test.ts"
+    "test": {
+      "desc": "Run all test",
+      "imap": "./tests/importmap.json",
+      "tsconfig": "./tests/tsconfig.json",
+      "unstable": true,
+      "allow": {
+        "net": true,
+        "read": true,
+        "env": "SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD"
+      },
+      "cmd": "deno test tests/all_test.ts"
+    },
+    "test:one": {
+      "desc": "Run all test",
+      "imap": "./tests/importmap.json",
+      "tsconfig": "./tests/tsconfig.json",
+      "unstable": true,
+      "allow": {
+        "net": true,
+        "read": true,
+        "env": "SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD"
+      },
+      "cmd": "deno test "
+    },
+    "test:query": {
+      "desc": "Run query test",
+      "imap": "./tests/importmap.json",
+      "tsconfig": "./tests/tsconfig.json",
+      "unstable": true,
+      "allow": {
+        "net": true,
+        "read": true,
+        "env": "SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD"
+      },
+      "cmd": "deno test tests/query_test.ts"
+    },
+    "test:executor": {
+      "desc": "Run query test",
+      "imap": "./tests/importmap.json",
+      "tsconfig": "./tests/tsconfig.json",
+      "unstable": true,
+      "allow": {
+        "net": true,
+        "read": true,
+        "env": "SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD"
+      },
+      "cmd": "deno test tests/executor_test.ts"
+    }
   }
 }

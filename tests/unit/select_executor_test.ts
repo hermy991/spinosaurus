@@ -1,16 +1,16 @@
 import { getTestConnection } from "./tool/tool.ts";
-import { between, Connection, like, notLike } from "spinosaurus/mod.ts";
+import { Connection } from "spinosaurus/mod.ts";
 import { assert, assertEquals } from "deno/testing/asserts.ts";
 //import {Connection} from '../spinosaurus/mod.ts'
 
-let con1 = getTestConnection();
+const con1 = getTestConnection();
 
 const testMessage = "  {}";
 
 Deno.test(
   testMessage.replace(/\{\}/ig, "select test() function should work"),
   async () => {
-    let db: Connection = new Connection(con1);
+    const db: Connection = new Connection(con1);
     const res = await db.test();
     assert(res);
   },
@@ -18,25 +18,25 @@ Deno.test(
 Deno.test(
   testMessage.replace(/\{\}/ig, "select getRawOne() function should work"),
   async () => {
-    let db: Connection = new Connection(con1);
-    let currEntity = `SelectTable_${window.OBJECT_SEQUENCE++}`;
-    let chk = await db.checkObject({ name: currEntity });
+    const db: Connection = new Connection(con1);
+    const currEntity = `SelectTable_${window.OBJECT_SEQUENCE++}`;
+    const chk = await db.checkObject({ name: currEntity });
     if (chk.exists) {
-      let d1 = await db.drop({ entity: currEntity }).execute();
+      const _d1 = await db.drop({ entity: currEntity }).execute();
     }
     const data = [{ userName: "hermy991", firstName: "Hermy" }, {
       userName: "guru",
       firstName: "Danny",
     }];
-    let cr = await db.create({ entity: currEntity })
-      .columns({ columnName: "userName", datatype: "varchar", length: 100 }, {
+    const _cr = await db.create({ entity: currEntity })
+      .columns({ columnName: "userName", spitype: "varchar", length: 100 }, {
         columnName: "firstName",
-        datatype: "varchar",
+        spitype: "varchar",
         length: 100,
       })
       .data(data)
       .execute();
-    let sr = await db.select([`u."userName"`, `UserName`], [
+    const sr = await db.select([`u."userName"`, `UserName`], [
       `u."firstName"`,
       `FirstName`,
     ])
@@ -51,25 +51,25 @@ Deno.test(
 Deno.test(
   testMessage.replace(/\{\}/ig, "select getRawMany() function should work"),
   async () => {
-    let db: Connection = new Connection(con1);
-    let currEntity = `SelectTable_${window.OBJECT_SEQUENCE++}`;
-    let chk = await db.checkObject({ name: currEntity });
+    const db: Connection = new Connection(con1);
+    const currEntity = `SelectTable_${window.OBJECT_SEQUENCE++}`;
+    const chk = await db.checkObject({ name: currEntity });
     if (chk.exists) {
-      let d1 = await db.drop({ entity: currEntity }).execute();
+      const _d1 = await db.drop({ entity: currEntity }).execute();
     }
     const data = [{ userName: "hermy991", firstName: "Hermy" }, {
       userName: "guru",
       firstName: "Danny",
     }, { userName: "yasset77", firstName: "Yasset" }];
-    let cr = await db.create({ entity: currEntity })
-      .columns({ columnName: "userName", datatype: "varchar", length: 100 }, {
+    const _cr = await db.create({ entity: currEntity })
+      .columns({ columnName: "userName", spitype: "varchar", length: 100 }, {
         columnName: "firstName",
-        datatype: "varchar",
+        spitype: "varchar",
         length: 100,
       })
       .data(data)
       .execute();
-    let sr = await db.select()
+    const sr = await db.select()
       .from({ entity: currEntity, as: "u" })
       .getRawMany();
     await db.drop({ entity: currEntity }).execute();
@@ -82,25 +82,25 @@ Deno.test(
     "select getRawMany() function with where should work",
   ),
   async () => {
-    let db: Connection = new Connection(con1);
-    let currEntity = `SelectTable_${window.OBJECT_SEQUENCE++}`;
-    let chk = await db.checkObject({ name: currEntity });
+    const db: Connection = new Connection(con1);
+    const currEntity = `SelectTable_${window.OBJECT_SEQUENCE++}`;
+    const chk = await db.checkObject({ name: currEntity });
     if (chk.exists) {
-      let d1 = await db.drop({ entity: currEntity }).execute();
+      const _d1 = await db.drop({ entity: currEntity }).execute();
     }
     const data = [{ userName: "hermy991", firstName: "Hermy" }, {
       userName: "guru",
       firstName: "Danny",
     }, { userName: "yasset77", firstName: "Yasset" }];
-    let cr = await db.create({ entity: currEntity })
-      .columns({ columnName: "userName", datatype: "varchar", length: 100 }, {
+    const _cr = await db.create({ entity: currEntity })
+      .columns({ columnName: "userName", spitype: "varchar", length: 100 }, {
         columnName: "firstName",
-        datatype: "varchar",
+        spitype: "varchar",
         length: 100,
       })
       .data(data)
       .execute();
-    let sr = await db.select()
+    const sr = await db.select()
       .from({ entity: currEntity, as: "u" })
       .where([`u."userName" = 'hermy991'`])
       .getRawMany();
