@@ -5,14 +5,14 @@ import {
 } from "spinosaurus/mod.ts";
 import * as path from "deno/path/mod.ts";
 
-let con1 = getTestConnection();
+const con1 = getTestConnection();
 
 const testMessage = "  {}";
 
 Deno.test(
   testMessage.replace(/\{\}/ig, "decorator entity should work"),
   async () => {
-    let conX = JSON.parse(JSON.stringify(con1));
+    const conX = JSON.parse(JSON.stringify(con1));
     // const __filename = path.fromFileUrl(import.meta.url);
     const dirname = path.dirname(path.fromFileUrl(import.meta.url));
 
@@ -21,8 +21,9 @@ Deno.test(
 
     // conX.entities = [new URL(".", import.meta.url).pathname + "playground/decorators/user.entity.ts"];
     conX.entities = [`${dirname}/playground/decorators/**/*.ts`];
+
     await createConnection(conX);
-    let metadata = getMetadata();
+    const _metadata = getMetadata();
     // console.log(metadata);
     // console.log(`ColumnTest1 = `, new ColumnTest1());
 

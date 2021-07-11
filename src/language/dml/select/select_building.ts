@@ -91,9 +91,9 @@ export class SelectBuilding extends BaseBuilding {
       })
     }`;
     if (as) {
-      query = `${query} AS "${
+      query = `${query} AS ${
         clearNames({ left: this.left, identifiers: [as], right: this.right })
-      }"`;
+      }`;
     }
     return `FROM ${query}`;
   }

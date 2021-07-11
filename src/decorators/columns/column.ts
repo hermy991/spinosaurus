@@ -30,7 +30,6 @@ export function Column(options: ColumnOptions = {}): any {
       spitype: getColumnType({ type: property.type }),
     };
     const mixeds: ColumnOptions = Object.assign(target, options);
-
     const column = {
       // path,
       target,

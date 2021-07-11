@@ -95,6 +95,7 @@ export async function updateStore(entities: string[]) {
         options,
         value: instance[target.name],
       });
+      // console.log({ options });
       /**
         * Class Null Data
         */
@@ -121,7 +122,7 @@ export async function updateStore(entities: string[]) {
       // if(column.mixeds.name == "number1"){
       //   console.log({descriptor: column.descriptor});
       // }
-      if (!column.mixeds.type) {
+      if (!column.mixeds.spitype) {
         //console.log("hola que lo que = ", {type: property.type, options, value: instance[target.name]});
         throw (`Property '${property.propertyKey}' Data type cannot be determined, use { type: "?" } or define the data type in the property.`);
       }

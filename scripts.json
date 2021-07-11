@@ -13,7 +13,7 @@
       "cmd": "deno test tests/all_test.ts"
     },
     "test:one": {
-      "desc": "Run all test",
+      "desc": "Run one test",
       "imap": "./tests/importmap.json",
       "tsconfig": "./tests/tsconfig.json",
       "unstable": true,

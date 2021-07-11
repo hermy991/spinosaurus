@@ -90,11 +90,6 @@ export class CreateBuilding extends BaseBuilding {
           right: this.right,
         })
       }`;
-
-      console.log(
-        "this.transformer.columnDefinition: ",
-        this.transformer.columnDefinition,
-      );
       if (this.transformer.columnDefinition) {
         sql = this.transformer.columnDefinition({
           ...this.columnsData[i],

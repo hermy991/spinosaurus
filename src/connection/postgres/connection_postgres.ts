@@ -39,7 +39,7 @@ class ConnectionPostgres
     };
   }
   /* Basic Connection Operations*/
-  columnDefinition(scd: SpiColumnDefinition): string {
+  columnDefinition = (scd: SpiColumnDefinition): string => {
     /**
      * Column definition
      */
@@ -54,11 +54,11 @@ class ConnectionPostgres
     }
 
     return defs.join(" ");
-  }
-  columnAlter(
+  };
+  columnAlter = (
     from: { schema?: string; entity: string; columnName: string },
     changes: SpiColumnAdjust,
-  ): string[] {
+  ): string[] => {
     const { schema, entity, columnName } = from;
     const querys: string[] = [];
     const efrom = `${schema ? schema + "." : ""}${entity}`;
@@ -92,8 +92,8 @@ class ConnectionPostgres
       );
     }
     return querys;
-  }
-  columnComment(scc: SpiColumnComment): string {
+  };
+  columnComment = (scc: SpiColumnComment): string => {
     const { schema, entity, columnName, comment } = scc;
     let sql = `COMMENT ON COLUMN ${
       schema ? schema + "." : ""
@@ -102,7 +102,7 @@ class ConnectionPostgres
       comment === null || comment === undefined ? "NULL" : stringify(comment)
     }`;
     return sql;
-  }
+  };
 
   async test(): Promise<boolean> {
     const driverConf = filterConnectionProps(KEY_CONFIG, this);
@@ -258,14 +258,14 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
     return schema;
   }
 
-  getDbColumnType(
+  getDbColumnType = (
     req: {
       spitype?: ColumnType;
       length?: number;
       precision?: number;
       scale?: number;
     },
-  ): string {
+  ): string => {
     const { spitype, length, precision, scale } = req;
     if (!spitype) {
       return "";
@@ -289,7 +289,7 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
       columnType = spitype;
     }
     return columnType;
-  }
+  };
 
   async getMetadata(): Promise<MetadataStore> {
     const metadata: MetadataStore = new MetadataStore();
@@ -418,6 +418,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
 
   async execute(query: string, changes?: any): Promise<any> {
     const driverConf = filterConnectionProps(KEY_CONFIG, this, changes);
+    console.log({ driverConf });
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
     const result = await client.queryObject(query);

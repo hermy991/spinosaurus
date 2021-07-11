@@ -136,6 +136,12 @@ deno run -qA https://code.velociraptor.run <SCRIPT>
 deno run -qA https://code.velociraptor.run test
 ```
 
+## Test one
+
+```bash
+deno run -qA https://code.velociraptor.run test:one tests/unit/create_query_test.ts
+```
+
 ## Test SQL
 
 ```bash
