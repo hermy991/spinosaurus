@@ -8,6 +8,7 @@ import { ExecutorRename } from "./executors/executor_rename.ts";
 import { ExecutorInsert } from "./executors/executor_insert.ts";
 import { ExecutorUpdate } from "./executors/executor_update.ts";
 import { ExecutorDelete } from "./executors/executor_delete.ts";
+import { ExecuteResult } from "./execute_result.ts";
 
 class Connection {
   defIndex: number;
@@ -170,6 +171,12 @@ class Connection {
     const executor: ExecutorDelete = new ExecutorDelete(defConn);
     executor.delete(req);
     return executor;
+  }
+
+  async execute(query: string, changes?: any): Promise<ExecuteResult> {
+    const defConn = this.connections[this.defIndex];
+    const data = await defConn.execute(query, changes);
+    return data;
   }
 }
 

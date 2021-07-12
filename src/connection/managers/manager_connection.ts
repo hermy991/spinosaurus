@@ -15,7 +15,7 @@ import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
 export async function createConnection(
   conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>,
   def: number | string = 0,
-) {
+) : Promise<Connection> {
   const tconn = new Connection(conn, def);
   await synchronize(tconn);
   return tconn;
@@ -176,17 +176,10 @@ export async function generateScript(
       /**
        * NEW
        */
-      const columns: SpiColumnDefinition[] = table.columns.map((x: any) => {
-        const { name, type, length, precision, scale, nullable } = x.mixeds;
-        return {
-          columnName: name,
-          spitype: type,
-          length,
-          precision,
-          scale,
-          nullable,
-        };
-      });
+      const columns: SpiColumnDefinition[] = table.columns.map((x: any) => ({
+        ...x.mixeds,
+        ...{ columnName: x.mixeds.name },
+      }));
 
       const qs = conn.create({ entity: topts.name, schema: topts.schema })
         .columns(...columns);

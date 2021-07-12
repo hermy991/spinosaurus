@@ -36,4 +36,5 @@ export interface IConnectionOperations {
   /* Returns entities*/
   getOne(query: string): Promise<any>;
   getMany(query: string): Promise<Array<any>>;
+  execute(query: string): Promise<any>;
 }

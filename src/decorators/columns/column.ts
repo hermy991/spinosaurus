@@ -1,5 +1,6 @@
 import { ColumnOptions } from "../options/column_options.ts";
 import { getColumnType, getMetadata } from "../metadata/metadata.ts";
+// deno-lint-ignore camelcase
 import { reflect_metadata } from "../../../deps.ts";
 
 export function Column(options: ColumnOptions = {}): any {

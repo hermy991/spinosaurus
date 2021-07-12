@@ -14,9 +14,11 @@ import { ColumnOptions } from "../../decorators/options/column_options.ts";
 import { ColumnType } from "../../decorators/options/column_type.ts";
 import { postgres } from "../../../deps.ts";
 import { KEY_CONFIG } from "./connection_postgres_variables.ts";
+import { Column, ExecuteResult, Format, Query } from "../execute_result.ts";
 
 class ConnectionPostgres
   implements IConnectionPostgresOptions, IConnectionPostgresOperations {
+  #currentSchema?: string;
   delimiters: [string, string?] = [`"`];
   transformer = {};
 
@@ -167,7 +169,7 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
       query,
       req.database ? { database: req.database } : undefined,
     );
-    const rows = result.rows;
+    const rows = result.rows || [];
     let type;
     if (rows.length) {
       switch (rows[0].type) {
@@ -238,7 +240,7 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
     let schema = "";
     const query = "SELECT current_database() current_database";
     const result = await this.execute(query, changes);
-    const rows = result.rows;
+    const rows = result.rows || [];
     if (rows.length) {
       schema = rows[0].current_database;
     }
@@ -246,16 +248,18 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
   }
 
   async getCurrentSchema(): Promise<string> {
-    let schema = "";
+    if (this.#currentSchema) {
+      return this.#currentSchema;
+    }
+    this.#currentSchema = "";
     const query = `SELECT current_schema() "current_schema"`;
     const result = await this.execute(query);
-    const rows = result.rows;
+    const rows = result.rows || [];
     if (rows.length) {
-      schema = rows[0].current_schema;
-    } else {
-      schema = "public";
+      this.#currentSchema = rows[0].current_schema;
     }
-    return schema;
+    this.#currentSchema = this.#currentSchema || "public";
+    return this.#currentSchema;
   }
 
   getDbColumnType = (
@@ -296,10 +300,10 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
     const query = `
 SELECT *
 FROM information_schema.columns c 
-WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
+WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     `;
-    const result = await this.execute(query);
-    let rows: any[] = result.rows;
+    const pgr = await this.execute(query);
+    let rows: any[] = pgr.rows || [];
     rows = rows.sort((a, b) =>
       <number> a.ordinal_position < <number> b.ordinal_position
         ? -1
@@ -416,15 +420,19 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema')
     return r;
   }
 
-  async execute(query: string, changes?: any): Promise<any> {
+  async execute(query: string, changes?: any): Promise<ExecuteResult> {
     const driverConf = filterConnectionProps(KEY_CONFIG, this, changes);
-    console.log({ driverConf });
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
-    const result = await client.queryObject(query);
+    const pgr = await client.queryObject(query);
     client.release();
     await pool.end();
-    return result;
+    const rquery = <Query> pgr.query;
+    const rrowCount = pgr.rowCount;
+    const rrowDescription = pgr.rowDescription;
+    const rrows = pgr.rows;
+    const rs = new ExecuteResult(rquery, rrowCount, rrowDescription, rrows);
+    return rs;
   }
 
   async getOne(query: string): Promise<any> {

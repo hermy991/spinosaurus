@@ -8,3 +8,6 @@ import "./unit/select_executor_test.ts";
 import "./unit/insert_executor_test.ts";
 import "./unit/update_executor_test.ts";
 import "./unit/delete_executor_test.ts";
+
+/** DECORATORS **/
+import "./unit/decorator_entity_executor_test.ts";
