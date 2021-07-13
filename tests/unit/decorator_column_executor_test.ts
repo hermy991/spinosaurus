@@ -11,7 +11,7 @@ const conOpts = getTestConnection();
 const testMessage = "  {}";
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "decorator entity should work"),
+  testMessage.replace(/\{\}/ig, "decorator column should work"),
   async () => {
     const conOptsX = JSON.parse(JSON.stringify(conOpts));
     // const __filename = path.fromFileUrl(import.meta.url);
@@ -38,8 +38,14 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
 `;
       const cds = await conn.execute(query, { database });
       for (const column of table.columns) {
-        const { columnName, spitype, length, nullable, precision, scale } =
-          column.mixeds;
+        const {
+          name: columnName,
+          spitype,
+          length,
+          nullable,
+          precision,
+          scale,
+        } = column.mixeds;
         assert(
           (cds.rows || []).some((x) => x.column_name === columnName),
           `column '${columnName}' must to be created`,
@@ -63,7 +69,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         if (precision) {
           assert(
             (cds.rows || []).some((x) =>
-              x.column_name === columnName && x.numeric_presision === precision
+              x.column_name === columnName && x.numeric_precision === precision
             ),
             `column '${columnName}' must has precision of '${precision}'`,
           );

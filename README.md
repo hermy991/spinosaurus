@@ -139,13 +139,13 @@ deno run -qA https://code.velociraptor.run test
 ## Test one
 
 ```bash
-deno run -qA https://code.velociraptor.run test:one tests/unit/create_query_test.ts
+deno run -qA https://code.velociraptor.run test:one tests/unit/decorator_column_executor_test.ts
 ```
 
 ## Test SQL
 
 ```bash
-deno run -qA https://code.velociraptor.run test:query
+deno run -qA https://code.velociraptor.run test:sql
 ```
 
 ## Test Executor

@@ -15,7 +15,7 @@ import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
 export async function createConnection(
   conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>,
   def: number | string = 0,
-) : Promise<Connection> {
+): Promise<Connection> {
   const tconn = new Connection(conn, def);
   await synchronize(tconn);
   return tconn;
@@ -180,7 +180,8 @@ export async function generateScript(
         ...x.mixeds,
         ...{ columnName: x.mixeds.name },
       }));
-
+      console.log({ topts });
+      console.log({ columns });
       const qs = conn.create({ entity: topts.name, schema: topts.schema })
         .columns(...columns);
       const query = qs.getQuery() || "";

@@ -24,8 +24,8 @@
       },
       "cmd": "deno test "
     },
-    "test:query": {
-      "desc": "Run query test",
+    "test:sql": {
+      "desc": "Run sql test",
       "imap": "./tests/importmap.json",
       "tsconfig": "./tests/tsconfig.json",
       "unstable": true,
@@ -37,7 +37,7 @@
       "cmd": "deno test tests/query_test.ts"
     },
     "test:executor": {
-      "desc": "Run query test",
+      "desc": "Run executors test",
       "imap": "./tests/importmap.json",
       "tsconfig": "./tests/tsconfig.json",
       "unstable": true,

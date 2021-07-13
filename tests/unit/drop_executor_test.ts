@@ -1,6 +1,6 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { Connection } from "spinosaurus/mod.ts";
-import { assertEquals } from "deno/testing/asserts.ts";
+import { assert } from "deno/testing/asserts.ts";
 //import {Connection} from '../spinosaurus/mod.ts'
 
 const con1 = getTestConnection();
@@ -18,29 +18,12 @@ Deno.test(
       const drop1 = db.drop({ entity: currEntity });
       const _drop1r = await drop1.execute();
     }
-
     const qs = db.create({ entity: currEntity })
       .columns({ columnName: "column1", spitype: "varchar" });
     const _creater = await qs.execute();
-
-    const drop2 = db.drop({ entity: currEntity });
-    const drop2r = await drop2.execute();
-
-    const resultShouldBe = {
-      query: {
-        args: [],
-        fields: undefined,
-        result_type: 0,
-        text: 'DROP TABLE "' + currEntity + '"',
-      },
-      _done: true,
-      command: "DROP",
-      rowCount: NaN,
-      rowDescription: undefined,
-      warnings: [],
-      rows: [],
-    };
-    assertEquals(drop2r, resultShouldBe);
+    const _drop2 = await db.drop({ entity: currEntity }).execute();
+    const chdrop = await db.checkObject({ name: currEntity });
+    assert(chdrop.exists === false, `entity '${currEntity}' should be droped`);
   },
 );
 /*************************************
