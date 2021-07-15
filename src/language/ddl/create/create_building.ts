@@ -1,10 +1,13 @@
-import { clearNames, interpolate } from "../../tools/sql.ts";
+import { clearNames } from "../../tools/sql.ts";
 import { SpiColumnDefinition } from "../../../connection/executors/types/spi_column_definition.ts";
 import { SpiUniqueDefinition } from "../../../connection/executors/types/spi_unique_definition.ts";
 import { BaseBuilding } from "../../base_building.ts";
 import { InsertBuilding } from "../../dml/insert/insert_building.ts";
 export class CreateBuilding extends BaseBuilding {
-  private nameData: [string, string?] | null = null;
+  private nameData:
+    | { entity: string; schema?: string }
+    | { schema: string }
+    | null = null;
   private columnsData: Array<
     { columnName: string; spitype: string; length?: number; nullable?: boolean }
   > = [];
@@ -18,9 +21,8 @@ export class CreateBuilding extends BaseBuilding {
     super(conf);
   }
 
-  create(req: { entity: string; schema?: string }): void {
-    const { entity, schema } = req;
-    this.nameData = [`${entity}`, schema];
+  create(req: { entity: string; schema?: string } | { schema: string }): void {
+    this.nameData = req;
   }
 
   columns(...columns: Array<SpiColumnDefinition>): void {
@@ -55,11 +57,26 @@ export class CreateBuilding extends BaseBuilding {
     this.valuesData.push(...data);
   }
 
-  getNameQuery() {
+  getCreateSchemaQuery() {
     if (!this.nameData) {
       return ``;
     }
-    const [entity, schema] = this.nameData;
+    let schema = this.nameData.schema;
+    schema = `${
+      clearNames({ left: this.left, identifiers: schema, right: this.right })
+    }`;
+    return `CREATE SCHEMA ${schema}`;
+  }
+
+  getCreateQuery() {
+    if (!this.nameData) {
+      return ``;
+    }
+    let entity = undefined;
+    if ("entity" in this.nameData) {
+      entity = this.nameData.entity;
+    }
+    const schema = this.nameData.schema;
     let query = `${
       clearNames({ left: this.left, identifiers: entity, right: this.right })
     }`;
@@ -105,6 +122,9 @@ export class CreateBuilding extends BaseBuilding {
     if (!this.nameData) {
       return ``;
     }
+    if (!("entity" in this.nameData)) {
+      return ``;
+    }
     const ib = new InsertBuilding(this.conf, this.transformer);
     ib.insert(this.nameData);
     ib.values(this.valuesData);
@@ -112,7 +132,13 @@ export class CreateBuilding extends BaseBuilding {
   }
 
   getQuery() {
-    let query = `${this.getNameQuery()}\n${this.getColumnsQuery()}`;
+    if (!this.nameData) {
+      return "";
+    }
+    if (!("entity" in this.nameData)) {
+      return `${this.getCreateSchemaQuery()}`;
+    }
+    let query = `${this.getCreateQuery()}\n${this.getColumnsQuery()}`;
     if (this.valuesData.length) {
       query += `;\n${this.getInsertsQuery()}`;
     }

@@ -14,19 +14,11 @@ Deno.test(
   testMessage.replace(/\{\}/ig, "decorator entity should work"),
   async () => {
     const conOptsX = JSON.parse(JSON.stringify(conOpts));
-    // const __filename = path.fromFileUrl(import.meta.url);
     const dirname = path.dirname(path.fromFileUrl(import.meta.url));
-
-    // console.log(`\n__filename`, __filename);
-    // console.log(`__dirname`, __dirname);
-
-    // conX.entities = [new URL(".", import.meta.url).pathname + "playground/decorators/user.entity.ts"];
     conOptsX.entities = [`${dirname}/playground/decorators/**/Entity*.ts`];
-
     const conn = await createConnection(conOptsX);
-    const _metadata = getMetadata();
-
-    for (const table of _metadata.tables) {
+    const metadata = getMetadata(conOptsX.name);
+    for (const table of metadata.tables) {
       const {
         target, /*Class*/
         options, /*Decorator Options*/
@@ -69,23 +61,14 @@ Deno.test(
       }
     }
 
-    for (const table of _metadata.tables) {
+    for (const table of metadata.tables) {
       const co = await conn.checkObject(table.mixeds);
       if (co.exists) {
         await conn.drop({ entity: co.name, schema: co.schema }).execute();
       }
     }
-
-    // console.log(metadata);
-    // console.log(`ColumnTest1 = `, new ColumnTest1());
-
-    // console.log("\n");
-    // console.log(`import.meta.url = `, import.meta.url);
-    // console.log(`new URL("", import.meta.url).pathname = `, new URL("", import.meta.url).pathname);
-    // console.log(`new URL(".", import.meta.url).pathname = `, new URL(".", import.meta.url).pathname);
-    // console.log("import.meta.main : ", import.meta.main);
-    // console.log("");
-
-    //assertEquals(query, queryExpected);
+    for (const schema of metadata.schemas) {
+      await conn.drop({ schema: schema.name }).execute();
+    }
   },
 );

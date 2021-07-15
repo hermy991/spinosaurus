@@ -1,5 +1,5 @@
 import { ColumnOptions } from "../options/column_options.ts";
-import { getColumnType, getMetadata } from "../metadata/metadata.ts";
+import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 import { reflect_metadata } from "../../../deps.ts";
 
 export function PrimaryColumn(options: ColumnOptions = {}): any {
@@ -41,6 +41,6 @@ export function PrimaryColumn(options: ColumnOptions = {}): any {
       options,
       mixeds,
     };
-    getMetadata().columns.push(column);
+    getTempMetadata().columns.push(column);
   };
 }

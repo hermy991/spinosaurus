@@ -24,7 +24,7 @@ Deno.test(
     conOptsX.entities = [`${dirname}/playground/decorators/**/Column*.ts`];
 
     const conn = await createConnection(conOptsX);
-    const _metadata = getMetadata();
+    const _metadata = getMetadata(conOptsX.name);
 
     for (const table of _metadata.tables) {
       let { database, schema, name } = table.mixeds;

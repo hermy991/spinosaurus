@@ -110,14 +110,14 @@ class Connection {
     return res;
   }
 
-  create(req: { entity: string; schema?: string }) {
+  create(req: { entity: string; schema?: string } | { schema: string }) {
     const defConn = this.connections[this.defIndex];
     const executor = new ExecutorCreate(defConn);
     executor.create(req);
     return executor;
   }
 
-  drop(req: { entity: string; schema?: string }) {
+  drop(req: { entity: string; schema?: string } | { schema: string }) {
     const defConn = this.connections[this.defIndex];
     const executor: ExecutorDrop = new ExecutorDrop(defConn);
     executor.drop(req);

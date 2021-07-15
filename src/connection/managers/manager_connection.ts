@@ -1,11 +1,13 @@
 // import {path} from "../../../deps.ts";
 import { fs } from "../../../deps.ts";
 import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
+import { ConnectionOptions } from "../connection_options.ts";
 import { ConnectionPostgresOptions } from "../postgres/connection_postgres_options.ts";
 import { Connection } from "../connection.ts";
 import { EntityOptions } from "../../decorators/options/entity_options.ts";
 import { ColumnOptions } from "../../decorators/options/column_options.ts";
 import {
+  clearMetadata,
   getColumnType,
   getMetadata,
 } from "../../decorators/metadata/metadata.ts";
@@ -27,21 +29,26 @@ export async function synchronize(conn: Connection) {
     const entities = typeof defConn.entities == "string"
       ? [defConn.entities]
       : defConn.entities;
-    await updateStore(entities);
-    // await validateScript(getMetadata(), defConn);
-    const localMetadata = getMetadata();
+    clearMetadata();
+    await updateStore(defConn, entities);
+    const localMetadata = getMetadata(defConn);
     const destinyMetadata = await getDestinyMetadata(defConn);
     const script = await generateScript({
       conn,
       localMetadata,
       destinyMetadata,
     });
-    //console.log("script", script.join(";\n"));
+    // console.log({ script });
+    // console.log("script", script.join(";\n"));
     await defConn.execute(script.join(";\n"));
   }
 }
 
-export async function updateStore(entities: string[]) {
+export async function updateStore(
+  connName: string | ConnectionOptions,
+  entities: string[],
+) {
+  connName = typeof connName == "object" ? connName.name : connName;
   for (const entity of entities) {
     for await (const file of fs.expandGlob(entity)) {
       const path = file.path.replaceAll(`\\`, `/`).replaceAll(`C:/`, `/`);
@@ -50,11 +57,19 @@ export async function updateStore(entities: string[]) {
     /**
      * Link all objects
      */
-    const metadata = getMetadata();
+    const metadata = getMetadata(connName);
     for (const table of metadata.tables) {
+      /**
+       * TABLES TO SCHEMAS
+       */
+      // if (!metadata.schemas.some((x) => x.name === table.mixeds.schema)) {
+      //   metadata.schemas.push({ name: table.mixeds.schema });
+      // }
+      /**
+       * COLUMNS TO TABLES
+       */
       for (const column of metadata.columns) {
         if (column.entity.target === table.target) {
-          table.columns = Array.isArray(table.columns) ? table.columns : [];
           table.columns.push(column);
         }
       }
@@ -128,7 +143,7 @@ export async function updateStore(entities: string[]) {
       }
     }
   }
-  const metadata = getMetadata();
+  const metadata = getMetadata(connName);
   for (const table of metadata.tables) {
     if (!table.columns.length) {
       throw (`Entity '${table.mixeds.name}' needs column(property) definition, use @Column, @PrimaryColumn, @PrimaryGeneratedColumn, etc.`);
@@ -155,6 +170,22 @@ export async function generateScript(
   const dschema = await conn.getCurrentSchema();
   const script: string[] = [];
   /**
+   * SCHEMAS
+   */
+  for (let i = 0; i < localMetadata.schemas.length; i++) {
+    const schema = localMetadata.schemas[i];
+    /**
+     * CHANGING
+     */
+    /**
+     * NEW
+     */
+    const qs = conn.create({ schema: schema.name });
+    const query = qs.getQuery();
+    // console.log({ query });
+    script.push(query);
+  }
+  /**
    * TABLES
    */
   for (let i = 0; i < localMetadata.tables.length; i++) {
@@ -180,12 +211,10 @@ export async function generateScript(
         ...x.mixeds,
         ...{ columnName: x.mixeds.name },
       }));
-      console.log({ topts });
-      console.log({ columns });
       const qs = conn.create({ entity: topts.name, schema: topts.schema })
         .columns(...columns);
       const query = qs.getQuery() || "";
-      script.push(`${query}`);
+      script.push(query);
     }
   }
   return script;

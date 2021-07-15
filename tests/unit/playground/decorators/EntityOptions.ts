@@ -26,3 +26,11 @@ export class EntityOptions4 {
   test2?: string;
   test3?: string;
 }
+
+@Entity({ schema: "hello" })
+export class EntityOptions5 {
+  @Column()
+  test1?: string;
+  test2?: string;
+  test3?: string;
+}

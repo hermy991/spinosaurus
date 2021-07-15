@@ -50,7 +50,7 @@ export function interpolate(
 export function clearNames(
   req: {
     left: string;
-    identifiers?: Array<string | undefined> | string;
+    identifiers?: Array<string | undefined> | string | undefined;
     right: string;
   },
 ) {

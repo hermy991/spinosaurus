@@ -12,7 +12,9 @@ export class ExecutorCreate {
     );
   }
 
-  create(req: { entity: string; schema?: string }): ExecutorCreate {
+  create(
+    req: { entity: string; schema?: string } | { schema: string },
+  ): ExecutorCreate {
     this.cb.create(req);
     return this;
   }
