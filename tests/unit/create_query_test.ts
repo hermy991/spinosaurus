@@ -39,3 +39,22 @@ Deno.test(
     assertEquals(query, queryExpected);
   },
 );
+Deno.test(
+  testMessage.replace(/\{\}/ig, "create [create schema] query should work"),
+  () => {
+    const db: Connection = new Connection(con1);
+    let q1 = db.create({ schema: "publicX" })
+      .getQuery() || "";
+    q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+    const qe1 = `CREATE SCHEMA "publicX"`
+      .replace(/[ \n\t]+/ig, " ").trim();
+    assertEquals(q1, qe1);
+
+    let q2 = db.create({ schema: "publicX", check: true })
+      .getQuery() || "";
+    q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+    const qe2 = `CREATE SCHEMA IF NOT EXISTS "publicX"`
+      .replace(/[ \n\t]+/ig, " ").trim();
+    assertEquals(q2, qe2);
+  },
+);

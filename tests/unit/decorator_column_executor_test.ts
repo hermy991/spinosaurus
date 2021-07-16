@@ -134,24 +134,14 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         );
       }
     }
-
+    /**
+ *
+ */
     for (const table of _metadata.tables) {
       const co = await conn.checkObject(table.mixeds);
       if (co.exists) {
         await conn.drop({ entity: co.name, schema: co.schema }).execute();
       }
     }
-
-    // console.log(metadata);
-    // console.log(`ColumnTest1 = `, new ColumnTest1());
-
-    // console.log("\n");
-    // console.log(`import.meta.url = `, import.meta.url);
-    // console.log(`new URL("", import.meta.url).pathname = `, new URL("", import.meta.url).pathname);
-    // console.log(`new URL(".", import.meta.url).pathname = `, new URL(".", import.meta.url).pathname);
-    // console.log("import.meta.main : ", import.meta.main);
-    // console.log("");
-
-    //assertEquals(query, queryExpected);
   },
 );

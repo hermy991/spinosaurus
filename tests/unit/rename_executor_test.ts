@@ -7,7 +7,10 @@ const con1 = getTestConnection();
 const testMessage = "  {}";
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "rename table execute() function should work"),
+  testMessage.replace(
+    /\{\}/ig,
+    "rename [rename table] execute() function should work",
+  ),
   async () => {
     const db: Connection = new Connection(con1);
     const oldEntity = `RenameTable_${window.OBJECT_SEQUENCE++}`;
@@ -45,7 +48,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "rename table column execute() function should work",
+    "rename [rename table column] execute() function should work",
   ),
   async () => {
     const db: Connection = new Connection(con1);
@@ -80,7 +83,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "rename table and column execute() function should work",
+    "rename [rename table and column] execute() function should work",
   ),
   async () => {
     const db: Connection = new Connection(con1);

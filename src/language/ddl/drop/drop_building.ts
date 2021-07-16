@@ -1,22 +1,28 @@
 import { clearNames } from "../../tools/sql.ts";
 import { BaseBuilding } from "../../base_building.ts";
+import { _ } from "../../../../deps.ts";
 
 export class DropBuilding extends BaseBuilding {
-  private _nameData:
+  private nameData:
     | { entity: string; schema?: string }
-    | { schema: string }
+    | { schema: string; check?: boolean }
     | null = null;
   private columnsData: Array<string> = [];
 
   constructor(
     public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
-    public transformer: any = {},
+    public transformer: { dropSchema?: Function } = {},
   ) {
     super(conf);
   }
 
-  drop(req: { entity: string; schema?: string } | { schema: string }): void {
-    this._nameData = req;
+  drop(
+    req: { entity: string; schema?: string } | {
+      schema: string;
+      check?: boolean;
+    },
+  ): void {
+    this.nameData = req;
   }
 
   columns(columns: Array<string> | string): void {
@@ -33,26 +39,29 @@ export class DropBuilding extends BaseBuilding {
   }
 
   getDropSchemaQuery(): string {
-    if (!this._nameData) {
+    if (!this.nameData) {
       return ``;
     }
-    let { schema } = this._nameData;
-    schema = clearNames({
-      left: this.left,
-      identifiers: schema,
-      right: this.right,
-    });
-    return `DROP SCHEMA IF EXISTS ${schema}`;
+    if (this.transformer.dropSchema) {
+      const nameData = _.cloneDeep(this.nameData);
+      nameData.schema = clearNames({
+        left: this.left,
+        identifiers: nameData.schema,
+        right: this.right,
+      });
+      return this.transformer.dropSchema(nameData);
+    }
+    return "";
   }
 
   getEntityQuery(type: "drop" | "alter"): string {
-    if (!this._nameData) {
+    if (!this.nameData) {
       return ``;
     }
-    if (!("entity" in this._nameData)) {
+    if (!("entity" in this.nameData)) {
       return ``;
     }
-    const { entity, schema } = this._nameData;
+    const { entity, schema } = this.nameData;
     let query = clearNames({
       left: this.left,
       identifiers: entity,
@@ -94,10 +103,10 @@ export class DropBuilding extends BaseBuilding {
 
   getQuery(): string {
     let query = ``;
-    if (this._nameData === null) {
+    if (this.nameData === null) {
       return ``;
     }
-    if ("schema" in this._nameData) {
+    if (!("entity" in this.nameData)) {
       query = `${this.getDropSchemaQuery()}`;
       return query;
     }

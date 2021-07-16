@@ -3,6 +3,8 @@ import { stringify } from "../../language/tools/sql.ts";
 import { IConnectionPostgresOptions } from "./iconnection_postgres_options.ts";
 import { IConnectionPostgresOperations } from "./iconnection_postgres_operations.ts";
 // import {SelectBuilding} from '../../language/dml/select/select_building.ts';
+import { SpiCreateSchema } from "../executors/types/spi_create_schema.ts";
+import { SpiDropSchema } from "../executors/types/spi_drop_schema.ts";
 import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
 import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
 import { SpiColumnComment } from "../executors/types/spi_column_comment.ts";
@@ -18,6 +20,7 @@ import { Column, ExecuteResult, Format, Query } from "../execute_result.ts";
 
 class ConnectionPostgres
   implements IConnectionPostgresOptions, IConnectionPostgresOperations {
+  #currentDatabase?: string;
   #currentSchema?: string;
   delimiters: [string, string?] = [`"`];
   transformer = {};
@@ -35,12 +38,30 @@ class ConnectionPostgres
     public hostaddr?: string,
   ) {
     this.transformer = {
+      createSchema: this.createSchema,
+      dropSchema: this.dropSchema,
       columnDefinition: this.columnDefinition,
       columnAlter: this.columnAlter,
       columnComment: this.columnComment,
     };
   }
   /* Basic Connection Operations*/
+  createSchema = (sds: SpiCreateSchema): string => {
+    /**
+     * Create schema
+     */
+    const { schema, check } = sds;
+    const sql = `CREATE SCHEMA ${check ? "IF NOT EXISTS " : ""}${schema}`;
+    return sql;
+  };
+  dropSchema = (sds: SpiDropSchema): string => {
+    /**
+     * Droping schema
+     */
+    const { schema, check } = sds;
+    const sql = `DROP SCHEMA ${check ? "IF EXISTS " : ""}${schema}`;
+    return sql;
+  };
   columnDefinition = (scd: SpiColumnDefinition): string => {
     /**
      * Column definition
@@ -120,8 +141,71 @@ class ConnectionPostgres
     }
   }
 
+  async checkSchema(req: { name: string }): Promise<{
+    name: string;
+    database?: string;
+    exists: boolean;
+    oid?: number;
+    dbdata?: any;
+    type?: string;
+  }> {
+    req.name = req.name.replace(/'/ig, "''");
+    let res: {
+      name: string;
+      database?: string;
+      exists: boolean;
+      oid?: number;
+      dbdata?: any;
+      type?: string;
+    } = {
+      name: req.name,
+      exists: false,
+    };
+    const query = `
+SELECT catalog_name "database"
+    , schema_name "schema"
+    , schema_owner "owner"
+    , default_character_set_catalog
+    , default_character_set_schema
+    , default_character_set_name
+    , sql_path
+FROM information_schema.schemata
+WHERE schema_name NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
+  AND schema_name = '${req.name}' 
+    `;
+    const result = await this.execute(query);
+    const rows = result.rows || [];
+    if (rows.length) {
+      res = {
+        name: rows[0].schema,
+        database: rows[0].database,
+        exists: true,
+        // oid: rows[0].oid,
+        dbdata: rows[0],
+        type: "schema",
+      };
+      return res;
+    }
+    return res;
+  }
+
   async checkObject(
-    req: { name: string; schema?: string; database?: string },
+    req: {
+      name: string;
+      type?:
+        | "table"
+        | "index"
+        | "sequence"
+        | "toast table"
+        | "view"
+        | "materialized view"
+        | "type"
+        | "foreign table"
+        | "partitioned table"
+        | "partitioned index";
+      schema?: string;
+      database?: string;
+    },
   ): Promise<
     {
       name: string;
@@ -133,6 +217,8 @@ class ConnectionPostgres
       type?: string;
     }
   > {
+    req.name = req.name.replace(/'/ig, "''");
+    req.schema = (req.schema || "").replace(/'/ig, "''");
     let res: {
       name: string;
       schema?: string;
@@ -147,75 +233,53 @@ class ConnectionPostgres
       database: req.database,
       exists: false,
     };
-    req.name = req.name.replace(/'/ig, "''");
-    req.schema = (req.schema || "").replace(/'/ig, "''");
     /**
      * TODO
      * buscar el schema por defecto en el query
      */
     const query = `
-SELECT n."oid"
-    , current_database() "database"
-    , n."nspname" "schema"
-    , c."relname" "name"
-    , c."relkind" "type"
-FROM pg_catalog.pg_class c
-INNER JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
-  AND n.nspname = CASE WHEN '${req.schema}' = '' THEN current_schema() ELSE '${req.schema}' END -- schema
-  AND c.relname = '${req.name}' -- object
+SELECT * FROM (
+  SELECT n."oid"
+      , current_database() "database"
+      , n."nspname" "schema"
+      , c."relname" "name"
+      , CASE c."relkind" WHEN 'r' THEN 'table'
+                          WHEN 'i' THEN 'index'
+                          WHEN 'S' THEN 'sequence'
+                          WHEN 't' THEN 'toast table'
+                          WHEN 'v' THEN 'view'
+                          WHEN 'm' THEN 'materialized view'
+                          WHEN 'c' THEN 'type'
+                          WHEN 'f' THEN 'foreign table'
+                          WHEN 'p' THEN 'partitioned table'
+                          WHEN 'I' THEN 'partitioned index'
+        END "type"
+  FROM pg_catalog.pg_class c
+  INNER JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+  WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
+    AND n.nspname = CASE WHEN '${req.schema}' = '' THEN current_schema() ELSE '${req.schema}' END -- schema
+    AND c.relname = '${req.name}' -- object
+) x
+WHERE ( x.type = '${req.type || ""}' OR '${req.type || ""}' = '') -- type filter
     `;
     const result = await this.execute(
       query,
       req.database ? { database: req.database } : undefined,
     );
     const rows = result.rows || [];
-    let type;
     if (rows.length) {
-      switch (rows[0].type) {
-        /*
-        r = ordinary table,
-        i = index,
-        S = sequence,
-        t = TOAST table,
-        v = view,
-        m = materialized view,
-        c = composite type,
-        f = foreign table,
-        p = partitioned table,
-        I = partitioned index
-        */
-        case "r":
-          type = "table";
-          break;
-        case "i":
-          type = "index";
-          break;
-        case "S":
-          type = "sequence";
-          break;
-        case "t":
-          type = "toast table";
-          break;
-        case "v":
-          type = "view";
-          break;
-        case "m":
-          type = "materialized view";
-          break;
-        case "c":
-          type = "type";
-          break;
-        case "f":
-          type = "foreign table";
-          break;
-        case "p":
-          type = "partitioned table";
-          break;
-        case "I":
-          type = "partitioned index";
-          break;
-      }
+      /*
+      r = ordinary table,
+      i = index,
+      S = sequence,
+      t = TOAST table,
+      v = view,
+      m = materialized view,
+      c = composite type,
+      f = foreign table,
+      p = partitioned table,
+      I = partitioned index
+      */
       res = {
         name: rows[0].name,
         schema: rows[0].schema,
@@ -223,28 +287,28 @@ WHERE n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
         exists: true,
         oid: rows[0].oid,
         dbdata: rows[0],
-        type,
+        type: rows[0].type,
       };
       return res;
     }
-    // let res = { ...req,
-    //   exists: rows.length > 0,
-    //   oid: rows.length ? Number(rows[0].oid) : undefined,
-    //   dbdata: rows.length ? rows[0] : undefined,
-    //   type: rows.length ? type : undefined
-    // };
     return res;
   }
 
   async getCurrentDatabase(changes?: { database?: string }): Promise<string> {
-    let schema = "";
+    if (changes!.database) {
+      return changes!.database;
+    } else if (this.#currentDatabase) {
+      return this.#currentDatabase;
+    }
+    this.#currentDatabase = "";
     const query = "SELECT current_database() current_database";
     const result = await this.execute(query, changes);
     const rows = result.rows || [];
     if (rows.length) {
-      schema = rows[0].current_database;
+      this.#currentDatabase = rows[0].current_database;
     }
-    return schema;
+    this.#currentDatabase = this.#currentDatabase || "spinosaurus";
+    return this.#currentDatabase;
   }
 
   async getCurrentSchema(): Promise<string> {
@@ -334,9 +398,18 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
       );
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      let table = metadata.tables.find((x) => x.mixeds!.name = row.table_name);
+      // let schema = metadata.schemas.find(x => x.mixeds!.schema === row.table_schema);
+      // if(!schema){
+      //   metadata.schemas.push({
+
+      //   })
+      // }
+
+      let table = metadata.tables.find((x) =>
+        x.mixeds!.name === row.table_name
+      );
       if (!table) {
-        let mixeds: EntityOptions = {
+        const mixeds: EntityOptions = {
           database: <string> row.table_catalog,
           schema: <string> row.table_schema,
           name: <string> row.table_name,
@@ -355,7 +428,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         precision: <number> row.numeric_precision,
         scale: <number> row.numeric_scale,
       };
-      let column = {
+      const column = {
         // target,
         entity: { name: <string> row.table_name },
         // descriptor,

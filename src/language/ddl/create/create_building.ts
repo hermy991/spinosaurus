@@ -3,10 +3,12 @@ import { SpiColumnDefinition } from "../../../connection/executors/types/spi_col
 import { SpiUniqueDefinition } from "../../../connection/executors/types/spi_unique_definition.ts";
 import { BaseBuilding } from "../../base_building.ts";
 import { InsertBuilding } from "../../dml/insert/insert_building.ts";
+import { _ } from "../../../../deps.ts";
+
 export class CreateBuilding extends BaseBuilding {
   private nameData:
     | { entity: string; schema?: string }
-    | { schema: string }
+    | { schema: string; check?: boolean }
     | null = null;
   private columnsData: Array<
     { columnName: string; spitype: string; length?: number; nullable?: boolean }
@@ -16,12 +18,20 @@ export class CreateBuilding extends BaseBuilding {
   private valuesData: Array<any> = [];
   constructor(
     public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
-    public transformer: { columnDefinition?: Function } = {},
+    public transformer: {
+      createSchema?: Function;
+      columnDefinition?: Function;
+    } = {},
   ) {
     super(conf);
   }
 
-  create(req: { entity: string; schema?: string } | { schema: string }): void {
+  create(
+    req: { entity: string; schema?: string } | {
+      schema: string;
+      check?: boolean;
+    },
+  ): void {
     this.nameData = req;
   }
 
@@ -61,11 +71,17 @@ export class CreateBuilding extends BaseBuilding {
     if (!this.nameData) {
       return ``;
     }
-    let schema = this.nameData.schema;
-    schema = `${
-      clearNames({ left: this.left, identifiers: schema, right: this.right })
-    }`;
-    return `CREATE SCHEMA ${schema}`;
+
+    if (this.transformer.createSchema) {
+      const nameData = _.cloneDeep(this.nameData);
+      nameData.schema = clearNames({
+        left: this.left,
+        identifiers: nameData.schema,
+        right: this.right,
+      });
+      return this.transformer.createSchema(nameData);
+    }
+    return "";
   }
 
   getCreateQuery() {

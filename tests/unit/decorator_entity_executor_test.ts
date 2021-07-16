@@ -1,5 +1,5 @@
 import { getTestConnection } from "./tool/tool.ts";
-import { assert, assertEquals } from "deno/testing/asserts.ts";
+import { assertEquals } from "deno/testing/asserts.ts";
 import {
   /*Connection, */ createConnection,
   getMetadata,
@@ -60,13 +60,18 @@ Deno.test(
         );
       }
     }
-
+    /**
+     * DROPPING TABLES
+     */
     for (const table of metadata.tables) {
       const co = await conn.checkObject(table.mixeds);
       if (co.exists) {
         await conn.drop({ entity: co.name, schema: co.schema }).execute();
       }
     }
+    /**
+     * DROPPING SCHEMAS
+     */
     for (const schema of metadata.schemas) {
       await conn.drop({ schema: schema.name }).execute();
     }

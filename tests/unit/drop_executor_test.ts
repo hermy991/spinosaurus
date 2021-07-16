@@ -12,44 +12,41 @@ Deno.test(
   ),
   async () => {
     const db: Connection = new Connection(con1);
+    /**
+     * DROPING TABLE
+     */
     const currEntity = `DropTable_${window.OBJECT_SEQUENCE++}`;
-    const chk = await db.checkObject({ name: currEntity });
-    if (chk.exists) {
+    const chk1 = await db.checkObject({ name: currEntity });
+    if (chk1.exists) {
       const drop1 = db.drop({ entity: currEntity });
       const _drop1r = await drop1.execute();
     }
-    const qs = db.create({ entity: currEntity })
+    const qs1 = db.create({ entity: currEntity })
       .columns({ columnName: "column1", spitype: "varchar" });
-    const _creater = await qs.execute();
+    const _creater1 = await qs1.execute();
     const _drop2 = await db.drop({ entity: currEntity }).execute();
-    const chdrop = await db.checkObject({ name: currEntity });
-    assert(chdrop.exists === false, `entity '${currEntity}' should be droped`);
+    const chk2 = await db.checkObject({ name: currEntity });
+    assert(chk2.exists === false, `entity '${currEntity}' should be droped`);
   },
 );
-/*************************************
- * TODO drop columns execute() test
- * Insert is necesary
- *************************************/
-// Deno.test(testMessage.replace(/\{\}/ig, "[drop columns] execute() function should work"), async () => {
-//   let db: Connection = new Connection(con1);
-//   let currEntity = `DropTableColumn_${objectSequence++}`;
-//   let chk = await db.checkObject({ name: currEntity });
-//   if(chk.exists){
-//     let drop1 = db.drop({entity: currEntity});
-//     let drop1r = await drop1.execute();
-//   }
-
-//   let qs = db.create({entity: currEntity})
-//              .columns({columnName: "column1", datatype: "varchar" });
-//   const creater = await qs.execute();
-
-//   let drop2 = db.drop({entity: currEntity});
-//   await drop2.execute();
-//   let data =
-
-//   assertEquals(drop2r, resultShouldBe);
-// });
-/*************************************
- * TODO rename tests
- * Insert is necesary
- *************************************/
+Deno.test(
+  testMessage.replace(
+    /\{\}/ig,
+    "drop [drop schema] execute() function should work",
+  ),
+  async () => {
+    const db: Connection = new Connection(con1);
+    /**
+     * DROPING SCHEMA
+     */
+    const currSchema = `DropSchema_${window.OBJECT_SEQUENCE++}`;
+    const chk1 = await db.checkSchema({ name: currSchema });
+    if (chk1.exists) {
+      const _d1 = await db.drop({ schema: currSchema, check: true }).execute();
+    }
+    const _c2 = await db.create({ schema: currSchema, check: true }).execute();
+    const _d2 = await db.drop({ schema: currSchema, check: true }).execute();
+    const chk3 = await db.checkSchema({ name: currSchema });
+    assert(chk3.exists === false, `schema '${currSchema}' should be droped`);
+  },
+);

@@ -11,7 +11,10 @@ export class ExecutorDrop {
   }
 
   drop(
-    req: { entity: string; schema?: string } | { schema: string },
+    req: { entity: string; schema?: string } | {
+      schema: string;
+      check?: boolean;
+    },
   ): ExecutorDrop {
     this.db.drop(req);
     return this;

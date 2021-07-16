@@ -1,12 +1,15 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { Connection } from "spinosaurus/mod.ts";
-import { assertEquals } from "deno/testing/asserts.ts";
+import { assert, assertEquals } from "deno/testing/asserts.ts";
 
 const con1 = getTestConnection();
 const testMessage = "  {}";
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "create execute() function should work"),
+  testMessage.replace(
+    /\{\}/ig,
+    "create [create table] execute() function should work",
+  ),
   async () => {
     const db: Connection = new Connection(con1);
     const currEntity = `CreateTable_${window.OBJECT_SEQUENCE++}`;
@@ -35,7 +38,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "create execute() with data function should work",
+    "create [create table with data] execute() function should work",
   ),
   async () => {
     const db: Connection = new Connection(con1);
@@ -67,5 +70,25 @@ Deno.test(
     const _dr = await db.drop({ entity: currEntity }).execute();
 
     assertEquals(sr, resultShouldBe);
+  },
+);
+
+Deno.test(
+  testMessage.replace(
+    /\{\}/ig,
+    "create [create schema] execute() function should work",
+  ),
+  async () => {
+    const db: Connection = new Connection(con1);
+    const currSchema = `CreateSchema_${window.OBJECT_SEQUENCE++}`;
+    const chk1 = await db.checkSchema({ name: currSchema });
+    if (chk1.exists) {
+      const _d1 = await db.drop({ schema: currSchema, check: true }).execute();
+    }
+    const _c1 = await db.create({ schema: currSchema, check: true }).execute();
+    const chk2 = await db.checkSchema({ name: currSchema });
+    const _d2 = await db.drop({ schema: currSchema, check: true }).execute();
+
+    assert(chk2.exists === true, `schema '${currSchema}' should be created`);
   },
 );
