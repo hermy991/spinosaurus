@@ -295,7 +295,7 @@ WHERE ( x.type = '${req.type || ""}' OR '${req.type || ""}' = '') -- type filter
   }
 
   async getCurrentDatabase(changes?: { database?: string }): Promise<string> {
-    if (changes!.database) {
+    if (changes && changes!.database) {
       return changes!.database;
     } else if (this.#currentDatabase) {
       return this.#currentDatabase;

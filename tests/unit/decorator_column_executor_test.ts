@@ -14,15 +14,8 @@ Deno.test(
   testMessage.replace(/\{\}/ig, "decorator column should work"),
   async () => {
     const conOptsX = JSON.parse(JSON.stringify(conOpts));
-    // const __filename = path.fromFileUrl(import.meta.url);
     const dirname = path.dirname(path.fromFileUrl(import.meta.url));
-
-    // console.log(`\n__filename`, __filename);
-    // console.log(`__dirname`, __dirname);
-
-    // conX.entities = [new URL(".", import.meta.url).pathname + "playground/decorators/user.entity.ts"];
     conOptsX.entities = [`${dirname}/playground/decorators/**/Column*.ts`];
-
     const conn = await createConnection(conOptsX);
     const _metadata = getMetadata(conOptsX.name);
 
@@ -135,12 +128,21 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
       }
     }
     /**
- *
- */
+     * Dropping tables
+     */
     for (const table of _metadata.tables) {
       const co = await conn.checkObject(table.mixeds);
       if (co.exists) {
         await conn.drop({ entity: co.name, schema: co.schema }).execute();
+      }
+    }
+    /**
+     * Dropping schemas
+     */
+    for (const schema of _metadata.schemas) {
+      const cs = await conn.checkSchema({ name: schema.name });
+      if (cs.exists) {
+        await conn.drop({ schema: cs.name, check: true }).execute();
       }
     }
   },
