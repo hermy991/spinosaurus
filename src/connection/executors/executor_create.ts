@@ -27,8 +27,8 @@ export class ExecutorCreate {
     return this;
   }
 
-  addColumn(req: SpiColumnDefinition): ExecutorCreate {
-    this.cb.addColumn(req);
+  addColumn(column: SpiColumnDefinition): ExecutorCreate {
+    this.cb.addColumn(column);
     return this;
   }
 

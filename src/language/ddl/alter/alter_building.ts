@@ -5,7 +5,9 @@ import { SpiColumnDefinition } from "../../../connection/executors/types/spi_col
 
 export class AlterBuilding extends BaseBuilding {
   private fromData: [string, string?] | undefined = undefined;
-  private columnsData: Array<[string, SpiColumnDefinition]> = [];
+  private columnsData: Array<
+    [string, SpiColumnDefinition] | SpiColumnDefinition
+  > = [];
 
   constructor(
     public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
@@ -19,14 +21,16 @@ export class AlterBuilding extends BaseBuilding {
     this.fromData = [`${from.entity}`, from.schema];
   }
 
-  columns(...columns: Array<[string, SpiColumnDefinition]>): void {
+  columns(
+    ...columns: Array<[string, SpiColumnDefinition] | SpiColumnDefinition>
+  ): void {
     this.columnsData = [];
     columns.forEach((x) => {
       this.addColumn(x);
     });
   }
 
-  addColumn(column: [string, SpiColumnDefinition]): void {
+  addColumn(column: [string, SpiColumnDefinition] | SpiColumnDefinition): void {
     this.columnsData.push(column);
   }
 
@@ -58,7 +62,12 @@ export class AlterBuilding extends BaseBuilding {
     let querys: string[] = [];
 
     for (let i = 0; i < this.columnsData.length; i++) {
-      let [columnName, def] = this.columnsData[0];
+      let columnName = "", def: SpiColumnDefinition;
+      if (Array.isArray(this.columnsData[0])) {
+        [columnName, def] = this.columnsData[0];
+      } else {
+        def = this.columnsData[0];
+      }
       columnName = clearNames({
         left: this.left,
         identifiers: columnName,

@@ -3,6 +3,7 @@ import { ConnectionPostgres } from "./postgres/connection_postgres.ts";
 import { ConnectionPostgresOptions } from "./postgres/connection_postgres_options.ts";
 import { ExecutorDrop } from "./executors/executor_drop.ts";
 import { ExecutorCreate } from "./executors/executor_create.ts";
+import { ExecutorAlter } from "./executors/executor_alter.ts";
 import { ExecutorSelect } from "./executors/executor_select.ts";
 import { ExecutorRename } from "./executors/executor_rename.ts";
 import { ExecutorInsert } from "./executors/executor_insert.ts";
@@ -125,6 +126,13 @@ class Connection {
     const defConn = this.connections[this.defIndex];
     const executor = new ExecutorCreate(defConn);
     executor.create(req);
+    return executor;
+  }
+
+  alter(req: { entity: string; schema?: string }) {
+    const defConn = this.connections[this.defIndex];
+    const executor = new ExecutorAlter(defConn);
+    executor.alter(req);
     return executor;
   }
 

@@ -3,8 +3,8 @@ import { Column, Entity } from "spinosaurus/mod.ts";
 /**
  * Column Types Test
  */
-@Entity({ name: "ColumnTypes1" })
-export class ColumnTypes1 {
+@Entity({ name: "ModColumnTypes1", schema: "mod" })
+export class ModColumnTypes1 {
   @Column()
   string1 = "";
 

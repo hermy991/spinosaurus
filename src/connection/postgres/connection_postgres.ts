@@ -85,34 +85,41 @@ class ConnectionPostgres
     const { schema, entity, columnName } = from;
     const querys: string[] = [];
     const efrom = `${schema ? schema + "." : ""}${entity}`;
-    if (changes.columnName && columnName != changes.columnName) {
-      querys.push(
-        `ALTER TABLE ${efrom} RENAME COLUMN ${columnName} TO ${changes.columnName}`,
-      );
-    }
-    const fcolumnName = changes.columnName || columnName;
-    if (changes.spitype) {
-      querys.push(
-        `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} TYPE ${
-          this.getDbColumnType(changes).toUpperCase()
-        }`,
-      );
-    }
-    if ("default" in changes) {
-      querys.push(
-        `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
-          changes.default
-            ? "SET DEFAULT " + stringify(changes.default)
-            : "DROP DEFAULT"
-        }`,
-      );
-    }
-    if (changes.nullable === false || changes.nullable === true) {
-      querys.push(
-        `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
-          changes.nullable ? "DROP" : "SET"
-        } NOT NULL`,
-      );
+    if (columnName) {
+      let fcolumnName = columnName;
+      if (changes.columnName && columnName != changes.columnName) {
+        querys.push(
+          `ALTER TABLE ${efrom} RENAME COLUMN ${columnName} TO ${changes.columnName}`,
+        );
+        fcolumnName = changes.columnName;
+      }
+      if (changes.spitype) {
+        querys.push(
+          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} TYPE ${
+            this.getDbColumnType(changes).toUpperCase()
+          }`,
+        );
+      }
+      if ("default" in changes) {
+        querys.push(
+          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
+            changes.default
+              ? "SET DEFAULT " + stringify(changes.default)
+              : "DROP DEFAULT"
+          }`,
+        );
+      }
+      if (changes.nullable === false || changes.nullable === true) {
+        querys.push(
+          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
+            changes.nullable ? "DROP" : "SET"
+          } NOT NULL`,
+        );
+      }
+    } else {
+      /**
+       * TODO
+       */
     }
     return querys;
   };
@@ -398,13 +405,17 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
       );
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      // let schema = metadata.schemas.find(x => x.mixeds!.schema === row.table_schema);
-      // if(!schema){
-      //   metadata.schemas.push({
+      /**
+       * Find schemas
+       */
+      const schema = metadata.schemas.find((x) => x.name === row.table_schema);
+      if (!schema) {
+        metadata.schemas.push({ name: row.table_schema });
+      }
 
-      //   })
-      // }
-
+      /**
+       * Find tables
+       */
       let table = metadata.tables.find((x) =>
         x.mixeds!.name === row.table_name
       );
@@ -429,11 +440,11 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         scale: <number> row.numeric_scale,
       };
       const column = {
-        // target,
+        target: <ColumnOptions> {},
         entity: { name: <string> row.table_name },
-        // descriptor,
-        // property,
-        // options,
+        descriptor: <any> {},
+        property: <any> {},
+        options: <ColumnOptions> {},
         mixeds: <ColumnOptions> {
           type: this.getColumnTypeReverse(type),
           name: <string> row.column_name,

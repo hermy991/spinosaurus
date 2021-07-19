@@ -38,8 +38,7 @@ export async function synchronize(conn: Connection) {
       localMetadata,
       destinyMetadata,
     });
-    // console.log({ script });
-    // console.log("script", script.join(";\n"));
+    console.log(script.join(";\n"));
     await defConn.execute(script.join(";\n"));
   }
 }
@@ -93,7 +92,7 @@ export async function updateStore(
       const property = column.property;
       const propertyDescriptor = Object.getOwnPropertyDescriptor(
         instance,
-        target.name,
+        target.name || "",
       );
       column.descriptor = propertyDescriptor;
       /**
@@ -108,21 +107,21 @@ export async function updateStore(
       options.spitype = getColumnType({
         type: property.type,
         options,
-        value: instance[target.name],
+        value: instance[target.name || ""],
       });
       // console.log({ options });
       /**
         * Class Null Data
         */
-      if (target.name in instance) {
+      if ((target.name || "") in instance) {
         /** Siempre tendrá valor*/
         target.nullable = false;
       }
       /**
         * Class Default Data
         */
-      if (instance[target.name] != undefined) {
-        target.default = instance[target.name];
+      if (instance[target.name || ""] != undefined) {
+        target.default = instance[target.name || ""];
       }
       /**
        * Class readonly
@@ -174,16 +173,22 @@ export async function generateScript(
    */
   for (let i = 0; i < localMetadata.schemas.length; i++) {
     const schema = localMetadata.schemas[i];
-    /**
+    let query = "";
+    if (destinyMetadata.schemas.some((x) => x.name === schema.name)) {
+      /**
      * CHANGING
+     * TODO
      */
-    /**
-     * NEW
-     */
-    const qs = conn.create({ schema: schema.name });
-    const query = qs.getQuery();
-    // console.log({ query });
-    script.push(query);
+      // console.log(`SCHEMA EXISTS: ${schema.name}`);
+    } else {
+      /**
+       * NEW
+       */
+      // console.log(`SCHEMA DOES NOT EXISTS: ${schema.name}`);
+      const qs = conn.create({ schema: schema.name, ...schema });
+      query = qs.getQuery();
+      script.push(query);
+    }
   }
   /**
    * TABLES
@@ -196,18 +201,53 @@ export async function generateScript(
       continue;
     }
     const topts = table.mixeds;
-    if (destinyMetadata.tables.some((x) => x.mixeds.name == topts.name)) {
+    const dtable = destinyMetadata.tables.find((x) =>
+      (x.mixeds.database || ddatabase) === (topts.database || ddatabase) &&
+      (x.mixeds.schema || dschema) === (topts.schema || dschema) &&
+      x.mixeds.name === topts.name
+    );
+    if (dtable) {
       /**
        * CHANGING
        */
-      /**
-       * TODO
-       */
+      let query = "";
+      const csolds: Array<[string, SpiColumnDefinition]> = table.columns
+        .filter((x: any) =>
+          dtable.columns.some((y: any) => x.mixeds.name === y.mixeds.name)
+        )
+        .map((x: any) => [x.mixeds.name, {
+          ...x.mixeds,
+          columnName: x.mixeds.name,
+        }]);
+      if (csolds.length) {
+        const qsa = conn.alter(table.mixeds)
+          .columns(...csolds);
+        query = qsa.getQuery() || "";
+        if (query) {
+          script.push(query);
+        }
+      }
+
+      const csnews: Array<SpiColumnDefinition> = table.columns
+        .filter((x: any) =>
+          dtable.columns.some((y: any) => x.mixeds.name !== y.mixeds.name)
+        )
+        .map((x: any) => ({ ...x.mixeds, columnName: x.mixeds.name }));
+      if (csnews.length) {
+        const qsn = conn.alter(table.mixeds)
+          .columns(...csnews);
+        query = qsn.getQuery() || "";
+        if (query) {
+          script.push(query);
+        }
+      }
     } else {
       /**
        * NEW
        */
-      const columns: SpiColumnDefinition[] = table.columns.map((x: any) => ({
+      const columns: Array<SpiColumnDefinition> = table.columns.map((
+        x: any,
+      ) => ({
         ...x.mixeds,
         ...{ columnName: x.mixeds.name },
       }));
