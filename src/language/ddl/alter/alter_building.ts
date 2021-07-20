@@ -4,7 +4,7 @@ import { SpiColumnDefinition } from "../../../connection/executors/types/spi_col
 // import { SpiColumnComment } from "../../../connection/executors/types/spi_column_comment.ts";
 
 export class AlterBuilding extends BaseBuilding {
-  private fromData: [string, string?] | undefined = undefined;
+  private fromData: { entity: string; schema?: string } | undefined = undefined;
   private columnsData: Array<
     [string, SpiColumnDefinition] | SpiColumnDefinition
   > = [];
@@ -18,7 +18,7 @@ export class AlterBuilding extends BaseBuilding {
   }
 
   alter(from: { entity: string; schema?: string }): void {
-    this.fromData = [`${from.entity}`, from.schema];
+    this.fromData = from;
   }
 
   columns(
@@ -34,24 +34,24 @@ export class AlterBuilding extends BaseBuilding {
     this.columnsData.push(column);
   }
 
-  getEntityQuery(): string {
-    if (!this.fromData) {
-      return ``;
-    }
-    const [entity, schema] = this.fromData;
-    const query = clearNames({
-      left: this.left,
-      identifiers: [schema, entity],
-      right: this.right,
-    });
-    return `ALTER TABLE ${query}`;
-  }
+  // getEntityQuery(): string {
+  //   if (!this.fromData) {
+  //     return ``;
+  //   }
+  //   const [entity, schema] = this.fromData;
+  //   const query = clearNames({
+  //     left: this.left,
+  //     identifiers: [schema, entity],
+  //     right: this.right,
+  //   });
+  //   return `ALTER TABLE ${query}`;
+  // }
 
   getColumnsQuery(): string {
     if (!this.columnsData.length || !this.fromData) {
       return ``;
     }
-    let [entity, schema] = this.fromData;
+    let { entity, schema } = this.fromData;
     entity = entity
       ? clearNames({ left: this.left, identifiers: entity, right: this.right })
       : entity;
@@ -63,20 +63,22 @@ export class AlterBuilding extends BaseBuilding {
 
     for (let i = 0; i < this.columnsData.length; i++) {
       let columnName = "", def: SpiColumnDefinition;
-      if (Array.isArray(this.columnsData[0])) {
-        [columnName, def] = this.columnsData[0];
+      if (Array.isArray(this.columnsData[i])) {
+        [columnName, def] = <[string, SpiColumnDefinition]> this.columnsData[i];
       } else {
-        def = this.columnsData[0];
+        def = <SpiColumnDefinition> this.columnsData[i];
       }
-      columnName = clearNames({
-        left: this.left,
-        identifiers: columnName,
-        right: this.right,
-      });
-      def.columnName = def.columnName
+      columnName = columnName
         ? clearNames({
           left: this.left,
           identifiers: columnName,
+          right: this.right,
+        })
+        : columnName;
+      def.columnName = def.columnName
+        ? clearNames({
+          left: this.left,
+          identifiers: def.columnName,
           right: this.right,
         })
         : def.columnName;

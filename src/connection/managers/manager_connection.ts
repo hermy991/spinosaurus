@@ -32,13 +32,14 @@ export async function synchronize(conn: Connection) {
     clearMetadata();
     await updateStore(defConn, entities);
     const localMetadata = getMetadata(defConn);
+    // console.log({ localMetadata });
     const destinyMetadata = await getDestinyMetadata(defConn);
     const script = await generateScript({
       conn,
       localMetadata,
       destinyMetadata,
     });
-    console.log(script.join(";\n"));
+    // console.log(script.join(";\n"));
     await defConn.execute(script.join(";\n"));
   }
 }
@@ -113,10 +114,12 @@ export async function updateStore(
       /**
         * Class Null Data
         */
-      if ((target.name || "") in instance) {
-        /** Siempre tendrá valor*/
-        target.nullable = false;
-      }
+      target.nullable = false;
+      // console.log({
+      //   name: target.name,
+      //   instance,
+      //   descriptor: column.descriptor,
+      // });
       /**
         * Class Default Data
         */
@@ -208,7 +211,7 @@ export async function generateScript(
     );
     if (dtable) {
       /**
-       * CHANGING
+       * Altering column tables'
        */
       let query = "";
       const csolds: Array<[string, SpiColumnDefinition]> = table.columns
@@ -220,30 +223,43 @@ export async function generateScript(
           columnName: x.mixeds.name,
         }]);
       if (csolds.length) {
-        const qsa = conn.alter(table.mixeds)
+        // console.log(`Altering column tables' : `, table.mixeds, ...csolds);
+
+        const qsa = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
           .columns(...csolds);
         query = qsa.getQuery() || "";
         if (query) {
+          // console.log(`Altering column tables' query: `, query);
           script.push(query);
         }
       }
-
+      /**
+       * Adding column tables'
+       */
       const csnews: Array<SpiColumnDefinition> = table.columns
         .filter((x: any) =>
           dtable.columns.some((y: any) => x.mixeds.name !== y.mixeds.name)
         )
         .map((x: any) => ({ ...x.mixeds, columnName: x.mixeds.name }));
       if (csnews.length) {
-        const qsn = conn.alter(table.mixeds)
+        // console.log(`Adding column tables' : `, table.mixeds, ...csnews);
+        const qsn = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
           .columns(...csnews);
         query = qsn.getQuery() || "";
         if (query) {
+          // console.log(`Adding column tables query : `, query);
           script.push(query);
         }
       }
+      /**
+       * Dropping column tables'
+       */
+      /**
+       * TODO
+       */
     } else {
       /**
-       * NEW
+       * New tables
        */
       const columns: Array<SpiColumnDefinition> = table.columns.map((
         x: any,
@@ -251,9 +267,15 @@ export async function generateScript(
         ...x.mixeds,
         ...{ columnName: x.mixeds.name },
       }));
+      // console.log(
+      //   `New tables : `,
+      //   { entity: topts.name, schema: topts.schema },
+      //   ...columns,
+      // );
       const qs = conn.create({ entity: topts.name, schema: topts.schema })
         .columns(...columns);
       const query = qs.getQuery() || "";
+      // console.log(`New tables query : `, query);
       script.push(query);
     }
   }

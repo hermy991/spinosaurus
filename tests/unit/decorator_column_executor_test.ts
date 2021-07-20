@@ -181,10 +181,10 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         const {
           name: columnName,
           spitype,
-          length,
-          nullable,
-          precision,
-          scale,
+          // length,
+          // nullable,
+          // precision,
+          // scale,
         } = column.mixeds;
         if (columnName === "string1") {
           assert(

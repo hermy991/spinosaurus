@@ -69,7 +69,7 @@ class ConnectionPostgres
     const defs: string[] = [];
     defs.push(scd.columnName);
     defs.push(this.getDbColumnType(scd).toUpperCase());
-    if (scd.nullable == false) {
+    if (scd.nullable === false) {
       defs.push(`NOT NULL`);
     }
     if ("default" in scd) {
@@ -85,19 +85,47 @@ class ConnectionPostgres
     const { schema, entity, columnName } = from;
     const querys: string[] = [];
     const efrom = `${schema ? schema + "." : ""}${entity}`;
-    if (columnName) {
-      let fcolumnName = columnName;
-      if (changes.columnName && columnName != changes.columnName) {
-        querys.push(
-          `ALTER TABLE ${efrom} RENAME COLUMN ${columnName} TO ${changes.columnName}`,
-        );
-        fcolumnName = changes.columnName;
+    if (!columnName && !changes.columnName) {
+      return querys;
+    }
+    let fcolumnName = columnName;
+    if (columnName && changes.columnName && columnName != changes.columnName) {
+      querys.push(
+        `ALTER TABLE ${efrom} RENAME COLUMN ${columnName} TO ${changes.columnName}`,
+      );
+      fcolumnName = changes.columnName;
+    }
+    if (!columnName && changes.columnName) {
+      /**
+       * New column
+       */
+      let aquery = `ALTER TABLE ${efrom} ADD COLUMN ${changes.columnName} ${
+        this.getDbColumnType(changes).toUpperCase()
+      }`;
+      if ("nullable" in changes) {
+        aquery += (changes.nullable ? "" : " NOT") + " NULL";
       }
+      if ("default" in changes) {
+        aquery += (" DEFAULT " + stringify(changes.default));
+      }
+      querys.push(aquery);
+      fcolumnName = changes.columnName;
+    } else {
+      /**
+       * Alter column
+       */
       if (changes.spitype) {
         querys.push(
           `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} TYPE ${
             this.getDbColumnType(changes).toUpperCase()
           }`,
+        );
+      }
+      if ("nullable" in changes) {
+        querys.push(
+          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
+            changes.nullable ? "DROP" : "SET"
+          } NOT NULL`,
         );
       }
       if ("default" in changes) {
@@ -109,18 +137,8 @@ class ConnectionPostgres
           }`,
         );
       }
-      if (changes.nullable === false || changes.nullable === true) {
-        querys.push(
-          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
-            changes.nullable ? "DROP" : "SET"
-          } NOT NULL`,
-        );
-      }
-    } else {
-      /**
-       * TODO
-       */
     }
+
     return querys;
   };
   columnComment = (scc: SpiColumnComment): string => {
