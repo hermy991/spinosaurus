@@ -44,7 +44,6 @@ Deno.test(
 
     await db.drop({ entity: currEntity }).execute();
 
-    // console.log({r, dataShouldBe})
     assertEquals(r, dataShouldBe);
   },
 );

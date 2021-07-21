@@ -115,11 +115,19 @@ class ConnectionPostgres
        * Alter column
        */
       if (changes.spitype) {
-        querys.push(
-          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} TYPE ${
-            this.getDbColumnType(changes).toUpperCase()
-          }`,
-        );
+        const ntype = this.getDbColumnType(changes);
+        let tquery =
+          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} TYPE ${ntype.toUpperCase()}`;
+        if (["numeric"].includes(changes.spitype)) {
+          tquery += ` USING (${fcolumnName})::${ntype}`;
+        } else if (["boolean"].includes(changes.spitype)) {
+          tquery += ` USING (${fcolumnName})::int::${ntype}`;
+        } else if (["timestamp"].includes(changes.spitype)) {
+          tquery += ` USING (${fcolumnName})::timestamp without time zone`;
+        } else if (["bytearray"].includes(changes.spitype)) {
+          tquery += ` USING (${fcolumnName})::bytea`;
+        }
+        querys.push(tquery);
       }
       if ("nullable" in changes) {
         querys.push(
@@ -468,7 +476,17 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           name: <string> row.column_name,
           length: <number> row.character_maximum_length,
           nullable: row.is_nullable == "YES",
-          // default: "??"
+          default: row.column_default,
+          // default:
+          //   ["text", "varchar"].includes(
+          //       this.getColumnTypeReverse(type) || "",
+          //     ) &&
+          //     (row.column_default || "")
+          //     ? row.column_default.replace(/::text/ig, "").replace(
+          //       /^'|'$/ig,
+          //       "",
+          //     )
+          //     : row.column_default,
         },
       };
       table.columns.push(column);

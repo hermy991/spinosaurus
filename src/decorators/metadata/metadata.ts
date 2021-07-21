@@ -53,7 +53,6 @@ export function getColumnType(
  * Type by value
  */
   if (value != undefined && value != null) {
-    // console.log({type, "value.constructor": value.constructor});
     type = value.constructor;
   }
   /**

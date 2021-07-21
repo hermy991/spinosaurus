@@ -3,16 +3,16 @@ import { Column, Entity } from "spinosaurus/mod.ts";
 /**
  * Column Types Test
  */
-@Entity({ name: "ModColumnTypes1", schema: "decorator" })
-export class ModColumnTypes1 {
+@Entity({ name: "AddColumnTypes1", schema: "decorator" })
+export class AddColumnTypes1 {
   @Column()
-  string1 = "";
+  string2 = "";
 
   @Column()
-  string2?: string;
+  string3?: string;
 
   @Column()
-  string3?: string = "";
+  string4?: string = "";
 
   @Column()
   number1 = 100;
