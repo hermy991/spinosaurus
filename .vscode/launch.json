@@ -12,13 +12,13 @@
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "deno",
       "runtimeArgs": [
-        "run",
+        "test",
         "--unstable",
-        "--inspect-brk",
+        "--inspect",
         "--import-map=./tests/importmap.json",
         "--config=./tests/tsconfig.json",
         "--allow-all",
-        "tests/start.ts"
+        "./tests/unit/decorator_column_executor_test.ts"
       ],
       "attachSimplePort": 9229
     }
