@@ -13,18 +13,41 @@ import {
 } from "../../decorators/metadata/metadata.ts";
 import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
 import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
+import { getConnectionOptions } from "../connection_utils.ts";
+
+/**
+ * Creates a new connection from env variables, config files
+ * Only one connection from config will be created
+ */
+export async function createConnection(): Promise<Connection>;
+
+/**
+* Creates a new connection from the config file with a given name.
+*/
+export async function createConnection(name: string): Promise<Connection>;
+
+/**
+ * Creates a new connection and registers.
+ */
+export async function createConnection(
+  options: ConnectionPostgresOptions,
+): Promise<Connection>;
 
 export async function createConnection(
-  conn?: ConnectionPostgresOptions | Array<ConnectionPostgresOptions>,
-  def: number | string = 0,
+  optionsOrName?: string | ConnectionPostgresOptions,
 ): Promise<Connection> {
-  const tconn = new Connection(conn, def);
+  const name = typeof optionsOrName === "string" ? optionsOrName : "default";
+  const options = optionsOrName instanceof Object
+    ? optionsOrName
+    : await getConnectionOptions(name);
+
+  const tconn = new Connection(options);
   await synchronize(tconn);
   return tconn;
 }
 
 export async function synchronize(conn: Connection) {
-  const defConn = conn.connections[conn.defIndex];
+  const defConn = conn.getConnection();
   if (defConn.synchronize) {
     const entities = typeof defConn.entities == "string"
       ? [defConn.entities]

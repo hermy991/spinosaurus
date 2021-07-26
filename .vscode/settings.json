@@ -22,5 +22,8 @@
   "deno.config": "./tests/tsconfig.json",
   "deno.lint": true,
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "denoland.vscode-deno"
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "deno.suggest.imports.hosts": {
+    "https://deno.land": false
+  }
 }

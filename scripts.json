@@ -8,7 +8,7 @@
       "allow": {
         "net": true,
         "read": true,
-        "env": "SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD"
+        "env": "SPINOSAURUS_TEST_CONN_HOST,SPINOSAURUS_TEST_CONN_PORT,SPINOSAURUS_TEST_CONN_USERNAME,SPINOSAURUS_TEST_CONN_PASSWORD"
       },
       "cmd": "deno test tests/all_test.ts"
     },
@@ -20,7 +20,7 @@
       "allow": {
         "net": true,
         "read": true,
-        "env": "SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD"
+        "env": "SPINOSAURUS_TEST_CONN_HOST,SPINOSAURUS_TEST_CONN_PORT,SPINOSAURUS_TEST_CONN_USERNAME,SPINOSAURUS_TEST_CONN_PASSWORD"
       },
       "cmd": "deno test "
     },
@@ -32,7 +32,7 @@
       "allow": {
         "net": true,
         "read": true,
-        "env": "SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD"
+        "env": "SPINOSAURUS_TEST_CONN_HOST,SPINOSAURUS_TEST_CONN_PORT,SPINOSAURUS_TEST_CONN_USERNAME,SPINOSAURUS_TEST_CONN_PASSWORD"
       },
       "cmd": "deno test tests/query_test.ts"
     },
@@ -44,7 +44,7 @@
       "allow": {
         "net": true,
         "read": true,
-        "env": "SPINOSAURUS_TEST_CON_HOST,SPINOSAURUS_TEST_CON_PORT,SPINOSAURUS_TEST_CON_USERNAME,SPINOSAURUS_TEST_CON_PASSWORD"
+        "env": "SPINOSAURUS_TEST_CONN_HOST,SPINOSAURUS_TEST_CONN_PORT,SPINOSAURUS_TEST_CONN_USERNAME,SPINOSAURUS_TEST_CONN_PASSWORD"
       },
       "cmd": "deno test tests/executor_test.ts"
     }

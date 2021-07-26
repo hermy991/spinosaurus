@@ -7,10 +7,10 @@ declare global {
 
 window.OBJECT_SEQUENCE = 1;
 
-let host = Deno.env.get("SPINOSAURUS_TEST_CON_HOST") || "localhost";
-let port = Number(Deno.env.get("SPINOSAURUS_TEST_CON_PORT") || 5432);
-let username = Deno.env.get("SPINOSAURUS_TEST_CON_USERNAME") || "neo";
-let password = Deno.env.get("SPINOSAURUS_TEST_CON_PASSWORD") || "123456";
+let host = Deno.env.get("SPINOSAURUS_TEST_CONN_HOST") || "localhost";
+let port = Number(Deno.env.get("SPINOSAURUS_TEST_CONN_PORT") || 5432);
+let username = Deno.env.get("SPINOSAURUS_TEST_CONN_USERNAME") || "neo";
+let password = Deno.env.get("SPINOSAURUS_TEST_CONN_PASSWORD") || "123456";
 
 //159.89.182.194, localhost
 /*** User

@@ -1,6 +1,6 @@
 {
   "imports": {
     "spinosaurus/": "../",
-    "deno/": "https://deno.land/std@0.99.0/"
+    "deno/": "https://deno.land/std@0.102.0/"
   }
 }
