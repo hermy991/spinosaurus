@@ -14,10 +14,10 @@ export class ExecutorSelect {
   select(
     ...columns: Array<{ column: string; as?: string } | [string, string?]>
   ): ExecutorSelect {
-    let tempColumns: Array<{ column: string; as?: string }> = [];
+    const tempColumns: Array<{ column: string; as?: string }> = [];
     for (let i = 0; i < columns.length; i++) {
       if (Array.isArray(columns[i])) {
-        let [column, as] = (columns[i] as [string, string?]);
+        const [column, as] = (columns[i] as [string, string?]);
         tempColumns.push({ column, as });
       } else {
         tempColumns.push(columns[i] as { column: string; as?: string });
@@ -29,10 +29,10 @@ export class ExecutorSelect {
   selectDistinct(
     ...columns: Array<{ column: string; as?: string } | [string, string?]>
   ): ExecutorSelect {
-    let tempColumns: Array<{ column: string; as?: string }> = [];
+    const tempColumns: Array<{ column: string; as?: string }> = [];
     for (let i = 0; i < columns.length; i++) {
       if (Array.isArray(columns[i])) {
-        let [column, as] = (columns[i] as [string, string?]);
+        const [column, as] = (columns[i] as [string, string?]);
         tempColumns.push({ column, as });
       } else {
         tempColumns.push(columns[i] as { column: string; as?: string });
@@ -71,10 +71,10 @@ export class ExecutorSelect {
       ]
     >
   ): ExecutorSelect {
-    let tempColumns: Array<{ column: string; direction?: string }> = [];
+    const tempColumns: Array<{ column: string; direction?: string }> = [];
     for (let i = 0; i < columns.length; i++) {
       if (Array.isArray(columns[i])) {
-        let [column, direction] = (columns[i] as [string, string?]);
+        const [column, direction] = (columns[i] as [string, string?]);
         tempColumns.push({ column, direction });
       } else {
         tempColumns.push(columns[i] as { column: string; direction?: string });
@@ -91,10 +91,10 @@ export class ExecutorSelect {
       ]
     >
   ): ExecutorSelect {
-    let tempColumns: Array<{ column: string; direction?: string }> = [];
+    const tempColumns: Array<{ column: string; direction?: string }> = [];
     for (let i = 0; i < columns.length; i++) {
       if (Array.isArray(columns[i])) {
-        let [column, direction] = (columns[i] as [string, string?]);
+        const [column, direction] = (columns[i] as [string, string?]);
         tempColumns.push({ column, direction });
       } else {
         tempColumns.push(columns[i] as { column: string; direction?: string });
@@ -124,7 +124,7 @@ export class ExecutorSelect {
   }
   async getRawMany(): Promise<Array<any>> {
     const query = this.getQuery();
-    const data = this.conn.getRawMany(query);
+    const data = await this.conn.getRawMany(query);
     return data;
   }
   async getRawMultiple(): Promise<Array<any>> {

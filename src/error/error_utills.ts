@@ -1,4 +1,6 @@
-export type ErrorConnection = "ErrorConnectionNull" | "ErrorConnectionNotFound";
+export type ErrorConnection =
+  | "ErrorConnectionNull"
+  | "ErrorConnectionOptionsNotFound";
 
 export function error(req: { name?: ErrorConnection; message?: string }) {
   switch (req.name) {
@@ -7,7 +9,7 @@ export function error(req: { name?: ErrorConnection; message?: string }) {
         message: "this.#connection is null, verifiy connection options",
         ...req,
       };
-    case "ErrorConnectionNotFound":
+    case "ErrorConnectionOptionsNotFound":
       return {
         message:
           `options connection not found env, js, ts, json, yml, yaml, xml"`,

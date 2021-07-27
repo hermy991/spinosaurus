@@ -6,6 +6,8 @@ import { ConnectionPostgresOptions } from "../postgres/connection_postgres_optio
 import { Connection } from "../connection.ts";
 import { EntityOptions } from "../../decorators/options/entity_options.ts";
 import { ColumnOptions } from "../../decorators/options/column_options.ts";
+import { PrimaryColumnOptions } from "../../decorators/options/primary_column_options.ts";
+import { GeneratedColumnOptions } from "../../decorators/options/generated_column_options.ts";
 import {
   clearMetadata,
   getColumnType,
@@ -22,25 +24,27 @@ import { getConnectionOptions } from "../connection_utils.ts";
 export async function createConnection(): Promise<Connection>;
 
 /**
-* Creates a new connection from the config file with a given name.
+* Creates a new connection from the env variables, config file with a given name.
 */
 export async function createConnection(name: string): Promise<Connection>;
 
 /**
- * Creates a new connection and registers.
+ * Creates a new connection from option params.
  */
 export async function createConnection(
   options: ConnectionPostgresOptions,
 ): Promise<Connection>;
 
+/**
+ * Creates a new connection from the env variables, config file with a given name or from option params.
+ */
 export async function createConnection(
-  optionsOrName?: string | ConnectionPostgresOptions,
+  nameOrOptions?: string | ConnectionPostgresOptions,
 ): Promise<Connection> {
-  const name = typeof optionsOrName === "string" ? optionsOrName : "default";
-  const options = optionsOrName instanceof Object
-    ? optionsOrName
+  const name = typeof nameOrOptions === "string" ? nameOrOptions : "default";
+  const options = nameOrOptions instanceof Object
+    ? nameOrOptions
     : await getConnectionOptions(name);
-
   const tconn = new Connection(options);
   await synchronize(tconn);
   return tconn;
@@ -110,19 +114,22 @@ export async function updateStore(
     for (const column of metadata.columns) {
       const target = column.target;
       const instance = new column.entity.target();
-      const options: ColumnOptions = column.options;
+      const options: PrimaryColumnOptions | GeneratedColumnOptions =
+        column.options;
       const property = column.property;
       const propertyDescriptor = Object.getOwnPropertyDescriptor(
         instance,
         target.name || "",
       );
       column.descriptor = propertyDescriptor;
+
       /**
        * Option Column Lenght
        */
       if (options.length) {
         options.length = Number(options.length);
       }
+
       /**
        * Class Column Type
        */
@@ -131,24 +138,39 @@ export async function updateStore(
         options,
         value: instance[target.name || ""],
       });
+
       /**
         * Class Null Data
         */
       target.nullable = false;
+
       /**
         * Class Default Data
         */
       if (instance[target.name || ""] != undefined) {
         target.default = instance[target.name || ""];
       }
+
       /**
        * Class readonly
        */
       target.insert = !column.descriptor || column.descriptor?.writable == true;
       target.update = !column.descriptor || column.descriptor?.writable == true;
+
       /**
-       * Class access
+       * When auto increment is set and spitype is undefined we should set spitype to varchar or
        */
+      if (
+        (<GeneratedColumnOptions> options).autoIncrement && !options.spitype
+      ) {
+        const autoIncrement = (<GeneratedColumnOptions> options).autoIncrement;
+        if (autoIncrement === "increment" && !options.spitype) {
+          options.spitype = "integer";
+        } else if (autoIncrement === "uuid" && !options.spitype) {
+          options.spitype = "varchar";
+          options.length = 30;
+        }
+      }
 
       column.mixeds = <ColumnOptions> Object.assign(target, options);
       if (!column.mixeds.spitype) {

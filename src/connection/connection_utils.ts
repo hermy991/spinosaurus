@@ -20,51 +20,32 @@ const FILE_NAME = "spinosaurus";
 export async function getConnectionOptions(
   connectionName: string,
 ): Promise<ConnectionPostgresOptions> {
-  const env = findConnection(await getConnectionEnvOptions(), connectionName);
-  if (env) return env;
-  const envf = findConnection(
-    await getConnectionFileOptions("env"),
+  const options = findConnection(
+    await getConnectionEnvOptions() ||
+      await getConnectionFileOptions("env") ||
+      await getConnectionFileOptions("js") ||
+      await getConnectionFileOptions("ts") ||
+      await getConnectionFileOptions("json") ||
+      await getConnectionFileOptions("yml") ||
+      await getConnectionFileOptions("yaml") ||
+      await getConnectionFileOptions("xml"),
     connectionName,
   );
-  if (envf) return envf;
-  const js = findConnection(
-    await getConnectionFileOptions("js"),
-    connectionName,
-  );
-  if (js) return js;
-  const ts = findConnection(
-    await getConnectionFileOptions("ts"),
-    connectionName,
-  );
-  if (ts) return ts;
-  const json = findConnection(
-    await getConnectionFileOptions("json"),
-    connectionName,
-  );
-  if (json) return json;
-  const yml = findConnection(
-    await getConnectionFileOptions("yml"),
-    connectionName,
-  );
-  if (yml) return yml;
-  const yaml = findConnection(
-    await getConnectionFileOptions("yaml"),
-    connectionName,
-  );
-  if (yaml) return yaml;
-  const xml = findConnection(
-    await getConnectionFileOptions("xml"),
-    connectionName,
-  );
-  if (xml) return yaml;
-  throw error({ name: "ErrorConnectionNotFound" });
+  if (options) {
+    return options;
+  }
+  throw error({ name: "ErrorConnectionOptionsNotFound" });
 }
 
 export async function getConnectionEnvOptions() {
-  let options: ConnectionOptions;
   const permission = await Deno.permissions.query({ name: "env" } as const);
-  if (permission.state === "granted" && Deno.env.get("SPINOSAURUS_CONN_HOST")) {
-    options = {
+  if (
+    permission.state === "granted" &&
+    Deno.env.get("SPINOSAURUS_CONN_TYPE") &&
+    Deno.env.get("SPINOSAURUS_CONN_NAME") &&
+    Deno.env.get("SPINOSAURUS_CONN_HOST")
+  ) {
+    const options: ConnectionOptions = {
       type: Deno.env.get("SPINOSAURUS_CONN_TYPE") || "",
       name: Deno.env.get("SPINOSAURUS_CONN_NAME") || "",
       host: Deno.env.get("SPINOSAURUS_CONN_HOST") || "",
@@ -72,9 +53,25 @@ export async function getConnectionEnvOptions() {
       username: Deno.env.get("SPINOSAURUS_CONN_USERNAME") || "",
       password: Deno.env.get("SPINOSAURUS_CONN_PASSWORD") || "",
       database: Deno.env.get("SPINOSAURUS_CONN_DATABASE") || "",
-      synchronize: Deno.env.get("SPINOSAURUS_CONN_SYNCHRONIZE") ? true : false,
-      entities: Deno.env.get("SPINOSAURUS_CONN_ENTITIES")?.split(",") || [],
+      synchronize: Deno.env.get("SPINOSAURUS_CONN_SYNCHRONIZE") &&
+          Deno.env.get("SPINOSAURUS_CONN_SYNCHRONIZE")?.toLowerCase().trim() ==
+            "true"
+        ? true
+        : false,
+      entities: JSON.parse(Deno.env.get("SPINOSAURUS_CONN_ENTITIES") || "[]") ||
+        [],
     };
+    if (options.entities.length) {
+      const tentities = [];
+      for (let i = 0; i < options.entities.length; i++) {
+        if (/^(\/)|(:)/ig.test(options.entities[i])) {
+          tentities.push(`${options.entities[i]}`);
+        } else {
+          tentities.push(`${Deno.cwd()}/${options.entities[i]}`);
+        }
+      }
+      options.entities = tentities;
+    }
     return options;
   } else {
     return;
@@ -84,39 +81,32 @@ export async function getConnectionEnvOptions() {
 export async function getConnectionFileOptions(
   extension: "env" | "js" | "ts" | "json" | "yml" | "yaml" | "xml",
 ) {
-  /**
-   * export default
-   */
-  if (["env"].includes(extension)) {
-    const decoder = new TextDecoder("utf-8");
-    const raw = Deno.readFileSync(`${Deno.cwd()}/${FILE_NAME}.${extension}`);
-    const text = decoder.decode(raw);
-    const options = dotenv.dotEnvParser(text);
-    return options;
-  } else if (["js", "ts"].includes(extension)) {
-    const options: ConnectionOptions = await import(
-      `${Deno.cwd()}/${FILE_NAME}.${extension}`
-    );
-    return options;
-  } else if (["json"].includes(extension)) {
-    const decoder = new TextDecoder("utf-8");
-    const raw = Deno.readFileSync(`${Deno.cwd()}/${FILE_NAME}.${extension}`);
-    const text = decoder.decode(raw);
-    const options = JSON.parse(text);
-    return options;
-  } else if (["yml", "yaml"].includes(extension)) {
-    const decoder = new TextDecoder("utf-8");
-    const raw = Deno.readFileSync(`${Deno.cwd()}/${FILE_NAME}.${extension}`);
-    const text = decoder.decode(raw);
-    const options = yaml.parse(text);
-    return options;
-  } else if (["xml"].includes(extension)) {
-    const decoder = new TextDecoder("utf-8");
-    const raw = Deno.readFileSync(`${Deno.cwd()}/${FILE_NAME}.${extension}`);
-    const text = decoder.decode(raw);
-    const options = xml.parse(text);
-    return options;
+  try {
+    if (["js", "ts"].includes(extension)) {
+      const options: ConnectionOptions = await import(
+        `${Deno.cwd()}/${FILE_NAME}.${extension}`
+      );
+      return options;
+    } else {
+      const decoder = new TextDecoder("utf-8");
+      const raw = Deno.readFileSync(`${Deno.cwd()}/${FILE_NAME}.${extension}`);
+      const text = decoder.decode(raw);
+      switch (extension) {
+        case "env":
+          return dotenv.dotEnvParser(text);
+        case "json":
+          return JSON.parse(text);
+        case "yml":
+        case "yaml":
+          return yaml.parse(text);
+        case "xml":
+          return xml.parse(text);
+      }
+    }
+  } catch (err) {
+    return;
   }
+  return;
 }
 
 function findConnection(options: any | Array<any>, name: string) {
