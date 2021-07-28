@@ -5,7 +5,7 @@ import { IConnectionPostgresOperations } from "./iconnection_postgres_operations
 // import {SelectBuilding} from '../../language/dml/select/select_building.ts';
 import { SpiCreateSchema } from "../executors/types/spi_create_schema.ts";
 import { SpiDropSchema } from "../executors/types/spi_drop_schema.ts";
-import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
+import { SpiAllColumnDefinition } from "../executors/types/spi_all_column_definition.ts";
 import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
 import { SpiColumnComment } from "../executors/types/spi_column_comment.ts";
 import { initConnection } from "./connection_postgres_pool.ts";
@@ -64,7 +64,7 @@ class ConnectionPostgres
     return sql;
   };
 
-  columnDefinition = (scd: SpiColumnDefinition): string => {
+  columnDefinition = (scd: SpiAllColumnDefinition): string => {
     /**
      * Column definition
      */
@@ -73,12 +73,14 @@ class ConnectionPostgres
     const ctype = this.getDbColumnType(scd).toUpperCase();
     defs.push(ctype);
 
-    if (scd.autoIncrement === "uuid") {
+    if (scd.autoIncrement === "uuid" && ctype.toLowerCase() === "uuid") {
+      defs.push("DEFAULT gen_random_uuid()");
+    } else if (
+      scd.autoIncrement === "uuid" &&
+      ["text", "varchar"].includes(scd.spitype || "")
+    ) {
       defs.push("DEFAULT gen_random_uuid()::text");
-    } // else if(scd.autoIncrement === "increment"){
-    //   defs.push("DEFAULT gen_random_uuid()::text");
-    // }
-    else if (!scd.autoIncrement && "default" in scd) {
+    } else if (!scd.autoIncrement && "default" in scd) {
       defs.push(`DEFAULT ${stringify(scd.default)}`);
     }
 
@@ -384,38 +386,40 @@ WHERE ( x.type = '${req.type || ""}' OR '${req.type || ""}' = '') -- type filter
     },
   ): string => {
     const { spitype, length, precision, scale, autoIncrement } = req;
-    if (!spitype) {
-      return "";
-    }
-    let columnType: string;
-    if (["bytearray"].includes(spitype)) {
-      columnType = "bytea";
-    } else if (["varchar"].includes(spitype) && length) {
-      columnType = `character varying (${length})`;
-    } else if (["numeric"].includes(spitype) && precision && scale) {
-      columnType = `numeric (${precision},${scale})`;
-    } else if (["numeric"].includes(spitype) && precision) {
-      columnType = `numeric (${precision})`;
-    } else if (["numeric"].includes(spitype) && !precision && length == 8) {
-      columnType = `bigint`;
-    } else if (["numeric"].includes(spitype) && !precision && length == 4) {
-      columnType = `integer`;
-    } else if (["numeric"].includes(spitype) && !precision && length == 2) {
-      columnType = `smallint`;
-    } else {
-      columnType = spitype;
-    }
-
     if (
-      ["numeric", "bigint", "integer", "smallint"].includes(spitype) &&
+      (!spitype ||
+        ["numeric", "bigint", "integer", "smallint"].includes(spitype)) &&
       autoIncrement === "increment"
     ) {
-      columnType = "serial";
+      return "serial";
+    } else if (!spitype && autoIncrement === "uuid") {
+      return "uuid";
     }
-    // else if (
-    //   ["text", "varchar"].includes(spitype) && autoIncrement === "uuid"
-    // ) {
-    // }
+
+    let columnType: string;
+    if (["bytearray"].includes(spitype || "")) {
+      columnType = "bytea";
+    } else if (["varchar"].includes(spitype || "") && length) {
+      columnType = `character varying (${length})`;
+    } else if (["numeric"].includes(spitype || "") && precision && scale) {
+      columnType = `numeric (${precision},${scale})`;
+    } else if (["numeric"].includes(spitype || "") && precision) {
+      columnType = `numeric (${precision})`;
+    } else if (
+      ["numeric"].includes(spitype || "") && !precision && length == 8
+    ) {
+      columnType = `bigint`;
+    } else if (
+      ["numeric"].includes(spitype || "") && !precision && length == 4
+    ) {
+      columnType = `integer`;
+    } else if (
+      ["numeric"].includes(spitype || "") && !precision && length == 2
+    ) {
+      columnType = `smallint`;
+    } else {
+      columnType = spitype || "";
+    }
 
     return columnType;
   };

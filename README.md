@@ -156,5 +156,7 @@ deno run -qA https://code.velociraptor.run test:executor
 
 # TODO
 
-- testing primary column
-- testing generated column
+- testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata
+- testing primary column executor
+- testing generated column executor
+- configuration env and files flow

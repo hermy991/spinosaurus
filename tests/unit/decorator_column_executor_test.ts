@@ -155,7 +155,7 @@ Deno.test(
     const db = new Connection(conOptsX);
     const chk1 = await db.checkObject({ name: entity, schema });
     if (chk1.exists) {
-      await db.drop({ entity });
+      await db.drop({ entity }).execute();
     }
     await db.create({ schema, check: true })
       .execute();
@@ -302,7 +302,7 @@ Deno.test(
     const db = new Connection(conOptsX);
     const chk1 = await db.checkObject({ name: entity, schema });
     if (chk1.exists) {
-      await db.drop({ entity });
+      await db.drop({ entity }).execute();
     }
     await db.create({ schema, check: true })
       .execute();
@@ -475,7 +475,7 @@ Deno.test(
     const db = new Connection(conOptsX);
     const chk1 = await db.checkObject({ name: entity, schema });
     if (chk1.exists) {
-      await db.drop({ entity });
+      await db.drop({ entity }).execute();
     }
     await db.create({ schema, check: true })
       .execute();

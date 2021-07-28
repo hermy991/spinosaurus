@@ -1,4 +1,4 @@
-import { SpiColumnDefinition } from "./types/spi_column_definition.ts";
+import { SpiAllColumnDefinition } from "./types/spi_all_column_definition.ts";
 import { SpiUniqueDefinition } from "./types/spi_unique_definition.ts";
 import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
 import { CreateBuilding } from "../../language/ddl/create/create_building.ts";
@@ -22,12 +22,16 @@ export class ExecutorCreate {
     return this;
   }
 
-  columns(...columns: Array<SpiColumnDefinition>): ExecutorCreate {
+  columns(
+    ...columns: Array<SpiAllColumnDefinition>
+  ): ExecutorCreate {
     this.cb.columns(...columns);
     return this;
   }
 
-  addColumn(column: SpiColumnDefinition): ExecutorCreate {
+  addColumn(
+    column: SpiAllColumnDefinition,
+  ): ExecutorCreate {
     this.cb.addColumn(column);
     return this;
   }

@@ -46,8 +46,46 @@ export async function createConnection(
     ? nameOrOptions
     : await getConnectionOptions(name);
   const tconn = new Connection(options);
-  await synchronize(tconn);
+  const sql = await synchronize(tconn);
+  if (sql) {
+    await tconn.execute(sql);
+  }
   return tconn;
+}
+
+/**
+ * Creates a new connection from env variables, config files
+ * Only one connection from config will be created
+ */
+export async function queryConnection(): Promise<string | undefined>;
+
+/**
+* Creates a new connection from the env variables, config file with a given name.
+*/
+export async function queryConnection(
+  name: string,
+): Promise<string | undefined>;
+
+/**
+ * Creates a new connection from option params.
+ */
+export async function queryConnection(
+  options: ConnectionPostgresOptions,
+): Promise<string | undefined>;
+
+/**
+ * Creates a new connection from the env variables, config file with a given name or from option params.
+ */
+export async function queryConnection(
+  nameOrOptions?: string | ConnectionPostgresOptions,
+): Promise<string | undefined> {
+  const name = typeof nameOrOptions === "string" ? nameOrOptions : "default";
+  const options = nameOrOptions instanceof Object
+    ? nameOrOptions
+    : await getConnectionOptions(name);
+  const tconn = new Connection(options);
+  const sql = await synchronize(tconn);
+  return sql;
 }
 
 export async function synchronize(conn: Connection) {
@@ -65,7 +103,7 @@ export async function synchronize(conn: Connection) {
       localMetadata,
       destinyMetadata,
     });
-    await defConn.execute(script.join(";\n"));
+    return script.join(";\n");
   }
 }
 

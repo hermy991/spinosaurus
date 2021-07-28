@@ -42,43 +42,45 @@ export function getMetadata(
   if (!window[GLOBAL_METADATA_KEY]) {
     window[GLOBAL_METADATA_KEY] = {};
   }
+  if (!window[GLOBAL_TEMP_METADATA_KEY]) {
+    window[GLOBAL_TEMP_METADATA_KEY] = {};
+  }
   if (!window[GLOBAL_METADATA_KEY][name]) {
-    window[GLOBAL_METADATA_KEY][name] = window[GLOBAL_TEMP_METADATA_KEY]
-      ? getTempMetadata()
-      : new MetadataStore();
+    window[GLOBAL_METADATA_KEY][name] =
+      window[GLOBAL_TEMP_METADATA_KEY]["default"]
+        ? getTempMetadata()
+        : new MetadataStore();
     clearTempMetadata();
   }
   return window[GLOBAL_METADATA_KEY][name];
 }
 
-/**
- * Without params, default key will be return from temp registry
- */
-export function getTempMetadata(): MetadataStore;
+// /**
+//  * Without params, default key will be return from temp registry
+//  */
+// export function getTempMetadata(): MetadataStore;
 
-/**
- * Name key will be return from temp registry
- */
-export function getTempMetadata(name: string): MetadataStore;
+// /**
+//  * Name key will be return from temp registry
+//  */
+// export function getTempMetadata(name: string): MetadataStore;
 
-/**
- * Option name atribute will be return from temp registry
- */
-export function getTempMetadata(options: ConnectionOptions): MetadataStore;
+// /**
+//  * Option name atribute will be return from temp registry
+//  */
+// export function getTempMetadata(options: ConnectionOptions): MetadataStore;
 
 /**
  * Option name atribute or name param will be return from temp registry
  */
 export function getTempMetadata(
-  nameOrOptions?: string | ConnectionOptions,
+  // nameOrOptions?: string | ConnectionOptions,
 ): MetadataStore {
-  const name =
-    (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) ||
-    DEFAULT_CONN_NAME;
+  const name = DEFAULT_CONN_NAME;
   if (!window[GLOBAL_TEMP_METADATA_KEY]) {
     window[GLOBAL_TEMP_METADATA_KEY] = {};
   }
-  if (!window[GLOBAL_TEMP_METADATA_KEY]) {
+  if (!window[GLOBAL_TEMP_METADATA_KEY][name]) {
     window[GLOBAL_TEMP_METADATA_KEY][name] = new MetadataStore();
   }
   return window[GLOBAL_TEMP_METADATA_KEY][name];
@@ -118,25 +120,25 @@ export function clearMetadata(
 /**
  * Without params default key will be deleted on temp registry
  */
-export function clearTempMetadata(): void;
+// export function clearTempMetadata(): void;
 
-/**
-  * Name key will be deleted on temp registry
-  */
-export function clearTempMetadata(name: string): void;
+// /**
+//   * Name key will be deleted on temp registry
+//   */
+// export function clearTempMetadata(name: string): void;
 
-/**
-  * Option name atribute will be deleted on temp registry
-  */
-export function clearTempMetadata(options: ConnectionOptions): void;
+// /**
+//   * Option name atribute will be deleted on temp registry
+//   */
+// export function clearTempMetadata(options: ConnectionOptions): void;
 
-/**
-  * Option name atribute or name param will be deleted on temp registry
-  */
-export function clearTempMetadata(nameOrOptions?: string | ConnectionOptions) {
-  const name =
-    (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) ||
-    DEFAULT_CONN_NAME;
+// /**
+//   * Option name atribute or name param will be deleted on temp registry
+//   */
+export function clearTempMetadata(
+  // nameOrOptions?: string | ConnectionOptions
+) {
+  const name = DEFAULT_CONN_NAME;
   if (window[GLOBAL_TEMP_METADATA_KEY]) {
     delete window[GLOBAL_TEMP_METADATA_KEY][name];
   } else {

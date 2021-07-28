@@ -40,6 +40,147 @@ Deno.test(
   },
 );
 Deno.test(
+  testMessage.replace(
+    /\{\}/ig,
+    "create [create table with primary key] query should work",
+  ),
+  () => {
+    const db: Connection = new Connection(con1);
+    const qs = db.create({ entity: "User", schema: "public" })
+      .columns({ columnName: "column1", spitype: "integer", primary: true })
+      .addColumn({ columnName: "column2", spitype: "varchar" });
+    let query = qs.getQuery() || "";
+    query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+    const queryExpected =
+      `CREATE TABLE "public"."User" ( "column1" INTEGER PRIMARY KEY, "column2" VARCHAR )`
+        .replace(/[ \n\t]+/ig, " ").trim();
+    assertEquals(query, queryExpected);
+  },
+);
+Deno.test(
+  testMessage.replace(
+    /\{\}/ig,
+    "create [create table with auto-increment] query should work",
+  ),
+  () => {
+    const db: Connection = new Connection(con1);
+    {
+      const qs = db.create({ entity: "User", schema: "public" })
+        .columns({
+          columnName: "column1",
+          spitype: "integer",
+          autoIncrement: "increment",
+        })
+        .addColumn({ columnName: "column2", spitype: "varchar" });
+      let query = qs.getQuery() || "";
+      query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+      const queryExpected =
+        `CREATE TABLE "public"."User" ( "column1" SERIAL, "column2" VARCHAR )`
+          .replace(/[ \n\t]+/ig, " ").trim();
+      assertEquals(query, queryExpected);
+    }
+    {
+      const qs = db.create({ entity: "User", schema: "public" })
+        .columns({
+          columnName: "column1",
+          autoIncrement: "increment",
+        })
+        .addColumn({ columnName: "column2", spitype: "varchar" });
+      let query = qs.getQuery() || "";
+      query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+      const queryExpected =
+        `CREATE TABLE "public"."User" ( "column1" SERIAL, "column2" VARCHAR )`
+          .replace(/[ \n\t]+/ig, " ").trim();
+      assertEquals(query, queryExpected);
+    }
+    {
+      const qs1 = db.create({ entity: "User", schema: "public" })
+        .columns({
+          columnName: "column1",
+          spitype: "varchar",
+          autoIncrement: "uuid",
+        })
+        .addColumn({ columnName: "column2", spitype: "varchar" });
+      let query = qs1.getQuery() || "";
+      query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+      const queryExpected =
+        `CREATE TABLE "public"."User" ( "column1" VARCHAR DEFAULT gen_random_uuid()::text, "column2" VARCHAR )`
+          .replace(/[ \n\t]+/ig, " ").trim();
+      assertEquals(query, queryExpected);
+    }
+    {
+      const qs1 = db.create({ entity: "User", schema: "public" })
+        .columns({
+          columnName: "column1",
+          autoIncrement: "uuid",
+        })
+        .addColumn({ columnName: "column2", spitype: "varchar" });
+      let query = qs1.getQuery() || "";
+      query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+      const queryExpected =
+        `CREATE TABLE "public"."User" ( "column1" UUID DEFAULT gen_random_uuid(), "column2" VARCHAR )`
+          .replace(/[ \n\t]+/ig, " ").trim();
+      assertEquals(query, queryExpected);
+    }
+    {
+      const qs1 = db.create({ entity: "User", schema: "public" })
+        .columns({
+          columnName: "column1",
+          spitype: "varchar",
+          length: 30,
+          autoIncrement: "uuid",
+        })
+        .addColumn({ columnName: "column2", spitype: "varchar" });
+      let query = qs1.getQuery() || "";
+      query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+      const queryExpected =
+        `CREATE TABLE "public"."User" ( "column1" CHARACTER VARYING (30) DEFAULT gen_random_uuid()::text, "column2" VARCHAR )`
+          .replace(/[ \n\t]+/ig, " ").trim();
+      assertEquals(query, queryExpected);
+    }
+  },
+);
+Deno.test(
+  testMessage.replace(
+    /\{\}/ig,
+    "create [create table with auto-increment and primary key] query should work",
+  ),
+  () => {
+    {
+      const db: Connection = new Connection(con1);
+      const qs = db.create({ entity: "User", schema: "public" })
+        .columns({
+          columnName: "column1",
+          autoIncrement: "increment",
+          primary: true,
+        })
+        .addColumn({ columnName: "column2", spitype: "varchar" });
+      let query = qs.getQuery() || "";
+      query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+      const queryExpected =
+        `CREATE TABLE "public"."User" ( "column1" SERIAL PRIMARY KEY, "column2" VARCHAR )`
+          .replace(/[ \n\t]+/ig, " ").trim();
+      assertEquals(query, queryExpected);
+    }
+    {
+      const db: Connection = new Connection(con1);
+      const qs = db.create({ entity: "User", schema: "public" })
+        .columns({
+          columnName: "column1",
+          autoIncrement: "uuid",
+          primary: true,
+        })
+        .addColumn({ columnName: "column2", spitype: "varchar" });
+      let query = qs.getQuery() || "";
+      query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+      const queryExpected =
+        `CREATE TABLE "public"."User" ( "column1" UUID DEFAULT gen_random_uuid() PRIMARY KEY, "column2" VARCHAR )`
+          .replace(/[ \n\t]+/ig, " ").trim();
+      assertEquals(query, queryExpected);
+    }
+  },
+);
+Deno.test(
   testMessage.replace(/\{\}/ig, "create [create schema] query should work"),
   () => {
     const db: Connection = new Connection(con1);
