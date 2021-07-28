@@ -153,3 +153,8 @@ deno run -qA https://code.velociraptor.run test:sql
 ```bash
 deno run -qA https://code.velociraptor.run test:executor
 ```
+
+# TODO
+
+- testing primary column
+- testing generated column

@@ -33,8 +33,8 @@ export function PrimaryColumn(options: ColumnOptions = {}): any {
     const special: PrimaryColumnOptions = { primary: true };
     const mixeds: PrimaryColumnOptions = Object.assign(
       target,
-      options,
       special,
+      options,
     );
 
     const column = {

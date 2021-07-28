@@ -40,8 +40,8 @@ export function PrimaryGeneratedColumn(
     };
     const mixeds: PrimaryColumnOptions | GeneratedColumnOptions = Object.assign(
       target,
-      options,
       special,
+      options,
     );
 
     const column = {

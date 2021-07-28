@@ -170,6 +170,7 @@ export async function updateStore(
           options.spitype = "varchar";
           options.length = 30;
         }
+        options.nullable = options.nullable || false;
       }
 
       column.mixeds = <ColumnOptions> Object.assign(target, options);

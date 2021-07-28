@@ -54,6 +54,7 @@ class ConnectionPostgres
     const sql = `CREATE SCHEMA ${check ? "IF NOT EXISTS " : ""}${schema}`;
     return sql;
   };
+
   dropSchema = (sds: SpiDropSchema): string => {
     /**
      * Droping schema
@@ -62,22 +63,36 @@ class ConnectionPostgres
     const sql = `DROP SCHEMA ${check ? "IF EXISTS " : ""}${schema}`;
     return sql;
   };
+
   columnDefinition = (scd: SpiColumnDefinition): string => {
     /**
      * Column definition
      */
     const defs: string[] = [];
     defs.push(scd.columnName);
-    defs.push(this.getDbColumnType(scd).toUpperCase());
-    if (scd.nullable === false) {
-      defs.push(`NOT NULL`);
-    }
-    if ("default" in scd) {
+    const ctype = this.getDbColumnType(scd).toUpperCase();
+    defs.push(ctype);
+
+    if (scd.autoIncrement === "uuid") {
+      defs.push("DEFAULT gen_random_uuid()::text");
+    } // else if(scd.autoIncrement === "increment"){
+    //   defs.push("DEFAULT gen_random_uuid()::text");
+    // }
+    else if (!scd.autoIncrement && "default" in scd) {
       defs.push(`DEFAULT ${stringify(scd.default)}`);
+    }
+
+    if (scd.primary) {
+      defs.push(`PRIMARY KEY`);
+    } else {
+      if (scd.nullable === false) {
+        defs.push(`NOT NULL`);
+      }
     }
 
     return defs.join(" ");
   };
+
   columnAlter = (
     from: { schema?: string; entity: string; columnName: string },
     changes: SpiColumnAdjust,
@@ -146,9 +161,9 @@ class ConnectionPostgres
         );
       }
     }
-
     return querys;
   };
+
   columnComment = (scc: SpiColumnComment): string => {
     const { schema, entity, columnName, comment } = scc;
     let sql = `COMMENT ON COLUMN ${
@@ -365,9 +380,10 @@ WHERE ( x.type = '${req.type || ""}' OR '${req.type || ""}' = '') -- type filter
       length?: number;
       precision?: number;
       scale?: number;
+      autoIncrement?: "increment" | "uuid";
     },
   ): string => {
-    const { spitype, length, precision, scale } = req;
+    const { spitype, length, precision, scale, autoIncrement } = req;
     if (!spitype) {
       return "";
     }
@@ -389,6 +405,18 @@ WHERE ( x.type = '${req.type || ""}' OR '${req.type || ""}' = '') -- type filter
     } else {
       columnType = spitype;
     }
+
+    if (
+      ["numeric", "bigint", "integer", "smallint"].includes(spitype) &&
+      autoIncrement === "increment"
+    ) {
+      columnType = "serial";
+    }
+    // else if (
+    //   ["text", "varchar"].includes(spitype) && autoIncrement === "uuid"
+    // ) {
+    // }
+
     return columnType;
   };
 
