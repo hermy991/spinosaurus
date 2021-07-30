@@ -94,7 +94,7 @@ export async function synchronize(conn: Connection) {
     const entities = typeof defConn.entities == "string"
       ? [defConn.entities]
       : defConn.entities;
-    clearMetadata();
+    clearMetadata(defConn);
     await updateStore(defConn, entities);
     const localMetadata = getMetadata(defConn);
     const destinyMetadata = await getDestinyMetadata(defConn);

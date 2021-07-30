@@ -573,12 +573,24 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
   }
 
   async execute(query: string, changes?: any): Promise<ExecuteResult> {
+    // const driverConf = filterConnectionProps(KEY_CONFIG, this, changes);
+    // const pool = (initConnection(driverConf) as postgres.Pool);
+    // const client = await pool.connect();
+    // const pgr = await client.queryObject(query);
+    // client.release();
+    // await pool.end();
+    // const rquery = <Query> pgr.query;
+    // const rrowCount = pgr.rowCount;
+    // const rrowDescription = pgr.rowDescription;
+    // const rrows = pgr.rows;
+    // const rs = new ExecuteResult(rquery, rrowCount, rrowDescription, rrows);
+    // return rs;
+
     const driverConf = filterConnectionProps(KEY_CONFIG, this, changes);
-    const pool = (initConnection(driverConf) as postgres.Pool);
-    const client = await pool.connect();
+    const client = new postgres.Client(driverConf);
+    await client.connect();
     const pgr = await client.queryObject(query);
-    client.release();
-    await pool.end();
+    client.end();
     const rquery = <Query> pgr.query;
     const rrowCount = pgr.rowCount;
     const rrowDescription = pgr.rowDescription;
