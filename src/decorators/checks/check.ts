@@ -5,28 +5,14 @@ import { getTempMetadata } from "../metadata/metadata.ts";
  * Can be used on entity property or on entity.
  * Can create checks with composite columns when used on entity.
  */
-export function Check(expression: string): any;
-export function Check(name: string, expression: string): any;
-export function Check(options: CheckOptions = {}): any {
+export function Check(options: CheckOptions): any {
   return function (target: Function) {
-    let mixeds: CheckOptions = { name: target.name };
-    mixeds = Object.assign(mixeds, options);
-    const columns: any[] = [];
-    const schemas: any[] = [];
+    const mixeds = Object.assign(options);
 
-    getTempMetadata().tables.push({
-      // path,
+    getTempMetadata().checks.push({
       target,
       options,
       mixeds,
-      columns,
     });
-
-    if (
-      mixeds.schema &&
-      !getTempMetadata().schemas.some((x) => x.name === mixeds.schema)
-    ) {
-      getTempMetadata().schemas.push({ name: mixeds.schema });
-    }
   };
 }

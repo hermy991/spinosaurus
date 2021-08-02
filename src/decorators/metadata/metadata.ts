@@ -1,6 +1,7 @@
 import { MetadataStore } from "./metadata_store.ts";
 import { ColumnType } from "../options/column_type.ts";
 import { ConnectionOptions } from "../../connection/connection_options.ts";
+import { createHash } from "deno/hash/mod.ts";
 
 const DEFAULT_CONN_NAME = "default";
 
@@ -12,6 +13,53 @@ declare global {
   var [GLOBAL_METADATA_KEY]: any;
   interface Window {
     [k: string]: any;
+  }
+}
+
+export function linkMetadata(): void {
+  const ms = window[GLOBAL_METADATA_KEY][name];
+  const tables = ms.tables;
+  const checks = ms.checks;
+  /**
+   * Link checks constrains with tables
+   */
+  for (let i = 0; i < checks.length; i++) {
+    const check = checks[i];
+    const table = tables.find((x) => x.target === check.target);
+    table.checks = table.checks || [];
+    const hash = createHash("md5");
+    hash.update(`${btoa(table.checks.length + 1)}`);
+    check.mixeds.name = check.mixeds.name ||
+      `CHK_${table.mixeds.name}_${hash.toString()}`;
+    if (
+      table &&
+      !table.checks.some((x: any) => x.mixeds.name === check.mixeds.name)
+    ) {
+      table.checks.push(check);
+    }
+  }
+  /**
+   * Find all schemas from entities
+   */
+  const schemas = ms.schemas;
+  // tables.forEach((x) => console.log(x.mixeds));
+  for (const table of tables) {
+    if (!schemas.some((x) => x.name === table.mixeds.schema)) {
+      schemas.push({ name: table.mixeds.schema });
+    }
+  }
+  /**
+   * Link columns with tables
+   */
+  const columns = ms.columns;
+  for (const column of columns) {
+    const table = tables.find((x) => x.target === column.entity.target);
+    if (
+      table &&
+      !table.columns.some((x: any) => x.mixeds.name === column.mixeds.name)
+    ) {
+      table.columns.push(column);
+    }
   }
 }
 
@@ -47,12 +95,13 @@ export function getMetadata(
   }
   if (!window[GLOBAL_METADATA_KEY][name]) {
     window[GLOBAL_METADATA_KEY][name] =
-      window[GLOBAL_TEMP_METADATA_KEY]["default"]
+      window[GLOBAL_TEMP_METADATA_KEY][DEFAULT_CONN_NAME]
         ? getTempMetadata()
         : new MetadataStore();
     clearTempMetadata();
   }
-  return window[GLOBAL_METADATA_KEY][name];
+  const ms = window[GLOBAL_METADATA_KEY][name];
+  return ms;
 }
 
 // /**

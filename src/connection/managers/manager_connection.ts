@@ -118,28 +118,10 @@ export async function updateStore(
       const _ = await import(path);
     }
     /**
-     * Link all objects
-     */
-    const metadata = getMetadata(connName);
-    for (const table of metadata.tables) {
-      /**
-       * TABLES TO SCHEMAS
-       */
-      // if (!metadata.schemas.some((x) => x.name === table.mixeds.schema)) {
-      //   metadata.schemas.push({ name: table.mixeds.schema });
-      // }
-      /**
-       * COLUMNS TO TABLES
-       */
-      for (const column of metadata.columns) {
-        if (column.entity.target === table.target) {
-          table.columns.push(column);
-        }
-      }
-    }
-    /**
      * Mixed Entity
      */
+    const metadata = getMetadata(connName);
+    // console.log("schemas", metadata.schemas);
     for (const table of metadata.tables) {
       const options: EntityOptions = table.options;
       let mixeds = { name: table.target.name };

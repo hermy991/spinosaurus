@@ -6,21 +6,20 @@ export function Entity(options: EntityOptions = {}): any {
     let mixeds: EntityOptions = { name: target.name };
     mixeds = Object.assign(mixeds, options);
     const columns: any[] = [];
-    const schemas: any[] = [];
+    // const schemas: any[] = [];
 
     getTempMetadata().tables.push({
-      // path,
       target,
       options,
       mixeds,
       columns,
     });
 
-    if (
-      mixeds.schema &&
-      !getTempMetadata().schemas.some((x) => x.name === mixeds.schema)
-    ) {
-      getTempMetadata().schemas.push({ name: mixeds.schema });
-    }
+    // if (
+    //   mixeds.schema &&
+    //   !getTempMetadata().schemas.some((x) => x.name === mixeds.schema)
+    // ) {
+    //   getTempMetadata().schemas.push({ name: mixeds.schema });
+    // }
   };
 }
