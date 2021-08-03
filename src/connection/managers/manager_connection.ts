@@ -12,6 +12,7 @@ import {
   clearMetadata,
   getColumnType,
   getMetadata,
+  linkMetadata,
 } from "../../decorators/metadata/metadata.ts";
 import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
 import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
@@ -108,15 +109,20 @@ export async function synchronize(conn: Connection) {
 }
 
 export async function updateStore(
-  connName: string | ConnectionOptions,
+  conn: ConnectionPostgres,
   entities: string[],
 ) {
-  connName = typeof connName == "object" ? connName.name : connName;
+  const connName = conn.name;
   for (const entity of entities) {
     for await (const file of fs.expandGlob(entity)) {
       const path = file.path.replaceAll(`\\`, `/`).replaceAll(`C:/`, `/`);
       const _ = await import(path);
     }
+    /**
+     * Link all object from entity
+     */
+    const currentSquema = await conn.getCurrentSchema();
+    linkMetadata({ currentSquema, connName });
     /**
      * Mixed Entity
      */

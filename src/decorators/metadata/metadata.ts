@@ -16,21 +16,29 @@ declare global {
   }
 }
 
-export function linkMetadata(): void {
-  const ms = window[GLOBAL_METADATA_KEY][name];
-  const tables = ms.tables;
-  const checks = ms.checks;
+export function linkMetadata(
+  req: { currentSquema: string; connName: string },
+): void {
+  const { currentSquema, connName } = req;
+  if (!window[GLOBAL_METADATA_KEY]) {
+    return;
+  }
+  if (!window[GLOBAL_METADATA_KEY][connName]) {
+    return;
+  }
+  const { tables, checks, schemas, columns } =
+    window[GLOBAL_METADATA_KEY][connName];
   /**
    * Link checks constrains with tables
    */
   for (let i = 0; i < checks.length; i++) {
     const check = checks[i];
-    const table = tables.find((x) => x.target === check.target);
+    const table = tables.find((x: any) => x.target === check.target);
     table.checks = table.checks || [];
     const hash = createHash("md5");
     hash.update(`${btoa(table.checks.length + 1)}`);
     check.mixeds.name = check.mixeds.name ||
-      `CHK_${table.mixeds.name}_${hash.toString()}`;
+      `CHK_${currentSquema}_${table.mixeds.name}_${hash.toString()}`;
     if (
       table &&
       !table.checks.some((x: any) => x.mixeds.name === check.mixeds.name)
@@ -41,19 +49,16 @@ export function linkMetadata(): void {
   /**
    * Find all schemas from entities
    */
-  const schemas = ms.schemas;
-  // tables.forEach((x) => console.log(x.mixeds));
   for (const table of tables) {
-    if (!schemas.some((x) => x.name === table.mixeds.schema)) {
+    if (!schemas.some((x: any) => x.name === table.mixeds.schema)) {
       schemas.push({ name: table.mixeds.schema });
     }
   }
   /**
    * Link columns with tables
    */
-  const columns = ms.columns;
   for (const column of columns) {
-    const table = tables.find((x) => x.target === column.entity.target);
+    const table = tables.find((x: any) => x.target === column.entity.target);
     if (
       table &&
       !table.columns.some((x: any) => x.mixeds.name === column.mixeds.name)
