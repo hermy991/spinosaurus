@@ -91,7 +91,7 @@ export class CreateBuilding extends BaseBuilding {
     if ("entity" in this.#nameData) {
       entity = this.#nameData.entity;
     }
-    const schema = this.#nameData.schema;
+    const { schema } = this.#nameData;
     let query = `${
       clearNames({ left: this.left, identifiers: entity, right: this.right })
     }`;

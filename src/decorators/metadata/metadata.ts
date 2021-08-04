@@ -18,16 +18,10 @@ declare global {
 
 export function linkMetadata(
   req: { currentSquema: string; connName: string },
-): void {
+): MetadataStore {
   const { currentSquema, connName } = req;
-  if (!window[GLOBAL_METADATA_KEY]) {
-    return;
-  }
-  if (!window[GLOBAL_METADATA_KEY][connName]) {
-    return;
-  }
-  const { tables, checks, schemas, columns } =
-    window[GLOBAL_METADATA_KEY][connName];
+  const metadata = getMetadata(connName);
+  const { tables, checks, schemas, columns } = metadata;
   /**
    * Link checks constrains with tables
    */
@@ -50,13 +44,17 @@ export function linkMetadata(
    * Find all schemas from entities
    */
   for (const table of tables) {
-    if (!schemas.some((x: any) => x.name === table.mixeds.schema)) {
+    if (
+      table.mixeds.schema &&
+      !schemas.some((x: any) => x.name === table.mixeds.schema)
+    ) {
       schemas.push({ name: table.mixeds.schema });
     }
   }
   /**
    * Link columns with tables
    */
+  // console.log(" columns: ", columns);
   for (const column of columns) {
     const table = tables.find((x: any) => x.target === column.entity.target);
     if (
@@ -66,6 +64,7 @@ export function linkMetadata(
       table.columns.push(column);
     }
   }
+  return metadata;
 }
 
 /**

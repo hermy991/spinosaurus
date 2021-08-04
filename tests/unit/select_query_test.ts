@@ -1,7 +1,12 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { between, Connection, like, notLike } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
-//import {Connection} from '../spinosaurus/mod.ts'
+import {
+  FromEntity1,
+  FromEntity2,
+  FromEntity4,
+  FromEntity5,
+} from "./playground/decorators/FromEntity.ts";
 
 const con1 = getTestConnection();
 
@@ -9,6 +14,25 @@ const testMessage = "  {}";
 
 Deno.test(
   testMessage.replace(/\{\}/ig, "select [select *] query should work"),
+  () => {
+    const db: Connection = new Connection(con1);
+    const qs = db.select()
+      .from({ entity: "User", as: "u" });
+    let query = qs.getQuery() || "";
+    query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+    const queryExpected = `SELECT * FROM "User" AS "u"`.replace(
+      /[ \n\t]+/ig,
+      " ",
+    )
+      .trim();
+    assertEquals(query, queryExpected);
+  },
+);
+Deno.test(
+  testMessage.replace(
+    /\{\}/ig,
+    "select [select * from 'Entity'] query should work",
+  ),
   () => {
     const db: Connection = new Connection(con1);
     const qs = db.select()

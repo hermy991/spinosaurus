@@ -122,12 +122,10 @@ export async function updateStore(
      * Link all object from entity
      */
     const currentSquema = await conn.getCurrentSchema();
-    linkMetadata({ currentSquema, connName });
+    const metadata = linkMetadata({ currentSquema, connName });
     /**
      * Mixed Entity
      */
-    const metadata = getMetadata(connName);
-    // console.log("schemas", metadata.schemas);
     for (const table of metadata.tables) {
       const options: EntityOptions = table.options;
       let mixeds = { name: table.target.name };
