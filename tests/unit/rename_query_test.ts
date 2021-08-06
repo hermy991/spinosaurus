@@ -47,11 +47,10 @@ Deno.test(
   ),
   () => {
     const db: Connection = new Connection(con1);
-    const qs = db.rename({ entity: "User", schema: "public" }, {
-      entity: "Person",
-      schema: "def",
-    })
-      .columns(["column11", "column12"], ["column21", "column22"]);
+    const qs = db.rename(
+      { entity: "User", schema: "public" },
+      { entity: "Person", schema: "def" },
+    ).columns(["column11", "column12"], ["column21", "column22"]);
     let query = qs.getQuery() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =

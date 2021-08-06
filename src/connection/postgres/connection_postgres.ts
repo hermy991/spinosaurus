@@ -1,11 +1,10 @@
-//import {ConnectionPostgresOptions} from './connection_postgres_options.ts'
-import { stringify } from "../../language/tools/sql.ts";
-import { IConnectionPostgresOptions } from "./iconnection_postgres_options.ts";
-import { IConnectionPostgresOperations } from "./iconnection_postgres_operations.ts";
-// import {SelectBuilding} from '../../language/dml/select/select_building.ts';
+import { ConnectionPostgresOptions } from "./connection_postgres_options.ts";
+import { stringify } from "../builders/base/sql.ts";
+import { IConnectionOperations } from "../iconnection_operations.ts";
 import { SpiCreateSchema } from "../executors/types/spi_create_schema.ts";
 import { SpiDropSchema } from "../executors/types/spi_drop_schema.ts";
 import { SpiAllColumnDefinition } from "../executors/types/spi_all_column_definition.ts";
+import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
 import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
 import { SpiColumnComment } from "../executors/types/spi_column_comment.ts";
 import { initConnection } from "./connection_postgres_pool.ts";
@@ -16,35 +15,18 @@ import { ColumnOptions } from "../../decorators/options/column_options.ts";
 import { ColumnType } from "../../decorators/options/column_type.ts";
 import { postgres } from "../../../deps.ts";
 import { KEY_CONFIG } from "./connection_postgres_variables.ts";
-import { Column, ExecuteResult, Format, Query } from "../execute_result.ts";
+import { ExecuteResult, Query } from "../execute_result.ts";
 
-class ConnectionPostgres
-  implements IConnectionPostgresOptions, IConnectionPostgresOperations {
+class ConnectionPostgres implements IConnectionOperations {
   #currentDatabase?: string;
   #currentSchema?: string;
   delimiters: [string, string?] = [`"`];
-  transformer = {};
 
-  constructor(
-    public name: string,
-    public type: string = "postgres",
-    public host: string = "localhost",
-    public port: number = 5432,
-    public username: string,
-    public password: string,
-    public database: string,
-    public synchronize: boolean = false,
-    public entities: string | string[],
-    public hostaddr?: string,
-  ) {
-    this.transformer = {
-      createSchema: this.createSchema,
-      dropSchema: this.dropSchema,
-      columnDefinition: this.columnDefinition,
-      columnAlter: this.columnAlter,
-      columnComment: this.columnComment,
-    };
-  }
+  /**
+   * Connection Options
+   */
+
+  constructor(public options: ConnectionPostgresOptions) {}
   /* Basic Connection Operations*/
   createSchema = (sds: SpiCreateSchema): string => {
     /**
@@ -97,7 +79,7 @@ class ConnectionPostgres
 
   columnAlter = (
     from: { schema?: string; entity: string; columnName: string },
-    changes: SpiColumnAdjust,
+    changes: SpiColumnAdjust | SpiColumnDefinition,
   ): string[] => {
     const { schema, entity, columnName } = from;
     const querys: string[] = [];
@@ -178,7 +160,7 @@ class ConnectionPostgres
   };
 
   async test(): Promise<boolean> {
-    const driverConf = filterConnectionProps(KEY_CONFIG, this);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
     try {
       const pool = (initConnection(driverConf) as postgres.Pool);
       const client = await pool.connect();
@@ -573,7 +555,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
   }
 
   async execute(query: string, changes?: any): Promise<ExecuteResult> {
-    // const driverConf = filterConnectionProps(KEY_CONFIG, this, changes);
+    // const driverConf = filterConnectionProps(KEY_CONFIG, this.options, changes);
     // const pool = (initConnection(driverConf) as postgres.Pool);
     // const client = await pool.connect();
     // const pgr = await client.queryObject(query);
@@ -586,7 +568,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     // const rs = new ExecuteResult(rquery, rrowCount, rrowDescription, rrows);
     // return rs;
 
-    const driverConf = filterConnectionProps(KEY_CONFIG, this, changes);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this.options, changes);
     const client = new postgres.Client(driverConf);
     await client.connect();
     const pgr = await client.queryObject(query);
@@ -610,7 +592,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     return [];
   }
   async getRawMany(query: string): Promise<Array<any>> {
-    const driverConf = filterConnectionProps(KEY_CONFIG, this);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
     //const query = this.getQuery();
@@ -620,7 +602,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     return result.rows;
   }
   async getRawMultiple(query: string): Promise<Array<any>> {
-    const driverConf = filterConnectionProps(KEY_CONFIG, this);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
     // const query = this.getQuery();

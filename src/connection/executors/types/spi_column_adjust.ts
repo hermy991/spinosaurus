@@ -13,4 +13,6 @@ export type SpiColumnAdjust = {
   nullable?: boolean;
   default: ColumnType | Function;
   comment?: string;
+  primary?: boolean;
+  autoIncrement?: "increment" | "uuid";
 };

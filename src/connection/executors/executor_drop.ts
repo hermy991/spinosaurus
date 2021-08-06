@@ -1,13 +1,10 @@
-import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
-import { DropBuilding } from "../../language/ddl/drop/drop_building.ts";
+import { ConnectionAll } from "../connection_type.ts";
+import { BuilderDrop } from "../builders/builder_drop.ts";
 
 export class ExecutorDrop {
-  db: DropBuilding = new DropBuilding();
-  constructor(public conn: ConnectionPostgres) {
-    this.db = new DropBuilding(
-      { delimiters: conn.delimiters },
-      conn.transformer,
-    );
+  db: BuilderDrop = new BuilderDrop(<ConnectionAll> {});
+  constructor(public conn: ConnectionAll) {
+    this.db = new BuilderDrop(conn);
   }
 
   drop(

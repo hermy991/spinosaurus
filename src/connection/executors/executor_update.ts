@@ -1,13 +1,11 @@
+import { ConnectionAll } from "../connection_type.ts";
 import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
-import { UpdateBuilding } from "../../language/dml/update/update_building.ts";
+import { BuilderUpdate } from "../builders/builder_update.ts";
 
 export class ExecutorUpdate {
-  ub: UpdateBuilding = new UpdateBuilding();
+  ub: BuilderUpdate = new BuilderUpdate(<ConnectionAll> {});
   constructor(public conn: ConnectionPostgres) {
-    this.ub = new UpdateBuilding(
-      { delimiters: conn.delimiters },
-      conn.transformer,
-    );
+    this.ub = new BuilderUpdate(conn);
   }
 
   update(

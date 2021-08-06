@@ -1,20 +1,13 @@
-import { clearNames, interpolate, stringify } from "../../tools/sql.ts";
-import { BaseBuilding } from "../../base_building.ts";
-/*****************************
- * TODO
- * columns(columns: Array<string>)
- * from(values: Array<any> | any, update = false)
- * use set and where in from implementation
- */
-export class InsertBuilding extends BaseBuilding {
+import { stringify } from "./base/sql.ts";
+import { BuilderBase } from "./base/builder_base.ts";
+import { ConnectionAll } from "../connection_type.ts";
+
+export class BuilderInsert extends BuilderBase {
   private entityData: { entity: string; schema?: string } | null = null;
   private valuesData: Array<any> = [];
 
-  constructor(
-    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
-    public transformer: {} = {},
-  ) {
-    super(conf);
+  constructor(public conn: ConnectionAll) {
+    super(conn);
   }
 
   insert(req: { entity: string; schema?: string } | [string, string?]): void {
@@ -40,13 +33,7 @@ export class InsertBuilding extends BaseBuilding {
       return ``;
     }
     const { entity, schema } = this.entityData;
-    const query = `${
-      clearNames({
-        left: this.left,
-        identifiers: [schema, entity],
-        right: this.right,
-      })
-    }`;
+    const query = `${this.clearNames([schema, entity])}`;
     return `INSERT INTO ${query}`;
   }
 
@@ -57,11 +44,7 @@ export class InsertBuilding extends BaseBuilding {
     const columns: Set<string> = new Set();
     this.valuesData.forEach((value) => {
       const keys = Object.keys(value);
-      keys.forEach((key) =>
-        columns.add(
-          clearNames({ left: this.left, identifiers: key, right: this.right }),
-        )
-      );
+      keys.forEach((key) => columns.add(this.clearNames(key)));
     });
     return `(${[...columns].join(", ")})`;
   }

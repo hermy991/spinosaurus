@@ -3,7 +3,7 @@ import { between, Connection, like, notLike } from "spinosaurus/mod.ts";
 import { assert, assertEquals } from "deno/testing/asserts.ts";
 //import {Connection} from '../spinosaurus/mod.ts'
 
-let con1 = getTestConnection();
+const con1 = getTestConnection();
 
 const testMessage = "  {}";
 

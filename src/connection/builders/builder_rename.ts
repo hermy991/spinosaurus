@@ -1,29 +1,23 @@
-import { BaseBuilding } from "../../base_building.ts";
-export class RenameBuilding extends BaseBuilding {
-  private fromData: [string, string?] | undefined = undefined;
-  private toData: [string, string?] | undefined = undefined;
+import { BuilderBase } from "./base/builder_base.ts";
+import { ConnectionAll } from "../connection_type.ts";
+
+export class BuilderRename extends BuilderBase {
+  private fromData: { entity: string; schema?: string } | undefined = undefined;
+  private toData?: { entity: string; schema?: string };
   private columnsData: Array<[string, string]> = [];
 
-  constructor(
-    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
-    public transformer: {} = {},
-  ) {
-    super(conf);
+  constructor(public conn: ConnectionAll) {
+    super(conn);
   }
 
   rename(
     from: { entity: string; schema?: string },
     to?: { entity: string; schema?: string },
   ): void {
-    this.fromData = [
-      `${from.entity.replace(/["\n\t]+/ig, "").trim()}`,
-      from.schema,
-    ];
+    this.fromData = from;
     if (to) {
-      this.toData = [
-        `${to.entity.replace(/["\n\t]+/ig, "").trim()}`,
-        to.schema || from.schema,
-      ];
+      to.schema ||= from.schema;
+      this.toData = to;
     }
   }
 
@@ -39,23 +33,22 @@ export class RenameBuilding extends BaseBuilding {
   }
 
   getEntityParts() {
-    let o: { from?: string; to?: string } = {};
+    const o: { from?: string; to?: string } = {};
     if (!this.fromData) {
       return {};
     }
-    let [fentity, fschema] = this.fromData;
-    let tentity = this.toData?.[0];
-    let tschema = this.toData?.[1];
-    tschema ||= fschema;
+    const { entity: fentity, schema: fschema } = this.fromData;
+    const tentity = this.toData?.entity;
+    const tschema = this.toData?.schema || fschema;
 
-    o.from = `"${fentity}"`;
+    o.from = this.clearNames(fentity);
     if (fschema) {
-      o.from = `"${fschema}"."${fentity}"`;
+      o.from = this.clearNames([fschema, fentity]);
     }
     if (this.toData) {
-      o.to = `"${tentity}"`;
+      o.to = this.clearNames(tentity);
       if (tschema) {
-        o.to = `"${tschema}"."${tentity}"`;
+        o.to = this.clearNames([tschema, tentity]);
       }
     }
     return o;
@@ -65,7 +58,7 @@ export class RenameBuilding extends BaseBuilding {
     if (!this.fromData && !this.toData) {
       return ``;
     }
-    let { from, to } = this.getEntityParts();
+    const { from, to } = this.getEntityParts();
     return `ALTER TABLE ${from} RENAME TO ${to}`;
   }
 
@@ -74,21 +67,19 @@ export class RenameBuilding extends BaseBuilding {
       return ``;
     }
     let query = ``;
-    let o = this.getEntityParts();
+    const o = this.getEntityParts();
     let ename = o.from;
     if (o.to) {
       ename = o.to;
     }
-
     for (let i = 0; i < this.columnsData.length; i++) {
-      const [from, to] = this.columnsData[i];
-      query += `ALTER TABLE ${ename} RENAME COLUMN "${from}" TO "${to}"`;
+      let [from, to] = this.columnsData[i];
+      from = this.clearNames(from);
+      to = this.clearNames(to);
+      query += `ALTER TABLE ${ename} RENAME COLUMN ${from} TO ${to}`;
       if (i + 1 != this.columnsData.length) {
         query += `;\n`;
       }
-      // else if(o.to){
-      //   query += `;`;
-      // }
     }
     return `${query}`;
   }

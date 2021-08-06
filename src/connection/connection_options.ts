@@ -1,17 +1,17 @@
-import { IConnectionOptions } from "./iconnection_options.ts";
+import { ConnectionPostgresOptions } from "./postgres/connection_postgres_options.ts";
 
-class ConnectionOptions implements IConnectionOptions {
-  constructor(
-    public name: string,
-    public type: string,
-    public host: string,
-    public port: number,
-    public username: string,
-    public password: string,
-    public database: string,
-    public synchronize: boolean,
-    public entities: string | string[],
-  ) {}
-}
+export type ConnectionBaseOptions = {
+  name: string;
+  type: string;
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  database: string;
+  synchronize: boolean;
+  entities: string | string[];
+};
 
-export { ConnectionOptions };
+export type { ConnectionPostgresOptions };
+
+export type ConnectionOptionsAll = ConnectionPostgresOptions;

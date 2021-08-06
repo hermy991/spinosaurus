@@ -1,22 +1,14 @@
-import { clearNames, interpolate, stringify } from "../../tools/sql.ts";
-import { BaseBuilding } from "../../base_building.ts";
+import { interpolate, stringify } from "./base/sql.ts";
+import { BuilderBase } from "./base/builder_base.ts";
+import { ConnectionAll } from "../connection_type.ts";
 
-/*****************************
- * TODO
- * columns(columns: Array<string>)
- * from(values: Array<any> | any, update = false)
- * use set and where in from implementation
- */
-export class UpdateBuilding extends BaseBuilding {
+export class BuilderUpdate extends BuilderBase {
   private entityData: { entity: string; schema?: string } | null = null;
   private setData: Array<[string, string | number | Date | null]> = [];
   private whereData: Array<string> = [];
 
-  constructor(
-    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
-    public transformer: {} = {},
-  ) {
-    super(conf);
+  constructor(public conn: ConnectionAll) {
+    super(conn);
   }
 
   update(req: { entity: string; schema?: string } | [string, string?]): void {
@@ -73,17 +65,9 @@ export class UpdateBuilding extends BaseBuilding {
       return ``;
     }
     const { entity, schema } = this.entityData;
-    let query = `${
-      clearNames({ left: this.left, identifiers: entity, right: this.right })
-    }`;
+    let query = `${this.clearNames(entity)}`;
     if (schema) {
-      query = `${
-        clearNames({
-          left: this.left,
-          identifiers: [schema, entity],
-          right: this.right,
-        })
-      }`;
+      query = `${this.clearNames([schema, entity])}`;
     }
     return `UPDATE ${query}`;
   }
@@ -95,9 +79,7 @@ export class UpdateBuilding extends BaseBuilding {
     const columns: string[] = [];
     this.setData.forEach((col) => {
       const [column, value] = col;
-      const tempStr = `${
-        clearNames({ left: this.left, identifiers: column, right: this.right })
-      } = ${stringify(value)}`;
+      const tempStr = `${this.clearNames(column)} = ${stringify(value)}`;
       columns.push(tempStr);
     });
     return `SET ${columns.join(", ")}`;

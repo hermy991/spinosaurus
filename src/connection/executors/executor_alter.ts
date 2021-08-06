@@ -1,15 +1,12 @@
+import { SpiColumnAdjust } from "./types/spi_column_adjust.ts";
 import { SpiColumnDefinition } from "./types/spi_column_definition.ts";
-// import { SpiUniqueDefinition } from "./types/spi_unique_definition.ts";
-import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
-import { AlterBuilding } from "../../language/ddl/alter/alter_building.ts";
+import { ConnectionAll } from "../connection_type.ts";
+import { BuilderAlter } from "../builders/builder_alter.ts";
 
 export class ExecutorAlter {
-  ab: AlterBuilding = new AlterBuilding();
-  constructor(public conn: ConnectionPostgres) {
-    this.ab = new AlterBuilding(
-      { delimiters: conn.delimiters },
-      conn.transformer,
-    );
+  ab: BuilderAlter = new BuilderAlter(<ConnectionAll> {});
+  constructor(public conn: ConnectionAll) {
+    this.ab = new BuilderAlter(conn);
   }
 
   alter(req: { entity: string; schema?: string }): ExecutorAlter {
@@ -18,14 +15,14 @@ export class ExecutorAlter {
   }
 
   columns(
-    ...columns: Array<[string, SpiColumnDefinition] | SpiColumnDefinition>
+    ...columns: Array<[string, SpiColumnAdjust] | SpiColumnDefinition>
   ): ExecutorAlter {
     this.ab.columns(...columns);
     return this;
   }
 
   addColumn(
-    column: [string, SpiColumnDefinition] | SpiColumnDefinition,
+    column: [string, SpiColumnAdjust] | SpiColumnDefinition,
   ): ExecutorAlter {
     this.ab.addColumn(column);
     return this;

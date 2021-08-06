@@ -1,7 +1,7 @@
-// import {path} from "../../../deps.ts";
 import { fs } from "../../../deps.ts";
 import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
-import { ConnectionOptions } from "../connection_options.ts";
+import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
+import { ConnectionOptionsAll } from "../connection_options.ts";
 import { ConnectionPostgresOptions } from "../postgres/connection_postgres_options.ts";
 import { Connection } from "../connection.ts";
 import { EntityOptions } from "../../decorators/options/entity_options.ts";
@@ -14,7 +14,7 @@ import {
   getMetadata,
   linkMetadata,
 } from "../../decorators/metadata/metadata.ts";
-import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
+import { ConnectionAll } from "../connection_type.ts";
 import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
 import { getConnectionOptions } from "../connection_utils.ts";
 
@@ -40,13 +40,12 @@ export async function createConnection(
  * Creates a new connection from the env variables, config file with a given name or from option params.
  */
 export async function createConnection(
-  nameOrOptions?: string | ConnectionPostgresOptions,
+  nameOrOptions?: string | ConnectionOptionsAll,
 ): Promise<Connection> {
-  const name = typeof nameOrOptions === "string" ? nameOrOptions : "default";
-  const options = nameOrOptions instanceof Object
-    ? nameOrOptions
-    : await getConnectionOptions(name);
-  const tconn = new Connection(options);
+  const options = typeof nameOrOptions === "string"
+    ? await getConnectionOptions(nameOrOptions)
+    : nameOrOptions;
+  const tconn = new Connection(<ConnectionOptionsAll> options);
   const sql = await synchronize(tconn);
   if (sql) {
     await tconn.execute(sql);
@@ -78,27 +77,26 @@ export async function queryConnection(
  * Creates a new connection from the env variables, config file with a given name or from option params.
  */
 export async function queryConnection(
-  nameOrOptions?: string | ConnectionPostgresOptions,
+  nameOrOptions?: string | ConnectionOptionsAll,
 ): Promise<string | undefined> {
-  const name = typeof nameOrOptions === "string" ? nameOrOptions : "default";
-  const options = nameOrOptions instanceof Object
-    ? nameOrOptions
-    : await getConnectionOptions(name);
-  const tconn = new Connection(options);
+  const options = typeof nameOrOptions === "string"
+    ? await getConnectionOptions(nameOrOptions)
+    : nameOrOptions;
+  const tconn = new Connection(<ConnectionOptionsAll> options);
   const sql = await synchronize(tconn);
   return sql;
 }
 
 export async function synchronize(conn: Connection) {
-  const defConn = conn.getConnection();
-  if (defConn.synchronize) {
-    const entities = typeof defConn.entities == "string"
-      ? [defConn.entities]
-      : defConn.entities;
-    clearMetadata(defConn);
-    await updateStore(defConn, entities);
-    const localMetadata = getMetadata(defConn);
-    const destinyMetadata = await getDestinyMetadata(defConn);
+  const options = conn.getConnection().options;
+  if (options.synchronize) {
+    const entities = typeof options.entities == "string"
+      ? [options.entities]
+      : options.entities;
+    clearMetadata(options);
+    await updateStore(conn.getConnection(), entities);
+    const localMetadata = getMetadata(options);
+    const destinyMetadata = await getDestinyMetadata(conn.getConnection());
     const script = await generateScript({
       conn,
       localMetadata,
@@ -109,10 +107,10 @@ export async function synchronize(conn: Connection) {
 }
 
 export async function updateStore(
-  conn: ConnectionPostgres,
+  conn: ConnectionAll,
   entities: string[],
 ) {
-  const connName = conn.name;
+  const connName = conn.options.name;
   for (const entity of entities) {
     for await (const file of fs.expandGlob(entity)) {
       const path = file.path.replaceAll(`\\`, `/`).replaceAll(`C:/`, `/`);
@@ -212,7 +210,7 @@ export async function updateStore(
 }
 
 export async function getDestinyMetadata(
-  conn: ConnectionPostgres,
+  conn: ConnectionAll,
 ): Promise<MetadataStore> {
   const metadata: MetadataStore = await conn.getMetadata();
   return metadata;
@@ -270,7 +268,7 @@ export async function generateScript(
        * Altering column tables'
        */
       let query = "";
-      const colsa: Array<[string, SpiColumnDefinition]> = table.columns
+      const colsa: Array<[string, SpiColumnAdjust]> = table.columns
         .filter((x: any) =>
           dtable.columns.some((y: any) => y.mixeds.name === x.mixeds.name)
         )

@@ -19,8 +19,8 @@ let password = Deno.env.get("SPINOSAURUS_TEST_CONN_PASSWORD") || "123456";
  hermy991    | Hermy
  guru        | Danny
 */
-export function getTestConnection() {
-  let con1 = {
+export function getTestConnection(): any {
+  const con1 = {
     name: "con1",
     type: "postgres",
     host,

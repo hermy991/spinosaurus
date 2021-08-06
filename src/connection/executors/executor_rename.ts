@@ -1,13 +1,10 @@
-import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
-import { RenameBuilding } from "../../language/ddl/rename/rename_building.ts";
+import { ConnectionAll } from "../connection_type.ts";
+import { BuilderRename } from "../builders/builder_rename.ts";
 
 export class ExecutorRename {
-  rb: RenameBuilding = new RenameBuilding();
-  constructor(public conn: ConnectionPostgres) {
-    this.rb = new RenameBuilding(
-      { delimiters: conn.delimiters },
-      conn.transformer,
-    );
+  rb: BuilderRename = new BuilderRename(<ConnectionAll> {});
+  constructor(public conn: ConnectionAll) {
+    this.rb = new BuilderRename(conn);
   }
 
   rename(

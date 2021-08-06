@@ -28,25 +28,24 @@ Deno.test(
     assertEquals(query, queryExpected);
   },
 );
-Deno.test(
-  testMessage.replace(
-    /\{\}/ig,
-    "select [select * from 'Entity'] query should work",
-  ),
-  () => {
-    const db: Connection = new Connection(con1);
-    const qs = db.select()
-      .from({ entity: "User", as: "u" });
-    let query = qs.getQuery() || "";
-    query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-    const queryExpected = `SELECT * FROM "User" AS "u"`.replace(
-      /[ \n\t]+/ig,
-      " ",
-    )
-      .trim();
-    assertEquals(query, queryExpected);
-  },
-);
+// Deno.test(
+//   testMessage.replace(
+//     /\{\}/ig,
+//     "select [select * from 'Entity'] query should work",
+//   ),
+//   () => {
+//     const db: Connection = new Connection(con1);
+//     const qs = db.select().from({ entity: FromEntity1, as: "u" });
+//     let query = qs.getQuery() || "";
+//     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+//     const queryExpected = `SELECT * FROM "User" AS "u"`.replace(
+//       /[ \n\t]+/ig,
+//       " ",
+//     )
+//       .trim();
+//     assertEquals(query, queryExpected);
+//   },
+// );
 Deno.test(
   testMessage.replace(/\{\}/ig, "select [select columns] query should work"),
   () => {

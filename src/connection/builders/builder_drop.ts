@@ -1,19 +1,16 @@
-import { clearNames } from "../../tools/sql.ts";
-import { BaseBuilding } from "../../base_building.ts";
-import { _ } from "../../../../deps.ts";
+import { BuilderBase } from "./base/builder_base.ts";
+import { _ } from "../../../deps.ts";
+import { ConnectionAll } from "../connection_type.ts";
 
-export class DropBuilding extends BaseBuilding {
+export class BuilderDrop extends BuilderBase {
   private nameData:
     | { entity: string; schema?: string }
     | { schema: string; check?: boolean }
     | null = null;
   private columnsData: Array<string> = [];
 
-  constructor(
-    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
-    public transformer: { dropSchema?: Function } = {},
-  ) {
-    super(conf);
+  constructor(public conn: ConnectionAll) {
+    super(conn);
   }
 
   drop(
@@ -42,16 +39,9 @@ export class DropBuilding extends BaseBuilding {
     if (!this.nameData) {
       return ``;
     }
-    if (this.transformer.dropSchema) {
-      const nameData = _.cloneDeep(this.nameData);
-      nameData.schema = clearNames({
-        left: this.left,
-        identifiers: nameData.schema,
-        right: this.right,
-      });
-      return this.transformer.dropSchema(nameData);
-    }
-    return "";
+    const nameData = _.cloneDeep(this.nameData);
+    nameData.schema = this.clearNames(nameData.schema);
+    return this.conn.dropSchema(nameData);
   }
 
   getEntityQuery(type: "drop" | "alter"): string {
@@ -62,17 +52,9 @@ export class DropBuilding extends BaseBuilding {
       return ``;
     }
     const { entity, schema } = this.nameData;
-    let query = clearNames({
-      left: this.left,
-      identifiers: entity,
-      right: this.right,
-    });
+    let query = this.clearNames(entity);
     if (schema) {
-      query = clearNames({
-        left: this.left,
-        identifiers: [schema, entity],
-        right: this.right,
-      });
+      query = this.clearNames([schema, entity]);
     }
     if (type == "drop") {
       return `DROP TABLE ${query}`;
@@ -88,11 +70,7 @@ export class DropBuilding extends BaseBuilding {
     }
     let query = "";
     for (let i = 0; i < this.columnsData.length; i++) {
-      const columnName = clearNames({
-        left: this.left,
-        identifiers: this.columnsData[i],
-        right: this.right,
-      });
+      const columnName = this.clearNames(this.columnsData[i]);
       query += `DROP COLUMN ${columnName}`;
       if (i + 1 !== this.columnsData.length) {
         query += ", ";

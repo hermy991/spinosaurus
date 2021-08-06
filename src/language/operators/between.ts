@@ -1,4 +1,4 @@
-import { stringify } from "../tools/sql.ts";
+import { stringify } from "../../connection/builders/base/sql.ts";
 
 export function between(
   column: string,

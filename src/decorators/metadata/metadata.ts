@@ -1,6 +1,6 @@
 import { MetadataStore } from "./metadata_store.ts";
 import { ColumnType } from "../options/column_type.ts";
-import { ConnectionOptions } from "../../connection/connection_options.ts";
+import { ConnectionOptionsAll } from "../../connection/connection_options.ts";
 import { createHash } from "deno/hash/mod.ts";
 
 const DEFAULT_CONN_NAME = "default";
@@ -80,13 +80,13 @@ export function getMetadata(name: string): MetadataStore;
 /**
   * Option name atribute will be return from registry
   */
-export function getMetadata(options: ConnectionOptions): MetadataStore;
+export function getMetadata(options: ConnectionOptionsAll): MetadataStore;
 
 /**
   * Option name atribute or name param will be return from registry
   */
 export function getMetadata(
-  nameOrOptions?: string | ConnectionOptions,
+  nameOrOptions?: string | ConnectionOptionsAll,
 ): MetadataStore {
   const name =
     (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) ||
@@ -152,13 +152,13 @@ export function clearMetadata(name: string): void;
 /**
  * Option name atribute will be deleted on registry
  */
-export function clearMetadata(options: ConnectionOptions): void;
+export function clearMetadata(options: ConnectionOptionsAll): void;
 
 /**
  * Option name atribute or name param will be deleted on registry
  */
 export function clearMetadata(
-  nameOrOptions?: string | ConnectionOptions,
+  nameOrOptions?: string | ConnectionOptionsAll,
 ): void {
   const name =
     (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) ||

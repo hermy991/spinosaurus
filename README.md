@@ -160,3 +160,4 @@ deno run -qA https://code.velociraptor.run test:executor
 - testing primary column executor
 - testing generated column executor
 - configuration env and files flow
+- alter column (implement primary key and auto-increment)

@@ -1,7 +1,8 @@
-import { clearNames, interpolate } from "../../tools/sql.ts";
-import { BaseBuilding } from "../../base_building.ts";
+import { interpolate } from "./base/sql.ts";
+import { BuilderBase } from "./base/builder_base.ts";
+import { ConnectionAll } from "../connection_type.ts";
 
-export class SelectBuilding extends BaseBuilding {
+export class BuilderSelect extends BuilderBase {
   private selectData: Array<{ column: string; as?: string }> = [];
   private fromData: { entity: string; schema?: string; as?: string } | null =
     null;
@@ -11,11 +12,8 @@ export class SelectBuilding extends BaseBuilding {
   /*FLAGS*/
   private distinct = false;
 
-  constructor(
-    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
-    public transformer: {} = {},
-  ) {
-    super(conf);
+  constructor(public conn: ConnectionAll) {
+    super(conn);
   }
 
   selectDistinct(...columns: Array<{ column: string; as?: string }>): void {
@@ -68,11 +66,7 @@ export class SelectBuilding extends BaseBuilding {
     for (let i = 0; i < this.selectData.length; i++) {
       const { column, as } = this.selectData[i];
       const tempCol = `${column}` +
-        (as
-          ? ` AS ${
-            clearNames({ left: this.left, identifiers: as, right: this.right })
-          }`
-          : "");
+        (as ? ` AS ${this.clearNames(as)}` : "");
       columns.push(tempCol);
     }
     return `SELECT ${this.distinct ? "DISTINCT " : ""}${columns.join(", ")}`;
@@ -83,17 +77,9 @@ export class SelectBuilding extends BaseBuilding {
       return ``;
     }
     const { entity, schema, as } = this.fromData;
-    let query = `${
-      clearNames({
-        left: this.left,
-        identifiers: [schema, entity],
-        right: this.right,
-      })
-    }`;
+    let query = `${this.clearNames([schema, entity])}`;
     if (as) {
-      query = `${query} AS ${
-        clearNames({ left: this.left, identifiers: [as], right: this.right })
-      }`;
+      query = `${query} AS ${this.clearNames([as])}`;
     }
     return `FROM ${query}`;
   }

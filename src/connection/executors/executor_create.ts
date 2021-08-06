@@ -1,15 +1,12 @@
 import { SpiAllColumnDefinition } from "./types/spi_all_column_definition.ts";
 import { SpiUniqueDefinition } from "./types/spi_unique_definition.ts";
-import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
-import { CreateBuilding } from "../../language/ddl/create/create_building.ts";
+import { ConnectionAll } from "../connection_type.ts";
+import { BuilderCreate } from "../builders/builder_create.ts";
 
 export class ExecutorCreate {
-  cb: CreateBuilding = new CreateBuilding();
-  constructor(public conn: ConnectionPostgres) {
-    this.cb = new CreateBuilding(
-      { delimiters: conn.delimiters },
-      conn.transformer,
-    );
+  cb: BuilderCreate = new BuilderCreate(<ConnectionAll> {});
+  constructor(public conn: ConnectionAll) {
+    this.cb = new BuilderCreate(conn);
   }
 
   create(

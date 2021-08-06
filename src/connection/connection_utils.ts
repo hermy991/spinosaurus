@@ -1,25 +1,14 @@
-// name: string;
-//   type: string;
-//   host: string;
-//   port: number;
-//   username: string;
-//   password: string;
-//   database: string;
-//   synchronize: boolean;
-//   entities: string | string[];
-
 import { dotenv } from "../../deps.ts";
 import { yaml } from "../../deps.ts";
 import { xml } from "../../deps.ts";
-import { ConnectionOptions } from "./connection_options.ts";
-import { ConnectionPostgresOptions } from "./postgres/connection_postgres_options.ts";
+import { ConnectionOptionsAll } from "./connection_options.ts";
 import { error } from "../error/error_utills.ts";
 
 const FILE_NAME = "spinosaurus";
 
 export async function getConnectionOptions(
   connectionName: string,
-): Promise<ConnectionPostgresOptions> {
+): Promise<ConnectionOptionsAll> {
   const options = findConnection(
     await getConnectionEnvOptions() ||
       await getConnectionFileOptions("env") ||
@@ -45,7 +34,7 @@ export async function getConnectionEnvOptions() {
     Deno.env.get("SPINOSAURUS_CONN_NAME") &&
     Deno.env.get("SPINOSAURUS_CONN_HOST")
   ) {
-    const options: ConnectionOptions = {
+    const options: ConnectionOptionsAll = <ConnectionOptionsAll> {
       type: Deno.env.get("SPINOSAURUS_CONN_TYPE") || "",
       name: Deno.env.get("SPINOSAURUS_CONN_NAME") || "",
       host: Deno.env.get("SPINOSAURUS_CONN_HOST") || "",
@@ -83,7 +72,7 @@ export async function getConnectionFileOptions(
 ) {
   try {
     if (["js", "ts"].includes(extension)) {
-      const options: ConnectionOptions = await import(
+      const options: ConnectionOptionsAll = await import(
         `${Deno.cwd()}/${FILE_NAME}.${extension}`
       );
       return options;

@@ -1,13 +1,10 @@
-import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
-import { DeleteBuilding } from "../../language/dml/delete/delete_building.ts";
+import { ConnectionAll } from "../connection_type.ts";
+import { BuilderDelete } from "../builders/builder_delete.ts";
 
 export class ExecutorDelete {
-  ub: DeleteBuilding = new DeleteBuilding();
-  constructor(public conn: ConnectionPostgres) {
-    this.ub = new DeleteBuilding(
-      { delimiters: conn.delimiters },
-      conn.transformer,
-    );
+  ub: BuilderDelete = new BuilderDelete(<ConnectionAll> {});
+  constructor(public conn: ConnectionAll) {
+    this.ub = new BuilderDelete(conn);
   }
 
   delete(

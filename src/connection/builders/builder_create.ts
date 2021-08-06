@@ -1,11 +1,11 @@
-import { clearNames } from "../../tools/sql.ts";
-import { SpiAllColumnDefinition } from "../../../connection/executors/types/spi_all_column_definition.ts";
-import { SpiUniqueDefinition } from "../../../connection/executors/types/spi_unique_definition.ts";
-import { BaseBuilding } from "../../base_building.ts";
-import { InsertBuilding } from "../../dml/insert/insert_building.ts";
-import { _ } from "../../../../deps.ts";
+import { SpiAllColumnDefinition } from "../executors/types/spi_all_column_definition.ts";
+import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts";
+import { ConnectionAll } from "../connection_type.ts";
+import { BuilderBase } from "./base/builder_base.ts";
+import { BuilderInsert } from "./builder_insert.ts";
+import { _ } from "../../../deps.ts";
 
-export class CreateBuilding extends BaseBuilding {
+export class BuilderCreate extends BuilderBase {
   #nameData:
     | { entity: string; schema?: string }
     | { schema: string; check?: boolean }
@@ -13,14 +13,8 @@ export class CreateBuilding extends BaseBuilding {
   #columnsData: Array<SpiAllColumnDefinition> = [];
   #uniquesData: Array<{ name?: string; columnNames: Array<string> }> = [];
   #valuesData: Array<any> = [];
-  constructor(
-    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
-    public transformer: {
-      createSchema?: Function;
-      columnDefinition?: Function;
-    } = {},
-  ) {
-    super(conf);
+  constructor(public conn: ConnectionAll) {
+    super(conn);
   }
 
   create(
@@ -70,17 +64,9 @@ export class CreateBuilding extends BaseBuilding {
     if (!this.#nameData) {
       return ``;
     }
-
-    if (this.transformer.createSchema) {
-      const nameData = _.cloneDeep(this.#nameData);
-      nameData.schema = clearNames({
-        left: this.left,
-        identifiers: nameData.schema,
-        right: this.right,
-      });
-      return this.transformer.createSchema(nameData);
-    }
-    return "";
+    const nameData = _.cloneDeep(this.#nameData);
+    nameData.schema = this.clearNames(nameData.schema);
+    return this.conn.createSchema(nameData);
   }
 
   getCreateTableQuery() {
@@ -92,17 +78,9 @@ export class CreateBuilding extends BaseBuilding {
       entity = this.#nameData.entity;
     }
     const { schema } = this.#nameData;
-    let query = `${
-      clearNames({ left: this.left, identifiers: entity, right: this.right })
-    }`;
+    let query = `${this.clearNames(entity)}`;
     if (schema) {
-      query = `${
-        clearNames({
-          left: this.left,
-          identifiers: [schema, entity],
-          right: this.right,
-        })
-      }`;
+      query = `${this.clearNames([schema, entity])}`;
     }
     return `CREATE TABLE ${query}`;
   }
@@ -114,23 +92,8 @@ export class CreateBuilding extends BaseBuilding {
     const sqls: string[] = [];
     for (let i = 0; i < this.#columnsData.length; i++) {
       let sql = "";
-      let columnName = `${this.#columnsData[i].columnName}`.replace(
-        /["]/ig,
-        "",
-      );
-      columnName = `${
-        clearNames({
-          left: this.left,
-          identifiers: columnName,
-          right: this.right,
-        })
-      }`;
-      if (this.transformer.columnDefinition) {
-        sql = this.transformer.columnDefinition({
-          ...this.#columnsData[i],
-          columnName,
-        });
-      }
+      const columnName = this.clearNames(this.#columnsData[i].columnName);
+      sql = this.conn.columnDefinition({ ...this.#columnsData[i], columnName });
       sqls.push(sql);
     }
     return `( ${sqls.join(", ")} )`;
@@ -143,7 +106,7 @@ export class CreateBuilding extends BaseBuilding {
     if (!("entity" in this.#nameData)) {
       return ``;
     }
-    const ib = new InsertBuilding(this.conf, this.transformer);
+    const ib = new BuilderInsert(this.conn);
     ib.insert(this.#nameData);
     ib.values(this.#valuesData);
     return ib.getQuery();

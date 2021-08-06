@@ -1,21 +1,13 @@
-import { clearNames, interpolate, stringify } from "../../tools/sql.ts";
-import { BaseBuilding } from "../../base_building.ts";
+import { interpolate } from "./base/sql.ts";
+import { BuilderBase } from "./base/builder_base.ts";
+import { ConnectionAll } from "../connection_type.ts";
 
-/*****************************
- * TODO
- * columns(columns: Array<string>)
- * from(values: Array<any> | any, update = false)
- * use set and where in from implementation
- */
-export class DeleteBuilding extends BaseBuilding {
+export class BuilderDelete extends BuilderBase {
   private entityData: { entity: string; schema?: string } | null = null;
   private whereData: Array<string> = [];
 
-  constructor(
-    public conf: { delimiters: [string, string?] } = { delimiters: [`"`] },
-    public transformer: {} = {},
-  ) {
-    super(conf);
+  constructor(public conn: ConnectionAll) {
+    super(conn);
   }
 
   delete(req: { entity: string; schema?: string } | [string, string?]): void {
@@ -47,17 +39,9 @@ export class DeleteBuilding extends BaseBuilding {
       return ``;
     }
     let { entity, schema } = this.entityData;
-    let query = `${
-      clearNames({ left: this.left, identifiers: entity, right: this.right })
-    }`;
+    let query = `${this.clearNames(entity)}`;
     if (schema) {
-      query = `${
-        clearNames({
-          left: this.left,
-          identifiers: [schema, entity],
-          right: this.right,
-        })
-      }`;
+      query = `${this.clearNames([schema, entity])}`;
     }
     return `DELETE FROM ${query}`;
   }

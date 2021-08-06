@@ -1,13 +1,10 @@
-import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
-import { InsertBuilding } from "../../language/dml/insert/insert_building.ts";
+import { ConnectionAll } from "../connection_type.ts";
+import { BuilderInsert } from "../builders/builder_insert.ts";
 
 export class ExecutorInsert {
-  ib: InsertBuilding = new InsertBuilding();
-  constructor(public conn: ConnectionPostgres) {
-    this.ib = new InsertBuilding(
-      { delimiters: conn.delimiters },
-      conn.transformer,
-    );
+  ib: BuilderInsert = new BuilderInsert(<ConnectionAll> {});
+  constructor(public conn: ConnectionAll) {
+    this.ib = new BuilderInsert(conn);
   }
 
   insert(

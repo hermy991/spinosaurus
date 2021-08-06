@@ -1,6 +1,7 @@
-// import {path} from "../../deps.ts";
+import { ConnectionAll } from "./connection_type.ts";
+import { ConnectionOptionsAll } from "./connection_options.ts";
 import { ConnectionPostgres } from "./postgres/connection_postgres.ts";
-import { ConnectionPostgresOptions } from "./postgres/connection_postgres_options.ts";
+
 import { error } from "../error/error_utills.ts";
 import { ExecutorDrop } from "./executors/executor_drop.ts";
 import { ExecutorCreate } from "./executors/executor_create.ts";
@@ -13,41 +14,28 @@ import { ExecutorDelete } from "./executors/executor_delete.ts";
 import { ExecuteResult } from "./execute_result.ts";
 
 class Connection {
-  #connection?: ConnectionPostgres;
+  #connection?: ConnectionAll;
 
-  constructor(options: ConnectionPostgresOptions) {
+  constructor(options: ConnectionOptionsAll) {
     if (options && options.type === "postgres") {
-      this.#connection = new ConnectionPostgres(
-        options.name,
-        options.type,
-        options.host,
-        options.port,
-        options.username,
-        options.password,
-        options.database,
-        options.synchronize,
-        options.entities,
-        options.hostaddr,
-      );
+      this.#connection = new ConnectionPostgres(options);
     }
   }
 
-  getConnection(): ConnectionPostgres {
+  getConnection(): ConnectionAll {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     return this.#connection;
   }
 
   async test(): Promise<boolean> {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const res = await defConn.test();
+    const res = await this.#connection.test();
     return res;
   }
 
   async checkSchema(req: { name: string }) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const res = await defConn.checkSchema(req);
+    const res = await this.#connection.checkSchema(req);
     return res;
   }
 
@@ -65,22 +53,19 @@ class Connection {
     }
   > {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const res = await defConn.checkObject(req);
+    const res = await this.#connection.checkObject(req);
     return res;
   }
 
   async getCurrentDatabase() {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const res = await defConn.getCurrentDatabase();
+    const res = await this.#connection.getCurrentDatabase();
     return res;
   }
 
   async getCurrentSchema() {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const res = await defConn.getCurrentSchema();
+    const res = await this.#connection.getCurrentSchema();
     return res;
   }
 
@@ -91,16 +76,14 @@ class Connection {
     },
   ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const executor = new ExecutorCreate(defConn);
+    const executor = new ExecutorCreate(this.#connection);
     executor.create(req);
     return executor;
   }
 
   alter(req: { entity: string; schema?: string }) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const executor = new ExecutorAlter(defConn);
+    const executor = new ExecutorAlter(this.#connection);
     executor.alter(req);
     return executor;
   }
@@ -112,8 +95,7 @@ class Connection {
     },
   ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const executor: ExecutorDrop = new ExecutorDrop(defConn);
+    const executor: ExecutorDrop = new ExecutorDrop(this.#connection);
     executor.drop(req);
     return executor;
   }
@@ -123,8 +105,7 @@ class Connection {
     to?: { entity: string; schema?: string },
   ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const executor: ExecutorRename = new ExecutorRename(defConn);
+    const executor: ExecutorRename = new ExecutorRename(this.#connection);
     executor.rename(from, to);
     return executor;
   }
@@ -133,8 +114,7 @@ class Connection {
     ...columns: Array<{ column: string; as?: string } | [string, string?]>
   ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const executor: ExecutorSelect = new ExecutorSelect(defConn);
+    const executor: ExecutorSelect = new ExecutorSelect(this.#connection);
     executor.select(...columns);
     return executor;
   }
@@ -143,40 +123,35 @@ class Connection {
     ...columns: Array<{ column: string; as?: string } | [string, string?]>
   ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const executor: ExecutorSelect = new ExecutorSelect(defConn);
+    const executor: ExecutorSelect = new ExecutorSelect(this.#connection);
     executor.selectDistinct(...columns);
     return executor;
   }
 
   update(req: { entity: string; schema?: string } | [string, string?]) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const executor: ExecutorUpdate = new ExecutorUpdate(defConn);
+    const executor: ExecutorUpdate = new ExecutorUpdate(this.#connection);
     executor.update(req);
     return executor;
   }
 
   insert(req: { entity: string; schema?: string } | [string, string?]) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const executor: ExecutorInsert = new ExecutorInsert(defConn);
+    const executor: ExecutorInsert = new ExecutorInsert(this.#connection);
     executor.insert(req);
     return executor;
   }
 
   delete(req: { entity: string; schema?: string } | [string, string?]) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const executor: ExecutorDelete = new ExecutorDelete(defConn);
+    const executor: ExecutorDelete = new ExecutorDelete(this.#connection);
     executor.delete(req);
     return executor;
   }
 
   async execute(query: string, changes?: any): Promise<ExecuteResult> {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const defConn = this.#connection;
-    const data = await defConn.execute(query, changes);
+    const data = await this.#connection.execute(query, changes);
     return data;
   }
 }

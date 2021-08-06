@@ -1,13 +1,10 @@
-import { ConnectionPostgres } from "../postgres/connection_postgres.ts";
-import { SelectBuilding } from "../../language/dml/select/select_building.ts";
+import { ConnectionAll } from "../connection_type.ts";
+import { BuilderSelect } from "../builders/builder_select.ts";
 
 export class ExecutorSelect {
-  sb: SelectBuilding = new SelectBuilding();
-  constructor(public conn: ConnectionPostgres) {
-    this.sb = new SelectBuilding(
-      { delimiters: conn.delimiters },
-      conn.transformer,
-    );
+  sb: BuilderSelect = new BuilderSelect(<ConnectionAll> {});
+  constructor(public conn: ConnectionAll) {
+    this.sb = new BuilderSelect(conn);
   }
 
   /** DML SQL Operation*/
@@ -46,10 +43,10 @@ export class ExecutorSelect {
     return this;
   }
   from(
-    req: { entity: string; schema?: string; as?: string } | {
-      entity: Function;
-      as?: string;
-    },
+    req: { entity: string; schema?: string; as?: string }, //| {
+    //   entity: Function;
+    //   as?: string;
+    // },
   ): ExecutorSelect {
     const treq = req;
 
