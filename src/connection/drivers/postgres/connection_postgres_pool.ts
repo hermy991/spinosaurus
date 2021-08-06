@@ -1,6 +1,6 @@
 // import {Pool} from 'postgres/mod.ts'
-import { postgres } from "../../../deps.ts";
-import { POOL_CONNECTIONS } from "../connection_variables.ts";
+import { postgres } from "../../../../deps.ts";
+import { POOL_CONNECTIONS } from "../../connection_variables.ts";
 
 const POSTGRES_POOL: Array<postgres.Pool> = [];
 

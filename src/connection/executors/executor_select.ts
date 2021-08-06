@@ -43,10 +43,10 @@ export class ExecutorSelect {
     return this;
   }
   from(
-    req: { entity: string; schema?: string; as?: string }, //| {
-    //   entity: Function;
-    //   as?: string;
-    // },
+    req: { entity: string; schema?: string; as?: string } | {
+      entity: Function;
+      as?: string;
+    },
   ): ExecutorSelect {
     const treq = req;
 

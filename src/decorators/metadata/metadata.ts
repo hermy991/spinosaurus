@@ -199,6 +199,20 @@ export function clearTempMetadata(
   }
 }
 
+export function linkMetadataToFromData(
+  req: { currentSquema: string; connName: string },
+  fun: Function,
+): any {
+  const metadata = linkMetadata(req);
+  const t = metadata.tables.find((x) => x.target === fun);
+  if (t) {
+    return {
+      entity: t.mixeds.name,
+      schema: t.mixeds.schema,
+    };
+  }
+}
+
 export function getColumnType(
   params: { type: any; options?: any; value?: any },
 ) {

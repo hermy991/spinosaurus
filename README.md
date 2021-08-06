@@ -161,3 +161,4 @@ deno run -qA https://code.velociraptor.run test:executor
 - testing generated column executor
 - configuration env and files flow
 - alter column (implement primary key and auto-increment)
+- generate columns from entity in select

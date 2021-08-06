@@ -1,6 +1,6 @@
 import { ConnectionAll } from "./connection_type.ts";
 import { ConnectionOptionsAll } from "./connection_options.ts";
-import { ConnectionPostgres } from "./postgres/connection_postgres.ts";
+import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
 
 import { error } from "../error/error_utills.ts";
 import { ExecutorDrop } from "./executors/executor_drop.ts";

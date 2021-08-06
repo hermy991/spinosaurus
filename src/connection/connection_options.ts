@@ -1,4 +1,4 @@
-import { ConnectionPostgresOptions } from "./postgres/connection_postgres_options.ts";
+import { ConnectionPostgresOptions } from "./drivers/postgres/connection_postgres_options.ts";
 
 export type ConnectionBaseOptions = {
   name: string;

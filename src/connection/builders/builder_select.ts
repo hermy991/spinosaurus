@@ -1,6 +1,7 @@
 import { interpolate } from "./base/sql.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
+import { linkMetadataToFromData } from "../../decorators/metadata/metadata.ts";
 
 export class BuilderSelect extends BuilderBase {
   private selectData: Array<{ column: string; as?: string }> = [];
@@ -30,8 +31,24 @@ export class BuilderSelect extends BuilderBase {
     this.selectData.push(req);
   }
 
-  from(req: { entity: string; schema?: string; as?: string }): void {
-    this.fromData = req;
+  from(
+    req: { entity: string; schema?: string; as?: string } | {
+      entity: Function;
+      as?: string;
+    },
+  ): void {
+    if (req.entity instanceof Function) {
+      const fromData = {
+        ...linkMetadataToFromData({
+          currentSquema: "",
+          connName: this.conn.options.name,
+        }, req.entity),
+        as: req.as,
+      };
+      this.fromData = fromData;
+    } else {
+      this.fromData = <any> req;
+    }
   }
 
   where(

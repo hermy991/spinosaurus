@@ -1,4 +1,4 @@
-import { ConnectionPostgres } from "./postgres/connection_postgres.ts";
+import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
 
 export { ConnectionPostgres };
 

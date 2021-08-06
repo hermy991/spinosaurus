@@ -1,21 +1,21 @@
 import { ConnectionPostgresOptions } from "./connection_postgres_options.ts";
-import { stringify } from "../builders/base/sql.ts";
-import { IConnectionOperations } from "../iconnection_operations.ts";
-import { SpiCreateSchema } from "../executors/types/spi_create_schema.ts";
-import { SpiDropSchema } from "../executors/types/spi_drop_schema.ts";
-import { SpiAllColumnDefinition } from "../executors/types/spi_all_column_definition.ts";
-import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
-import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
-import { SpiColumnComment } from "../executors/types/spi_column_comment.ts";
+import { stringify } from "../../builders/base/sql.ts";
+import { IConnectionOperations } from "../../iconnection_operations.ts";
+import { SpiCreateSchema } from "../../executors/types/spi_create_schema.ts";
+import { SpiDropSchema } from "../../executors/types/spi_drop_schema.ts";
+import { SpiAllColumnDefinition } from "../../executors/types/spi_all_column_definition.ts";
+import { SpiColumnDefinition } from "../../executors/types/spi_column_definition.ts";
+import { SpiColumnAdjust } from "../../executors/types/spi_column_adjust.ts";
+import { SpiColumnComment } from "../../executors/types/spi_column_comment.ts";
 import { initConnection } from "./connection_postgres_pool.ts";
-import { filterConnectionProps } from "../connection_operations.ts";
-import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
-import { EntityOptions } from "../../decorators/options/entity_options.ts";
-import { ColumnOptions } from "../../decorators/options/column_options.ts";
-import { ColumnType } from "../../decorators/options/column_type.ts";
-import { postgres } from "../../../deps.ts";
+import { filterConnectionProps } from "../../connection_operations.ts";
+import { MetadataStore } from "../../../decorators/metadata/metadata_store.ts";
+import { EntityOptions } from "../../../decorators/options/entity_options.ts";
+import { ColumnOptions } from "../../../decorators/options/column_options.ts";
+import { ColumnType } from "../../../decorators/options/column_type.ts";
+import { postgres } from "../../../../deps.ts";
 import { KEY_CONFIG } from "./connection_postgres_variables.ts";
-import { ExecuteResult, Query } from "../execute_result.ts";
+import { ExecuteResult, Query } from "../../execute_result.ts";
 
 class ConnectionPostgres implements IConnectionOperations {
   #currentDatabase?: string;
@@ -326,6 +326,10 @@ WHERE ( x.type = '${req.type || ""}' OR '${req.type || ""}' = '') -- type filter
     return res;
   }
 
+  getCurrentDatabaseLocal(): string {
+    return this.#currentDatabase || "";
+  }
+
   async getCurrentDatabase(changes?: { database?: string }): Promise<string> {
     if (changes && changes!.database) {
       return changes!.database;
@@ -341,6 +345,10 @@ WHERE ( x.type = '${req.type || ""}' OR '${req.type || ""}' = '') -- type filter
     }
     this.#currentDatabase = this.#currentDatabase || "spinosaurus";
     return this.#currentDatabase;
+  }
+
+  getCurrentSchemaLocal(): string {
+    return this.#currentSchema || "";
   }
 
   async getCurrentSchema(): Promise<string> {

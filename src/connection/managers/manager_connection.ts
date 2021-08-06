@@ -2,7 +2,7 @@ import { fs } from "../../../deps.ts";
 import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
 import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
 import { ConnectionOptionsAll } from "../connection_options.ts";
-import { ConnectionPostgresOptions } from "../postgres/connection_postgres_options.ts";
+import { ConnectionPostgresOptions } from "../drivers/postgres/connection_postgres_options.ts";
 import { Connection } from "../connection.ts";
 import { EntityOptions } from "../../decorators/options/entity_options.ts";
 import { ColumnOptions } from "../../decorators/options/column_options.ts";

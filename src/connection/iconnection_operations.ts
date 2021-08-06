@@ -40,7 +40,9 @@ export interface IConnectionOperations {
       type?: string;
     }
   >;
+  getCurrentDatabaseLocal(): string;
   getCurrentDatabase(): Promise<string>;
+  getCurrentSchemaLocal(): string;
   getCurrentSchema(): Promise<string>;
   // getDbColumnType(req: { spitype: string, length?: number, precision?: number, scale?: number }): string;
   getMetadata(): Promise<MetadataStore>;
