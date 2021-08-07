@@ -58,9 +58,9 @@ Deno.test(
   testMessage.replace(/\{\}/ig, "decorator column adding columns query"),
   async () => {
     const conOptsX = JSON.parse(JSON.stringify(conOpts));
+    const db = new Connection(conOptsX);
     const entity = "AddColumnTypes1";
     const schema = "decorator";
-    const db = new Connection(conOptsX);
     const chk1 = await db.checkObject({ name: entity, schema });
     if (chk1.exists) {
       await db.drop({ entity }).execute();

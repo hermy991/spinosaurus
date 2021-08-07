@@ -21,23 +21,45 @@ export function linkMetadata(
 ): MetadataStore {
   const { currentSquema, connName } = req;
   const metadata = getMetadata(connName);
-  const { tables, checks, schemas, columns } = metadata;
+  const { tables, checks, uniques, schemas, columns } = metadata;
   /**
    * Link checks constrains with tables
    */
   for (let i = 0; i < checks.length; i++) {
     const check = checks[i];
     const table = tables.find((x: any) => x.target === check.target);
+    if (!table) {
+      continue;
+    }
     table.checks = table.checks || [];
-    const hash = createHash("md5");
-    hash.update(`${btoa(table.checks.length + 1)}`);
-    check.mixeds.name = check.mixeds.name ||
-      `CHK_${currentSquema}_${table.mixeds.name}_${hash.toString()}`;
     if (
-      table &&
-      !table.checks.some((x: any) => x.mixeds.name === check.mixeds.name)
+      !table.checks.some((x: any) =>
+        // x.target === check.target &&
+        (x.mixeds.name || "") === (check.mixeds.name || "") &&
+        x.mixeds.expression === check.mixeds.expression
+      )
     ) {
-      table.checks.push(check);
+      table.checks.unshift(check);
+    }
+  }
+  /**
+   * Link uniques constrains with tables
+   */
+  for (let i = 0; i < uniques.length; i++) {
+    const unique = uniques[i];
+    const table = tables.find((x: any) => x.target === unique.target);
+    if (!table) {
+      continue;
+    }
+    table.uniques = table.uniques || [];
+    if (
+      !table.uniques.some((x: any) =>
+        // x.target === check.target &&
+        (x.mixeds.name || "") === (unique.mixeds.name || "") &&
+        x.mixeds.expression === unique.mixeds.expression
+      )
+    ) {
+      table.uniques.unshift(unique);
     }
   }
   /**

@@ -1,4 +1,5 @@
 import { SpiAllColumnDefinition } from "./types/spi_all_column_definition.ts";
+import { SpiCheckDefinition } from "./types/spi_check_definition.ts";
 import { SpiUniqueDefinition } from "./types/spi_unique_definition.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderCreate } from "../builders/builder_create.ts";
@@ -30,6 +31,16 @@ export class ExecutorCreate {
     column: SpiAllColumnDefinition,
   ): ExecutorCreate {
     this.cb.addColumn(column);
+    return this;
+  }
+
+  checks(...checks: Array<SpiCheckDefinition>): ExecutorCreate {
+    this.cb.checks(...checks);
+    return this;
+  }
+
+  addCheck(check: SpiCheckDefinition): ExecutorCreate {
+    this.cb.addCheck(check);
     return this;
   }
 

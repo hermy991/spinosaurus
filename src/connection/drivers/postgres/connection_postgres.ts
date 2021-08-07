@@ -5,6 +5,8 @@ import { SpiCreateSchema } from "../../executors/types/spi_create_schema.ts";
 import { SpiDropSchema } from "../../executors/types/spi_drop_schema.ts";
 import { SpiAllColumnDefinition } from "../../executors/types/spi_all_column_definition.ts";
 import { SpiColumnDefinition } from "../../executors/types/spi_column_definition.ts";
+import { SpiCheckDefinition } from "../../executors/types/spi_check_definition.ts";
+import { SpiUniqueDefinition } from "../../executors/types/spi_unique_definition.ts";
 import { SpiColumnAdjust } from "../../executors/types/spi_column_adjust.ts";
 import { SpiColumnComment } from "../../executors/types/spi_column_comment.ts";
 import { initConnection } from "./connection_postgres_pool.ts";
@@ -75,6 +77,27 @@ class ConnectionPostgres implements IConnectionOperations {
     }
 
     return defs.join(" ");
+  };
+
+  createCheck = (sds: SpiCheckDefinition & { entity: string }): string => {
+    /**
+     * Creating Check
+     */
+    const { entity, name, expression } = sds;
+    const sql =
+      `ALTER TABLE ${entity} ADD CONSTRAINT ${name} CHECK (${expression})`;
+    return sql;
+  };
+
+  createUnique = (sds: SpiUniqueDefinition & { entity: string }): string => {
+    /**
+     * Creating Check
+     */
+    const { entity, name, columnNames } = sds;
+    const sql = `ALTER TABLE ${entity} ADD CONSTRAINT ${name} UNIQUE (${
+      columnNames.join(",")
+    })`;
+    return sql;
   };
 
   columnAlter = (

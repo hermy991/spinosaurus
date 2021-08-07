@@ -11,3 +11,4 @@ import "./unit/delete_query_test.ts";
 
 /** DECORATORS **/
 import "./unit/decorator_column_query_test.ts";
+import "./unit/decorator_entity_query_test.ts";

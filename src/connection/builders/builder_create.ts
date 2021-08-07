@@ -1,4 +1,5 @@
 import { SpiAllColumnDefinition } from "../executors/types/spi_all_column_definition.ts";
+import { SpiCheckDefinition } from "../executors/types/spi_check_definition.ts";
 import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderBase } from "./base/builder_base.ts";
@@ -11,6 +12,7 @@ export class BuilderCreate extends BuilderBase {
     | { schema: string; check?: boolean }
     | null = null;
   #columnsData: Array<SpiAllColumnDefinition> = [];
+  #checkData: Array<SpiCheckDefinition> = [];
   #uniquesData: Array<{ name?: string; columnNames: Array<string> }> = [];
   #valuesData: Array<any> = [];
   constructor(public conn: ConnectionAll) {
@@ -38,9 +40,18 @@ export class BuilderCreate extends BuilderBase {
     this.#columnsData.push(column);
   }
 
-  uniques(
-    ...uniques: Array<SpiUniqueDefinition>
-  ): void {
+  checks(...checks: Array<SpiCheckDefinition>): void {
+    this.#checkData = [];
+    checks.forEach((x) => {
+      this.addCheck(x);
+    });
+  }
+
+  addCheck(check: SpiCheckDefinition): void {
+    this.#checkData.push(check);
+  }
+
+  uniques(...uniques: Array<SpiUniqueDefinition>): void {
     this.#uniquesData = [];
     uniques.forEach((x) => {
       this.addUnique(x);
@@ -99,6 +110,68 @@ export class BuilderCreate extends BuilderBase {
     return `( ${sqls.join(", ")} )`;
   }
 
+  getChecksQuery() {
+    if (!this.#checkData.length || !this.#nameData) {
+      return ``;
+    }
+    const sqls: string[] = [];
+    const schema = this.#nameData?.schema;
+    let entity = undefined;
+    if ("entity" in this.#nameData) {
+      entity = this.#nameData.entity;
+    }
+
+    for (let i = 0; i < this.#checkData.length; i++) {
+      let sql = "";
+      const name = this.clearNames(
+        this.#checkData[i].name ? this.#checkData[i].name : this.generateName1({
+          prefix: "CHK",
+          ...this.#nameData,
+          sequence: i + 1,
+        }),
+      );
+      sql = this.conn.createCheck({
+        entity: this.clearNames([schema, entity]),
+        ...this.#checkData[i],
+        name,
+      });
+      sqls.push(sql);
+    }
+    return `${sqls.join("; ")}`;
+  }
+
+  getUniquesQuery() {
+    if (!this.#uniquesData.length || !this.#nameData) {
+      return ``;
+    }
+    const sqls: string[] = [];
+    const schema = this.#nameData?.schema;
+    let entity = undefined;
+    if ("entity" in this.#nameData) {
+      entity = this.#nameData.entity;
+    }
+
+    for (let i = 0; i < this.#uniquesData.length; i++) {
+      let sql = "";
+      const name = this.clearNames(
+        this.#uniquesData[i].name
+          ? this.#uniquesData[i].name
+          : this.generateName1({
+            prefix: "UQ",
+            ...this.#nameData,
+            sequence: i + 1,
+          }),
+      );
+      sql = this.conn.createUnique({
+        entity: this.clearNames([schema, entity]),
+        ...this.#uniquesData[i],
+        name,
+      });
+      sqls.push(sql);
+    }
+    return `${sqls.join("; ")}`;
+  }
+
   getInsertsQuery() {
     if (!this.#nameData) {
       return ``;
@@ -120,6 +193,12 @@ export class BuilderCreate extends BuilderBase {
       return `${this.getCreateSchemaQuery()}`;
     }
     let query = `${this.getCreateTableQuery()}\n${this.getColumnsQuery()}`;
+    if (this.#checkData.length) {
+      query += `;\n${this.getChecksQuery()}`;
+    }
+    if (this.#uniquesData.length) {
+      query += `;\n${this.getUniquesQuery()}`;
+    }
     if (this.#valuesData.length) {
       query += `;\n${this.getInsertsQuery()}`;
     }

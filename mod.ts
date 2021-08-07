@@ -2,6 +2,7 @@
  * Decorators
  */
 export * from "./src/decorators/checks/check.ts";
+export * from "./src/decorators/uniques/unique.ts";
 export * from "./src/decorators/entities/entity.ts";
 export * from "./src/decorators/columns/column.ts";
 export * from "./src/decorators/columns/primary_column.ts";

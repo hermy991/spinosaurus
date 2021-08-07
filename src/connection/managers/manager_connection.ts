@@ -1,5 +1,7 @@
 import { fs } from "../../../deps.ts";
 import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
+import { SpiCheckDefinition } from "../executors/types/spi_check_definition.ts";
+import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts";
 import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
 import { ConnectionOptionsAll } from "../connection_options.ts";
 import { ConnectionPostgresOptions } from "../drivers/postgres/connection_postgres_options.ts";
@@ -320,13 +322,21 @@ export async function generateScript(
       /**
        * New tables
        */
-      const columns: Array<SpiColumnDefinition> = table.columns.map((
+      const checks: Array<SpiCheckDefinition> = (table.checks || []).map((
+        x: any,
+      ) => x.mixeds);
+      const uniques: Array<SpiUniqueDefinition> = (table.uniques || []).map((
+        x: any,
+      ) => x.mixeds);
+      const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
         x: any,
       ) => ({
         ...x.mixeds,
         ...{ columnName: x.mixeds.name },
       }));
       const qs = conn.create({ entity: topts.name, schema: topts.schema })
+        .checks(...checks)
+        .uniques(...uniques)
         .columns(...columns);
       const query = qs.getQuery() || "";
       script.push(query);
