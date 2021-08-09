@@ -35,7 +35,7 @@ Deno.test(
     const sr = await db.select([`"column1"`])
       .from({ entity: newEntity })
       .orderBy([`"column1"`, "ASC"])
-      .getRawMany();
+      .getMany();
 
     const resultShouldBe: any[] = [{ column1: "que lo que" }];
 
@@ -70,7 +70,7 @@ Deno.test(
     const sr = await db.select([`"columnXX"`])
       .from({ entity: oldEntity })
       .orderBy([`"columnXX"`, "ASC"])
-      .getRawMany();
+      .getMany();
 
     const resultShouldBe: any[] = [{ columnXX: "que lo que" }];
 
@@ -110,7 +110,7 @@ Deno.test(
     const sr = await db.select([`"columnXX"`])
       .from({ entity: newEntity })
       .orderBy([`"columnXX"`, "ASC"])
-      .getRawMany();
+      .getMany();
 
     const resultShouldBe: any[] = [{ columnXX: "que lo que" }];
 

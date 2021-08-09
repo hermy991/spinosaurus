@@ -16,7 +16,7 @@ Deno.test(
   },
 );
 Deno.test(
-  testMessage.replace(/\{\}/ig, "select getRawOne() function should work"),
+  testMessage.replace(/\{\}/ig, "select getOne() function should work"),
   async () => {
     const db: Connection = new Connection(con1);
     const currEntity = `SelectTable_${window.OBJECT_SEQUENCE++}`;
@@ -42,14 +42,14 @@ Deno.test(
     ])
       .from({ entity: currEntity, as: "u" })
       .orderBy([`"userName"`])
-      .getRawOne();
+      .getOne();
     const dataShouldBe = { UserName: "guru", FirstName: "Danny" };
     await db.drop({ entity: currEntity }).execute();
     assertEquals(sr, dataShouldBe);
   },
 );
 Deno.test(
-  testMessage.replace(/\{\}/ig, "select getRawMany() function should work"),
+  testMessage.replace(/\{\}/ig, "select getMany() function should work"),
   async () => {
     const db: Connection = new Connection(con1);
     const currEntity = `SelectTable_${window.OBJECT_SEQUENCE++}`;
@@ -71,7 +71,7 @@ Deno.test(
       .execute();
     const sr = await db.select()
       .from({ entity: currEntity, as: "u" })
-      .getRawMany();
+      .getMany();
     await db.drop({ entity: currEntity }).execute();
     assertEquals(sr.length, data.length);
   },
@@ -79,7 +79,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "select getRawMany() function with where should work",
+    "select getMany() function with where should work",
   ),
   async () => {
     const db: Connection = new Connection(con1);
@@ -103,7 +103,7 @@ Deno.test(
     const sr = await db.select()
       .from({ entity: currEntity, as: "u" })
       .where([`u."userName" = 'hermy991'`])
-      .getRawMany();
+      .getMany();
     await db.drop({ entity: currEntity }).execute();
     assertEquals(sr.length, 1);
   },

@@ -7,6 +7,7 @@ export * from "./src/decorators/uniques/unique.ts";
 export * from "./src/decorators/columns/column.ts";
 export * from "./src/decorators/columns/primary_column.ts";
 export * from "./src/decorators/columns/primary_generated_column.ts";
+export * from "./src/decorators/relations/many_to_one.ts";
 /**
  * Operators
  */

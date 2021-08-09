@@ -14,7 +14,7 @@ export class BuilderCreate extends BuilderBase {
     | null = null;
   #columnsData: Array<SpiAllColumnDefinition> = [];
   #checkData: Array<SpiCheckDefinition> = [];
-  #uniquesData: Array<{ name?: string; columnNames: Array<string> }> = [];
+  #uniquesData: Array<{ name?: string; columns: Array<string> }> = [];
   #relationsData: Array<SpiRelationDefinition> = [];
   #valuesData: Array<any> = [];
   constructor(public conn: ConnectionAll) {

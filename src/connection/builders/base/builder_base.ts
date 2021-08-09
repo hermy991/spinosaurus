@@ -3,10 +3,10 @@ import { clearNames } from "./sql.ts";
 import { createHash } from "deno/hash/mod.ts";
 
 export class BuilderBase {
-  get left() {
+  get #left() {
     return this.conn.delimiters[0];
   }
-  get right() {
+  get #right() {
     if (this.conn.delimiters.length == 1) {
       return this.conn.delimiters[0];
     }
@@ -20,7 +20,7 @@ export class BuilderBase {
   clearNames = (
     identifiers?: Array<string | undefined> | string | undefined,
   ) => {
-    return clearNames({ left: this.left, identifiers, right: this.right });
+    return clearNames({ left: this.#left, identifiers, right: this.#right });
   };
   generateName1 = (
     req: {

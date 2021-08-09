@@ -94,9 +94,9 @@ class ConnectionPostgres implements IConnectionOperations {
     /**
      * Creating Unique
      */
-    const { entity, name, columnNames } = sds;
+    const { entity, name, columns } = sds;
     const sql = `ALTER TABLE ${entity} ADD CONSTRAINT ${name} UNIQUE (${
-      columnNames.join(", ")
+      columns.join(", ")
     })`;
     return sql;
   };
@@ -637,36 +637,21 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
   }
 
   async getOne(query: string): Promise<any> {
-    return {};
-  }
-  async getRawOne(query: string): Promise<any> {
-    const rows = await this.getRawMany(query);
+    const rows = await this.getMany(query);
     return rows.length ? rows[0] : null;
   }
   async getMany(query: string): Promise<Array<any>> {
-    return [];
-  }
-  async getRawMany(query: string): Promise<Array<any>> {
     const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
     const pool = (initConnection(driverConf) as postgres.Pool);
     const client = await pool.connect();
-    //const query = this.getQuery();
     const result = await client.queryObject(query);
     client.release();
     await pool.end();
     return result.rows;
   }
-  async getRawMultiple(query: string): Promise<Array<any>> {
-    const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
-    const pool = (initConnection(driverConf) as postgres.Pool);
-    const client = await pool.connect();
-    // const query = this.getQuery();
-    const result = await client.queryObject(query);
-    client.release();
-    await pool.end();
-    return result.rows;
+  getMultiple(query: string): Promise<Array<any>> {
+    throw "not implemented";
   }
-  /* Returns entities*/
 }
 
 export { ConnectionPostgres };

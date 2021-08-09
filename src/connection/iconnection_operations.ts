@@ -48,13 +48,10 @@ export interface IConnectionOperations {
   getCurrentDatabase(): Promise<string>;
   getCurrentSchemaLocal(): string;
   getCurrentSchema(): Promise<string>;
-  // getDbColumnType(req: { spitype: string, length?: number, precision?: number, scale?: number }): string;
   getMetadata(): Promise<MetadataStore>;
-  getRawOne(query: string): Promise<Array<any>>;
-  getRawMany(query: string): Promise<Array<any>>;
-  getRawMultiple(query: string): Promise<Array<any>>;
-  /* Returns entities*/
+  /* Returns entities or row sql data*/
   getOne(query: string): Promise<any>;
   getMany(query: string): Promise<Array<any>>;
+  getMultiple(query: string): Promise<Array<any>>;
   execute(query: string): Promise<any>;
 }

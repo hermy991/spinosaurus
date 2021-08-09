@@ -59,8 +59,8 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 
 ```typescript
 let data = await db.select()
-  .from("User")
-  .getRawMany();
+  .from({ entity: User })
+  .getMany();
 ```
 
 ## Update
@@ -156,9 +156,11 @@ deno run -qA https://code.velociraptor.run test:executor
 
 # TODO
 
-- testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata
-- testing primary column executor
-- testing generated column executor
-- configuration env and files flow
-- alter column (implement primary key and auto-increment)
-- generate columns from entity in select
+- [ ] testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata
+- [ ] testing primary column executor testing
+- [ ] testing generated column executor testing
+- [ ] configuration env and files flow
+- [ ] alter column (implement primary key and auto-increment)
+- [ ] generate columns from entity in select
+- [ ] using entity on insert, update and delete
+- [ ] using entity in from(Entity, {as?})

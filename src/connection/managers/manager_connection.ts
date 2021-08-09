@@ -236,7 +236,7 @@ export async function generateScript(
     const schema = localMetadata.schemas[i];
     let query = "";
     if (destinyMetadata.schemas.some((x) => x.name === schema.name)) {
-      /**
+      /*
      * CHANGING
      * TODO
      */

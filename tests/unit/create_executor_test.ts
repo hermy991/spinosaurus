@@ -25,7 +25,7 @@ Deno.test(
     const sr = await db.select([`"column1"`])
       .from({ entity: currEntity })
       .orderBy([`"column1"`, "ASC"])
-      .getRawMany();
+      .getMany();
 
     const resultShouldBe: any[] = [];
 
@@ -65,7 +65,7 @@ Deno.test(
     const sr = await db.select([`"column1"`], [`"column2"`])
       .from({ entity: currEntity })
       .orderBy([`"column1"`, "ASC"])
-      .getRawMany();
+      .getMany();
 
     const _dr = await db.drop({ entity: currEntity }).execute();
 

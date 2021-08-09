@@ -113,27 +113,15 @@ export class ExecutorSelect {
   }
   async getOne(): Promise<any> {
     const query = this.getQuery();
-    const data = this.conn.getOne(query);
-    return data;
-  }
-  async getRawOne(): Promise<Array<any>> {
-    const query = this.getQuery();
-    const data = this.conn.getRawOne(query);
+    const data = await this.conn.getOne(query);
     return data;
   }
   async getMany(): Promise<Array<any>> {
     const query = this.getQuery();
-    const data = this.conn.getMany(query);
+    const data = await this.conn.getMany(query);
     return data;
   }
-  async getRawMany(): Promise<Array<any>> {
-    const query = this.getQuery();
-    const data = await this.conn.getRawMany(query);
-    return data;
-  }
-  async getRawMultiple(): Promise<Array<any>> {
-    const query = this.getQuery();
-    const data = this.conn.getRawMultiple(query);
-    return data;
+  getMultiple(): Promise<Array<any>> {
+    throw "No implemented";
   }
 }

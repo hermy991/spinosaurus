@@ -35,7 +35,7 @@ Deno.test(
 
     const qs = db.select()
       .from({ entity: currEntity });
-    const r = await qs.getRawMany();
+    const r = await qs.getMany();
     const dataShouldBe = data;
 
     await db.drop({ entity: currEntity }).execute();

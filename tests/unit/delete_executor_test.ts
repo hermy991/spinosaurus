@@ -39,7 +39,7 @@ Deno.test(
     const qs = db.select([`"UserName"`], [`"FirstName"`])
       .from({ entity: currEntity })
       .orderBy([`"UserName"`, "ASC"]);
-    const r = await qs.getRawMany();
+    const r = await qs.getMany();
     const dataShouldBe = [{ UserName: "yassett77", FirstName: "Yassett" }];
 
     await db.drop({ entity: currEntity }).execute();

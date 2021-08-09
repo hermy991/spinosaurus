@@ -18,7 +18,7 @@ Deno.test(
     });
     let query = qs.getQuery() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-    const queryExpected = `ALTER TABLE "public"."User" RENAME TO "def"."Person"`
+    const queryExpected = `ALTER TABLE "public"."User" RENAME TO "Person"`
       .replace(/[ \n\t]+/ig, " ").trim();
     assertEquals(query, queryExpected);
   },
@@ -54,7 +54,7 @@ Deno.test(
     let query = qs.getQuery() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
-      `ALTER TABLE "public"."User" RENAME TO "def"."Person";\nALTER TABLE "def"."Person" RENAME COLUMN "column11" TO "column12"; \nALTER TABLE "def"."Person" RENAME COLUMN "column21" TO "column22"`
+      `ALTER TABLE "public"."User" RENAME TO "Person";\nALTER TABLE "public"."Person" RENAME COLUMN "column11" TO "column12"; \nALTER TABLE "public"."Person" RENAME COLUMN "column21" TO "column22"`
         .replace(/[ \n\t]+/ig, " ").trim();
     assertEquals(query, queryExpected);
   },
