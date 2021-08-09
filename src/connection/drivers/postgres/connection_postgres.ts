@@ -7,6 +7,7 @@ import { SpiAllColumnDefinition } from "../../executors/types/spi_all_column_def
 import { SpiColumnDefinition } from "../../executors/types/spi_column_definition.ts";
 import { SpiCheckDefinition } from "../../executors/types/spi_check_definition.ts";
 import { SpiUniqueDefinition } from "../../executors/types/spi_unique_definition.ts";
+import { SpiRelationDefinition } from "../../executors/types/spi_relation_definition.ts";
 import { SpiColumnAdjust } from "../../executors/types/spi_column_adjust.ts";
 import { SpiColumnComment } from "../../executors/types/spi_column_comment.ts";
 import { initConnection } from "./connection_postgres_pool.ts";
@@ -91,12 +92,35 @@ class ConnectionPostgres implements IConnectionOperations {
 
   createUnique = (sds: SpiUniqueDefinition & { entity: string }): string => {
     /**
-     * Creating Check
+     * Creating Unique
      */
     const { entity, name, columnNames } = sds;
     const sql = `ALTER TABLE ${entity} ADD CONSTRAINT ${name} UNIQUE (${
-      columnNames.join(",")
+      columnNames.join(", ")
     })`;
+    return sql;
+  };
+
+  createRelation = (srd: SpiRelationDefinition): string => {
+    /**
+     * Creating Check
+     */
+    let {
+      entity,
+      name,
+      onDelete,
+      onUpdate,
+      columns,
+      parentEntity,
+      parentColumns,
+    } = srd;
+    parentColumns = (parentColumns || []).length ? parentColumns : columns;
+    const sql = (`ALTER TABLE ${entity} ` +
+      `ADD CONSTRAINT ${name} ` +
+      `FOREIGN KEY (${columns.join(", ")}) ` +
+      `REFERENCES ${parentEntity} (${(parentColumns || []).join(", ")}) ` +
+      `${onDelete ? "ON DELETE " + onDelete.toUpperCase() + " " : ""}` +
+      `${onUpdate ? "ON UPDATE " + onUpdate.toUpperCase() + " " : ""}`).trim();
     return sql;
   };
 

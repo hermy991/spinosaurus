@@ -1,6 +1,7 @@
 import { SpiAllColumnDefinition } from "../executors/types/spi_all_column_definition.ts";
 import { SpiCheckDefinition } from "../executors/types/spi_check_definition.ts";
 import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts";
+import { SpiRelationDefinition } from "../executors/types/spi_relation_definition.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { BuilderInsert } from "./builder_insert.ts";
@@ -14,6 +15,7 @@ export class BuilderCreate extends BuilderBase {
   #columnsData: Array<SpiAllColumnDefinition> = [];
   #checkData: Array<SpiCheckDefinition> = [];
   #uniquesData: Array<{ name?: string; columnNames: Array<string> }> = [];
+  #relationsData: Array<SpiRelationDefinition> = [];
   #valuesData: Array<any> = [];
   constructor(public conn: ConnectionAll) {
     super(conn);
@@ -60,6 +62,17 @@ export class BuilderCreate extends BuilderBase {
 
   addUnique(unique: SpiUniqueDefinition): void {
     this.#uniquesData.push(unique);
+  }
+
+  relations(...relations: Array<SpiRelationDefinition>): void {
+    this.#relationsData = [];
+    relations.forEach((x) => {
+      this.addRelation(x);
+    });
+  }
+
+  addRelation(relation: SpiRelationDefinition): void {
+    this.#relationsData.push(relation);
   }
 
   data(data: Array<any> | any) {
@@ -153,19 +166,49 @@ export class BuilderCreate extends BuilderBase {
 
     for (let i = 0; i < this.#uniquesData.length; i++) {
       let sql = "";
-      const name = this.clearNames(
-        this.#uniquesData[i].name
-          ? this.#uniquesData[i].name
-          : this.generateName1({
-            prefix: "UQ",
-            ...this.#nameData,
-            sequence: i + 1,
-          }),
+
+      this.#relationsData[i].name ||= this.generateName1({
+        prefix: "UQ",
+        ...this.#nameData,
+        sequence: i + 1,
+      });
+      this.#relationsData[i].name = this.clearNames(
+        this.#relationsData[i].name,
       );
       sql = this.conn.createUnique({
         entity: this.clearNames([schema, entity]),
         ...this.#uniquesData[i],
-        name,
+      });
+      sqls.push(sql);
+    }
+    return `${sqls.join("; ")}`;
+  }
+
+  getRelationsQuery() {
+    if (!this.#relationsData.length || !this.#nameData) {
+      return ``;
+    }
+    const sqls: string[] = [];
+    const schema = this.#nameData?.schema;
+    let entity = undefined;
+    if ("entity" in this.#nameData) {
+      entity = this.#nameData.entity;
+    }
+
+    for (let i = 0; i < this.#relationsData.length; i++) {
+      let sql = "";
+      this.#relationsData[i].name ||= this.generateName1({
+        prefix: "FK",
+        ...this.#nameData,
+        name: "AnotherEntity_AnotherEntityColumn",
+        sequence: i + 1,
+      });
+      this.#relationsData[i].name = this.clearNames(
+        this.#relationsData[i].name,
+      );
+      sql = this.conn.createRelation({
+        ...this.#relationsData[i],
+        entity: this.clearNames([schema, entity]),
       });
       sqls.push(sql);
     }
@@ -198,6 +241,9 @@ export class BuilderCreate extends BuilderBase {
     }
     if (this.#uniquesData.length) {
       query += `;\n${this.getUniquesQuery()}`;
+    }
+    if (this.#relationsData.length) {
+      query += `;\n${this.getRelationsQuery()}`;
     }
     if (this.#valuesData.length) {
       query += `;\n${this.getInsertsQuery()}`;

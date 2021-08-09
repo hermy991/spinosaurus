@@ -3,7 +3,7 @@ import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderRename extends BuilderBase {
   private fromData: { entity: string; schema?: string } | undefined = undefined;
-  private toData?: { entity: string; schema?: string };
+  private toData?: { entity: string };
   private columnsData: Array<[string, string]> = [];
 
   constructor(public conn: ConnectionAll) {
@@ -12,11 +12,10 @@ export class BuilderRename extends BuilderBase {
 
   rename(
     from: { entity: string; schema?: string },
-    to?: { entity: string; schema?: string },
+    to?: { entity: string },
   ): void {
     this.fromData = from;
     if (to) {
-      to.schema ||= from.schema;
       this.toData = to;
     }
   }
@@ -39,7 +38,6 @@ export class BuilderRename extends BuilderBase {
     }
     const { entity: fentity, schema: fschema } = this.fromData;
     const tentity = this.toData?.entity;
-    const tschema = this.toData?.schema || fschema;
 
     o.from = this.clearNames(fentity);
     if (fschema) {
@@ -47,9 +45,6 @@ export class BuilderRename extends BuilderBase {
     }
     if (this.toData) {
       o.to = this.clearNames(tentity);
-      if (tschema) {
-        o.to = this.clearNames([tschema, tentity]);
-      }
     }
     return o;
   }
@@ -70,7 +65,7 @@ export class BuilderRename extends BuilderBase {
     const o = this.getEntityParts();
     let ename = o.from;
     if (o.to) {
-      ename = o.to;
+      ename = this.clearNames([this.fromData?.schema, o.to]);
     }
     for (let i = 0; i < this.columnsData.length; i++) {
       let [from, to] = this.columnsData[i];

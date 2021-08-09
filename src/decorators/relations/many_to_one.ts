@@ -1,12 +1,12 @@
 import { ColumnOptions } from "../options/column_options.ts";
-import { PrimaryColumnOptions } from "../options/primary_column_options.ts";
-import { GeneratedColumnOptions } from "../options/generated_column_options.ts";
+import { RelationOptions } from "../options/relation_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
 import { reflect_metadata } from "../../../deps.ts";
 
-export function PrimaryGeneratedColumn(
-  options: GeneratedColumnOptions = {},
+export function ManyToOne(
+  relationOptions: RelationOptions,
+  columnOptions: ColumnOptions = {},
 ): any {
   return (
     entityf: Object,
@@ -27,28 +27,21 @@ export function PrimaryGeneratedColumn(
         propertyKey,
       ),
     };
+    relationOptions.entity ||= property.type;
     const target: ColumnOptions = {
       name: propertyKey,
       spitype: getColumnType({ type: property.type }),
     };
-    const special: PrimaryColumnOptions | GeneratedColumnOptions = {
-      primary: true,
-      autoIncrement: "increment",
-    };
-    const mixeds: PrimaryColumnOptions | GeneratedColumnOptions = Object.assign(
-      target,
-      special,
-      options,
-    );
-
-    const column = {
+    const mixeds: ColumnOptions = Object.assign(target, columnOptions);
+    const relation = {
       target,
       entity,
       descriptor,
       property,
-      options,
+      relationOptions,
+      columnOptions,
       mixeds,
     };
-    getTempMetadata().columns.push(column);
+    getTempMetadata().relations.push(relation);
   };
 }

@@ -1,9 +1,9 @@
 /**
  * Decorators
  */
+export * from "./src/decorators/entities/entity.ts";
 export * from "./src/decorators/checks/check.ts";
 export * from "./src/decorators/uniques/unique.ts";
-export * from "./src/decorators/entities/entity.ts";
 export * from "./src/decorators/columns/column.ts";
 export * from "./src/decorators/columns/primary_column.ts";
 export * from "./src/decorators/columns/primary_generated_column.ts";
@@ -18,4 +18,5 @@ export * from "./src/connection/managers/manager_connection.ts";
 export {
   getMetadata,
   GLOBAL_METADATA_KEY,
+  linkMetadata,
 } from "./src/decorators/metadata/metadata.ts";

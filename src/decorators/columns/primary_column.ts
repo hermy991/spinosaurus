@@ -12,12 +12,9 @@ export function PrimaryColumn(options: ColumnOptions = {}): any {
     /**
      * For static member entity param will be a function constructor
      */
-    const entity = {
-      target: entityf instanceof Function
-        ? <Function> entityf
-        : entityf.constructor,
-      name: entityf.constructor.name,
-    };
+    const fun =
+      (entityf instanceof Function ? <Function> entityf : entityf.constructor);
+    const entity = { target: fun, name: fun.name };
     const property = {
       propertyKey,
       type: reflect_metadata.Reflect.getMetadata(
