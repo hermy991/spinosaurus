@@ -9,7 +9,7 @@ export class ExecutorUpdate {
   }
 
   update(
-    req: { entity: string; schema?: string } | [string, string?],
+    req: { entity: string; schema?: string } | [string, string?] | Function,
   ): ExecutorUpdate {
     this.ub.update(req);
     return this;

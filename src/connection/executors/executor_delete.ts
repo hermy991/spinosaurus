@@ -8,7 +8,7 @@ export class ExecutorDelete {
   }
 
   delete(
-    req: { entity: string; schema?: string } | [string, string?],
+    req: { entity: string; schema?: string } | [string, string?] | Function,
   ): ExecutorDelete {
     this.ub.delete(req);
     return this;

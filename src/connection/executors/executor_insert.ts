@@ -8,7 +8,7 @@ export class ExecutorInsert {
   }
 
   insert(
-    req: { entity: string; schema?: string } | [string, string?],
+    req: { entity: string; schema?: string } | [string, string?] | Function,
   ): ExecutorInsert {
     this.ib.insert(req);
     return this;

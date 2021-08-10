@@ -58,6 +58,7 @@ Deno.test(
     )
       .trim();
     assertEquals(q1, qe1);
+    return;
     const qs2 = db.select().from({ entity: FromEntity2, as: "u" });
     let q2 = qs2.getQuery() || "";
     q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();

@@ -235,6 +235,20 @@ export function linkMetadataToFromData(
   }
 }
 
+export function linkMetadataToColumnAccesors(
+  req: { currentSquema: string; connName: string },
+  fun: Function,
+): Array<string> {
+  const metadata = linkMetadata(req);
+  const t = metadata.tables.find((x) => x.target === fun);
+  if (t) {
+    t.columns.map((x: any) => console.log("column : ", x));
+    // const columnNames: string[] = t.columns.map((x: any) => x.name);
+    // return columnNames;
+  }
+  return [];
+}
+
 export function getColumnType(
   params: { type: any; options?: any; value?: any },
 ) {

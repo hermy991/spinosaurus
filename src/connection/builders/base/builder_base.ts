@@ -1,7 +1,10 @@
 import { ConnectionAll } from "../../connection_type.ts";
 import { clearNames } from "./sql.ts";
 import { createHash } from "deno/hash/mod.ts";
-import { linkMetadataToFromData } from "../../../decorators/metadata/metadata.ts";
+import {
+  linkMetadataToColumnAccesors,
+  linkMetadataToFromData,
+} from "../../../decorators/metadata/metadata.ts";
 
 export class BuilderBase {
   get #left() {
@@ -68,5 +71,15 @@ export class BuilderBase {
       tentity = clauseData.entity;
     }
     return { entity: tentity, schema: tschema };
+  }
+  getColumnAccesors(
+    connName: string,
+    entity: Function,
+  ) {
+    const columns = linkMetadataToColumnAccesors({
+      currentSquema: "",
+      connName,
+    }, entity);
+    return;
   }
 }

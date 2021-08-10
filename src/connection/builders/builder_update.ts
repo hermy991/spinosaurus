@@ -3,7 +3,8 @@ import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderUpdate extends BuilderBase {
-  private entityData: { entity: string; schema?: string } | null = null;
+  private entityData: { entity: string; schema?: string } | Function | null =
+    null;
   private setData: Array<[string, string | number | Date | null]> = [];
   private whereData: Array<string> = [];
 
@@ -11,7 +12,9 @@ export class BuilderUpdate extends BuilderBase {
     super(conn);
   }
 
-  update(req: { entity: string; schema?: string } | [string, string?]): void {
+  update(
+    req: { entity: string; schema?: string } | [string, string?] | Function,
+  ): void {
     if (Array.isArray(req)) {
       const [entity, schema] = req;
       this.entityData = { entity, schema };
@@ -64,11 +67,17 @@ export class BuilderUpdate extends BuilderBase {
     if (!this.entityData) {
       return ``;
     }
-    const { entity, schema } = this.entityData;
-    let query = `${this.clearNames(entity)}`;
-    if (schema) {
-      query = `${this.clearNames([schema, entity])}`;
+    let e: { schema?: string; entity?: string } = {};
+    if (this.entityData instanceof Function) {
+      e = this.getEntityData(
+        this.conn.options.name,
+        this.entityData,
+        this.entityData,
+      );
+    } else {
+      e = this.entityData;
     }
+    const query = `${this.clearNames([e.schema, e.entity])}`;
     return `UPDATE ${query}`;
   }
 

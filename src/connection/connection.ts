@@ -128,21 +128,27 @@ class Connection {
     return executor;
   }
 
-  update(req: { entity: string; schema?: string } | [string, string?]) {
+  update(
+    req: { entity: string; schema?: string } | [string, string?] | Function,
+  ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorUpdate = new ExecutorUpdate(this.#connection);
     executor.update(req);
     return executor;
   }
 
-  insert(req: { entity: string; schema?: string } | [string, string?]) {
+  insert(
+    req: { entity: string; schema?: string } | [string, string?] | Function,
+  ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorInsert = new ExecutorInsert(this.#connection);
     executor.insert(req);
     return executor;
   }
 
-  delete(req: { entity: string; schema?: string } | [string, string?]) {
+  delete(
+    req: { entity: string; schema?: string } | [string, string?] | Function,
+  ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorDelete = new ExecutorDelete(this.#connection);
     executor.delete(req);

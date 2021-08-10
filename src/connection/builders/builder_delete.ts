@@ -3,14 +3,17 @@ import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderDelete extends BuilderBase {
-  private entityData: { entity: string; schema?: string } | null = null;
+  private entityData: { entity: string; schema?: string } | Function | null =
+    null;
   private whereData: Array<string> = [];
 
   constructor(public conn: ConnectionAll) {
     super(conn);
   }
 
-  delete(req: { entity: string; schema?: string } | [string, string?]): void {
+  delete(
+    req: { entity: string; schema?: string } | [string, string?] | Function,
+  ): void {
     if (Array.isArray(req)) {
       let [entity, schema] = req;
       this.entityData = { entity, schema };
@@ -38,11 +41,17 @@ export class BuilderDelete extends BuilderBase {
     if (!this.entityData) {
       return ``;
     }
-    let { entity, schema } = this.entityData;
-    let query = `${this.clearNames(entity)}`;
-    if (schema) {
-      query = `${this.clearNames([schema, entity])}`;
+    let e: { schema?: string; entity?: string } = {};
+    if (this.entityData instanceof Function) {
+      e = this.getEntityData(
+        this.conn.options.name,
+        this.entityData,
+        this.entityData,
+      );
+    } else {
+      e = this.entityData;
     }
+    const query = `${this.clearNames([e.schema, e.entity])}`;
     return `DELETE FROM ${query}`;
   }
 

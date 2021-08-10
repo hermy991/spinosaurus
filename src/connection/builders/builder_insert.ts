@@ -3,14 +3,17 @@ import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderInsert extends BuilderBase {
-  private entityData: { entity: string; schema?: string } | null = null;
+  private entityData: { entity: string; schema?: string } | Function | null =
+    null;
   private valuesData: Array<any> = [];
 
   constructor(public conn: ConnectionAll) {
     super(conn);
   }
 
-  insert(req: { entity: string; schema?: string } | [string, string?]): void {
+  insert(
+    req: { entity: string; schema?: string } | [string, string?] | Function,
+  ): void {
     if (Array.isArray(req)) {
       const [entity, schema] = req;
       this.entityData = { entity, schema };
@@ -32,8 +35,17 @@ export class BuilderInsert extends BuilderBase {
     if (!this.entityData) {
       return ``;
     }
-    const { entity, schema } = this.entityData;
-    const query = `${this.clearNames([schema, entity])}`;
+    let e: { schema?: string; entity?: string } = {};
+    if (this.entityData instanceof Function) {
+      e = this.getEntityData(
+        this.conn.options.name,
+        this.entityData,
+        this.entityData,
+      );
+    } else {
+      e = this.entityData;
+    }
+    const query = `${this.clearNames([e.schema, e.entity])}`;
     return `INSERT INTO ${query}`;
   }
 
