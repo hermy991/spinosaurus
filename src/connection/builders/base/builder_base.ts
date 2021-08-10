@@ -1,6 +1,7 @@
 import { ConnectionAll } from "../../connection_type.ts";
 import { clearNames } from "./sql.ts";
 import { createHash } from "deno/hash/mod.ts";
+import { linkMetadataToFromData } from "../../../decorators/metadata/metadata.ts";
 
 export class BuilderBase {
   get #left() {
@@ -53,4 +54,19 @@ export class BuilderBase {
     }
     return generated;
   };
+  getEntityData(connName: string, entity: Function | string, clauseData: any) {
+    let tschema = clauseData.schema;
+    let tentity = clauseData.entity;
+    if (entity instanceof Function) {
+      const clauseData = {
+        ...linkMetadataToFromData({
+          currentSquema: "",
+          connName,
+        }, <Function> entity),
+      };
+      tschema = clauseData.schema;
+      tentity = clauseData.entity;
+    }
+    return { entity: tentity, schema: tschema };
+  }
 }

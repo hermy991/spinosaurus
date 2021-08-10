@@ -8,6 +8,7 @@ import "./unit/select_query_test.ts";
 import "./unit/insert_query_test.ts";
 import "./unit/update_query_test.ts";
 import "./unit/delete_query_test.ts";
+import "./unit/join_query_test.ts";
 
 /** DECORATORS **/
 import "./unit/decorator_column_query_test.ts";

@@ -23,6 +23,7 @@ export class ExecutorSelect {
     this.sb.select(...tempColumns);
     return this;
   }
+
   selectDistinct(
     ...columns: Array<{ column: string; as?: string } | [string, string?]>
   ): ExecutorSelect {
@@ -38,21 +39,118 @@ export class ExecutorSelect {
     this.sb.selectDistinct(...tempColumns);
     return this;
   }
+
   addSelect(req: { column: string; as?: string }): ExecutorSelect {
     this.sb.addSelect(req);
     return this;
   }
+
   from(
     req: { entity: string; schema?: string; as?: string } | {
       entity: Function;
       as?: string;
     },
   ): ExecutorSelect {
-    const treq = req;
-
-    this.sb.from(treq);
+    this.sb.from(req);
     return this;
   }
+
+  join(
+    req: {
+      entity: string;
+      schema?: string;
+      as?: string;
+      on: string | string[];
+    } | {
+      entity: Function;
+      as?: string;
+      on: string | string[];
+    },
+  ): ExecutorSelect {
+    this.sb.join(req);
+    return this;
+  }
+
+  joinAndSelect(
+    req: {
+      entity: string;
+      schema?: string;
+      as?: string;
+      on: string | string[];
+    } | {
+      entity: Function;
+      as?: string;
+      on: string | string[];
+    },
+  ): ExecutorSelect {
+    this.sb.joinAndSelect(req);
+    return this;
+  }
+
+  left(
+    req: {
+      entity: string;
+      schema?: string;
+      as?: string;
+      on: string | string[];
+    } | {
+      entity: Function;
+      as?: string;
+      on: string | string[];
+    },
+  ): ExecutorSelect {
+    this.sb.left(req);
+    return this;
+  }
+
+  leftAndSelect(
+    req: {
+      entity: string;
+      schema?: string;
+      as?: string;
+      on: string | string[];
+    } | {
+      entity: Function;
+      as?: string;
+      on: string | string[];
+    },
+  ): ExecutorSelect {
+    this.sb.leftAndSelect(req);
+    return this;
+  }
+
+  right(
+    req: {
+      entity: string;
+      schema?: string;
+      as?: string;
+      on: string | string[];
+    } | {
+      entity: Function;
+      as?: string;
+      on: string | string[];
+    },
+  ): ExecutorSelect {
+    this.sb.right(req);
+    return this;
+  }
+
+  rightAndSelect(
+    req: {
+      entity: string;
+      schema?: string;
+      as?: string;
+      on: string | string[];
+    } | {
+      entity: Function;
+      as?: string;
+      on: string | string[];
+    },
+  ): ExecutorSelect {
+    this.sb.rightAndSelect(req);
+    return this;
+  }
+
   where(
     conditions: Array<string>,
     params?: { [x: string]: string | number | Date },
@@ -60,6 +158,7 @@ export class ExecutorSelect {
     this.sb.where(conditions, params);
     return this;
   }
+
   addWhere(
     conditions: Array<string>,
     params?: { [x: string]: string | number | Date },
@@ -67,6 +166,7 @@ export class ExecutorSelect {
     this.sb.addWhere(conditions, params);
     return this;
   }
+
   orderBy(
     ...columns: Array<
       { column: string; direction?: "ASC" | "DESC" } | [
@@ -87,6 +187,7 @@ export class ExecutorSelect {
     this.sb.orderBy(...tempColumns);
     return this;
   }
+
   addOrderBy(
     ...columns: Array<
       { column: string; direction?: "ASC" | "DESC" } | [
@@ -107,20 +208,24 @@ export class ExecutorSelect {
     this.sb.addOrderBy(...tempColumns);
     return this;
   }
+
   getQuery(): string {
     const query = this.sb.getQuery();
     return query;
   }
+
   async getOne(): Promise<any> {
     const query = this.getQuery();
     const data = await this.conn.getOne(query);
     return data;
   }
+
   async getMany(): Promise<Array<any>> {
     const query = this.getQuery();
     const data = await this.conn.getMany(query);
     return data;
   }
+
   getMultiple(): Promise<Array<any>> {
     throw "No implemented";
   }

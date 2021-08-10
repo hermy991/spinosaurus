@@ -1,17 +1,25 @@
 import { interpolate } from "./base/sql.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
-import { linkMetadataToFromData } from "../../decorators/metadata/metadata.ts";
 
 export class BuilderSelect extends BuilderBase {
   #selectData: Array<{ column: string; as?: string }> = [];
-  #fromData: { entity: string; schema?: string; as?: string } | null = null;
+  #fromData:
+    | { entity: string; schema?: string; as?: string }
+    | { entity: Function; as?: string }
+    | null = null;
   #clauseData: Array<
     {
       join: "inner" | "left" | "right";
       select: boolean;
       entity: string;
       schema?: string;
+      as?: string;
+      on?: string[];
+    } | {
+      join: "inner" | "left" | "right";
+      select: boolean;
+      entity: Function;
       as?: string;
       on?: string[];
     }
@@ -45,24 +53,17 @@ export class BuilderSelect extends BuilderBase {
       | { entity: string; schema?: string; as?: string }
       | { entity: Function; as?: string },
   ): void {
-    if (req.entity instanceof Function) {
-      const fromData = {
-        ...linkMetadataToFromData({
-          currentSquema: "",
-          connName: this.conn.options.name,
-        }, req.entity),
-        as: req.as,
-      };
-      this.#fromData = fromData;
-    } else {
-      this.#fromData = <any> req;
-    }
+    this.#fromData = req;
   }
 
   join(
     req: {
       entity: string;
       schema?: string;
+      as?: string;
+      on: string | string[];
+    } | {
+      entity: Function;
       as?: string;
       on: string | string[];
     },
@@ -81,6 +82,10 @@ export class BuilderSelect extends BuilderBase {
       schema?: string;
       as?: string;
       on: string | string[];
+    } | {
+      entity: Function;
+      as?: string;
+      on: string | string[];
     },
   ): void {
     this.#clauseData.push({
@@ -95,6 +100,10 @@ export class BuilderSelect extends BuilderBase {
     req: {
       entity: string;
       schema?: string;
+      as?: string;
+      on: string | string[];
+    } | {
+      entity: Function;
       as?: string;
       on: string | string[];
     },
@@ -113,6 +122,10 @@ export class BuilderSelect extends BuilderBase {
       schema?: string;
       as?: string;
       on: string | string[];
+    } | {
+      entity: Function;
+      as?: string;
+      on: string | string[];
     },
   ): void {
     this.#clauseData.push({
@@ -129,6 +142,10 @@ export class BuilderSelect extends BuilderBase {
       schema?: string;
       as?: string;
       on: string | string[];
+    } | {
+      entity: Function;
+      as?: string;
+      on: string | string[];
     },
   ): void {
     this.#clauseData.push({
@@ -143,6 +160,10 @@ export class BuilderSelect extends BuilderBase {
     req: {
       entity: string;
       schema?: string;
+      as?: string;
+      on: string | string[];
+    } | {
+      entity: Function;
       as?: string;
       on: string | string[];
     },
@@ -185,16 +206,21 @@ export class BuilderSelect extends BuilderBase {
       sql += `"${this.#fromData?.as}".*`;
       if (this.#clauseData) {
         for (let i = 0; i < this.#clauseData.length; i++) {
-          const { select, entity, schema, as } = this.#clauseData[i];
+          const { select, entity, as } = this.#clauseData[i];
           if (!select) {
             continue;
           }
+          const { schema: tschema, entity: tentity } = this.getEntityData(
+            this.conn.options.name,
+            entity,
+            this.#clauseData[i],
+          );
           if (as) {
             sql += `, "${as}".*`;
           } else {
-            let t = `"${entity}"`;
-            if (schema) {
-              t = `"${schema}"."${entity}"`;
+            let t = `"${tentity}"`;
+            if (tschema) {
+              t = `"${tschema}"."${tentity}"`;
             }
             sql += `, ${t}.*`;
           }
@@ -217,8 +243,13 @@ export class BuilderSelect extends BuilderBase {
     if (!this.#fromData) {
       return ``;
     }
-    const { entity, schema, as } = this.#fromData;
-    let query = `${this.clearNames([schema, entity])}`;
+    const { entity, as } = this.#fromData;
+    const { schema: tschema, entity: tentity } = this.getEntityData(
+      this.conn.options.name,
+      entity,
+      this.#fromData,
+    );
+    let query = `${this.clearNames([tschema, tentity])}`;
     if (as) {
       query = `${query} AS ${this.clearNames([as])}`;
     }
@@ -232,13 +263,17 @@ export class BuilderSelect extends BuilderBase {
     }
     const sqls: string[] = [];
     for (let i = 0; i < this.#clauseData.length; i++) {
-      const { join, entity, schema, as, on } = this.#clauseData[i];
-      const t = `${this.clearNames([schema, entity])}`;
-
+      const { join, entity, as, on } = this.#clauseData[i];
+      const { schema: tschema, entity: tentity } = this.getEntityData(
+        this.conn.options.name,
+        entity,
+        this.#clauseData[i],
+      );
+      const t = `${this.clearNames([tschema, tentity])}`;
       sqls.push(
-        `${join.toUpperCase()} JOIN ${t}${as ? " AS " + as : ""} ON ${
-          (on || []).join(" ")
-        }`,
+        `${join.toUpperCase()} JOIN ${t}${
+          as ? " AS " + this.clearNames(as) : ""
+        } ON ${(on || []).join(" ")}`,
       );
     }
     return sqls.join(" ");
@@ -272,6 +307,9 @@ export class BuilderSelect extends BuilderBase {
 
   getQuery() {
     let query = `${this.getSelectQuery()}\n${this.getFromQuery()}`;
+    if (this.#clauseData.length) {
+      query += `\n${this.getClauseQuery()}`;
+    }
     if (this.#whereData.length) {
       query += `\n${this.getWhereQuery()}`;
     }
