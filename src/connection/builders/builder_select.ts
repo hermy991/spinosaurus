@@ -32,7 +32,6 @@ export class BuilderSelect extends BuilderBase {
   }
 
   select(...columns: Array<{ column: string; as?: string }>): void {
-    this.#distinct = false;
     this.#selectData = [];
     columns.forEach((x) => this.addSelect(x));
   }
@@ -209,7 +208,7 @@ export class BuilderSelect extends BuilderBase {
           (as ? ` AS ${this.clearNames(as)}` : "");
         columns.push(tempCol);
       }
-      sql = `${sql}${columns.join(", ")}`;
+      sql += `${columns.join(", ")}`;
     }
     return sql;
   }

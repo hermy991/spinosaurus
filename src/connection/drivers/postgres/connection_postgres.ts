@@ -641,13 +641,20 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     return rows.length ? rows[0] : null;
   }
   async getMany(query: string): Promise<Array<any>> {
+    // const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
+    // const pool = (initConnection(driverConf) as postgres.Pool);
+    // const client = await pool.connect();
+    // const result = await client.queryObject(query);
+    // client.release();
+    // await pool.end();
+    // return result.rows;
+
     const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
-    const pool = (initConnection(driverConf) as postgres.Pool);
-    const client = await pool.connect();
-    const result = await client.queryObject(query);
-    client.release();
-    await pool.end();
-    return result.rows;
+    const client = new postgres.Client(driverConf);
+    await client.connect();
+    const pgr = await client.queryObject(query);
+    client.end();
+    return pgr.rows;
   }
   getMultiple(query: string): Promise<Array<any>> {
     throw "not implemented";

@@ -2,7 +2,7 @@ import { getTestConnection } from "./tool/tool.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 import {
   Connection,
-  createConnection,
+  // createConnection,
   getMetadata,
   queryConnection,
 } from "spinosaurus/mod.ts";

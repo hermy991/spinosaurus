@@ -19,11 +19,26 @@ Deno.test(
     const qs = db.select().from({ entity: "User", as: "u" });
     let query = qs.getQuery() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-    const queryExpected = `SELECT * FROM "User" AS "u"`.replace(
+    const queryExpected = `SELECT "u".* FROM "User" AS "u"`.replace(
       /[ \n\t]+/ig,
       " ",
     )
       .trim();
+    assertEquals(query, queryExpected);
+  },
+);
+Deno.test(
+  testMessage.replace(/\{\}/ig, "select [select distinct *] query should work"),
+  () => {
+    const db: Connection = new Connection(con1);
+    const qs = db.selectDistinct()
+      .from({ entity: "User", as: "u" });
+    let query = qs.getQuery() || "";
+    query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+    const queryExpected = `SELECT DISTINCT "u".* FROM "User" AS "u"`.replace(
+      /[ \n\t]+/ig,
+      " ",
+    ).trim();
     assertEquals(query, queryExpected);
   },
 );
@@ -37,7 +52,7 @@ Deno.test(
     const qs1 = db.select().from({ entity: FromEntity1, as: "u" });
     let q1 = qs1.getQuery() || "";
     q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
-    const qe1 = `SELECT * FROM "FromEntity1" AS "u"`.replace(
+    const qe1 = `SELECT "u".* FROM "FromEntity1" AS "u"`.replace(
       /[ \n\t]+/ig,
       " ",
     )
@@ -46,7 +61,7 @@ Deno.test(
     const qs2 = db.select().from({ entity: FromEntity2, as: "u" });
     let q2 = qs2.getQuery() || "";
     q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
-    const qe2 = `SELECT * FROM "FromEntity2" AS "u"`.replace(
+    const qe2 = `SELECT "u".* FROM "FromEntity2" AS "u"`.replace(
       /[ \n\t]+/ig,
       " ",
     )
@@ -55,7 +70,7 @@ Deno.test(
     const qs3 = db.select().from({ entity: FromEntity4, as: "u" });
     let q3 = qs3.getQuery() || "";
     q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
-    const qe3 = `SELECT * FROM "FromEntity3" AS "u"`.replace(
+    const qe3 = `SELECT "u".* FROM "FromEntity3" AS "u"`.replace(
       /[ \n\t]+/ig,
       " ",
     )
@@ -64,7 +79,7 @@ Deno.test(
     const qs4 = db.select().from({ entity: FromEntity5, as: "u" });
     let q4 = qs4.getQuery() || "";
     q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
-    const qe4 = `SELECT * FROM "hello"."FromEntity5" AS "u"`.replace(
+    const qe4 = `SELECT "u".* FROM "hello"."FromEntity5" AS "u"`.replace(
       /[ \n\t]+/ig,
       " ",
     )
@@ -83,21 +98,6 @@ Deno.test(
     const queryExpected =
       `SELECT u."userName", u."firstName" FROM "User" AS "u"`
         .replace(/[ \n\t]+/ig, " ").trim();
-    assertEquals(query, queryExpected);
-  },
-);
-Deno.test(
-  testMessage.replace(/\{\}/ig, "select [select distinct *] query should work"),
-  () => {
-    const db: Connection = new Connection(con1);
-    const qs = db.selectDistinct()
-      .from({ entity: "User", as: "u" });
-    let query = qs.getQuery() || "";
-    query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-    const queryExpected = `SELECT DISTINCT * FROM "User" AS "u"`.replace(
-      /[ \n\t]+/ig,
-      " ",
-    ).trim();
     assertEquals(query, queryExpected);
   },
 );
