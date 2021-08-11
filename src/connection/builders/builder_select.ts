@@ -216,18 +216,12 @@ export class BuilderSelect extends BuilderBase {
             this.#clauseData[i],
           );
           if (entity instanceof Function) {
+            //const cols = this.getColumnAccesors(
           } else if (as) {
             sql += `, "${as}".*`;
           } else {
             const t = this.clearNames([tschema, tentity]);
-            if (entity instanceof Function) {
-              const cols = this.getColumnAccesors(
-                this.conn.options.name,
-                entity,
-              );
-            } else {
-              sql += `, ${t}.*`;
-            }
+            sql += `, ${t}.*`;
           }
         }
       }

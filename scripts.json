@@ -5,24 +5,26 @@
       "imap": "./tests/importmap.json",
       "tsconfig": "./tests/tsconfig.json",
       "unstable": true,
+      "unsafely-ignore-certificate-errors": "",
       "allow": {
         "net": true,
         "read": true,
         "env": "SPINOSAURUS_TEST_CONN_HOST,SPINOSAURUS_TEST_CONN_PORT,SPINOSAURUS_TEST_CONN_USERNAME,SPINOSAURUS_TEST_CONN_PASSWORD"
       },
-      "cmd": "deno test tests/all_test.ts"
+      "cmd": "deno test --unsafely-ignore-certificate-errors=localhost tests/all_test.ts"
     },
     "test:one": {
       "desc": "Run one test",
       "imap": "./tests/importmap.json",
       "tsconfig": "./tests/tsconfig.json",
       "unstable": true,
+      "unsafely-ignore-certificate-errors": "",
       "allow": {
         "net": true,
         "read": true,
         "env": "SPINOSAURUS_TEST_CONN_HOST,SPINOSAURUS_TEST_CONN_PORT,SPINOSAURUS_TEST_CONN_USERNAME,SPINOSAURUS_TEST_CONN_PASSWORD"
       },
-      "cmd": "deno test "
+      "cmd": "deno test --unsafely-ignore-certificate-errors=localhost "
     },
     "test:sql": {
       "desc": "Run sql test",
@@ -34,7 +36,7 @@
         "read": true,
         "env": "SPINOSAURUS_TEST_CONN_HOST,SPINOSAURUS_TEST_CONN_PORT,SPINOSAURUS_TEST_CONN_USERNAME,SPINOSAURUS_TEST_CONN_PASSWORD"
       },
-      "cmd": "deno test tests/query_test.ts"
+      "cmd": "deno test --unsafely-ignore-certificate-errors=localhost tests/query_test.ts"
     },
     "test:executor": {
       "desc": "Run executors test",
@@ -46,7 +48,7 @@
         "read": true,
         "env": "SPINOSAURUS_TEST_CONN_HOST,SPINOSAURUS_TEST_CONN_PORT,SPINOSAURUS_TEST_CONN_USERNAME,SPINOSAURUS_TEST_CONN_PASSWORD"
       },
-      "cmd": "deno test tests/executor_test.ts"
+      "cmd": "deno test --unsafely-ignore-certificate-errors=localhost tests/executor_test.ts"
     }
   }
 }
