@@ -75,11 +75,11 @@ export class BuilderBase {
   getColumnAccesors(
     connName: string,
     entity: Function,
-  ) {
+  ): Array<any> {
     const columns = linkMetadataToColumnAccesors({
       currentSquema: "",
       connName,
     }, entity);
-    return;
+    return columns;
   }
 }

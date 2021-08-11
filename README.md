@@ -162,6 +162,8 @@ deno run -qA https://code.velociraptor.run test:executor
 - [ ] configuration env and files flow
 - [ ] all alter testing
 - [ ] alter column (implement primary key and auto-increment)
-- [ ] generate columns from entity in select
-- [ ] filter columns entity on insert, update and delete
+- [ ] testing for generate columns from entity in select using options
+- [ ] filter columns entity on insert, update
+- [ ] adding primary key column in each delete
 - [ ] using entity test select
+- [ ] create OneToOne decorator

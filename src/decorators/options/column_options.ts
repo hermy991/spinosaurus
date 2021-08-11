@@ -21,17 +21,17 @@ export interface ColumnOptions {
    */
   nullable?: boolean;
   /**
-   * Indicates if column value is updated by "save" operation. If false, you'll be able to write this value only when you first time insert the object. Default value is true.
+   * Defines whether or not to hide this column by default when making queries. When set to false, the column data will not show with a standard query. By default column is select: true
    */
-  update?: boolean;
+  select?: boolean;
   /**
    * Indicates if column value is set the first time you insert the object. Default value is true.
    */
   insert?: boolean;
   /**
-   * Defines whether or not to hide this column by default when making queries. When set to false, the column data will not show with a standard query. By default column is select: true
+   * Indicates if column value is updated by "execute" operation. If false, you'll be able to write this value only when you first time insert the object. Default value is true.
    */
-  select?: boolean;
+  update?: boolean;
   /**
    * Adds database-level column's DEFAULT value.
    */

@@ -5,7 +5,6 @@ import { SpiRelationDefinition } from "../executors/types/spi_relation_definitio
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { BuilderInsert } from "./builder_insert.ts";
-import { _ } from "../../../deps.ts";
 
 export class BuilderCreate extends BuilderBase {
   #nameData:
@@ -88,7 +87,7 @@ export class BuilderCreate extends BuilderBase {
     if (!this.#nameData) {
       return ``;
     }
-    const nameData = _.cloneDeep(this.#nameData);
+    const nameData = self.structuredClone(this.#nameData);
     nameData.schema = this.clearNames(nameData.schema);
     return this.conn.createSchema(nameData);
   }

@@ -242,9 +242,13 @@ export function linkMetadataToColumnAccesors(
   const metadata = linkMetadata(req);
   const t = metadata.tables.find((x) => x.target === fun);
   if (t) {
-    t.columns.map((x: any) => console.log("column : ", x));
-    // const columnNames: string[] = t.columns.map((x: any) => x.name);
-    // return columnNames;
+    const columns = t.columns.map((x: any) => ({
+      select: true,
+      insert: true,
+      update: true,
+      ...x.mixeds,
+    }));
+    return columns;
   }
   return [];
 }

@@ -15,7 +15,7 @@ export class BuilderDelete extends BuilderBase {
     req: { entity: string; schema?: string } | [string, string?] | Function,
   ): void {
     if (Array.isArray(req)) {
-      let [entity, schema] = req;
+      const [entity, schema] = req;
       this.entityData = { entity, schema };
     } else {
       this.entityData = req;
@@ -59,9 +59,9 @@ export class BuilderDelete extends BuilderBase {
     if (!this.whereData.length) {
       return ``;
     }
-    let conditions: string[] = [];
+    const conditions: string[] = [];
     for (let i = 0; i < this.whereData.length; i++) {
-      let tempWhere = this.whereData[i];
+      const tempWhere = this.whereData[i];
       conditions.push(tempWhere);
     }
     return `WHERE ${conditions.join(" ")}`;

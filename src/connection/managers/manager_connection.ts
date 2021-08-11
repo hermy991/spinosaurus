@@ -176,12 +176,6 @@ export async function updateStore(
       }
 
       /**
-       * Class readonly
-       */
-      target.insert = !column.descriptor || column.descriptor?.writable == true;
-      target.update = !column.descriptor || column.descriptor?.writable == true;
-
-      /**
        * When auto increment is set and spitype is undefined we should set spitype to varchar or
        */
       if (

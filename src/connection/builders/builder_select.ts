@@ -202,25 +202,59 @@ export class BuilderSelect extends BuilderBase {
 
   getSelectQuery() {
     let sql = `SELECT${this.#distinct ? " DISTINCT" : ""} `;
-    if (!this.#selectData.length) {
-      sql += `"${this.#fromData?.as}".*`;
+    if (!this.#selectData.length && this.#fromData) {
+      const { schema, entity, as } = <any> this.#fromData;
+      if (entity instanceof Function) {
+        const { schema: tschema, entity: tentity } = this.getEntityData(
+          this.conn.options.name,
+          entity,
+          this.#fromData,
+        );
+        let t = this.clearNames([tschema, tentity]);
+        if (as) {
+          t = this.clearNames(as);
+        }
+        const cols = this.getColumnAccesors(this.conn.options.name, entity);
+        sql += cols.filter((x) => x.select).map((x) =>
+          `${t}."${x.name}" "${x.name}"`
+        )
+          .join(", ");
+      } else {
+        let t = this.clearNames([schema, entity]);
+        if (as) {
+          t = this.clearNames(as);
+        }
+        sql += `${t}.*`;
+      }
+
       if (this.#clauseData) {
         for (let i = 0; i < this.#clauseData.length; i++) {
-          const { select, entity, as } = this.#clauseData[i];
+          const { select, entity, schema, as } = <any> this.#clauseData[i];
           if (!select) {
             continue;
           }
-          const { schema: tschema, entity: tentity } = this.getEntityData(
-            this.conn.options.name,
-            entity,
-            this.#clauseData[i],
-          );
           if (entity instanceof Function) {
-            //const cols = this.getColumnAccesors(
-          } else if (as) {
-            sql += `, "${as}".*`;
+            const { schema: tschema, entity: tentity } = this.getEntityData(
+              this.conn.options.name,
+              entity,
+              this.#clauseData[i],
+            );
+            let t = this.clearNames([tschema, tentity]);
+            if (as) {
+              t = this.clearNames(as);
+            }
+            // column list
+            const cols = this.getColumnAccesors(this.conn.options.name, entity);
+            sql += ", " +
+              cols.filter((x) => x.select).map((x) =>
+                `${t}."${x.name}" "${t.replaceAll(`"`, "")}.${x.name}"`
+              )
+                .join(", ");
           } else {
-            const t = this.clearNames([tschema, tentity]);
+            let t = this.clearNames([schema, entity]);
+            if (as) {
+              t = this.clearNames(as);
+            }
             sql += `, ${t}.*`;
           }
         }

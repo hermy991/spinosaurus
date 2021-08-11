@@ -1,5 +1,5 @@
 export * as postgres from "https://deno.land/x/postgres@v0.11.3/mod.ts";
-export * as _ from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
+// export * as _ from "https://deno.land/x/lodash@4.17.15-es/lodash.js";
 export * as path from "https://deno.land/std@0.104.0/path/mod.ts";
 export * as fs from "https://deno.land/std@0.104.0/fs/mod.ts";
 export * as yaml from "https://deno.land/std@0.104.0/encoding/yaml.ts";

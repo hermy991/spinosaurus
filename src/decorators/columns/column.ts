@@ -29,7 +29,6 @@ export function Column(options: ColumnOptions = {}): any {
     };
     const mixeds: ColumnOptions = Object.assign(target, options);
     const column = {
-      // path,
       target,
       entity,
       descriptor,

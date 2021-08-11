@@ -1,5 +1,4 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import { _ } from "../../../deps.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderDrop extends BuilderBase {
@@ -39,7 +38,7 @@ export class BuilderDrop extends BuilderBase {
     if (!this.nameData) {
       return ``;
     }
-    const nameData = _.cloneDeep(this.nameData);
+    const nameData = self.structuredClone(this.nameData);
     nameData.schema = this.clearNames(nameData.schema);
     return this.conn.dropSchema(nameData);
   }
