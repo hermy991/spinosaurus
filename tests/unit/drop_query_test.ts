@@ -9,7 +9,7 @@ const testMessage = "  {}";
  * ENTITY DDL QUERY
  *********************/
 Deno.test(
-  testMessage.replace(/\{\}/ig, "drop [drop table] query should work"),
+  testMessage.replace(/\{\}/ig, "drop [drop table] query"),
   () => {
     const db: Connection = new Connection(con1);
     let query = db.drop({ entity: "User", schema: "public" }).getQuery() || "";
@@ -23,7 +23,7 @@ Deno.test(
   },
 );
 Deno.test(
-  testMessage.replace(/\{\}/ig, "drop [drop table colums] query should work"),
+  testMessage.replace(/\{\}/ig, "drop [drop table colums] query"),
   () => {
     const db: Connection = new Connection(con1);
     let query = db.drop({ entity: "User", schema: "public" })
@@ -36,7 +36,7 @@ Deno.test(
   },
 );
 Deno.test(
-  testMessage.replace(/\{\}/ig, "drop [drop schema] query should work"),
+  testMessage.replace(/\{\}/ig, "drop [drop schema] query"),
   () => {
     const db: Connection = new Connection(con1);
     let q1 = db.drop({ schema: "publicX" })

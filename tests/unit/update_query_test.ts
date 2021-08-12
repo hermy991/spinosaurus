@@ -13,7 +13,7 @@ const con1 = getTestConnection();
 const testMessage = "  {}";
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "update [update] query should work"),
+  testMessage.replace(/\{\}/ig, "update [update] query"),
   () => {
     const db: Connection = new Connection(con1);
     const qs = db.update(["User"])
@@ -27,7 +27,7 @@ Deno.test(
 );
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "update [update 'Entity'] query should work"),
+  testMessage.replace(/\{\}/ig, "update [update 'Entity'] query"),
   () => {
     const db: Connection = new Connection(con1);
     const qs1 = db.update(FromEntity1)
@@ -66,7 +66,7 @@ Deno.test(
   },
 );
 Deno.test(
-  testMessage.replace(/\{\}/ig, "update [update with where] query should work"),
+  testMessage.replace(/\{\}/ig, "update [update with where] query"),
   () => {
     const db: Connection = new Connection(con1);
     const qs = db.update(["User"])
@@ -83,7 +83,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "update [update with schema] query should work",
+    "update [update with schema] query",
   ),
   () => {
     const db: Connection = new Connection(con1);

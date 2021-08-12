@@ -13,7 +13,7 @@ const con1 = getTestConnection();
 const testMessage = "  {}";
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "insert [insert] query should work"),
+  testMessage.replace(/\{\}/ig, "insert [insert] query"),
   () => {
     const db: Connection = new Connection(con1);
     const qs = db.insert(["User"])
@@ -27,7 +27,7 @@ Deno.test(
 );
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "insert [insert 'Entity'] query should work"),
+  testMessage.replace(/\{\}/ig, "insert [insert 'Entity'] query"),
   () => {
     const db: Connection = new Connection(con1);
     const qs1 = db.insert(FromEntity1)
@@ -64,7 +64,7 @@ Deno.test(
   },
 );
 Deno.test(
-  testMessage.replace(/\{\}/ig, "insert [multiple insert] query should work"),
+  testMessage.replace(/\{\}/ig, "insert [multiple insert] query"),
   () => {
     const db: Connection = new Connection(con1);
     const qs = db.insert(["User"])
@@ -80,7 +80,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "insert [multiple insert with schema] query should work",
+    "insert [multiple insert with schema] query",
   ),
   () => {
     const db: Connection = new Connection(con1);

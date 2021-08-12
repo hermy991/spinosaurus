@@ -15,7 +15,7 @@ const testMessage = "  {}";
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [join] query should work",
+    "join [join] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -72,7 +72,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [join 'Entity'] query should work",
+    "join [join 'Entity'] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -144,7 +144,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [select join] query should work",
+    "join [select join] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -201,7 +201,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [select join 'Entity'] query should work",
+    "join [select join 'Entity'] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -273,7 +273,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [left join] query should work",
+    "join [left join] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -330,7 +330,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [left join 'Entity'] query should work",
+    "join [left join 'Entity'] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -402,7 +402,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [select left join] query should work",
+    "join [select left join] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -459,7 +459,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [select left join 'Entity'] query should work",
+    "join [select left join 'Entity'] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -531,7 +531,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [right join] query should work",
+    "join [right join] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -588,7 +588,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [right join 'Entity'] query should work",
+    "join [right join 'Entity'] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -660,7 +660,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [select right join] query should work",
+    "join [select right join] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -717,7 +717,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "join [select right join 'Entity'] query should work",
+    "join [select right join 'Entity'] query",
   ),
   () => {
     const db: Connection = new Connection(con1);

@@ -13,7 +13,7 @@ const con1 = getTestConnection();
 const testMessage = "  {}";
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "select [select *] query"),
+  testMessage.replace(/\{\}/ig, "function [now in create] query"),
   () => {
     const db: Connection = new Connection(con1);
     const qs1 = db.select().from({ entity: "User", as: "u" });

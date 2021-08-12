@@ -9,7 +9,7 @@ const testMessage = "  {}";
  * ENTITY DDL QUERY
  *********************/
 Deno.test(
-  testMessage.replace(/\{\}/ig, "create [create table] query should work"),
+  testMessage.replace(/\{\}/ig, "create [create table] query"),
   () => {
     const db: Connection = new Connection(con1);
     const qs = db.create({ entity: "User", schema: "public" })
@@ -24,7 +24,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "create [create table with data] query should work",
+    "create [create table with data] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -42,7 +42,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "create [create table with primary key] query should work",
+    "create [create table with primary key] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -60,7 +60,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "create [create table with auto-increment] query should work",
+    "create [create table with auto-increment] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -143,7 +143,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "create [create table with auto-increment and primary key] query should work",
+    "create [create table with auto-increment and primary key] query",
   ),
   () => {
     {
@@ -181,7 +181,7 @@ Deno.test(
   },
 );
 Deno.test(
-  testMessage.replace(/\{\}/ig, "create [create schema] query should work"),
+  testMessage.replace(/\{\}/ig, "create [create schema] query"),
   () => {
     const db: Connection = new Connection(con1);
     let q1 = db.create({ schema: "publicX" })

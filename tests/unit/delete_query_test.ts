@@ -13,7 +13,7 @@ const con1 = getTestConnection();
 const testMessage = "  {}";
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "delete [delete] query should work"),
+  testMessage.replace(/\{\}/ig, "delete [delete] query"),
   () => {
     const db: Connection = new Connection(con1);
     let query = db.delete(["User"])
@@ -26,7 +26,7 @@ Deno.test(
 );
 
 Deno.test(
-  testMessage.replace(/\{\}/ig, "delete [delete 'Entity'] query should work"),
+  testMessage.replace(/\{\}/ig, "delete [delete 'Entity'] query"),
   () => {
     const db: Connection = new Connection(con1);
     let q1 = db.delete(FromEntity1)
@@ -62,7 +62,7 @@ Deno.test(
   },
 );
 Deno.test(
-  testMessage.replace(/\{\}/ig, "delete [delete with where] query should work"),
+  testMessage.replace(/\{\}/ig, "delete [delete with where] query"),
   () => {
     const db: Connection = new Connection(con1);
     let query = db.delete(["User"])
@@ -79,7 +79,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "delete [delete with schema] query should work",
+    "delete [delete with schema] query",
   ),
   () => {
     const db: Connection = new Connection(con1);

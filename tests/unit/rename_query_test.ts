@@ -9,7 +9,7 @@ const testMessage = "  {}";
  * ENTITY DDL QUERY
  *********************/
 Deno.test(
-  testMessage.replace(/\{\}/ig, "rename [rename table] query should work"),
+  testMessage.replace(/\{\}/ig, "rename [rename table] query"),
   () => {
     const db: Connection = new Connection(con1);
     const qs = db.rename({ entity: "User", schema: "public" }, {
@@ -26,7 +26,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "rename [rename column table] query should work",
+    "rename [rename column table] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
@@ -43,7 +43,7 @@ Deno.test(
 Deno.test(
   testMessage.replace(
     /\{\}/ig,
-    "rename [rename table and column] query should work",
+    "rename [rename table and column] query",
   ),
   () => {
     const db: Connection = new Connection(con1);
