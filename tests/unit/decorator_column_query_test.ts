@@ -33,8 +33,8 @@ async function clearPlayground(
 
 const conOpts = getTestConnection();
 
-Deno.test("decorator column query", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+Deno.test("decorator [column] query", async () => {
+  const conOptsX = self.structuredClone(conOpts);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/Column*.ts`];
   let sql = await queryConnection(conOptsX);
@@ -48,8 +48,8 @@ Deno.test("decorator column query", async () => {
   assertEquals(sql, sqlSpected);
 });
 
-Deno.test("decorator column adding columns query", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+Deno.test("decorator [column adding columns] query", async () => {
+  const conOptsX = self.structuredClone(conOpts);
   const db = new Connection(conOptsX);
   const entity = "AddColumnTypes1";
   const schema = "decorator";
@@ -80,8 +80,8 @@ Deno.test("decorator column adding columns query", async () => {
   assertEquals(sql, sqlSpected);
 });
 
-Deno.test("decorator column modify columns query", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+Deno.test("decorator [column modify columns] query", async () => {
+  const conOptsX = self.structuredClone(conOpts);
   const entity = "ModColumnTypes1";
   const schema = "decorator";
   const db = new Connection(conOptsX);
@@ -133,8 +133,8 @@ Deno.test("decorator column modify columns query", async () => {
   assertEquals(sql, sqlSpected);
 });
 
-Deno.test("decorator column dropping columns query", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+Deno.test("decorator [column dropping columns] query", async () => {
+  const conOptsX = self.structuredClone(conOpts);
   const entity = "DroColumnTypes1";
   const schema = "decorator";
   const db = new Connection(conOptsX);

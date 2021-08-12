@@ -39,18 +39,18 @@ async function clearPlayground(
 const conOpts = getTestConnection();
 
 Deno.test("decorator [check] query", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+  const conOptsX = self.structuredClone(conOpts);
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/CheckEntity.ts`];
-  let sql = await queryConnection(conOptsX);
-  sql = (sql || "").replace(/[ \n\t]+/ig, " ").trim();
+  let s1 = await queryConnection(conOptsX);
+  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  const sqlSpected = `CREATE SCHEMA "decorator";
+  const se1 = `CREATE SCHEMA "decorator";
 CREATE TABLE "decorator"."CheckEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL );
 ALTER TABLE "decorator"."CheckEntity1" ADD CONSTRAINT "CHK_decorator_CheckEntity1_cdd96d3cc73d1dbdaffa03cc6cd7339b" CHECK (LENGTH("column2") > 0);
 ALTER TABLE "decorator"."CheckEntity1" ADD CONSTRAINT "CHK_CheckEntity1_column2_2" CHECK (LENGTH("column2") > 0)`
     .replaceAll(/[ \n\t]+/ig, " ");
-  assertEquals(sql, sqlSpected);
+  assertEquals(s1, se1);
 });

@@ -9,7 +9,7 @@ import * as path from "deno/path/mod.ts";
 const conOpts = getTestConnection();
 
 Deno.test("decorator entity should work", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+  const conOptsX = self.structuredClone(conOpts);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/Entity*.ts`];
   const conn = await createConnection(conOptsX);

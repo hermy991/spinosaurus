@@ -7,7 +7,7 @@ import * as path from "deno/path/mod.ts";
 const conOpts = getTestConnection();
 
 Deno.test("decorator column should work", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+  const conOptsX = self.structuredClone(conOpts);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/Column*.ts`];
   const conn = await createConnection(conOptsX);
@@ -142,7 +142,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
 });
 
 Deno.test("decorator column adding columns should work", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+  const conOptsX = self.structuredClone(conOpts);
   const entity = "AddColumnTypes1";
   const schema = "decorator";
   const db = new Connection(conOptsX);
@@ -286,7 +286,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
 });
 
 Deno.test("decorator column modify columns should work", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+  const conOptsX = self.structuredClone(conOpts);
   const entity = "ModColumnTypes1";
   const schema = "decorator";
   const db = new Connection(conOptsX);
@@ -453,7 +453,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
 });
 
 Deno.test("decorator column dropping columns should work", async () => {
-  const conOptsX = JSON.parse(JSON.stringify(conOpts));
+  const conOptsX = self.structuredClone(conOpts);
   const entity = "DroColumnTypes1";
   const schema = "decorator";
   const db = new Connection(conOptsX);
