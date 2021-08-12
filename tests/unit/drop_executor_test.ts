@@ -1,7 +1,6 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { Connection } from "spinosaurus/mod.ts";
 import { assert } from "deno/testing/asserts.ts";
-//import {Connection} from '../spinosaurus/mod.ts'
 
 const con1 = getTestConnection();
 Deno.test("drop [drop table] execute() function", async () => {

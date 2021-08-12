@@ -1,12 +1,6 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { between, Connection, like, notLike } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
-import {
-  FromEntity1,
-  FromEntity2,
-  FromEntity4,
-  FromEntity5,
-} from "./playground/decorators/FromEntity.ts";
 
 const con1 = getTestConnection();
 
@@ -55,7 +49,10 @@ Deno.test("select [select distinct *] query", () => {
   ).trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [select * from 'Entity'] query", () => {
+Deno.test("select [select * from 'Entity'] query", async () => {
+  const { FromEntity1, FromEntity2, FromEntity5 } = await import(
+    "./playground/decorators/FromEntity.ts"
+  );
   const db: Connection = new Connection(con1);
   const qs1 = db.select().from({ entity: FromEntity1, as: "u" });
   let q1 = qs1.getQuery() || "";

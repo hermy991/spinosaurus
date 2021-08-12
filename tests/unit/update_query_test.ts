@@ -1,12 +1,6 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { Connection } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
-import {
-  FromEntity1,
-  FromEntity2,
-  FromEntity4,
-  FromEntity5,
-} from "./playground/decorators/FromEntity.ts";
 
 const con1 = getTestConnection();
 
@@ -21,7 +15,10 @@ Deno.test("update [update] query", () => {
   assertEquals(query, queryExpected);
 });
 
-Deno.test("update [update 'Entity'] query", () => {
+Deno.test("update [update 'Entity'] query", async () => {
+  const { FromEntity1, FromEntity2, FromEntity4, FromEntity5 } = await import(
+    "./playground/decorators/FromEntity.ts"
+  );
   const db: Connection = new Connection(con1);
   const qs1 = db.update(FromEntity1)
     .set(["column1", "xx"], ["column2", "ss"]);

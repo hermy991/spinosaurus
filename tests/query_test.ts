@@ -10,6 +10,9 @@ import "./unit/update_query_test.ts";
 import "./unit/delete_query_test.ts";
 import "./unit/join_query_test.ts";
 
+/** FUNCTIONS */
+import "./unit/function_query_test.ts";
+
 /** DECORATORS **/
 import "./unit/decorator_column_query_test.ts";
 import "./unit/decorator_entity_query_test.ts";

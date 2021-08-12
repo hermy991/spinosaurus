@@ -1,12 +1,6 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { Connection } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
-import {
-  FromEntity1,
-  FromEntity2,
-  FromEntity4,
-  FromEntity5,
-} from "./playground/decorators/FromEntity.ts";
 
 const con1 = getTestConnection();
 
@@ -20,7 +14,10 @@ Deno.test("delete [delete] query", () => {
   assertEquals(query, queryExpected);
 });
 
-Deno.test("delete [delete 'Entity'] query", () => {
+Deno.test("delete [delete 'Entity'] query", async () => {
+  const { FromEntity1, FromEntity2, FromEntity4, FromEntity5 } = await import(
+    "./playground/decorators/FromEntity.ts"
+  );
   const db: Connection = new Connection(con1);
   let q1 = db.delete(FromEntity1)
     .getQuery() || "";

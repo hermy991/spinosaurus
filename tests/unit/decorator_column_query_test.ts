@@ -1,6 +1,5 @@
-import { fs } from "../../deps.ts";
 import { getTestConnection } from "./tool/tool.ts";
-import { assert, assertEquals } from "deno/testing/asserts.ts";
+import { assertEquals } from "deno/testing/asserts.ts";
 import { Connection, getMetadata, queryConnection } from "spinosaurus/mod.ts";
 import * as path from "deno/path/mod.ts";
 import * as luxon from "luxon/mod.ts";
