@@ -48,4 +48,12 @@ export interface ColumnOptions {
    * The scale for a decimal (exact numeric) column (applies only for decimal column), which represents the number of digits to the right of the decimal point and must not be greater than precision. Used in some column types.
    */
   scale?: number;
+  /**
+   * Indicates if the column will have individual unique key.
+   */
+  uniqueOne?: boolean;
+  /**
+   * Indicates if the column will add a column to a table unique key.
+   */
+  unique?: boolean;
 }

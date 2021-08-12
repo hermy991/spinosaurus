@@ -9,6 +9,10 @@ export * from "./src/decorators/columns/primary_column.ts";
 export * from "./src/decorators/columns/primary_generated_column.ts";
 export * from "./src/decorators/relations/many_to_one.ts";
 /**
+ * Functions
+ */
+export * from "./src/connection/sql/functions/_now.ts";
+/**
  * Operators
  */
 export * from "./src/language/operators/between.ts";

@@ -9,6 +9,7 @@ import { SpiColumnComment } from "./executors/types/spi_column_comment.ts";
 
 export interface IConnectionOperations {
   /* Internal Sql Operations*/
+  getSqlFunction(fun: Function): string;
   createSchema(scd: SpiCreateSchema): string;
   dropSchema(scd: SpiDropSchema): string;
   columnDefinition(scd: SpiColumnDefinition): string;

@@ -31,6 +31,12 @@ class ConnectionPostgres implements IConnectionOperations {
 
   constructor(public options: ConnectionPostgresOptions) {}
   /* Basic Connection Operations*/
+  getSqlFunction(fun: Function): string {
+    if (fun.name === "NOW") {
+      return `now()`;
+    }
+    return fun();
+  }
   createSchema = (sds: SpiCreateSchema): string => {
     /**
      * Create schema
@@ -66,7 +72,11 @@ class ConnectionPostgres implements IConnectionOperations {
     ) {
       defs.push("DEFAULT gen_random_uuid()::text");
     } else if (!scd.autoIncrement && "default" in scd) {
-      defs.push(`DEFAULT ${stringify(scd.default)}`);
+      if (scd.default instanceof Function) {
+        defs.push(`DEFAULT ${this.getSqlFunction(scd.default)}`);
+      } else {
+        defs.push(`DEFAULT ${stringify(scd.default)}`);
+      }
     }
 
     if (scd.primary) {
