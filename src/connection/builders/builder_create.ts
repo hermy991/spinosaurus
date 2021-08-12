@@ -166,13 +166,13 @@ export class BuilderCreate extends BuilderBase {
     for (let i = 0; i < this.#uniquesData.length; i++) {
       let sql = "";
 
-      this.#relationsData[i].name ||= this.generateName1({
+      this.#uniquesData[i].name ||= this.generateName1({
         prefix: "UQ",
         ...this.#nameData,
         sequence: i + 1,
       });
-      this.#relationsData[i].name = this.clearNames(
-        this.#relationsData[i].name,
+      this.#uniquesData[i].name = this.clearNames(
+        this.#uniquesData[i].name,
       );
       sql = this.conn.createUnique({
         entity: this.clearNames([schema, entity]),

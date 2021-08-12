@@ -54,11 +54,12 @@ export function linkMetadata(
     table.uniques = table.uniques || [];
     if (
       !table.uniques.some((x: any) =>
-        // x.target === check.target &&
         (x.mixeds.name || "") === (unique.mixeds.name || "") &&
-        x.mixeds.expression === unique.mixeds.expression
+        (x.mixeds.colunms || []).join(",") ===
+          (unique.mixeds.colunms || []).join(",")
       )
     ) {
+      unique.mixeds.columnNames = [];
       table.uniques.unshift(unique);
     }
   }

@@ -321,17 +321,20 @@ export async function generateScript(
       ) => x.mixeds);
       const uniques: Array<SpiUniqueDefinition> = (table.uniques || []).map((
         x: any,
-      ) => x.mixeds);
+      ) => { 
+        return {...x.mixeds, name: table.columns.filter((x: any) => x.)}; 
+      });
       const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
         x: any,
       ) => ({
         ...x.mixeds,
         ...{ columnName: x.mixeds.name },
       }));
+      console.log(uniques);
       const qs = conn.create({ entity: topts.name, schema: topts.schema })
+        .columns(...columns)
         .checks(...checks)
-        .uniques(...uniques)
-        .columns(...columns);
+        .uniques(...uniques);
       const query = qs.getQuery() || "";
       script.push(query);
     }
