@@ -165,18 +165,17 @@ export class BuilderCreate extends BuilderBase {
 
     for (let i = 0; i < this.#uniquesData.length; i++) {
       let sql = "";
-
-      this.#uniquesData[i].name ||= this.generateName1({
+      const unique = self.structuredClone(this.#uniquesData[i]);
+      unique.name ||= this.generateName1({
         prefix: "UQ",
         ...this.#nameData,
         sequence: i + 1,
       });
-      this.#uniquesData[i].name = this.clearNames(
-        this.#uniquesData[i].name,
-      );
+      unique.name = this.clearNames(unique.name);
+      unique.columns = unique.columns.map((x: string) => this.clearNames(x));
       sql = this.conn.createUnique({
         entity: this.clearNames([schema, entity]),
-        ...this.#uniquesData[i],
+        ...unique,
       });
       sqls.push(sql);
     }

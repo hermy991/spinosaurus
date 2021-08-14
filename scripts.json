@@ -5,7 +5,6 @@
       "imap": "./tests/importmap.json",
       "tsconfig": "./tests/tsconfig.json",
       "unstable": true,
-      "unsafely-ignore-certificate-errors": "",
       "allow": {
         "net": true,
         "read": true,
@@ -18,7 +17,6 @@
       "imap": "./tests/importmap.json",
       "tsconfig": "./tests/tsconfig.json",
       "unstable": true,
-      "unsafely-ignore-certificate-errors": "",
       "allow": {
         "net": true,
         "read": true,

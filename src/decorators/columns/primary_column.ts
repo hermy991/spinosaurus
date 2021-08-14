@@ -1,6 +1,7 @@
 import { ColumnOptions } from "../options/column_options.ts";
 import { PrimaryColumnOptions } from "../options/primary_column_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
+// deno-lint-ignore camelcase
 import { reflect_metadata } from "../../../deps.ts";
 
 export function PrimaryColumn(options: ColumnOptions = {}): any {

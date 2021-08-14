@@ -167,6 +167,6 @@ deno run -qA https://code.velociraptor.run test:executor
 - [ ] adding primary key column in each delete
 - [ ] using entity test select
 - [ ] create OneToOne decorator
-- [ ] implement unique and uniqueOne options in @Column
+- [x] implement unique and uniqueOne options in @Column
 - [ ] exclude unique and uniqueOne from @GeneratedPrimaryColumn and
   @PrimaryColumn

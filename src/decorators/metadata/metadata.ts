@@ -1,7 +1,7 @@
 import { MetadataStore } from "./metadata_store.ts";
 import { ColumnType } from "../options/column_type.ts";
 import { ConnectionOptionsAll } from "../../connection/connection_options.ts";
-import { createHash } from "deno/hash/mod.ts";
+// import { createHash } from "deno/hash/mod.ts";
 
 const DEFAULT_CONN_NAME = "default";
 

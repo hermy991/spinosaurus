@@ -229,7 +229,7 @@ export async function generateScript(
   for (let i = 0; i < localMetadata.schemas.length; i++) {
     const schema = localMetadata.schemas[i];
     let query = "";
-    if (destinyMetadata.schemas.some((x) => x.name === schema.name)) {
+    if (destinyMetadata.schemas.some((x: any) => x.name === schema.name)) {
       /*
      * CHANGING
      * TODO
@@ -254,7 +254,7 @@ export async function generateScript(
       continue;
     }
     const topts = table.mixeds;
-    const dtable = destinyMetadata.tables.find((x) =>
+    const dtable = destinyMetadata.tables.find((x: any) =>
       (x.mixeds.database || ddatabase) === (topts.database || ddatabase) &&
       (x.mixeds.schema || dschema) === (topts.schema || dschema) &&
       x.mixeds.name === topts.name
@@ -316,21 +316,39 @@ export async function generateScript(
       /**
        * New tables
        */
+      // Columns
+      const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
+        x: any,
+      ) => ({ ...x.mixeds, columnName: x.mixeds.name, ...x.property }));
+      // Checks constraints
       const checks: Array<SpiCheckDefinition> = (table.checks || []).map((
         x: any,
       ) => x.mixeds);
-      const uniques: Array<SpiUniqueDefinition> = (table.uniques || []).map((
-        x: any,
-      ) => { 
-        return {...x.mixeds, name: table.columns.filter((x: any) => x.)}; 
+      // Uniques constraints
+      const uniques = [];
+      uniques.push(
+        ...columns.filter((x) => (<any> x).uniqueOne).map((x) => ({
+          columns: [(<any> x).name],
+        })),
+      );
+      uniques.push({
+        columns: columns.filter((x) => (<any> x).unique).map((x) =>
+          (<any> x).name
+        ),
       });
-      const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
-        x: any,
-      ) => ({
-        ...x.mixeds,
-        ...{ columnName: x.mixeds.name },
-      }));
-      console.log(uniques);
+      for (let i = 0; i < table.uniques.length; i++) {
+        const unique = table.uniques[i].mixeds;
+        uniques.push({
+          name: unique.name,
+          columns: unique.columns.map((x: any) =>
+            (<any> (columns || []).find((y) => (<any> y).propertyKey === x))
+              .name
+          ),
+        });
+      }
+      /**
+       * Create entity
+       */
       const qs = conn.create({ entity: topts.name, schema: topts.schema })
         .columns(...columns)
         .checks(...checks)

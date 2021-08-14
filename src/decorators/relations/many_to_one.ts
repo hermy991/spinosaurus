@@ -6,7 +6,7 @@ import { reflect_metadata } from "../../../deps.ts";
 
 export function ManyToOne(
   relationOptions: RelationOptions,
-  columnOptions: ColumnOptions = {},
+  options: ColumnOptions = {},
 ): any {
   return (
     entityf: Object,
@@ -32,16 +32,18 @@ export function ManyToOne(
       name: propertyKey,
       spitype: getColumnType({ type: property.type }),
     };
-    const mixeds: ColumnOptions = Object.assign(target, columnOptions);
-    const relation = {
+    const mixeds: ColumnOptions = Object.assign(target, options, {
+      uniqueOne: true,
+    });
+    const column = {
       target,
       entity,
       descriptor,
       property,
-      relationOptions,
-      columnOptions,
+      relation: relationOptions,
+      options,
       mixeds,
     };
-    getTempMetadata().relations.push(relation);
+    getTempMetadata().columns.push(column);
   };
 }
