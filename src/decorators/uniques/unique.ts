@@ -9,7 +9,7 @@ export function Unique(options: UniqueOptions): any {
   return function (target: Function) {
     const mixeds = Object.assign(options);
 
-    getTempMetadata().uniques.push({
+    getTempMetadata().uniques.unshift({
       target,
       options,
       mixeds,

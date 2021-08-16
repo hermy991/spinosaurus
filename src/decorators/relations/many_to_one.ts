@@ -1,4 +1,5 @@
 import { ColumnOptions } from "../options/column_options.ts";
+import { AllColumnOptions } from "../options/all_column_options.ts";
 import { RelationOptions } from "../options/relation_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
@@ -32,7 +33,7 @@ export function ManyToOne(
       name: propertyKey,
       spitype: getColumnType({ type: property.type }),
     };
-    const mixeds: ColumnOptions = Object.assign(target, options, {
+    const mixeds: AllColumnOptions = Object.assign(target, options, {
       uniqueOne: true,
     });
     const column = {

@@ -1,6 +1,8 @@
 import { MetadataStore } from "./metadata_store.ts";
 import { ColumnType } from "../options/column_type.ts";
 import { ConnectionOptionsAll } from "../../connection/connection_options.ts";
+import { GeneratedColumnOptions } from "../options/generated_column_options.ts";
+import { ColumnOptions } from "../options/column_options.ts";
 // import { createHash } from "deno/hash/mod.ts";
 
 const DEFAULT_CONN_NAME = "default";
@@ -16,53 +18,10 @@ declare global {
   }
 }
 
-export function linkMetadata(
-  req: { currentSquema: string; connName: string },
-): MetadataStore {
-  const { currentSquema, connName } = req;
+export function linkMetadata(req: { connName: string }): MetadataStore {
+  const { connName } = req;
   const metadata = getMetadata(connName);
-  const { tables, checks, uniques, schemas, columns } = metadata;
-  /**
-   * Link checks constrains with tables
-   */
-  for (let i = 0; i < checks.length; i++) {
-    const check = checks[i];
-    const table = tables.find((x: any) => x.target === check.target);
-    if (!table) {
-      continue;
-    }
-    table.checks = table.checks || [];
-    if (
-      !table.checks.some((x: any) =>
-        // x.target === check.target &&
-        (x.mixeds.name || "") === (check.mixeds.name || "") &&
-        x.mixeds.expression === check.mixeds.expression
-      )
-    ) {
-      table.checks.unshift(check);
-    }
-  }
-  /**
-   * Link uniques constrains with tables
-   */
-  for (let i = 0; i < uniques.length; i++) {
-    const unique = uniques[i];
-    const table = tables.find((x: any) => x.target === unique.target);
-    if (!table) {
-      continue;
-    }
-    table.uniques = table.uniques || [];
-    if (
-      !table.uniques.some((x: any) =>
-        (x.mixeds.name || "") === (unique.mixeds.name || "") &&
-        (x.mixeds.colunms || []).join(",") ===
-          (unique.mixeds.colunms || []).join(",")
-      )
-    ) {
-      unique.mixeds.columnNames = [];
-      table.uniques.unshift(unique);
-    }
-  }
+  const { tables, relations, checks, uniques, schemas, columns } = metadata;
   /**
    * Find all schemas from entities
    */
@@ -77,7 +36,6 @@ export function linkMetadata(
   /**
    * Link columns with tables
    */
-  // console.log(" columns: ", columns);
   for (const column of columns) {
     const table = tables.find((x: any) => x.target === column.entity.target);
     if (
@@ -85,6 +43,157 @@ export function linkMetadata(
       !table.columns.some((x: any) => x.mixeds.name === column.mixeds.name)
     ) {
       table.columns.push(column);
+    }
+    const { target, property, options } = column;
+    const instance = new column.entity.target();
+    // Option Column Lenght
+    if (options.length) {
+      options.length = Number(options.length);
+    }
+    // Class Column Type
+    if (!(<any> column).relation) {
+      options.spitype = getColumnType({
+        type: property.type,
+        options,
+        value: instance[target.name || ""],
+      });
+    }
+    // Class Null Data
+    target.nullable = false;
+    // Class Default Data
+    if (instance[target.name || ""] != undefined) {
+      target.default = instance[target.name || ""];
+    }
+    // When auto increment is set and spitype is undefined we should set spitype to varchar or
+    if ((<GeneratedColumnOptions> options).autoIncrement && !options.spitype) {
+      const autoIncrement = (<GeneratedColumnOptions> options).autoIncrement;
+      if (autoIncrement === "increment" && !options.spitype) {
+        options.spitype = "integer";
+      } else if (autoIncrement === "uuid" && !options.spitype) {
+        options.spitype = "varchar";
+        options.length = 30;
+      }
+      options.nullable = options.nullable || false;
+    }
+    column.mixeds = <ColumnOptions> Object.assign(target, options);
+  }
+  /**
+   * Link checks constrains with tables
+   */
+  tables.forEach((x) => x.checks = x.checks || []);
+  for (let i = 0; i < checks.length; i++) {
+    const check = checks[i];
+    const table = tables.find((x: any) => x.target === check.target);
+    if (!table) {
+      continue;
+    }
+    if (
+      !table.checks.some((x: any) =>
+        x.target === check.target &&
+        (x.mixeds.name || "") === (check.mixeds.name || "") &&
+        x.mixeds.expression === check.mixeds.expression
+      )
+    ) {
+      table.checks.push(check);
+    }
+  }
+  /**
+   * Link uniques constrains with tables
+   */
+  tables.forEach((x) => x.uniques = x.uniques || []);
+  // Global uniques constraints
+  for (let i = tables.length - 1; i >= 0; i--) {
+    const table = tables[i];
+    const gcolumns = [];
+    for (let y = 0; y < table.columns.length; y++) {
+      const column = table.columns[y];
+      if (!column.mixeds.unique) {
+        continue;
+      }
+      gcolumns.push(column.property.propertyKey);
+    }
+    const gunique = {
+      target: table.target,
+      options: { columns: gcolumns },
+      mixeds: { columns: gcolumns },
+    };
+    if (gunique.mixeds.columns.length) {
+      uniques.unshift(gunique);
+    }
+  }
+  // Column uniques constraints
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    for (let y = table.columns.length - 1; y >= 0; y--) {
+      const column = table.columns[y];
+      if (!column.mixeds.uniqueOne) {
+        continue;
+      }
+      const cunique = {
+        target: table.target,
+        options: { columns: [column.property.propertyKey] },
+        mixeds: { columns: [column.property.propertyKey] },
+      };
+      if (cunique.mixeds.columns.length) {
+        uniques.unshift(cunique);
+      }
+    }
+  }
+  for (let i = 0; i < uniques.length; i++) {
+    const unique = uniques[i];
+    const table = tables.find((x: any) => x.target === unique.target);
+    if (!table) {
+      continue;
+    }
+    if (
+      !table.uniques.some((x: any) =>
+        x.target === unique.target &&
+        (x.mixeds.name || "") === (unique.mixeds.name || "") &&
+        (x.mixeds.columns || []).join(",") ===
+          (unique.mixeds.columns || []).join(",")
+      )
+    ) {
+      table.uniques.push(unique);
+    }
+  }
+  /**
+   * Link relation constrains with tables
+   */
+  tables.forEach((x) => x.relations = x.relations || []);
+  for (let i = 0; i < columns.length; i++) {
+    const column = columns[i];
+    if ((<any> column).relation) {
+      const relation = (<any> column).relation;
+      // Find foreing column
+      const fcolumn = columns.find((x) =>
+        x.entity.target === relation.entity &&
+        (<any> x.mixeds).primary === true
+      );
+      // Find foreing entity
+      const ftable = tables.find((x) => x.target === relation.entity);
+      if (!fcolumn || !ftable) {
+        continue;
+      }
+      // Update mixeds
+      column.mixeds.name ||= `${ftable.mixeds.name}_${fcolumn.mixeds.name}`;
+      column.mixeds.spitype ||= fcolumn.mixeds.spitype;
+      // Update tables and relations
+      const table = tables.find((x) => x.target === column.entity.target);
+      if (table) {
+        table.relations.push(column);
+        relations.push(column);
+      }
+    }
+  }
+  // Errors and Exceptions
+  for (const table of metadata.tables) {
+    if (!table.columns.length) {
+      throw (`Entity '${table.mixeds.name}' needs column(property) definition, use @Column, @PrimaryColumn, @PrimaryGeneratedColumn, etc.`);
+    }
+  }
+  for (const column of columns) {
+    if (!column.mixeds.spitype) {
+      throw (`Property '${column.property.propertyKey}' Data type cannot be determined, use { type: "?" } or define the data type in the property.`);
     }
   }
   return metadata;

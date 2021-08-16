@@ -9,7 +9,7 @@ export function Check(options: CheckOptions): any {
   return function (target: Function) {
     const mixeds = Object.assign(options);
 
-    getTempMetadata().checks.push({
+    getTempMetadata().checks.unshift({
       target,
       options,
       mixeds,

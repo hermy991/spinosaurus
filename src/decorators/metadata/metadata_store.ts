@@ -1,4 +1,4 @@
-import { ColumnOptions } from "../options/column_options.ts";
+import { AllColumnOptions } from "../options/all_column_options.ts";
 
 export class MetadataStore {
   readonly tables: any[] = [];
@@ -9,12 +9,12 @@ export class MetadataStore {
   readonly relations: any[] = [];
   readonly columns: Array<
     {
-      target: ColumnOptions;
+      target: AllColumnOptions;
       entity: any;
       descriptor: any;
       property: any;
-      options: ColumnOptions;
-      mixeds: ColumnOptions;
+      options: AllColumnOptions;
+      mixeds: AllColumnOptions;
     }
   > = [];
 }

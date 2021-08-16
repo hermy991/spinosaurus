@@ -1,14 +1,14 @@
 import { fs } from "../../../deps.ts";
 import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
 import { SpiCheckDefinition } from "../executors/types/spi_check_definition.ts";
-import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts";
+// import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts";
 import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
 import { ConnectionOptionsAll } from "../connection_options.ts";
 import { ConnectionPostgresOptions } from "../drivers/postgres/connection_postgres_options.ts";
 import { Connection } from "../connection.ts";
 import { EntityOptions } from "../../decorators/options/entity_options.ts";
 import { ColumnOptions } from "../../decorators/options/column_options.ts";
-import { PrimaryColumnOptions } from "../../decorators/options/primary_column_options.ts";
+import { AllColumnOptions } from "../../decorators/options/all_column_options.ts";
 import { GeneratedColumnOptions } from "../../decorators/options/generated_column_options.ts";
 import {
   clearMetadata,
@@ -121,81 +121,7 @@ export async function updateStore(
     /**
      * Link all object from entity
      */
-    const currentSquema = await conn.getCurrentSchema();
-    const metadata = linkMetadata({ currentSquema, connName });
-    /**
-     * Mixed Entity
-     */
-    for (const table of metadata.tables) {
-      const options: EntityOptions = table.options;
-      let mixeds = { name: table.target.name };
-      mixeds = Object.assign(mixeds, options);
-      table.mixeds = mixeds;
-    }
-    /**
-     * Mixed Column
-     */
-    for (const column of metadata.columns) {
-      const target = column.target;
-      const instance = new column.entity.target();
-      const options: PrimaryColumnOptions | GeneratedColumnOptions =
-        column.options;
-      const property = column.property;
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        instance,
-        target.name || "",
-      );
-      column.descriptor = propertyDescriptor;
-
-      /**
-       * Option Column Lenght
-       */
-      if (options.length) {
-        options.length = Number(options.length);
-      }
-
-      /**
-       * Class Column Type
-       */
-      options.spitype = getColumnType({
-        type: property.type,
-        options,
-        value: instance[target.name || ""],
-      });
-
-      /**
-        * Class Null Data
-        */
-      target.nullable = false;
-
-      /**
-        * Class Default Data
-        */
-      if (instance[target.name || ""] != undefined) {
-        target.default = instance[target.name || ""];
-      }
-
-      /**
-       * When auto increment is set and spitype is undefined we should set spitype to varchar or
-       */
-      if (
-        (<GeneratedColumnOptions> options).autoIncrement && !options.spitype
-      ) {
-        const autoIncrement = (<GeneratedColumnOptions> options).autoIncrement;
-        if (autoIncrement === "increment" && !options.spitype) {
-          options.spitype = "integer";
-        } else if (autoIncrement === "uuid" && !options.spitype) {
-          options.spitype = "varchar";
-          options.length = 30;
-        }
-        options.nullable = options.nullable || false;
-      }
-
-      column.mixeds = <ColumnOptions> Object.assign(target, options);
-      if (!column.mixeds.spitype) {
-        throw (`Property '${property.propertyKey}' Data type cannot be determined, use { type: "?" } or define the data type in the property.`);
-      }
-    }
+    const metadata = linkMetadata({ connName });
   }
   const metadata = getMetadata(connName);
   for (const table of metadata.tables) {
@@ -320,28 +246,20 @@ export async function generateScript(
       const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
         x: any,
       ) => ({ ...x.mixeds, columnName: x.mixeds.name, ...x.property }));
-      // Checks constraints
+      /**
+       * Checks constraints
+       */
       const checks: Array<SpiCheckDefinition> = (table.checks || []).map((
         x: any,
       ) => x.mixeds);
-      // Uniques constraints
       const uniques = [];
-      uniques.push(
-        ...columns.filter((x) => (<any> x).uniqueOne).map((x) => ({
-          columns: [(<any> x).name],
-        })),
-      );
-      uniques.push({
-        columns: columns.filter((x) => (<any> x).unique).map((x) =>
-          (<any> x).name
-        ),
-      });
+      // Defined uniques constraints
       for (let i = 0; i < table.uniques.length; i++) {
         const unique = table.uniques[i].mixeds;
         uniques.push({
           name: unique.name,
           columns: unique.columns.map((x: any) =>
-            (<any> (columns || []).find((y) => (<any> y).propertyKey === x))
+            (<any> (columns || []).find((c) => (<any> c).propertyKey === x))
               .name
           ),
         });
@@ -357,5 +275,21 @@ export async function generateScript(
       script.push(query);
     }
   }
+  /**
+   * Relations
+   */
+  for (let i = 0; i < localMetadata.tables.length; i++) {
+    const table = localMetadata.tables[i];
+    const qa = conn.alter({
+      entity: table.mixeds.name,
+      schema: table.mixeds.schema,
+    });
+    if (table.relations.length) {
+      qa.relations();
+      const query = qa.getQuery() || "";
+      script.push(query);
+    }
+  }
+
   return script;
 }

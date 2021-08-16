@@ -3,7 +3,7 @@ import { _NOW, Connection } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 
 const con1 = getTestConnection();
-Deno.test("function [anonim function] query", () => {
+Deno.test("function [anonymous function] query", () => {
   const db: Connection = new Connection(con1);
   const qs1 = db.create({ entity: "User" }).columns({
     columnName: "column1",

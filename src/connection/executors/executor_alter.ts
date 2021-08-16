@@ -1,5 +1,6 @@
 import { SpiColumnAdjust } from "./types/spi_column_adjust.ts";
 import { SpiColumnDefinition } from "./types/spi_column_definition.ts";
+import { SpiRelationDefinition } from "./types/spi_relation_definition.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderAlter } from "../builders/builder_alter.ts";
 
@@ -47,6 +48,20 @@ export class ExecutorAlter {
   //   this.cb.addColumn(data);
   //   return this;
   // }
+
+  relations(
+    ...relations: Array<[string, SpiRelationDefinition] | SpiRelationDefinition>
+  ): ExecutorAlter {
+    this.ab.relations(...relations);
+    return this;
+  }
+
+  addRelation(
+    relation: [string, SpiRelationDefinition] | SpiRelationDefinition,
+  ): ExecutorAlter {
+    this.ab.addRelation(relation);
+    return this;
+  }
 
   getQuery(): string {
     const query = this.ab.getQuery();
