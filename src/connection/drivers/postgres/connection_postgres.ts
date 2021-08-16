@@ -37,11 +37,11 @@ class ConnectionPostgres implements IConnectionOperations {
     }
     return fun();
   }
-  createSchema = (sds: SpiCreateSchema): string => {
+  createSchema = (scs: SpiCreateSchema): string => {
     /**
      * Create schema
      */
-    const { schema, check } = sds;
+    const { schema, check } = scs;
     const sql = `CREATE SCHEMA ${check ? "IF NOT EXISTS " : ""}${schema}`;
     return sql;
   };
@@ -90,50 +90,64 @@ class ConnectionPostgres implements IConnectionOperations {
     return defs.join(" ");
   };
 
-  createCheck = (sds: SpiCheckDefinition & { entity: string }): string => {
+  createCheck = (scd: SpiCheckDefinition & { entity: string }): string => {
     /**
      * Creating Check
      */
-    const { entity, name, expression } = sds;
+    const { entity, name, expression } = scd;
     const sql =
       `ALTER TABLE ${entity} ADD CONSTRAINT ${name} CHECK (${expression})`;
     return sql;
   };
 
-  createUnique = (sds: SpiUniqueDefinition & { entity: string }): string => {
+  createUnique = (sud: SpiUniqueDefinition & { entity: string }): string => {
     /**
      * Creating Unique
      */
-    const { entity, name, columns } = sds;
+    const { entity, name, columns } = sud;
     const sql = `ALTER TABLE ${entity} ADD CONSTRAINT ${name} UNIQUE (${
       columns.join(", ")
     })`;
     return sql;
   };
 
-  createRelation = (srd: SpiRelationDefinition): string => {
+  createRelation = (
+    srd: SpiRelationDefinition & { schema?: string; entity: string },
+  ): string => {
     /**
-     * Creating Check
+     * Creating Relation
      */
     let {
       entity,
+      schema,
       name,
       onDelete,
       onUpdate,
       columns,
       parentEntity,
+      parentSchema,
       parentColumns,
     } = srd;
     parentColumns = (parentColumns || []).length ? parentColumns : columns;
-    const sql = (`ALTER TABLE ${entity} ` +
+    const sql = (`ALTER TABLE ${[schema, entity].filter((x) => x).join(".")} ` +
       `ADD CONSTRAINT ${name} ` +
       `FOREIGN KEY (${columns.join(", ")}) ` +
-      `REFERENCES ${parentEntity} (${(parentColumns || []).join(", ")}) ` +
+      `REFERENCES ${[parentSchema, parentEntity].filter((x) => x).join(".")} (${
+        (parentColumns || []).join(", ")
+      }) ` +
       `${onDelete ? "ON DELETE " + onDelete.toUpperCase() + " " : ""}` +
       `${onUpdate ? "ON UPDATE " + onUpdate.toUpperCase() + " " : ""}`).trim();
     return sql;
   };
 
+  dropConstraint = (sdr: { entity: string; name: string }): string => {
+    /**
+     * Creating Unique
+     */
+    const { entity, name } = sdr;
+    const sql = `ALTER TABLE ${entity} DROP CONSTRAINT ${name}`;
+    return sql;
+  };
   columnAlter = (
     from: { schema?: string; entity: string; columnName: string },
     changes: SpiColumnAdjust | SpiColumnDefinition,
@@ -382,6 +396,44 @@ WHERE ( x.type = '${req.type || ""}' OR '${req.type || ""}' = '') -- type filter
     }
     return res;
   }
+
+  getConstraints = async (
+    sdac: {
+      entity: string;
+      schema?: string;
+      types: Array<"p" | "u" | "c" | "f">;
+    },
+  ): Promise<
+    Array<{
+      oid: number;
+      table_schema: string;
+      table_name: string;
+      constraint_name: string;
+      constraint_type: string;
+    }>
+  > => {
+    const { entity, schema, types } = sdac;
+    const query =
+      `SELECT con.oid, nsp.nspname table_schema, rel.relname table_name, con.conname constraint_name, con.contype constraint_type 
+FROM pg_catalog.pg_constraint con
+INNER JOIN pg_catalog.pg_class rel ON rel.oid = con.conrelid
+		INNER JOIN pg_catalog.pg_namespace nsp ON nsp.oid = connamespace
+WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
+	AND contype IN (${types.map((x) => `'${x}'`).join(",")})
+	AND nsp.nspname = CASE WHEN '${schema}' = '' THEN CURRENT_SCHEMA() ELSE '${schema}' END 
+	AND rel.relname = '${entity}'`;
+    const pgr = await this.execute(query);
+    const rows: Array<
+      {
+        oid: number;
+        table_schema: string;
+        table_name: string;
+        constraint_name: string;
+        constraint_type: string;
+      }
+    > = pgr.rows || [];
+    return rows;
+  };
 
   getCurrentDatabaseLocal(): string {
     return this.#currentDatabase || "";

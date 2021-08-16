@@ -1,5 +1,6 @@
 /** DDL **/
 import "./unit/create_query_test.ts";
+import "./unit/alter_query_test.ts";
 import "./unit/drop_query_test.ts";
 import "./unit/rename_query_test.ts";
 

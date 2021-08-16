@@ -4,18 +4,21 @@ import { SpiDropSchema } from "./executors/types/spi_drop_schema.ts";
 import { SpiColumnDefinition } from "./executors/types/spi_column_definition.ts";
 import { SpiCheckDefinition } from "./executors/types/spi_check_definition.ts";
 import { SpiUniqueDefinition } from "./executors/types/spi_unique_definition.ts";
+import { SpiRelationDefinition } from "./executors/types/spi_relation_definition.ts";
 import { SpiColumnAdjust } from "./executors/types/spi_column_adjust.ts";
 import { SpiColumnComment } from "./executors/types/spi_column_comment.ts";
 
 export interface IConnectionOperations {
   /* Internal Sql Operations*/
   getSqlFunction(fun: Function): string;
-  createSchema(scd: SpiCreateSchema): string;
-  dropSchema(scd: SpiDropSchema): string;
+  createSchema(scs: SpiCreateSchema): string;
+  dropSchema(sds: SpiDropSchema): string;
   columnDefinition(scd: SpiColumnDefinition): string;
-  columnComment(scd: SpiColumnComment): string;
-  createCheck(sds: SpiCheckDefinition & { entity: string }): string;
-  createUnique(sds: SpiUniqueDefinition & { entity: string }): string;
+  columnComment(scc: SpiColumnComment): string;
+  createCheck(scd: SpiCheckDefinition & { entity: string }): string;
+  createUnique(sud: SpiUniqueDefinition & { entity: string }): string;
+  createRelation(srd: SpiRelationDefinition): string;
+  dropConstraint(sdr: { entity: string; name: string }): string;
   columnAlter(
     from: { schema?: string; entity: string; columnName: string },
     changes: SpiColumnAdjust,
@@ -44,6 +47,23 @@ export interface IConnectionOperations {
       dbdata?: any;
       type?: string;
     }
+  >;
+  getConstraints(
+    sdac: {
+      entity: string;
+      schema?: string;
+      types: Array<"p" | "u" | "c" | "f">;
+    },
+  ): Promise<
+    Array<
+      {
+        oid: number;
+        table_schema: string;
+        table_name: string;
+        constraint_name: string;
+        constraint_type: string;
+      }
+    >
   >;
   getCurrentDatabaseLocal(): string;
   getCurrentDatabase(): Promise<string>;

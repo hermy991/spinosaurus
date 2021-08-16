@@ -102,28 +102,52 @@ export class BuilderAlter extends BuilderBase {
       return ``;
     }
     const sqls: string[] = [];
-    const { entity, schema } = this.#nameData;
+    let { entity, schema } = this.#nameData;
     for (let i = 0; i < this.#relationsData.length; i++) {
-      let constraintName = Array.isArray(this.#relationsData[i])
-        ? (<any> this.#relationsData[i])[0]
-        : undefined;
-      const options = Array.isArray(this.#relationsData[i])
-        ? (<any> this.#relationsData[i])[1]
-        : <SpiRelationDefinition> this.#relationsData[i];
       let sql = "";
-      constraintName ||= this.generateName1({
+      let constraintName = Array.isArray(this.#relationsData[i])
+        ? (<[string, any]> this.#relationsData[i])[0]
+        : undefined;
+      const rd = Array.isArray(this.#relationsData[i])
+        ? (<[string, any]> this.#relationsData[i])[1]
+        : this.#relationsData[i];
+      let { name, columns, parentSchema, parentEntity, parentColumns } = rd;
+      name ||= constraintName;
+      name ||= this.generateName1({
         prefix: "FK",
-        ...options,
-        name: `${options.entity}_${options.columns.join("_")}`,
+        schema,
+        entity,
+        name: parentEntity,
         sequence: i + 1,
       });
       if (constraintName) {
         // Dropping constraints
         constraintName = this.clearNames(constraintName);
+        sql = this.conn.dropConstraint({
+          entity: this.clearNames([schema, entity]),
+          name: constraintName,
+        });
+        sqls.push(sql);
+      }
+      schema = this.clearNames(schema);
+      entity = this.clearNames(entity);
+      name = this.clearNames(name);
+      parentSchema = this.clearNames(parentSchema);
+      parentEntity = this.clearNames(parentEntity);
+      columns = columns.map((x: string) => this.clearNames(x));
+      if (!parentColumns?.length) {
+        parentColumns = self.structuredClone(columns);
+      } else {
+        parentColumns = parentColumns.map((x: string) => this.clearNames(x));
       }
       sql = this.conn.createRelation({
-        ...options,
-        entity: this.clearNames([schema, entity]),
+        schema,
+        entity,
+        name,
+        columns,
+        parentSchema,
+        parentEntity,
+        parentColumns,
       });
       sqls.push(sql);
     }

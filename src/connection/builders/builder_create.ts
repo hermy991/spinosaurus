@@ -187,26 +187,42 @@ export class BuilderCreate extends BuilderBase {
       return ``;
     }
     const sqls: string[] = [];
-    const schema = this.#nameData?.schema;
-    let entity = undefined;
+    let schema = this.#nameData.schema;
+    let entity = "";
     if ("entity" in this.#nameData) {
       entity = this.#nameData.entity;
     }
 
     for (let i = 0; i < this.#relationsData.length; i++) {
       let sql = "";
-      this.#relationsData[i].name ||= this.generateName1({
+      let { name, columns, parentSchema, parentEntity, parentColumns } =
+        this.#relationsData[i];
+      name ||= this.generateName1({
         prefix: "FK",
-        ...this.#nameData,
-        name: "AnotherEntity_AnotherEntityColumn",
+        schema,
+        entity,
+        name: parentEntity,
         sequence: i + 1,
       });
-      this.#relationsData[i].name = this.clearNames(
-        this.#relationsData[i].name,
-      );
+      schema = this.clearNames(schema);
+      entity = this.clearNames(entity);
+      name = this.clearNames(name);
+      parentSchema = this.clearNames(parentSchema);
+      parentEntity = this.clearNames(parentEntity);
+      columns = columns.map((x) => this.clearNames(x));
+      if (!parentColumns?.length) {
+        parentColumns = self.structuredClone(columns);
+      } else {
+        parentColumns = parentColumns.map((x) => this.clearNames(x));
+      }
       sql = this.conn.createRelation({
-        ...this.#relationsData[i],
-        entity: this.clearNames([schema, entity]),
+        schema,
+        entity,
+        name,
+        columns,
+        parentSchema,
+        parentEntity,
+        parentColumns,
       });
       sqls.push(sql);
     }
@@ -230,22 +246,25 @@ export class BuilderCreate extends BuilderBase {
     if (!this.#nameData) {
       return "";
     }
-    if (!("entity" in this.#nameData)) {
+    if ("schema" in this.#nameData && !("entity" in this.#nameData)) {
       return `${this.getCreateSchemaQuery()}`;
     }
-    let query = `${this.getCreateTableQuery()}\n${this.getColumnsQuery()}`;
+    const querys = [];
+    if (this.#columnsData.length) {
+      querys.push(this.getCreateTableQuery(), this.getColumnsQuery());
+    }
     if (this.#checkData.length) {
-      query += `;\n${this.getChecksQuery()}`;
+      querys.push(this.getChecksQuery());
     }
     if (this.#uniquesData.length) {
-      query += `;\n${this.getUniquesQuery()}`;
+      querys.push(this.getUniquesQuery());
     }
     if (this.#relationsData.length) {
-      query += `;\n${this.getRelationsQuery()}`;
+      querys.push(this.getRelationsQuery());
     }
     if (this.#valuesData.length) {
-      query += `;\n${this.getInsertsQuery()}`;
+      querys.push(this.getInsertsQuery());
     }
-    return query;
+    return querys.join(";\n");
   }
 }
