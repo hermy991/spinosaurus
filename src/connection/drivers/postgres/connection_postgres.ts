@@ -7,7 +7,7 @@ import { SpiAllColumnDefinition } from "../../executors/types/spi_all_column_def
 import { SpiColumnDefinition } from "../../executors/types/spi_column_definition.ts";
 import { SpiCheckDefinition } from "../../executors/types/spi_check_definition.ts";
 import { SpiUniqueDefinition } from "../../executors/types/spi_unique_definition.ts";
-import { SpiRelationDefinition } from "../../executors/types/spi_relation_definition.ts";
+import { SpiRelationNoEntityDefinition } from "../../executors/types/spi_relation_definition.ts";
 import { SpiColumnAdjust } from "../../executors/types/spi_column_adjust.ts";
 import { SpiColumnComment } from "../../executors/types/spi_column_comment.ts";
 import { initConnection } from "./connection_postgres_pool.ts";
@@ -112,7 +112,7 @@ class ConnectionPostgres implements IConnectionOperations {
   };
 
   createRelation = (
-    srd: SpiRelationDefinition & { schema?: string; entity: string },
+    srd: SpiRelationNoEntityDefinition & { schema?: string; entity: string },
   ): string => {
     /**
      * Creating Relation

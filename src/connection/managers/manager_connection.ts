@@ -1,18 +1,12 @@
 import { fs } from "../../../deps.ts";
 import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
 import { SpiCheckDefinition } from "../executors/types/spi_check_definition.ts";
-// import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts";
 import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
 import { ConnectionOptionsAll } from "../connection_options.ts";
 import { ConnectionPostgresOptions } from "../drivers/postgres/connection_postgres_options.ts";
 import { Connection } from "../connection.ts";
-import { EntityOptions } from "../../decorators/options/entity_options.ts";
-import { ColumnOptions } from "../../decorators/options/column_options.ts";
-import { AllColumnOptions } from "../../decorators/options/all_column_options.ts";
-import { GeneratedColumnOptions } from "../../decorators/options/generated_column_options.ts";
 import {
   clearMetadata,
-  getColumnType,
   getMetadata,
   linkMetadata,
 } from "../../decorators/metadata/metadata.ts";
@@ -285,7 +279,15 @@ export async function generateScript(
       schema: table.mixeds.schema,
     });
     if (table.relations.length) {
-      qa.relations();
+      const relations = table.relations.map((x: any) => ({
+        name: x.relation.name,
+        columns: [x.options.name].filter((x) => x),
+        parentEntity: x.relation.entity,
+        parentColumns: x.relation.columns && x.relation.columns.length
+          ? x.relation.columns
+          : undefined,
+      }));
+      qa.relations(...relations);
       const query = qa.getQuery() || "";
       script.push(query);
     }

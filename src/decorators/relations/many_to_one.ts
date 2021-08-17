@@ -33,9 +33,7 @@ export function ManyToOne(
       name: propertyKey,
       spitype: getColumnType({ type: property.type }),
     };
-    const mixeds: AllColumnOptions = Object.assign(target, options, {
-      uniqueOne: true,
-    });
+    const mixeds: AllColumnOptions = Object.assign(target, options);
     const column = {
       target,
       entity,

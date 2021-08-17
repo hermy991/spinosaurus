@@ -62,10 +62,7 @@ export class BuilderBase {
     let tentity = clauseData.entity;
     if (entity instanceof Function) {
       const clauseData = {
-        ...linkMetadataToFromData({
-          currentSquema: "",
-          connName,
-        }, <Function> entity),
+        ...linkMetadataToFromData({ connName, entity: <Function> entity }),
       };
       tschema = clauseData.schema;
       tentity = clauseData.entity;

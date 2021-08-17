@@ -32,17 +32,17 @@ export class ManyToOneEntity2 {
   column2?: string;
 
   @ManyToOne({})
-  column3!: ManyToOneEntity3;
+  entity3!: ManyToOneEntity3;
 
   @ManyToOne({}, { nullable: true })
-  column4?: ManyToOneEntity3;
+  entity4?: ManyToOneEntity3;
 
   @ManyToOne({}, { name: "column11" })
-  column5!: ManyToOneEntity3;
+  entity5!: ManyToOneEntity3;
 
   @ManyToOne({ name: "FK_ManyToOneEntity2_primary_ID" })
-  column6?: ManyToOneEntity3;
+  entity6?: ManyToOneEntity3;
 
   @ManyToOne({ entity: ManyToOneEntity1 })
-  column7?: ManyToOneEntity3;
+  entity7?: ManyToOneEntity3;
 }

@@ -332,11 +332,10 @@ export function clearTempMetadata(
 }
 
 export function linkMetadataToFromData(
-  req: { currentSquema: string; connName: string },
-  fun: Function,
+  req: { connName: string; entity: Function },
 ): any {
   const metadata = linkMetadata(req);
-  const t = metadata.tables.find((x) => x.target === fun);
+  const t = metadata.tables.find((x) => x.target === req.entity);
   if (t) {
     return {
       entity: t.mixeds.name,

@@ -3,9 +3,15 @@ import { OnUpdateType } from "../../../decorators/options/on_update_type.ts";
 /**
  * Describes all relation's options.
  */
-export type SpiRelationDefinition = {
-  // entity: string;
-  // schema?: string;
+export type SpiRelationEntityDefinition = {
+  name?: string;
+  onDelete?: OnDeleteType;
+  onUpdate?: OnUpdateType;
+  columns: Array<string>;
+  parentEntity: Function;
+  parentColumns?: Array<string>;
+};
+export type SpiRelationNoEntityDefinition = {
   name?: string;
   onDelete?: OnDeleteType;
   onUpdate?: OnUpdateType;
@@ -14,3 +20,6 @@ export type SpiRelationDefinition = {
   parentEntity: string;
   parentColumns?: Array<string>;
 };
+export type SpiRelationDefinition =
+  | SpiRelationEntityDefinition
+  | SpiRelationNoEntityDefinition;

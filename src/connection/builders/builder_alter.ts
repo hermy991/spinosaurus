@@ -3,6 +3,10 @@ import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts
 import { SpiRelationDefinition } from "../executors/types/spi_relation_definition.ts";
 import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
 import { ConnectionAll } from "../connection_type.ts";
+import {
+  linkMetadataToColumnAccesors,
+  linkMetadataToFromData,
+} from "../../decorators/metadata/metadata.ts";
 
 export class BuilderAlter extends BuilderBase {
   #nameData: { entity: string; schema?: string } | undefined = undefined;
@@ -111,7 +115,30 @@ export class BuilderAlter extends BuilderBase {
       const rd = Array.isArray(this.#relationsData[i])
         ? (<[string, any]> this.#relationsData[i])[1]
         : this.#relationsData[i];
+
       let { name, columns, parentSchema, parentEntity, parentColumns } = rd;
+      if (parentColumns) {
+        parentColumns = parentColumns.filter((x: any) => x);
+      }
+      if (parentEntity instanceof Function) {
+        const r = linkMetadataToFromData({
+          connName: (<any> this.conn.options).name,
+          entity: parentEntity,
+        });
+        // console.log("r: ", r);
+        // console.log("(<any> this.conn): ", <any> this.conn);
+        // console.log(`relations[${i}]: `, this.#relationsData[i]);
+        if (!parentColumns?.length) {
+          parentColumns = linkMetadataToColumnAccesors({
+            currentSquema: "",
+            connName: (<any> this.conn).name,
+          }, parentEntity)
+            .filter((x: any) => x.primary)
+            .map((x: any) => x.name);
+        }
+        parentSchema = r.schema;
+        parentEntity = r.entity;
+      }
       name ||= constraintName;
       name ||= this.generateName1({
         prefix: "FK",

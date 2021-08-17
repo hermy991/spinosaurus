@@ -4,6 +4,7 @@ import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts
 import { SpiRelationDefinition } from "../executors/types/spi_relation_definition.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderBase } from "./base/builder_base.ts";
+import { BuilderAlter } from "./builder_alter.ts";
 import { BuilderInsert } from "./builder_insert.ts";
 
 export class BuilderCreate extends BuilderBase {
@@ -186,47 +187,10 @@ export class BuilderCreate extends BuilderBase {
     if (!this.#relationsData.length || !this.#nameData) {
       return ``;
     }
-    const sqls: string[] = [];
-    let schema = this.#nameData.schema;
-    let entity = "";
-    if ("entity" in this.#nameData) {
-      entity = this.#nameData.entity;
-    }
-
-    for (let i = 0; i < this.#relationsData.length; i++) {
-      let sql = "";
-      let { name, columns, parentSchema, parentEntity, parentColumns } =
-        this.#relationsData[i];
-      name ||= this.generateName1({
-        prefix: "FK",
-        schema,
-        entity,
-        name: parentEntity,
-        sequence: i + 1,
-      });
-      schema = this.clearNames(schema);
-      entity = this.clearNames(entity);
-      name = this.clearNames(name);
-      parentSchema = this.clearNames(parentSchema);
-      parentEntity = this.clearNames(parentEntity);
-      columns = columns.map((x) => this.clearNames(x));
-      if (!parentColumns?.length) {
-        parentColumns = self.structuredClone(columns);
-      } else {
-        parentColumns = parentColumns.map((x) => this.clearNames(x));
-      }
-      sql = this.conn.createRelation({
-        schema,
-        entity,
-        name,
-        columns,
-        parentSchema,
-        parentEntity,
-        parentColumns,
-      });
-      sqls.push(sql);
-    }
-    return `${sqls.join("; ")}`;
+    const ba = new BuilderAlter(this.conn);
+    ba.alter(<any> this.#nameData);
+    ba.relations(...this.#relationsData);
+    return ba.getQuery();
   }
 
   getInsertsQuery() {
