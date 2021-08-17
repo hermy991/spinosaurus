@@ -8,6 +8,8 @@ import { Connection } from "../connection.ts";
 import {
   clearMetadata,
   getMetadata,
+  getMetadataToColumnAccesors,
+  getMetadataToFromData,
   linkMetadata,
 } from "../../decorators/metadata/metadata.ts";
 import { ConnectionAll } from "../connection_type.ts";
@@ -237,9 +239,38 @@ export async function generateScript(
        * New tables
        */
       // Columns
+
       const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
         x: any,
-      ) => ({ ...x.mixeds, columnName: x.mixeds.name, ...x.property }));
+      ) => {
+        const r = {
+          ...x.property,
+          ...x.mixeds,
+          columnName: x.mixeds.name,
+        };
+        let rawtype = x.property.type;
+        if (x.relation && x.relation.entity) {
+          rawtype = x.relation.entity;
+        }
+
+        if (typeof rawtype === "function") {
+          const te = getMetadataToFromData({
+            connName: conn.getConnection().options.name,
+            entity: rawtype,
+          });
+          const pk = <any> getMetadataToColumnAccesors({
+            connName: conn.getConnection().options.name,
+            entity: rawtype,
+          }).find((x: any) => x.primary);
+          if (te && pk) {
+            // console.log("te: ", te, ", pk: ", pk);
+            if (!x.options.name) {
+              r.name = r.columnName = `${te.entity}_${pk.name}`;
+            }
+          }
+        }
+        return r;
+      });
       /**
        * Checks constraints
        */

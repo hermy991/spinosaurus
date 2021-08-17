@@ -344,12 +344,41 @@ export function linkMetadataToFromData(
   }
 }
 
+export function getMetadataToFromData(
+  req: { connName: string; entity: Function },
+): any {
+  const metadata = getMetadata(req.connName);
+  const t = metadata.tables.find((x) => x.target === req.entity);
+  if (t) {
+    return {
+      entity: t.mixeds.name,
+      schema: t.mixeds.schema,
+    };
+  }
+}
+
 export function linkMetadataToColumnAccesors(
-  req: { currentSquema: string; connName: string },
-  fun: Function,
+  req: { connName: string; entity: Function },
 ): Array<string> {
   const metadata = linkMetadata(req);
-  const t = metadata.tables.find((x) => x.target === fun);
+  const t = metadata.tables.find((x) => x.target === req.entity);
+  if (t) {
+    const columns = t.columns.map((x: any) => ({
+      select: true,
+      insert: true,
+      update: true,
+      ...x.mixeds,
+    }));
+    return columns;
+  }
+  return [];
+}
+
+export function getMetadataToColumnAccesors(
+  req: { connName: string; entity: Function },
+): Array<string> {
+  const metadata = getMetadata(req.connName);
+  const t = metadata.tables.find((x) => x.target === req.entity);
   if (t) {
     const columns = t.columns.map((x: any) => ({
       select: true,

@@ -37,11 +37,7 @@ export class BuilderInsert extends BuilderBase {
     }
     let e: { schema?: string; entity?: string } = {};
     if (this.entityData instanceof Function) {
-      e = this.getEntityData(
-        this.conn.options.name,
-        this.entityData,
-        this.entityData,
-      );
+      e = this.getEntityData(this.conn.options.name, this.entityData);
     } else {
       e = this.entityData;
     }

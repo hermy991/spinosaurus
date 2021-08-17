@@ -215,7 +215,7 @@ export class BuilderCreate extends BuilderBase {
     }
     const querys = [];
     if (this.#columnsData.length) {
-      querys.push(this.getCreateTableQuery(), this.getColumnsQuery());
+      querys.push(this.getCreateTableQuery() + " " + this.getColumnsQuery());
     }
     if (this.#checkData.length) {
       querys.push(this.getChecksQuery());

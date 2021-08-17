@@ -46,7 +46,6 @@ export class BuilderDelete extends BuilderBase {
       e = this.getEntityData(
         this.conn.options.name,
         this.entityData,
-        this.entityData,
       );
     } else {
       e = this.entityData;

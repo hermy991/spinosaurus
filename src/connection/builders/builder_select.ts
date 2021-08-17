@@ -205,12 +205,8 @@ export class BuilderSelect extends BuilderBase {
     if (!this.#selectData.length && this.#fromData) {
       const { schema, entity, as } = <any> this.#fromData;
       if (entity instanceof Function) {
-        const { schema: tschema, entity: tentity } = this.getEntityData(
-          this.conn.options.name,
-          entity,
-          this.#fromData,
-        );
-        let t = this.clearNames([tschema, tentity]);
+        const te = this.getEntityData(this.conn.options.name, entity);
+        let t = this.clearNames([te.schema, te.entity]);
         if (as) {
           t = this.clearNames(as);
         }
@@ -234,12 +230,8 @@ export class BuilderSelect extends BuilderBase {
             continue;
           }
           if (entity instanceof Function) {
-            const { schema: tschema, entity: tentity } = this.getEntityData(
-              this.conn.options.name,
-              entity,
-              this.#clauseData[i],
-            );
-            let t = this.clearNames([tschema, tentity]);
+            const te = this.getEntityData(this.conn.options.name, entity);
+            let t = this.clearNames([te.schema, te.entity]);
             if (as) {
               t = this.clearNames(as);
             }
@@ -276,13 +268,14 @@ export class BuilderSelect extends BuilderBase {
     if (!this.#fromData) {
       return ``;
     }
-    const { entity, as } = this.#fromData;
-    const { schema: tschema, entity: tentity } = this.getEntityData(
-      this.conn.options.name,
-      entity,
-      this.#fromData,
-    );
-    let query = `${this.clearNames([tschema, tentity])}`;
+    const { as } = this.#fromData;
+    let te: { schema?: string; entity?: string } = {};
+    if (this.#fromData.entity instanceof Function) {
+      te = this.getEntityData(this.conn.options.name, this.#fromData.entity);
+    } else {
+      te = <any> this.#fromData;
+    }
+    let query = `${this.clearNames([te.schema, te.entity])}`;
     if (as) {
       query = `${query} AS ${this.clearNames([as])}`;
     }
@@ -297,12 +290,11 @@ export class BuilderSelect extends BuilderBase {
     const sqls: string[] = [];
     for (let i = 0; i < this.#clauseData.length; i++) {
       const { join, entity, as, on } = this.#clauseData[i];
-      const { schema: tschema, entity: tentity } = this.getEntityData(
-        this.conn.options.name,
-        entity,
-        this.#clauseData[i],
-      );
-      const t = `${this.clearNames([tschema, tentity])}`;
+      let te: { schema?: string; entity?: string } = <any> this.#clauseData[i];
+      if (entity instanceof Function) {
+        te = this.getEntityData(this.conn.options.name, entity);
+      }
+      const t = `${this.clearNames([te.schema, te.entity])}`;
       sqls.push(
         `${join.toUpperCase()} JOIN ${t}${
           as ? " AS " + this.clearNames(as) : ""

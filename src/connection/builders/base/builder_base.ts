@@ -57,26 +57,10 @@ export class BuilderBase {
     }
     return generated;
   };
-  getEntityData(connName: string, entity: Function | string, clauseData: any) {
-    let tschema = clauseData.schema;
-    let tentity = clauseData.entity;
-    if (entity instanceof Function) {
-      const clauseData = {
-        ...linkMetadataToFromData({ connName, entity: <Function> entity }),
-      };
-      tschema = clauseData.schema;
-      tentity = clauseData.entity;
-    }
-    return { entity: tentity, schema: tschema };
+  getEntityData(connName: string, entity: Function) {
+    return linkMetadataToFromData({ connName, entity });
   }
-  getColumnAccesors(
-    connName: string,
-    entity: Function,
-  ): Array<any> {
-    const columns = linkMetadataToColumnAccesors({
-      currentSquema: "",
-      connName,
-    }, entity);
-    return columns;
+  getColumnAccesors(connName: string, entity: Function): Array<any> {
+    return linkMetadataToColumnAccesors({ connName, entity });
   }
 }

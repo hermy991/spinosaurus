@@ -93,18 +93,14 @@ Deno.test("decorator [many-to-one] query", async () => {
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
-  CREATE TABLE "decorator"."UniqueEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "column3" CHARACTER VARYING (100) NOT NULL, "custom4" CHARACTER VARYING (100) NOT NULL, "custom5" CHARACTER VARYING (100) NOT NULL, "column6" CHARACTER VARYING (100) NOT NULL, "column7" CHARACTER VARYING (100) NOT NULL, "column8" CHARACTER VARYING (100) NOT NULL, "custom9" CHARACTER VARYING (100) NOT NULL, "custom10" CHARACTER VARYING (100) NOT NULL, "custom11" CHARACTER VARYING (100) NOT NULL );
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_cdd96d3cc73d1dbdaffa03cc6cd7339b" UNIQUE ("column8");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_0b7e7dee87b1c3b98e72131173dfbbbf" UNIQUE ("custom11");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_0b24df25fe628797b3a50ae0724d2730" UNIQUE ("column6", "column7", "custom9", "custom10");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_f7947d50da7a043693a592b4db43b0a1" UNIQUE ("column2");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_8b9af1f7f76daf0f02bd9c48c4a2e3d0" UNIQUE ("column2", "column3");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_006d1236aee3f92b8322299796ba1989" UNIQUE ("column2", "column3", "custom4");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_b523ff8d1ced96cef9c86492e790c2fb" UNIQUE ("custom4", "custom5");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_1" UNIQUE ("column2");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_2" UNIQUE ("column2", "column3");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_3" UNIQUE ("column2", "column3", "custom4");
-  ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_4" UNIQUE ("custom4", "custom5")`
+CREATE TABLE "decorator"."ManyToOneEntity1" ( "column21" SERIAL PRIMARY KEY, "column22" CHARACTER VARYING (100) NOT NULL );
+CREATE TABLE "decorator"."ManyToOneEntity3" ( "column11" SERIAL PRIMARY KEY, "column12" CHARACTER VARYING (100) NOT NULL );
+CREATE TABLE "decorator"."ManyToOneEntity2" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "ManyToOneEntity3_column21_1" INTEGER NOT NULL, "ManyToOneEntity3_column21_2" INTEGER, "column11" INTEGER NOT NULL, "ManyToOneEntity3_column21_3" INTEGER NOT NULL, "ManyToOneEntity1_column21_1" INTEGER NOT NULL );
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_cdd96d3cc73d1dbdaffa03cc6cd7339b" FOREIGN KEY ("ManyToOneEntity3_column21_1") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b7e7dee87b1c3b98e72131173dfbbbf" FOREIGN KEY ("ManyToOneEntity3_column21_2") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b24df25fe628797b3a50ae0724d2730" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_ManyToOneEntity2_primary_ID" FOREIGN KEY ("ManyToOneEntity3_column21_3") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_8b9af1f7f76daf0f02bd9c48c4a2e3d0" FOREIGN KEY ("ManyToOneEntity1_column21_1") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`
     .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(s1, se1);
 });
