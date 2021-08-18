@@ -241,52 +241,11 @@ export async function generateScript(
       // Columns
       const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
         x: any,
-      ) => {
-        const r = {
-          ...x.property,
-          ...x.mixeds,
-          columnName: x.mixeds.name,
-        };
-        let wtype = x.property.type;
-        if (x.relation && x.relation.entity) {
-          wtype = x.relation.entity;
-        }
-
-        if (typeof wtype === "function") {
-          const te = getMetadataToFromData({
-            connName: conn.getConnection().options.name,
-            entity: wtype,
-          });
-          const pk = <any> getMetadataToColumnAccesors({
-            connName: conn.getConnection().options.name,
-            entity: wtype,
-          }).find((x: any) => x.primary);
-          if (te && pk) {
-            // console.log("te: ", te, ", pk: ", pk);
-            if (!x.options.name) {
-              r.name = r.columnName = `${te.entity}_${pk.name}`;
-            }
-          }
-        }
-        return r;
-      });
-      // Indexing duplicate columns
-      for (let i = 0; i < columns.length; i++) {
-        let index = 1;
-        for (let y = i + 1; y < columns.length; y++) {
-          if (columns[i].columnName === columns[y].columnName) {
-            (<any> columns[y]).name = columns[y].columnName = `${
-              columns[y].columnName
-            }_${++index}`;
-          }
-        }
-        if (index > 1) {
-          (<any> columns[i]).name = columns[i].columnName = `${
-            columns[i].columnName
-          }_1`;
-        }
-      }
-      //
+      ) => ({
+        ...x.property,
+        ...x.mixeds,
+        columnName: x.mixeds.name,
+      }));
       /**
        * Checks constraints
        */
@@ -326,7 +285,7 @@ export async function generateScript(
       schema: table.mixeds.schema,
     });
     if (table.relations.length) {
-      console.log("table.relations: ", table.relations);
+      // console.log("table.relations: ", table.relations);
       const relations = table.relations.map((x: any) => ({
         name: x.relation.name,
         columns: [x.mixeds.name].filter((x) => x),

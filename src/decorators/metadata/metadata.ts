@@ -44,7 +44,7 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
     ) {
       table.columns.push(column);
     }
-    const { target, property, options } = column;
+    const { target, property, relation, options } = <any> column;
     const instance = new column.entity.target();
     // Option Column Lenght
     if (options.length) {
@@ -76,6 +76,62 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
       options.nullable = options.nullable || false;
     }
     column.mixeds = <ColumnOptions> Object.assign(target, options);
+  }
+  /**
+   * Link relation to a columns
+   */
+  for (const column of columns) {
+    const { target, property, relation, options } = <any> column;
+    // Relations
+    if (relation && !options.name) {
+      const ftable = tables.find((x: any) =>
+        x.target === (relation.entity || property.type)
+      );
+      if (ftable) {
+        const fcolumn = columns.find((x) =>
+          x.entity.target === ftable.target && (<any> x.mixeds).primary
+        );
+        if (fcolumn) {
+          target.name = `${ftable.mixeds.name}_${fcolumn.mixeds.name}`;
+          if ((<any> fcolumn).mixeds.primary) {
+            if ((<any> fcolumn).mixeds.autoIncrement === "increment") {
+              target.spitype = "integer";
+            } else if ((<any> fcolumn).mixeds.autoIncrement === "uuid") {
+              target.spitype = "varchar";
+              target.length = 30;
+            } else {
+              target.spitype = (<any> fcolumn).mixeds.spitype;
+              target.length = (<any> fcolumn).mixeds.length;
+              target.precision = (<any> fcolumn).mixeds.precision;
+              target.scale = (<any> fcolumn).mixeds.scale;
+            }
+          }
+        }
+      }
+    }
+    if (target.name === "column11") {
+      console.log(column.entity.target, "target.name: ", target.name);
+      console.log("target: ", target, "options: ", options);
+    }
+    column.mixeds = <ColumnOptions> Object.assign(target, options);
+  }
+  // Indexing column name relation
+  for (const table of tables) {
+    const columns = (<any> table).columns;
+    for (let i = 0; i < columns.length; i++) {
+      if (!columns[i].relation) {
+        continue;
+      }
+      let index = 1;
+      for (let y = i + 1; y < columns.length; y++) {
+        if (columns[y].mixeds.name === columns[i].mixeds.name) {
+          columns[y].mixeds.name = `${columns[i].mixeds.name}_${++index}`;
+        }
+      }
+      if (index > 1) {
+        columns[i].mixeds.name = `${columns[i].mixeds.name}_1`;
+      }
+    }
   }
   /**
    * Link checks constrains with tables

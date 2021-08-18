@@ -100,7 +100,7 @@ ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOn
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b7e7dee87b1c3b98e72131173dfbbbf" FOREIGN KEY ("ManyToOneEntity3_column11_2") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b24df25fe628797b3a50ae0724d2730" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_ManyToOneEntity2_primary_ID" FOREIGN KEY ("ManyToOneEntity3_column11_3") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_8b9af1f7f76daf0f02bd9c48c4a2e3d0" FOREIGN KEY ("ManyToOneEntity1_column21_1") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_8b9af1f7f76daf0f02bd9c48c4a2e3d0" FOREIGN KEY ("ManyToOneEntity1_column21") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`
     .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(s1, se1);
 });
