@@ -95,11 +95,11 @@ Deno.test("decorator [many-to-one] query", async () => {
   const se1 = `CREATE SCHEMA "decorator";
 CREATE TABLE "decorator"."ManyToOneEntity1" ( "column21" SERIAL PRIMARY KEY, "column22" CHARACTER VARYING (100) NOT NULL );
 CREATE TABLE "decorator"."ManyToOneEntity3" ( "column11" SERIAL PRIMARY KEY, "column12" CHARACTER VARYING (100) NOT NULL );
-CREATE TABLE "decorator"."ManyToOneEntity2" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "ManyToOneEntity3_column21_1" INTEGER NOT NULL, "ManyToOneEntity3_column21_2" INTEGER, "column11" INTEGER NOT NULL, "ManyToOneEntity3_column21_3" INTEGER NOT NULL, "ManyToOneEntity1_column21_1" INTEGER NOT NULL );
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_cdd96d3cc73d1dbdaffa03cc6cd7339b" FOREIGN KEY ("ManyToOneEntity3_column21_1") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b7e7dee87b1c3b98e72131173dfbbbf" FOREIGN KEY ("ManyToOneEntity3_column21_2") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+CREATE TABLE "decorator"."ManyToOneEntity2" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "ManyToOneEntity3_column11_1" INTEGER NOT NULL, "ManyToOneEntity3_column11_2" INTEGER, "column11" INTEGER NOT NULL, "ManyToOneEntity3_column11_3" INTEGER NOT NULL, "ManyToOneEntity1_column21" INTEGER NOT NULL );
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_cdd96d3cc73d1dbdaffa03cc6cd7339b" FOREIGN KEY ("ManyToOneEntity3_column11_1") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b7e7dee87b1c3b98e72131173dfbbbf" FOREIGN KEY ("ManyToOneEntity3_column11_2") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b24df25fe628797b3a50ae0724d2730" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_ManyToOneEntity2_primary_ID" FOREIGN KEY ("ManyToOneEntity3_column21_3") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_ManyToOneEntity2_primary_ID" FOREIGN KEY ("ManyToOneEntity3_column11_3") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_8b9af1f7f76daf0f02bd9c48c4a2e3d0" FOREIGN KEY ("ManyToOneEntity1_column21_1") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`
     .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(s1, se1);

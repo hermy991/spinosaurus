@@ -112,7 +112,6 @@ export class BuilderAlter extends BuilderBase {
       const rd = Array.isArray(this.#relationsData[i])
         ? (<[string, any]> this.#relationsData[i])[1]
         : this.#relationsData[i];
-
       let { name, columns, parentSchema, parentEntity, parentColumns } = rd;
       if (parentColumns) {
         parentColumns = parentColumns.filter((x: any) => x);

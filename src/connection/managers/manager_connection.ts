@@ -239,7 +239,6 @@ export async function generateScript(
        * New tables
        */
       // Columns
-
       const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
         x: any,
       ) => {
@@ -248,19 +247,19 @@ export async function generateScript(
           ...x.mixeds,
           columnName: x.mixeds.name,
         };
-        let rawtype = x.property.type;
+        let wtype = x.property.type;
         if (x.relation && x.relation.entity) {
-          rawtype = x.relation.entity;
+          wtype = x.relation.entity;
         }
 
-        if (typeof rawtype === "function") {
+        if (typeof wtype === "function") {
           const te = getMetadataToFromData({
             connName: conn.getConnection().options.name,
-            entity: rawtype,
+            entity: wtype,
           });
           const pk = <any> getMetadataToColumnAccesors({
             connName: conn.getConnection().options.name,
-            entity: rawtype,
+            entity: wtype,
           }).find((x: any) => x.primary);
           if (te && pk) {
             // console.log("te: ", te, ", pk: ", pk);
@@ -271,6 +270,23 @@ export async function generateScript(
         }
         return r;
       });
+      // Indexing duplicate columns
+      for (let i = 0; i < columns.length; i++) {
+        let index = 1;
+        for (let y = i + 1; y < columns.length; y++) {
+          if (columns[i].columnName === columns[y].columnName) {
+            (<any> columns[y]).name = columns[y].columnName = `${
+              columns[y].columnName
+            }_${++index}`;
+          }
+        }
+        if (index > 1) {
+          (<any> columns[i]).name = columns[i].columnName = `${
+            columns[i].columnName
+          }_1`;
+        }
+      }
+      //
       /**
        * Checks constraints
        */
@@ -310,16 +326,16 @@ export async function generateScript(
       schema: table.mixeds.schema,
     });
     if (table.relations.length) {
+      console.log("table.relations: ", table.relations);
       const relations = table.relations.map((x: any) => ({
         name: x.relation.name,
-        columns: [x.options.name].filter((x) => x),
+        columns: [x.mixeds.name].filter((x) => x),
         parentEntity: x.relation.entity,
         parentColumns: x.relation.columns && x.relation.columns.length
           ? x.relation.columns
           : undefined,
       }));
-      qa.relations(...relations);
-      const query = qa.getQuery() || "";
+      const query = qa.relations(...relations).getQuery();
       script.push(query);
     }
   }
