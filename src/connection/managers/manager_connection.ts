@@ -241,11 +241,7 @@ export async function generateScript(
       // Columns
       const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
         x: any,
-      ) => ({
-        ...x.property,
-        ...x.mixeds,
-        columnName: x.mixeds.name,
-      }));
+      ) => ({ ...x.mixeds, columnName: x.mixeds.name }));
       /**
        * Checks constraints
        */

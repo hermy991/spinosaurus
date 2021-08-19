@@ -83,7 +83,7 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
   for (const column of columns) {
     const { target, property, relation, options } = <any> column;
     // Relations
-    if (relation && !options.name) {
+    if (relation) {
       const ftable = tables.find((x: any) =>
         x.target === (relation.entity || property.type)
       );
@@ -92,7 +92,9 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
           x.entity.target === ftable.target && (<any> x.mixeds).primary
         );
         if (fcolumn) {
-          target.name = `${ftable.mixeds.name}_${fcolumn.mixeds.name}`;
+          if (!options.name) {
+            target.name = `${ftable.mixeds.name}_${fcolumn.mixeds.name}`;
+          }
           if ((<any> fcolumn).mixeds.primary) {
             if ((<any> fcolumn).mixeds.autoIncrement === "increment") {
               target.spitype = "integer";
@@ -100,20 +102,15 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
               target.spitype = "varchar";
               target.length = 30;
             } else {
-              target.spitype = (<any> fcolumn).mixeds.spitype;
-              target.length = (<any> fcolumn).mixeds.length;
-              target.precision = (<any> fcolumn).mixeds.precision;
-              target.scale = (<any> fcolumn).mixeds.scale;
+              target.spitype = fcolumn.mixeds.spitype;
+              target.length = fcolumn.mixeds.length;
+              target.precision = fcolumn.mixeds.precision;
+              target.scale = fcolumn.mixeds.scale;
             }
           }
         }
       }
     }
-    if (target.name === "column11") {
-      console.log(column.entity.target, "target.name: ", target.name);
-      console.log("target: ", target, "options: ", options);
-    }
-    column.mixeds = <ColumnOptions> Object.assign(target, options);
   }
   // Indexing column name relation
   for (const table of tables) {
