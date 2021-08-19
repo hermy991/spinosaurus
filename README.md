@@ -170,3 +170,4 @@ deno run -qA https://code.velociraptor.run test:executor
 - [x] implement unique and uniqueOne options in @Column
 - [ ] exclude unique and uniqueOne from @GeneratedPrimaryColumn and
   @PrimaryColumn
+- [ ] throw a error when @UpdateColumn property is not a Number type

@@ -241,7 +241,7 @@ export async function generateScript(
       // Columns
       const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
         x: any,
-      ) => ({ ...x.mixeds, columnName: x.mixeds.name }));
+      ) => ({ ...x.property, ...x.mixeds, columnName: x.mixeds.name }));
       /**
        * Checks constraints
        */
@@ -281,7 +281,6 @@ export async function generateScript(
       schema: table.mixeds.schema,
     });
     if (table.relations.length) {
-      // console.log("table.relations: ", table.relations);
       const relations = table.relations.map((x: any) => ({
         name: x.relation.name,
         columns: [x.mixeds.name].filter((x) => x),

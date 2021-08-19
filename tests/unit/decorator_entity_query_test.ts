@@ -104,3 +104,34 @@ ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOn
     .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(s1, se1);
 });
+
+Deno.test("decorator [one-to-one] query", async () => {
+  const conOptsX = self.structuredClone(conOpts);
+  const db = new Connection(conOptsX);
+  const dirname = path.dirname(path.fromFileUrl(import.meta.url));
+  conOptsX.entities = [
+    `${dirname}/playground/decorators/**/OneToOneEntity.ts`,
+  ];
+  let s1 = await queryConnection(conOptsX);
+  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const _metadata = getMetadata(conOptsX.name);
+  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  const se1 = `CREATE SCHEMA "decorator";
+CREATE TABLE "decorator"."OneToOneEntity1" ( "column21" SERIAL PRIMARY KEY, "column22" CHARACTER VARYING (100) NOT NULL );
+CREATE TABLE "decorator"."OneToOneEntity3" ( "column11" SERIAL PRIMARY KEY, "column12" CHARACTER VARYING (100) NOT NULL );
+CREATE TABLE "decorator"."OneToOneEntity2" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "OneToOneEntity3_column11_1" INTEGER NOT NULL, "OneToOneEntity3_column11_2" INTEGER, "column11" INTEGER NOT NULL, "OneToOneEntity3_column11_3" INTEGER NOT NULL, "OneToOneEntity1_column21_1" INTEGER NOT NULL, "OneToOneEntity1_column21_2" INTEGER NOT NULL );
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_cdd96d3cc73d1dbdaffa03cc6cd7339b" UNIQUE ("OneToOneEntity3_column11_1");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_0b7e7dee87b1c3b98e72131173dfbbbf" UNIQUE ("OneToOneEntity3_column11_2");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_0b24df25fe628797b3a50ae0724d2730" UNIQUE ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_f7947d50da7a043693a592b4db43b0a1" UNIQUE ("OneToOneEntity3_column11_3");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_8b9af1f7f76daf0f02bd9c48c4a2e3d0" UNIQUE ("OneToOneEntity1_column21_1");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_006d1236aee3f92b8322299796ba1989" UNIQUE ("OneToOneEntity1_column21_2");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_cdd96d3cc73d1dbdaffa03cc6cd7339b" FOREIGN KEY ("OneToOneEntity3_column11_1") REFERENCES "decorator"."OneToOneEntity3" ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_0b7e7dee87b1c3b98e72131173dfbbbf" FOREIGN KEY ("OneToOneEntity3_column11_2") REFERENCES "decorator"."OneToOneEntity3" ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_0b24df25fe628797b3a50ae0724d2730" FOREIGN KEY ("column11") REFERENCES "decorator"."OneToOneEntity3" ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_OneToOneEntity2_primary_ID" FOREIGN KEY ("OneToOneEntity3_column11_3") REFERENCES "decorator"."OneToOneEntity3" ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_8b9af1f7f76daf0f02bd9c48c4a2e3d0" FOREIGN KEY ("OneToOneEntity1_column21_1") REFERENCES "decorator"."OneToOneEntity1" ("column21");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_006d1236aee3f92b8322299796ba1989" FOREIGN KEY ("OneToOneEntity1_column21_2") REFERENCES "decorator"."OneToOneEntity1" ("column21")`
+    .replaceAll(/[ \n\t]+/ig, " ").trim();
+  assertEquals(s1, se1);
+});
