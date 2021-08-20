@@ -17,10 +17,7 @@ export class ExecutorUpdate {
 
   set(
     ...columns: Array<
-      { [x: string]: string | number | Date } | [
-        string,
-        string | number | Date | null,
-      ]
+      { [x: string]: string | number | Date | Function | null }
     >
   ): ExecutorUpdate {
     this.ub.set(...columns);
@@ -28,17 +25,14 @@ export class ExecutorUpdate {
   }
 
   addSet(
-    columns: { [x: string]: string | number | Date } | [
-      string,
-      string | number | Date | null,
-    ],
+    columns: { [x: string]: string | number | Date | Function | null },
   ): ExecutorUpdate {
     this.ub.addSet(columns);
     return this;
   }
 
   where(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ): ExecutorUpdate {
     this.ub.where(conditions, params);
@@ -46,7 +40,7 @@ export class ExecutorUpdate {
   }
 
   addWhere(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ): ExecutorUpdate {
     this.ub.addWhere(conditions, params);

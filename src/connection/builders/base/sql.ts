@@ -16,13 +16,19 @@ export function stringify(
       ((value.getMonth() + 1) + "").padStart(2, "0")
     }-${(value.getDate() + "").padStart(2, "0")}', 'YYYY-MM-DD')`;
   } else if (typeof (value) == "function" && value instanceof Function) {
-    return value();
+    let str = value();
+    for (const char of [`"`, `'`]) {
+      str = str.split(char).map((x: string, i: number) =>
+        (x && i % 2 === 0) ? x.replaceAll(`;`, ``) : x
+      ).join(char);
+    }
+    return str;
   }
   return `NULL`;
 }
 
 export function interpolate(
-  conditions: Array<string>,
+  conditions: [string, ...string[]],
   params?: { [x: string]: string | number | Date },
 ): Array<string> {
   const data = [];

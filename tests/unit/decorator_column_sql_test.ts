@@ -34,7 +34,10 @@ async function clearPlayground(
 const conOpts = getTestConnection();
 
 Deno.test("decorator [column] query", async () => {
-  const conOptsX = self.structuredClone(conOpts);
+  const conOptsX = self.structuredClone({
+    ...conOpts,
+    name: "decorator_[column]_query",
+  });
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/Column*.ts`];
   let sql = await queryConnection(conOptsX);
@@ -49,7 +52,10 @@ Deno.test("decorator [column] query", async () => {
 });
 
 Deno.test("decorator [column adding columns] query", async () => {
-  const conOptsX = self.structuredClone(conOpts);
+  const conOptsX = self.structuredClone({
+    ...conOpts,
+    name: "decorator_[column_adding_columns]_query",
+  });
   const db = new Connection(conOptsX);
   const entity = "AddColumnTypes1";
   const schema = "decorator";
@@ -81,7 +87,10 @@ Deno.test("decorator [column adding columns] query", async () => {
 });
 
 Deno.test("decorator [column modify columns] query", async () => {
-  const conOptsX = self.structuredClone(conOpts);
+  const conOptsX = self.structuredClone({
+    ...conOpts,
+    name: "decorator_[column_modify_columns]_query",
+  });
   const entity = "ModColumnTypes1";
   const schema = "decorator";
   const db = new Connection(conOptsX);
@@ -134,7 +143,10 @@ Deno.test("decorator [column modify columns] query", async () => {
 });
 
 Deno.test("decorator [column dropping columns] query", async () => {
-  const conOptsX = self.structuredClone(conOpts);
+  const conOptsX = self.structuredClone({
+    ...conOpts,
+    name: "decorator_[column_dropping_columns]_query",
+  });
   const entity = "DroColumnTypes1";
   const schema = "decorator";
   const db = new Connection(conOptsX);

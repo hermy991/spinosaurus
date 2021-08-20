@@ -177,7 +177,7 @@ export class BuilderSelect extends BuilderBase {
   }
 
   where(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
     this.#whereData = [];
@@ -185,7 +185,7 @@ export class BuilderSelect extends BuilderBase {
   }
 
   addWhere(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
     this.#whereData.push(...interpolate(conditions, params));

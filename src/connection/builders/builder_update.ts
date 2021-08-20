@@ -3,10 +3,10 @@ import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderUpdate extends BuilderBase {
-  private entityData: { entity: string; schema?: string } | Function | null =
-    null;
-  private setData: Array<[string, string | number | Date | null]> = [];
-  private whereData: Array<string> = [];
+  #entityData: { entity: string; schema?: string } | Function | null = null;
+  #setData: Array<{ [x: string]: string | number | Date | Function | null }> =
+    [];
+  #whereData: Array<string> = [];
 
   constructor(public conn: ConnectionAll) {
     super(conn);
@@ -17,96 +17,104 @@ export class BuilderUpdate extends BuilderBase {
   ): void {
     if (Array.isArray(req)) {
       const [entity, schema] = req;
-      this.entityData = { entity, schema };
+      this.#entityData = { entity, schema };
     } else {
-      this.entityData = req;
+      this.#entityData = req;
     }
   }
 
   set(
-    ...columns: Array<
-      { [x: string]: string | number | Date } | [
-        string,
-        string | number | Date | null,
-      ]
+    ...entities: Array<
+      { [x: string]: string | number | Date | Function | null }
     >
   ) {
-    this.setData = [];
-    columns.forEach((x) => this.addSet(x));
+    this.#setData = [];
+    entities.forEach((x) => this.addSet(x));
   }
 
   addSet(
-    columns: { [x: string]: string | number | Date } | [
-      string,
-      string | number | Date | null,
-    ],
+    columns: { [x: string]: string | number | Date | Function | null },
   ) {
-    if (Array.isArray(columns)) {
-      this.setData.push(columns);
-    } else {
-      Object.entries(columns).forEach((x) => this.setData.push(x));
-    }
+    this.#setData.push(columns);
   }
 
   where(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
-    this.whereData = [];
+    this.#whereData = [];
     this.addWhere(conditions, params);
   }
 
   addWhere(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
-    this.whereData.push(...interpolate(conditions, params));
+    this.#whereData.push(...interpolate(conditions, params));
   }
 
   getEntityQuery() {
-    if (!this.entityData) {
+    if (!this.#entityData) {
       return ``;
     }
     let e: { schema?: string; entity?: string } = {};
-    if (this.entityData instanceof Function) {
-      e = this.getEntityData(this.conn.options.name, this.entityData);
+    if (this.#entityData instanceof Function) {
+      e = this.getEntityData(this.conn.options.name, this.#entityData);
     } else {
-      e = this.entityData;
+      e = this.#entityData;
     }
     const query = `${this.clearNames([e.schema, e.entity])}`;
     return `UPDATE ${query}`;
   }
 
-  getSetQuery() {
-    if (!this.setData.length) {
+  getSetQuery(
+    set: { [x: string]: string | number | Date | Function | null },
+  ) {
+    if (!set) {
       return ``;
     }
     const columns: string[] = [];
-    this.setData.forEach((col) => {
-      const [column, value] = col;
-      const tempStr = `${this.clearNames(column)} = ${stringify(value)}`;
+    for (const name in set) {
+      const tempStr = `${this.clearNames(name)} = ${stringify(set[name])}`;
       columns.push(tempStr);
-    });
-    return `SET ${columns.join(", ")}`;
+    }
+    if (!columns.length) {
+      return ``;
+    }
+    const querys: string[] = [];
+    querys.push(`SET ${columns.join(", ")}`);
+    const where = this.getWhereQuery();
+    if (where) {
+      querys.push(where);
+    }
+    return querys.join("\n");
   }
 
-  getWhereQuery() {
-    if (!this.whereData.length) {
+  getWhereQuery(addings: string[] = []) {
+    if (!this.#whereData.length) {
       return ``;
     }
     const conditions: string[] = [];
-    for (let i = 0; i < this.whereData.length; i++) {
-      const tempWhere = this.whereData[i];
+    for (let i = 0; i < this.#whereData.length; i++) {
+      const tempWhere = this.#whereData[i];
       conditions.push(tempWhere);
+    }
+
+    if (addings.length) {
+      return `WHERE ${addings.join(" ")} AND ( ${conditions.join(" ")} )`;
     }
     return `WHERE ${conditions.join(" ")}`;
   }
 
   getQuery() {
-    let query = `${this.getEntityQuery()}\n${this.getSetQuery()}`;
-    if (this.whereData.length) {
-      query += `\n${this.getWhereQuery()}`;
+    const querys: string[] = [];
+    for (const set of this.#setData) {
+      const query = `${this.getEntityQuery()}\n${this.getSetQuery(set)}`;
+      // if (this.whereData.length) {
+      //   query += `\n${this.getWhereQuery()}`;
+      // }
+      querys.push(query);
     }
-    return query;
+    return querys.join(";");
   }
 }

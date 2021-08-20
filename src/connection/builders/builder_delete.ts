@@ -23,7 +23,7 @@ export class BuilderDelete extends BuilderBase {
   }
 
   where(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
     this.whereData = [];
@@ -31,7 +31,7 @@ export class BuilderDelete extends BuilderBase {
   }
 
   addWhere(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
     this.whereData.push(...interpolate(conditions, params));

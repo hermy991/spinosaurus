@@ -15,7 +15,7 @@ export class ExecutorDelete {
   }
 
   where(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ): ExecutorDelete {
     this.ub.where(conditions, params);
@@ -23,7 +23,7 @@ export class ExecutorDelete {
   }
 
   addWhere(
-    conditions: Array<string>,
+    conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ): ExecutorDelete {
     this.ub.addWhere(conditions, params);
