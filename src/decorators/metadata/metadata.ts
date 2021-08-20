@@ -420,6 +420,7 @@ export function linkMetadataToColumnAccesors(
       select: true,
       insert: true,
       update: true,
+      ...x.property,
       ...x.mixeds,
     }));
     return columns;

@@ -53,41 +53,9 @@ export class BuilderUpdate extends BuilderBase {
     this.#whereData.push(...interpolate(conditions, params));
   }
 
-  getEntityQuery() {
-    if (!this.#entityData) {
-      return ``;
-    }
-    let e: { schema?: string; entity?: string } = {};
-    if (this.#entityData instanceof Function) {
-      e = this.getEntityData(this.conn.options.name, this.#entityData);
-    } else {
-      e = this.#entityData;
-    }
+  getEntityQuery(e: { schema?: string; entity?: string }) {
     const query = `${this.clearNames([e.schema, e.entity])}`;
     return `UPDATE ${query}`;
-  }
-
-  getSetQuery(
-    set: { [x: string]: string | number | Date | Function | null },
-  ) {
-    if (!set) {
-      return ``;
-    }
-    const columns: string[] = [];
-    for (const name in set) {
-      const tempStr = `${this.clearNames(name)} = ${stringify(set[name])}`;
-      columns.push(tempStr);
-    }
-    if (!columns.length) {
-      return ``;
-    }
-    const querys: string[] = [];
-    querys.push(`SET ${columns.join(", ")}`);
-    const where = this.getWhereQuery();
-    if (where) {
-      querys.push(where);
-    }
-    return querys.join("\n");
   }
 
   getWhereQuery(addings: string[] = []) {
@@ -106,15 +74,53 @@ export class BuilderUpdate extends BuilderBase {
     return `WHERE ${conditions.join(" ")}`;
   }
 
-  getQuery() {
-    const querys: string[] = [];
-    for (const set of this.#setData) {
-      const query = `${this.getEntityQuery()}\n${this.getSetQuery(set)}`;
-      // if (this.whereData.length) {
-      //   query += `\n${this.getWhereQuery()}`;
-      // }
-      querys.push(query);
+  getEntitySetQuery(
+    e: { schema?: string; entity?: string },
+    set: { [x: string]: string | number | Date | Function | null },
+    ps: Array<any> = [],
+  ) {
+    if (!set) {
+      return ``;
     }
-    return querys.join(";");
+    const sqls: string[] = [this.getEntityQuery(e)];
+    const columns: string[] = [];
+    const addins: string[] = [];
+    const cloned = self.structuredClone(set);
+    for (const p of ps) {
+    }
+
+    for (const name in cloned) {
+      const tempStr = `${this.clearNames(name)} = ${stringify(cloned[name])}`;
+      columns.push(tempStr);
+    }
+    if (!columns.length) {
+      return ``;
+    }
+    sqls.push(`SET ${columns.join(", ")}`);
+    const where = this.getWhereQuery(addins);
+    if (where) {
+      sqls.push(where);
+    }
+    return sqls.join("\n");
+  }
+
+  getQuery() {
+    if (!this.#entityData) {
+      return "";
+    }
+    const sqls: string[] = [];
+    let e: { schema?: string; entity?: string } = {};
+    let ps = [];
+    if (this.#entityData instanceof Function) {
+      e = this.getEntityData(this.conn.options.name, this.#entityData);
+      ps = this.getColumnAccesors(this.conn.options.name, this.#entityData);
+    } else {
+      e = <any> this.#entityData;
+    }
+    for (const set of this.#setData) {
+      const sql = `${this.getEntitySetQuery(e, set, ps)}`;
+      sqls.push(sql);
+    }
+    return sqls.join(";");
   }
 }
