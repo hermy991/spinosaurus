@@ -1,4 +1,3 @@
-import { interpolate, stringify } from "./base/sql.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
@@ -50,7 +49,7 @@ export class BuilderUpdate extends BuilderBase {
     conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
-    this.#whereData.push(...interpolate(conditions, params));
+    this.#whereData.push(...this.interpolate(conditions, params));
   }
 
   getEntityQuery(e: { schema?: string; entity?: string }) {
@@ -85,12 +84,32 @@ export class BuilderUpdate extends BuilderBase {
     const sqls: string[] = [this.getEntityQuery(e)];
     const columns: string[] = [];
     const addins: string[] = [];
-    const cloned = self.structuredClone(set);
-    for (const p of ps) {
+    let cloned: { [x: string]: any } = {};
+    let primaryColumn: { name: string; value: any } | undefined;
+    if (!ps.length) {
+      cloned = set;
+    } else {
+      for (const name in set) {
+        for (const p of ps) {
+          if (p.propertyKey === name) {
+            if (p.update) {
+              cloned[p.name] = set[name];
+            }
+            if (p.primary) {
+              primaryColumn = { name: p.name, value: set[name] };
+              addins.push(
+                `${this.clearNames(p.name)} = ${this.stringify(set[name])}`,
+              );
+            }
+          }
+        }
+      }
     }
 
-    for (const name in cloned) {
-      const tempStr = `${this.clearNames(name)} = ${stringify(cloned[name])}`;
+    for (const dbname in cloned) {
+      const tempStr = `${this.clearNames(dbname)} = ${
+        this.stringify(cloned[dbname])
+      }`;
       columns.push(tempStr);
     }
     if (!columns.length) {

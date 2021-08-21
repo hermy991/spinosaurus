@@ -7,7 +7,7 @@ const con1 = getTestConnection();
 /*********************
  * ENTITY DDL QUERY
  *********************/
-Deno.test("alter [alter relations] query", () => {
+Deno.test("alter [alter relations] sql", () => {
   const db: Connection = new Connection(con1);
   let q1 = db.alter({ schema: "publicX", entity: "User" })
     .relations(["FK_publicX_User_AnotherEntity1", {

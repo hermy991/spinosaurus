@@ -5,7 +5,7 @@ import * as luxon from "luxon/mod.ts";
 
 const con1 = getTestConnection();
 
-Deno.test("update [update] query", () => {
+Deno.test("update [update] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.update(["User"])
     .set({ column1: "xx", column2: "ss" });
@@ -16,7 +16,7 @@ Deno.test("update [update] query", () => {
   assertEquals(query, queryExpected);
 });
 
-Deno.test("update [update 'Entity'] query", async () => {
+Deno.test("update [update 'Entity'] sql", async () => {
   const { UpdateEntity1, UpdateEntity2 } = await import(
     "./playground/decorators/UpdateEntity.ts"
   );
@@ -69,7 +69,7 @@ Deno.test("update [update 'Entity'] query", async () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(q3, qe3);
 });
-Deno.test("update [update with where] query", () => {
+Deno.test("update [update with where] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.update(["User"])
     .set({ column1: "xx", column2: "ss" })
@@ -81,7 +81,7 @@ Deno.test("update [update with where] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("update [update with schema] query", () => {
+Deno.test("update [update with schema] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.update(["User", "bill"])
     .set({ column1: "xx", column2: "ss" })

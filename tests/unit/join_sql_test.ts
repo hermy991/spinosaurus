@@ -4,7 +4,7 @@ import { assertEquals } from "deno/testing/asserts.ts";
 
 const con1 = getTestConnection();
 
-Deno.test("join [join] query", async () => {
+Deno.test("join [join] sql", async () => {
   const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
   const db: Connection = new Connection(con1);
   //Inner Join Testing
@@ -56,7 +56,7 @@ Deno.test("join [join] query", async () => {
       .trim();
   assertEquals(q3, qe3);
 });
-Deno.test("join [join 'Entity'] query", async () => {
+Deno.test("join [join 'Entity'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );
@@ -125,7 +125,7 @@ Deno.test("join [join 'Entity'] query", async () => {
       .trim();
   assertEquals(q4, qe4);
 });
-Deno.test("join [select join] query", async () => {
+Deno.test("join [select join] sql", async () => {
   const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
   const db: Connection = new Connection(con1);
   //Inner Join Testing
@@ -177,7 +177,7 @@ Deno.test("join [select join] query", async () => {
       .trim();
   assertEquals(q3, qe3);
 });
-Deno.test("join [select join 'Entity'] query", async () => {
+Deno.test("join [select join 'Entity'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );
@@ -246,7 +246,7 @@ Deno.test("join [select join 'Entity'] query", async () => {
       .trim();
   assertEquals(q4, qe4);
 });
-Deno.test("join [left join] query", async () => {
+Deno.test("join [left join] sql", async () => {
   const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
   const db: Connection = new Connection(con1);
   //Left Join Testing
@@ -298,7 +298,7 @@ Deno.test("join [left join] query", async () => {
       .trim();
   assertEquals(q3, qe3);
 });
-Deno.test("join [left join 'Entity'] query", async () => {
+Deno.test("join [left join 'Entity'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );
@@ -367,7 +367,7 @@ Deno.test("join [left join 'Entity'] query", async () => {
       .trim();
   assertEquals(q4, qe4);
 });
-Deno.test("join [select left join] query", async () => {
+Deno.test("join [select left join] sql", async () => {
   const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
   const db: Connection = new Connection(con1);
   //Left Join Testing
@@ -419,7 +419,7 @@ Deno.test("join [select left join] query", async () => {
       .trim();
   assertEquals(q3, qe3);
 });
-Deno.test("join [select left join 'Entity'] query", async () => {
+Deno.test("join [select left join 'Entity'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );
@@ -488,7 +488,7 @@ Deno.test("join [select left join 'Entity'] query", async () => {
       .trim();
   assertEquals(q4, qe4);
 });
-Deno.test("join [right join] query", async () => {
+Deno.test("join [right join] sql", async () => {
   const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
   const db: Connection = new Connection(con1);
   //Right Join Testing
@@ -540,7 +540,7 @@ Deno.test("join [right join] query", async () => {
       .trim();
   assertEquals(q3, qe3);
 });
-Deno.test("join [right join 'Entity'] query", async () => {
+Deno.test("join [right join 'Entity'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );
@@ -609,7 +609,7 @@ Deno.test("join [right join 'Entity'] query", async () => {
       .trim();
   assertEquals(q4, qe4);
 });
-Deno.test("join [select right join] query", async () => {
+Deno.test("join [select right join] sql", async () => {
   const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
   const db: Connection = new Connection(con1);
   //Right Join Testing
@@ -661,7 +661,7 @@ Deno.test("join [select right join] query", async () => {
       .trim();
   assertEquals(q3, qe3);
 });
-Deno.test("join [select right join 'Entity'] query", async () => {
+Deno.test("join [select right join 'Entity'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );

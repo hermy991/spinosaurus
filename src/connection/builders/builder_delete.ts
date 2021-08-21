@@ -1,4 +1,3 @@
-import { interpolate } from "./base/sql.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
@@ -34,7 +33,7 @@ export class BuilderDelete extends BuilderBase {
     conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
-    this.whereData.push(...interpolate(conditions, params));
+    this.whereData.push(...this.interpolate(conditions, params));
   }
 
   getEntityQuery() {

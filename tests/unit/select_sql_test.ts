@@ -4,7 +4,7 @@ import { assertEquals } from "deno/testing/asserts.ts";
 
 const con1 = getTestConnection();
 
-Deno.test("select [select *] query", () => {
+Deno.test("select [select *] sql", () => {
   const db: Connection = new Connection(con1);
   const qs1 = db.select().from({ entity: "User", as: "u" });
   let q1 = qs1.getQuery() || "";
@@ -37,7 +37,7 @@ Deno.test("select [select *] query", () => {
     .trim();
   assertEquals(q4, qe4);
 });
-Deno.test("select [select distinct *] query", () => {
+Deno.test("select [select distinct *] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.selectDistinct()
     .from({ entity: "User", as: "u" });
@@ -49,7 +49,7 @@ Deno.test("select [select distinct *] query", () => {
   ).trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [select * from 'Entity'] query", async () => {
+Deno.test("select [select * from 'Entity'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );
@@ -96,7 +96,7 @@ Deno.test("select [select * from 'Entity'] query", async () => {
     .trim();
   assertEquals(q4, qe4);
 });
-Deno.test("select [select columns] query", () => {
+Deno.test("select [select columns] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" });
@@ -106,7 +106,7 @@ Deno.test("select [select columns] query", () => {
     .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [select distinct columns] query", () => {
+Deno.test("select [select distinct columns] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.selectDistinct([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" });
@@ -119,7 +119,7 @@ Deno.test("select [select distinct columns] query", () => {
     ).trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [select column as] query", () => {
+Deno.test("select [select column as] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`, "UserName"], [`u."firstName"`])
     .from({ entity: "User", as: "u" });
@@ -130,7 +130,7 @@ Deno.test("select [select column as] query", () => {
       .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [where] query", () => {
+Deno.test("select [where] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
@@ -142,7 +142,7 @@ Deno.test("select [where] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [where like] query", () => {
+Deno.test("select [where like] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
@@ -154,7 +154,7 @@ Deno.test("select [where like] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [where not like] query", () => {
+Deno.test("select [where not like] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
@@ -166,7 +166,7 @@ Deno.test("select [where not like] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [where between(string)] query", () => {
+Deno.test("select [where between(string)] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
@@ -178,7 +178,7 @@ Deno.test("select [where between(string)] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [where between(number)] query", () => {
+Deno.test("select [where between(number)] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
@@ -190,7 +190,7 @@ Deno.test("select [where between(number)] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [where between(Date)] query", () => {
+Deno.test("select [where between(Date)] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
@@ -208,7 +208,7 @@ Deno.test("select [where between(Date)] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [where with params] query", () => {
+Deno.test("select [where with params] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
@@ -220,7 +220,7 @@ Deno.test("select [where with params] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [order by] query", () => {
+Deno.test("select [order by] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
@@ -232,7 +232,7 @@ Deno.test("select [order by] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [order by with direction] query", () => {
+Deno.test("select [order by with direction] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })

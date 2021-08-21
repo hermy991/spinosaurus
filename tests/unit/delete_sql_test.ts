@@ -4,7 +4,7 @@ import { assertEquals } from "deno/testing/asserts.ts";
 
 const con1 = getTestConnection();
 
-Deno.test("delete [delete] query", () => {
+Deno.test("delete [delete] sql", () => {
   const db: Connection = new Connection(con1);
   let query = db.delete(["User"])
     .getQuery() || "";
@@ -14,7 +14,7 @@ Deno.test("delete [delete] query", () => {
   assertEquals(query, queryExpected);
 });
 
-Deno.test("delete [delete 'Entity'] query", async () => {
+Deno.test("delete [delete 'Entity'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity4, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );
@@ -50,7 +50,7 @@ Deno.test("delete [delete 'Entity'] query", async () => {
     .trim();
   assertEquals(q5, qe5);
 });
-Deno.test("delete [delete with where] query", () => {
+Deno.test("delete [delete with where] sql", () => {
   const db: Connection = new Connection(con1);
   let query = db.delete(["User"])
     .where([`"column1" = 10`])
@@ -62,7 +62,7 @@ Deno.test("delete [delete with where] query", () => {
   ).trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("delete [delete with schema] query", () => {
+Deno.test("delete [delete with schema] sql", () => {
   const db: Connection = new Connection(con1);
   let query = db.delete(["User", "bill"])
     .where([`"column1" = 10`])

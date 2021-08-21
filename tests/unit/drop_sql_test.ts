@@ -6,7 +6,7 @@ const con1 = getTestConnection();
 /*********************
  * ENTITY DDL QUERY
  *********************/
-Deno.test("drop [drop table] query", () => {
+Deno.test("drop [drop table] sql", () => {
   const db: Connection = new Connection(con1);
   let query = db.drop({ entity: "User", schema: "public" }).getQuery() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
@@ -17,7 +17,7 @@ Deno.test("drop [drop table] query", () => {
     .trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("drop [drop table colums] query", () => {
+Deno.test("drop [drop table colums] sql", () => {
   const db: Connection = new Connection(con1);
   let query = db.drop({ entity: "User", schema: "public" })
     .columns(["prueba"])
@@ -27,7 +27,7 @@ Deno.test("drop [drop table colums] query", () => {
     .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("drop [drop schema] query", () => {
+Deno.test("drop [drop schema] sql", () => {
   const db: Connection = new Connection(con1);
   let q1 = db.drop({ schema: "publicX" })
     .getQuery() || "";

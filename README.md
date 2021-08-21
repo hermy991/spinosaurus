@@ -151,7 +151,7 @@ deno run -qA https://code.velociraptor.run test:sql
 ## Test Executor
 
 ```bash
-deno run -qA https://code.velociraptor.run test:executor
+deno run -qA https://code.velociraptor.run test:exec
 ```
 
 # TODO

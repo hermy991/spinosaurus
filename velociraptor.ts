@@ -74,7 +74,7 @@ export default {
         sqls.join(`" "`)
       }" `,
     },
-    "test:executor": {
+    "test:exec": {
       desc: "Run executors test",
       imap,
       tsconfig,

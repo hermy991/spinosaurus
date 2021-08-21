@@ -38,7 +38,7 @@ async function clearPlayground(
 
 const conOpts = getTestConnection();
 
-Deno.test("decorator [check] query", async () => {
+Deno.test("decorator [check] sql", async () => {
   const conOptsX = self.structuredClone(conOpts);
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
@@ -55,7 +55,7 @@ ALTER TABLE "decorator"."CheckEntity1" ADD CONSTRAINT "CHK_CheckEntity1_column2_
   assertEquals(s1, se1);
 });
 
-Deno.test("decorator [unique] query", async () => {
+Deno.test("decorator [unique] sql", async () => {
   const conOptsX = self.structuredClone(conOpts);
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
@@ -81,7 +81,7 @@ Deno.test("decorator [unique] query", async () => {
   assertEquals(s1, se1);
 });
 
-Deno.test("decorator [many-to-one] query", async () => {
+Deno.test("decorator [many-to-one] sql", async () => {
   const conOptsX = self.structuredClone(conOpts);
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
@@ -105,7 +105,7 @@ ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOn
   assertEquals(s1, se1);
 });
 
-Deno.test("decorator [one-to-one] query", async () => {
+Deno.test("decorator [one-to-one] sql", async () => {
   const conOptsX = self.structuredClone(conOpts);
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));

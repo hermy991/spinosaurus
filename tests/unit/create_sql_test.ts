@@ -6,7 +6,7 @@ const con1 = getTestConnection();
 /*********************
  * ENTITY DDL QUERY
  *********************/
-Deno.test("create [create table] query", () => {
+Deno.test("create [create table] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.create({ entity: "User", schema: "public" })
     .columns({ columnName: "column1", spitype: "varchar" });
@@ -16,7 +16,7 @@ Deno.test("create [create table] query", () => {
     .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("create [create table with data] query", () => {
+Deno.test("create [create table with data] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.create({ entity: "User", schema: "public" })
     .columns({ columnName: "column1", spitype: "varchar" })
@@ -28,7 +28,7 @@ Deno.test("create [create table with data] query", () => {
       .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("create [create table with primary key] query", () => {
+Deno.test("create [create table with primary key] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.create({ entity: "User", schema: "public" })
     .columns({ columnName: "column1", spitype: "integer", primary: true })
@@ -40,7 +40,7 @@ Deno.test("create [create table with primary key] query", () => {
       .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("create [create table with auto-increment] query", () => {
+Deno.test("create [create table with auto-increment] sql", () => {
   const db: Connection = new Connection(con1);
   {
     const qs = db.create({ entity: "User", schema: "public" })
@@ -117,7 +117,7 @@ Deno.test("create [create table with auto-increment] query", () => {
     assertEquals(query, queryExpected);
   }
 });
-Deno.test("create [create table with auto-increment and primary key] query", () => {
+Deno.test("create [create table with auto-increment and primary key] sql", () => {
   const db: Connection = new Connection(con1);
   {
     const qs = db.create({ entity: "User", schema: "public" })
@@ -150,7 +150,7 @@ Deno.test("create [create table with auto-increment and primary key] query", () 
     assertEquals(query, queryExpected);
   }
 });
-Deno.test("create [create schema] query", () => {
+Deno.test("create [create schema] sql", () => {
   const db: Connection = new Connection(con1);
   let q1 = db.create({ schema: "publicX" })
     .getQuery() || "";
@@ -166,7 +166,7 @@ Deno.test("create [create schema] query", () => {
     .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(q2, qe2);
 });
-Deno.test("create [create relations] query", () => {
+Deno.test("create [create relations] sql", () => {
   const db: Connection = new Connection(con1);
   let q1 = db.create({ schema: "publicX", entity: "User" })
     .relations({

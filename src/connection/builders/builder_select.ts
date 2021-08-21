@@ -1,4 +1,3 @@
-import { interpolate } from "./base/sql.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
@@ -188,7 +187,7 @@ export class BuilderSelect extends BuilderBase {
     conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
-    this.#whereData.push(...interpolate(conditions, params));
+    this.#whereData.push(...this.interpolate(conditions, params));
   }
 
   orderBy(...columns: Array<{ column: string; direction?: string }>): void {

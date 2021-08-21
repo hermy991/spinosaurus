@@ -6,7 +6,7 @@ const con1 = getTestConnection();
 /*********************
  * ENTITY DDL QUERY
  *********************/
-Deno.test("rename [rename table] query", () => {
+Deno.test("rename [rename table] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.rename({ entity: "User", schema: "public" }, {
     entity: "Person",
@@ -18,7 +18,7 @@ Deno.test("rename [rename table] query", () => {
     .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("rename [rename column table] query", () => {
+Deno.test("rename [rename column table] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.rename({ entity: "User", schema: "public" })
     .columns(["column11", "column12"], ["column21", "column22"]);
@@ -29,7 +29,7 @@ Deno.test("rename [rename column table] query", () => {
       .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("rename [rename table and column] query", () => {
+Deno.test("rename [rename table and column] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.rename(
     { entity: "User", schema: "public" },

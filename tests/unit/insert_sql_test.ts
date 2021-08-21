@@ -4,7 +4,7 @@ import { assertEquals } from "deno/testing/asserts.ts";
 
 const con1 = getTestConnection();
 
-Deno.test("insert [insert] query", () => {
+Deno.test("insert [insert] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.insert(["User"])
     .values({ column1: "xx" });
@@ -15,7 +15,7 @@ Deno.test("insert [insert] query", () => {
   assertEquals(query, queryExpected);
 });
 
-Deno.test("insert [insert 'Entity'] query", async () => {
+Deno.test("insert [insert 'Entity'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity4, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );
@@ -52,7 +52,7 @@ Deno.test("insert [insert 'Entity'] query", async () => {
     .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(q4, qe4);
 });
-Deno.test("insert [multiple insert] query", () => {
+Deno.test("insert [multiple insert] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.insert(["User"])
     .values([{ column1: "x1" }, { column1: "x2" }]);
@@ -63,7 +63,7 @@ Deno.test("insert [multiple insert] query", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("insert [multiple insert with schema] query", () => {
+Deno.test("insert [multiple insert with schema] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.insert(["User", "public"])
     .values([{ column1: "x1" }, { column1: "x2" }]);
