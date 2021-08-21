@@ -57,7 +57,9 @@ export class BuilderInsert extends BuilderBase {
   }
 
   getValueQuery(obj: { [x: string]: string | number | Date }) {
-    const columns: string[] = Object.values(obj).map((x) => this.stringify(x));
+    const columns: string[] = Object.values(obj).map((x) =>
+      this.conn.stringify(x)
+    );
     if (!columns.length) {
       return undefined;
     }

@@ -31,9 +31,18 @@ export class BuilderDelete extends BuilderBase {
 
   addWhere(
     conditions: [string, ...string[]],
-    params?: { [x: string]: string | number | Date },
+    params?: {
+      [x: string]:
+        | string
+        | number
+        | boolean
+        | Date
+        | Function
+        | null
+        | undefined;
+    },
   ) {
-    this.whereData.push(...this.interpolate(conditions, params));
+    this.whereData.push(...this.conn.interpolate(conditions, params));
   }
 
   getEntityQuery() {

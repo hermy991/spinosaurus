@@ -1,12 +1,12 @@
 import { ColumnOptions } from "../options/column_options.ts";
 import { PrimaryColumnOptions } from "../options/primary_column_options.ts";
-import { GeneratedColumnOptions } from "../options/generated_column_options.ts";
+import { PrimaryGeneratedColumnOptions } from "../options/primary_generated_column_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
 import { reflect_metadata } from "../../../deps.ts";
 
 export function PrimaryGeneratedColumn(
-  options: GeneratedColumnOptions = {},
+  options: PrimaryGeneratedColumnOptions = {},
 ): any {
   return (
     entityf: Object,
@@ -31,15 +31,20 @@ export function PrimaryGeneratedColumn(
       name: propertyKey,
       spitype: getColumnType({ type: property.type }),
     };
-    const special: PrimaryColumnOptions | GeneratedColumnOptions = {
+    const special: PrimaryColumnOptions | PrimaryGeneratedColumnOptions | {
+      primary: boolean;
+    } = {
       primary: true,
+      insert: false,
+      update: false,
       autoIncrement: "increment",
     };
-    const mixeds: PrimaryColumnOptions | GeneratedColumnOptions = Object.assign(
-      target,
-      special,
-      options,
-    );
+    const mixeds: PrimaryColumnOptions | PrimaryGeneratedColumnOptions = Object
+      .assign(
+        target,
+        special,
+        options,
+      );
 
     const column = {
       target,

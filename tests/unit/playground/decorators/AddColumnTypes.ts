@@ -1,4 +1,4 @@
-import { Column, Entity } from "spinosaurus/mod.ts";
+import { _NOW, Column, Entity } from "spinosaurus/mod.ts";
 
 /**
  * Column Types Test
@@ -42,13 +42,13 @@ export class AddColumnTypes1 {
   boolean3?: boolean = true;
 
   @Column()
-  timestamp1 = new Date();
+  timestamp1 = Date;
 
   @Column()
   timestamp2?: Date;
 
   @Column()
-  timestamp3?: Date = new Date();
+  timestamp3?: Date = <any> _NOW;
 
   @Column()
   arraybuffer1 = new ArrayBuffer(8);

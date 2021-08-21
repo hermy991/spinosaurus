@@ -5,7 +5,6 @@ import {
   linkMetadataToColumnAccesors,
   linkMetadataToFromData,
 } from "../../../decorators/metadata/metadata.ts";
-import { interpolate, stringify } from "./sql.ts";
 
 export class BuilderBase {
   get #left() {
@@ -58,17 +57,6 @@ export class BuilderBase {
     }
     return generated;
   };
-  stringify(
-    value: string | number | boolean | Date | Function | null | undefined,
-  ): string {
-    return stringify(value);
-  }
-  interpolate(
-    conditions: [string, ...string[]],
-    params?: { [x: string]: string | number | Date },
-  ): Array<string> {
-    return interpolate(conditions, params);
-  }
   getEntityData(connName: string, entity: Function) {
     return linkMetadataToFromData({ connName, entity });
   }

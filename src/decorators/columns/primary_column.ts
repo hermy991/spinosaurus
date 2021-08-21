@@ -28,12 +28,16 @@ export function PrimaryColumn(options: ColumnOptions = {}): any {
       name: propertyKey,
       spitype: getColumnType({ type: property.type }),
     };
-    const special: PrimaryColumnOptions = { primary: true };
-    const mixeds: PrimaryColumnOptions = Object.assign(
-      target,
-      special,
-      options,
-    );
+    const special: PrimaryColumnOptions | { primary: boolean } = {
+      primary: true,
+      update: false,
+    };
+    const mixeds: PrimaryColumnOptions | { primary: boolean } = Object
+      .assign(
+        target,
+        special,
+        options,
+      );
 
     const column = {
       target,

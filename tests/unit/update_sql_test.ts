@@ -50,7 +50,7 @@ Deno.test("update [update 'Entity'] sql", async () => {
   let q2 = qs2.getQuery() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 =
-    `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = TO_TIMESTAMP('', 'YYYY-MM-DD HH24:MI:SS') WHERE "primaryGeneratedColumn" = 1`
+    `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1`
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(q2, qe2);
 
@@ -65,7 +65,7 @@ Deno.test("update [update 'Entity'] sql", async () => {
   let q3 = qs3.getQuery() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe3 =
-    `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = TO_TIMESTAMP('', 'YYYY-MM-DD HH24:MI:SS') WHERE "primaryGeneratedColumn" = 1 AND ( "column2" = '' OR "column2" IS NULL )`
+    `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1 AND ( "column2" = '' OR "column2" IS NULL )`
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(q3, qe3);
 });

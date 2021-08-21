@@ -1,7 +1,7 @@
 import { MetadataStore } from "./metadata_store.ts";
 import { ColumnType } from "../options/column_type.ts";
 import { ConnectionOptionsAll } from "../../connection/connection_options.ts";
-import { GeneratedColumnOptions } from "../options/generated_column_options.ts";
+import { PrimaryGeneratedColumnOptions } from "../options/primary_generated_column_options.ts";
 import { ColumnOptions } from "../options/column_options.ts";
 // import { createHash } from "deno/hash/mod.ts";
 
@@ -65,8 +65,12 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
       target.default = instance[target.name || ""];
     }
     // When auto increment is set and spitype is undefined we should set spitype to varchar or
-    if ((<GeneratedColumnOptions> options).autoIncrement && !options.spitype) {
-      const autoIncrement = (<GeneratedColumnOptions> options).autoIncrement;
+    if (
+      (<PrimaryGeneratedColumnOptions> options).autoIncrement &&
+      !options.spitype
+    ) {
+      const autoIncrement =
+        (<PrimaryGeneratedColumnOptions> options).autoIncrement;
       if (autoIncrement === "increment" && !options.spitype) {
         options.spitype = "integer";
       } else if (autoIncrement === "uuid" && !options.spitype) {
@@ -246,7 +250,7 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
   }
   for (const column of columns) {
     if (!column.mixeds.spitype) {
-      throw (`Property '${column.property.propertyKey}' Data type cannot be determined, use { type: "?" } or define the data type in the property.`);
+      throw (`Property '${column.property.propertyKey}' Data type cannot be determined, use { spitype: "?" } or define the data type in the property.`);
     }
   }
   return metadata;
@@ -467,10 +471,16 @@ export function getColumnType(
     spitype = "numeric";
   } else if (type.name === "Boolean") {
     spitype = "boolean";
-  } else if (type.name === "Date") {
+  } else if (
+    type.name === "Date" ||
+    (value instanceof Function &&
+      (value.name === "Date" || value.name === "_NOW"))
+  ) {
     spitype = "timestamp";
   } else if (type.name === "BigInt") {
     spitype = "bigint";
+  } else if (value instanceof Function) {
+    // Custom function like _NOW, etc.
   }
   /**
  * Type by options

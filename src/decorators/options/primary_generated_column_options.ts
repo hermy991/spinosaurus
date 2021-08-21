@@ -2,7 +2,7 @@ import { CharacterColumnType, NumericColumnType } from "./column_type.ts";
 /**
  * Describes all columns's entity options when is primary.
  */
-export interface PrimaryColumnOptions {
+export interface PrimaryGeneratedColumnOptions {
   /**
    * Column type. One of the supported column types.
    */
@@ -43,4 +43,8 @@ export interface PrimaryColumnOptions {
    * The scale for a decimal (exact numeric) column (applies only for decimal column), which represents the number of digits to the right of the decimal point and must not be greater than precision. Used in some column types.
    */
   scale?: number;
+  /**
+   * Option to specify when the column would by in auto auto increment
+   */
+  autoIncrement?: "increment" | "uuid";
 }

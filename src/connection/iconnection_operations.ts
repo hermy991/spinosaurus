@@ -10,6 +10,22 @@ import { SpiColumnComment } from "./executors/types/spi_column_comment.ts";
 
 export interface IConnectionOperations {
   /* Internal Sql Operations*/
+  stringify(
+    value: string | number | boolean | Date | Function | null | undefined,
+  ): string;
+  interpolate(
+    conditions: [string, ...string[]],
+    params?: {
+      [x: string]:
+        | string
+        | number
+        | boolean
+        | Date
+        | Function
+        | null
+        | undefined;
+    },
+  ): Array<string>;
   getSqlFunction(fun: Function): string;
   createSchema(scs: SpiCreateSchema): string;
   dropSchema(sds: SpiDropSchema): string;

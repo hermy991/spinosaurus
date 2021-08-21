@@ -1,5 +1,5 @@
 import { ColumnOptions } from "./column_options.ts";
-import { GeneratedColumnOptions } from "./generated_column_options.ts";
+import { PrimaryGeneratedColumnOptions } from "./primary_generated_column_options.ts";
 import { PrimaryColumnOptions } from "./primary_column_options.ts";
 import { UpdateColumnOptions } from "./update_column_options.ts";
 /**
@@ -8,5 +8,6 @@ import { UpdateColumnOptions } from "./update_column_options.ts";
 export type AllColumnOptions =
   | ColumnOptions
   | PrimaryColumnOptions
-  | GeneratedColumnOptions
-  | UpdateColumnOptions;
+  | PrimaryGeneratedColumnOptions
+  | UpdateColumnOptions
+  | { [x: string]: any; primary?: boolean; autoUpdate?: Function };

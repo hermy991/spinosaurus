@@ -187,7 +187,7 @@ export class BuilderSelect extends BuilderBase {
     conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
-    this.#whereData.push(...this.interpolate(conditions, params));
+    this.#whereData.push(...this.conn.interpolate(conditions, params));
   }
 
   orderBy(...columns: Array<{ column: string; direction?: string }>): void {

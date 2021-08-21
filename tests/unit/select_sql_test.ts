@@ -190,24 +190,6 @@ Deno.test("select [where between(number)] sql", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
-Deno.test("select [where between(Date)] sql", () => {
-  const db: Connection = new Connection(con1);
-  const qs = db.select([`u."userName"`], [`u."firstName"`])
-    .from({ entity: "User", as: "u" })
-    .where([
-      between(
-        `u."userName"`,
-        new Date("2021-01-01T00:00:00"),
-        new Date("2021-01-31T00:00:00"),
-      ),
-    ]);
-  let query = qs.getQuery() || "";
-  query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const queryExpected =
-    `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" BETWEEN TO_DATE('2021-01-01', 'YYYY-MM-DD') AND TO_DATE('2021-01-31', 'YYYY-MM-DD')`
-      .replaceAll(/[ \n\t]+/ig, " ").trim();
-  assertEquals(query, queryExpected);
-});
 Deno.test("select [where with params] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])

@@ -47,7 +47,7 @@ Deno.test("function [now] sql", () => {
   const qs1 = db.create({ entity: "User" }).columns({
     columnName: "column1",
     spitype: "date",
-    default: _NOW(),
+    default: _NOW,
   });
   let q1 = qs1.getQuery() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();

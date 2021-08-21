@@ -1,5 +1,5 @@
 import { ConnectionPostgresOptions } from "./connection_postgres_options.ts";
-import { stringify } from "../../builders/base/sql.ts";
+import { interpolate, stringify } from "../../builders/base/sql.ts";
 import { IConnectionOperations } from "../../iconnection_operations.ts";
 import { SpiCreateSchema } from "../../executors/types/spi_create_schema.ts";
 import { SpiDropSchema } from "../../executors/types/spi_drop_schema.ts";
@@ -31,11 +31,54 @@ class ConnectionPostgres implements IConnectionOperations {
 
   constructor(public options: ConnectionPostgresOptions) {}
   /* Basic Connection Operations*/
+  stringify(
+    value: string | number | boolean | Date | Function | null | undefined,
+  ): string {
+    if (
+      value === undefined || value === null || typeof (value) == "boolean" ||
+      typeof (value) == "number" || typeof (value) == "string"
+    ) {
+      return stringify(value);
+    } else if (typeof (value) == "object" && value instanceof Date) {
+      const yyyy = value.getFullYear();
+      const mm = ((value.getMonth() + 1) + "").padStart(2, "0");
+      const dd = (value.getDate() + "").padStart(2, "0");
+      const hh24 = (value.getHours() + "").padStart(2, "0");
+      const mi = (value.getMinutes() + "").padStart(2, "0");
+      const ss = (value.getSeconds() + "").padStart(2, "0");
+      return `TO_TIMESTAMP('${yyyy}-${mm}-${dd} ${hh24}:${mi}:${ss}', 'YYYY-MM-DD HH24:MI:SS')`;
+    }
+    if (typeof (value) == "function" && value instanceof Function) {
+      return this.getSqlFunction(value);
+    }
+    return `NULL`;
+  }
+  interpolate(
+    conditions: [string, ...string[]],
+    params?: {
+      [x: string]:
+        | string
+        | number
+        | boolean
+        | Date
+        | Function
+        | null
+        | undefined;
+    },
+  ): Array<string> {
+    const cloned = self.structuredClone(params || {});
+    const keys = Object.keys(cloned);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      cloned[key] = this.stringify(cloned[key]);
+    }
+    return interpolate(conditions, cloned);
+  }
   getSqlFunction(fun: Function): string {
-    if (fun.name === "NOW") {
+    if (["_NOW", "Date"].includes(fun.name)) {
       return `now()`;
     }
-    return fun();
+    return stringify(fun);
   }
   createSchema = (scs: SpiCreateSchema): string => {
     /**
@@ -75,7 +118,7 @@ class ConnectionPostgres implements IConnectionOperations {
       if (scd.default instanceof Function) {
         defs.push(`DEFAULT ${this.getSqlFunction(scd.default)}`);
       } else {
-        defs.push(`DEFAULT ${stringify(scd.default)}`);
+        defs.push(`DEFAULT ${this.stringify(scd.default)}`);
       }
     }
 
@@ -176,7 +219,7 @@ class ConnectionPostgres implements IConnectionOperations {
         aquery += (changes.nullable ? "" : " NOT") + " NULL";
       }
       if ("default" in changes) {
-        aquery += (" DEFAULT " + stringify(changes.default));
+        aquery += (" DEFAULT " + this.stringify(changes.default));
       }
       querys.push(aquery);
       fcolumnName = changes.columnName;
@@ -210,7 +253,7 @@ class ConnectionPostgres implements IConnectionOperations {
         querys.push(
           `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
             changes.default
-              ? "SET DEFAULT " + stringify(changes.default)
+              ? "SET DEFAULT " + this.stringify(changes.default)
               : "DROP DEFAULT"
           }`,
         );
@@ -225,7 +268,9 @@ class ConnectionPostgres implements IConnectionOperations {
       schema ? schema + "." : ""
     }${entity}.${columnName} IS `;
     sql += `${
-      comment === null || comment === undefined ? "NULL" : stringify(comment)
+      comment === null || comment === undefined
+        ? "NULL"
+        : this.stringify(comment)
     }`;
     return sql;
   };

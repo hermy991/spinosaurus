@@ -1,4 +1,5 @@
 import { ColumnOptions } from "../options/column_options.ts";
+import { AllColumnOptions } from "../options/all_column_options.ts";
 import { UpdateColumnOptions } from "../options/update_column_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
@@ -6,7 +7,7 @@ import { reflect_metadata } from "../../../deps.ts";
 
 export function UpdateColumn(
   options: UpdateColumnOptions,
-  fun: Function,
+  autoUpdate: Function,
 ): any {
   return (
     entityf: Object,
@@ -18,7 +19,7 @@ export function UpdateColumn(
      */
     const funt =
       (entityf instanceof Function ? <Function> entityf : entityf.constructor);
-    const entity = { target: fun, name: funt.name };
+    const entity = { target: funt, name: funt.name };
     const property = {
       propertyKey,
       type: reflect_metadata.Reflect.getMetadata(
@@ -31,8 +32,8 @@ export function UpdateColumn(
       name: propertyKey,
       spitype: getColumnType({ type: property.type }),
     };
-    const mixeds: ColumnOptions = Object.assign(target, options, {
-      autoUpdate: fun,
+    const mixeds: AllColumnOptions = Object.assign(target, options, {
+      autoUpdate,
     });
     const column = {
       target,

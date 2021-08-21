@@ -49,7 +49,7 @@ export class BuilderUpdate extends BuilderBase {
     conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ) {
-    this.#whereData.push(...this.interpolate(conditions, params));
+    this.#whereData.push(...this.conn.interpolate(conditions, params));
   }
 
   getEntityQuery(e: { schema?: string; entity?: string }) {
@@ -58,19 +58,17 @@ export class BuilderUpdate extends BuilderBase {
   }
 
   getWhereQuery(addings: string[] = []) {
-    if (!this.#whereData.length) {
+    if (!this.#whereData.length && !addings.length) {
       return ``;
     }
-    const conditions: string[] = [];
-    for (let i = 0; i < this.#whereData.length; i++) {
-      const tempWhere = this.#whereData[i];
-      conditions.push(tempWhere);
+    let sql: string[] = [];
+    sql.push(`WHERE`);
+    if (addings.length && this.#whereData.length) {
+      sql.push(`${addings.join(" ")} AND ( ${this.#whereData.join(" ")} )`);
+    } else {
+      sql = [...sql, `${addings.join(" ")}`, `${this.#whereData.join(" ")}`];
     }
-
-    if (addings.length) {
-      return `WHERE ${addings.join(" ")} AND ( ${conditions.join(" ")} )`;
-    }
-    return `WHERE ${conditions.join(" ")}`;
+    return sql.join(" ");
   }
 
   getEntitySetQuery(
@@ -83,9 +81,9 @@ export class BuilderUpdate extends BuilderBase {
     }
     const sqls: string[] = [this.getEntityQuery(e)];
     const columns: string[] = [];
-    const addins: string[] = [];
+    const addings: string[] = [];
     let cloned: { [x: string]: any } = {};
-    let primaryColumn: { name: string; value: any } | undefined;
+    //let primaryColumn: { name: string; value: any } | undefined;
     if (!ps.length) {
       cloned = set;
     } else {
@@ -96,19 +94,25 @@ export class BuilderUpdate extends BuilderBase {
               cloned[p.name] = set[name];
             }
             if (p.primary) {
-              primaryColumn = { name: p.name, value: set[name] };
-              addins.push(
-                `${this.clearNames(p.name)} = ${this.stringify(set[name])}`,
+              //primaryColumn = { name: p.name, value: set[name] };
+              addings.push(
+                `${this.clearNames(p.name)} = ${
+                  this.conn.stringify(set[name])
+                }`,
               );
             }
           }
         }
       }
+      for (const p of ps.filter((x) => x.autoUpdate)) {
+        if (!(p.name in cloned)) {
+          cloned[p.name] = p.autoUpdate;
+        }
+      }
     }
-
     for (const dbname in cloned) {
       const tempStr = `${this.clearNames(dbname)} = ${
-        this.stringify(cloned[dbname])
+        this.conn.stringify(cloned[dbname])
       }`;
       columns.push(tempStr);
     }
@@ -116,7 +120,7 @@ export class BuilderUpdate extends BuilderBase {
       return ``;
     }
     sqls.push(`SET ${columns.join(", ")}`);
-    const where = this.getWhereQuery(addins);
+    const where = this.getWhereQuery(addings);
     if (where) {
       sqls.push(where);
     }
