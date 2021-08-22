@@ -50,50 +50,53 @@ Deno.test("select [select distinct *] sql", () => {
   assertEquals(query, queryExpected);
 });
 Deno.test("select [select * from 'Entity'] sql", async () => {
-  const { FromEntity1, FromEntity2, FromEntity5 } = await import(
-    "./playground/decorators/FromEntity.ts"
+  const { SelectEntity1, SelectEntity2, SelectEntity5 } = await import(
+    "./playground/decorators/SelectEntity.ts"
   );
   const db: Connection = new Connection(con1);
-  const qs1 = db.select().from({ entity: FromEntity1, as: "u" });
+  const qs1 = db.select().from({ entity: SelectEntity1, as: "u" });
   let q1 = qs1.getQuery() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const qe1 = `SELECT "u"."test1" "test1" FROM "FromEntity1" AS "u"`
-    .replace(
-      /[ \n\t]+/ig,
-      " ",
-    )
-    .trim();
+  const qe1 =
+    `SELECT "u"."test1" "test1", "u"."test2" "test2", "u"."custom" "custom" FROM "SelectEntityCustom" AS "u"`
+      .replace(
+        /[ \n\t]+/ig,
+        " ",
+      )
+      .trim();
   assertEquals(q1, qe1);
-  const qs2 = db.select().from({ entity: FromEntity2 });
+  const qs2 = db.select().from({ entity: SelectEntity2 });
   let q2 = qs2.getQuery() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const qe2 = `SELECT "FromEntity2"."test1" "test1" FROM "FromEntity2"`
-    .replace(
-      /[ \n\t]+/ig,
-      " ",
-    )
-    .trim();
+  const qe2 =
+    `SELECT "SelectEntity2"."test1" "test1", "SelectEntity2"."test2" "test2", "SelectEntity2"."test3" "test3" FROM "SelectEntity2"`
+      .replace(
+        /[ \n\t]+/ig,
+        " ",
+      )
+      .trim();
   assertEquals(q2, qe2);
-  const qs3 = db.select().from({ entity: FromEntity5 });
+  const qs3 = db.select().from({ entity: SelectEntity5 });
   let q3 = qs3.getQuery() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe3 =
-    `SELECT "hello"."FromEntity5"."test1" "test1" FROM "hello"."FromEntity5"`
+    `SELECT "hello"."SelectEntity5"."test1" "test1", "hello"."SelectEntity5"."test2" "test2" FROM "hello"."SelectEntity5"`
       .replace(
         /[ \n\t]+/ig,
         " ",
       )
       .trim();
   assertEquals(q3, qe3);
-  const qs4 = db.select().from({ entity: FromEntity5, as: "u" });
+  const qs4 = db.select().from({ entity: SelectEntity5, as: "u" });
   let q4 = qs4.getQuery() || "";
   q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const qe4 = `SELECT "u"."test1" "test1" FROM "hello"."FromEntity5" AS "u"`
-    .replace(
-      /[ \n\t]+/ig,
-      " ",
-    )
-    .trim();
+  const qe4 =
+    `SELECT "u"."test1" "test1", "u"."test2" "test2" FROM "hello"."SelectEntity5" AS "u"`
+      .replace(
+        /[ \n\t]+/ig,
+        " ",
+      )
+      .trim();
   assertEquals(q4, qe4);
 });
 Deno.test("select [select columns] sql", () => {

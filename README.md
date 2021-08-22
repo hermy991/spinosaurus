@@ -163,9 +163,8 @@ deno run -qA https://code.velociraptor.run test:exec
 - column, unique, check alter testing
 - alter column (implement primary key and auto-increment)
 - testing for generate columns from entity in select using options
-- filter columns entity on insert, update
 - adding primary key column in each delete
-- using entity test select
+- using entity in select, example select().from(Entity)
 - throw a error when @UpdateColumn property is not a Number type
 - adding interpolation list
   `( '"primaryKey" IN(:primaryKey)',  { primaryKey: [ 1, 2, 3, 4 ] })`
@@ -177,4 +176,7 @@ deno run -qA https://code.velociraptor.run test:exec
 - does not insert object with a primary generated property in entity mode
 - create a option in insert entity option witch can insert with a primary
   generated key
-- adding bulk (insert and update)
+- adding bulk (insert and update), and testing
+- adding joinAndWrap, leftAndWrap, rigthAndWrap and exec testing, remember
+  include in joinAndSelect, joinAndSelect, joinAndSelect as a option (wrap:
+  boolean)

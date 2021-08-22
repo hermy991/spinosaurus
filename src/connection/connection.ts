@@ -11,6 +11,7 @@ import { ExecutorRename } from "./executors/executor_rename.ts";
 import { ExecutorInsert } from "./executors/executor_insert.ts";
 import { ExecutorUpdate } from "./executors/executor_update.ts";
 import { ExecutorDelete } from "./executors/executor_delete.ts";
+import { ExecutorUpsert } from "./executors/executor_upsert.ts";
 import { ExecuteResult } from "./execute_result.ts";
 
 class Connection {
@@ -163,6 +164,19 @@ class Connection {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorDelete = new ExecutorDelete(this.#connection);
     executor.delete(req);
+    return executor;
+  }
+
+  upsert(
+    req:
+      | { entity: string; schema?: string }
+      | { entity: Function; options?: { autoInsert?: boolean } }
+      | [string, string?]
+      | Function,
+  ) {
+    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorUpsert = new ExecutorUpsert(this.#connection);
+    executor.upsert(req);
     return executor;
   }
 
