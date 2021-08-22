@@ -169,11 +169,12 @@ deno run -qA https://code.velociraptor.run test:exec
 - throw a error when @UpdateColumn property is not a Number type
 - adding interpolation list
   `( '"primaryKey" IN(:primaryKey)',  { primaryKey: [ 1, 2, 3, 4 ] })`
-- adding @InsertColumn
+- implement in @InsertColumn, @UpdateColumn (value) and ({options}, value)
+  params
 - does not update object without primary key in entity mode (updating a antity),
   create testing too
 - create a option in update entity option witch can update without a primary key
 - does not insert object with a primary generated property in entity mode
-  (inserting a antity), create testing too
 - create a option in insert entity option witch can insert with a primary
   generated key
+- adding bulk (insert and update)

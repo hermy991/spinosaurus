@@ -4,7 +4,9 @@ import { ConnectionAll } from "../connection_type.ts";
 export class BuilderInsert extends BuilderBase {
   #options: { autoInsert?: boolean } = { autoInsert: true };
   #entityData: { entity: string; schema?: string } | Function | null = null;
-  #valuesData: Array<any> = [];
+  #valuesData: Array<
+    { [x: string]: string | number | boolean | Date | Function | null }
+  > = [];
 
   constructor(public conn: ConnectionAll) {
     super(conn);
@@ -30,77 +32,123 @@ export class BuilderInsert extends BuilderBase {
     }
   }
 
-  values(data: Array<any> | any) {
+  values(
+    data:
+      | Array<
+        { [x: string]: string | number | boolean | Date | Function | null }
+      >
+      | { [x: string]: string | number | boolean | Date | Function | null },
+  ) {
+    this.#valuesData = [];
     this.addValues(data);
   }
 
-  addValues(data: Array<any> | any) {
+  addValues(
+    data:
+      | Array<
+        { [x: string]: string | number | boolean | Date | Function | null }
+      >
+      | { [x: string]: string | number | boolean | Date | Function | null },
+  ) {
     data = Array.isArray(data) ? data : [data];
     this.#valuesData.push(...data);
   }
 
-  getEntityQuery() {
-    if (!this.#entityData) {
-      return ``;
-    }
-    let e: { schema?: string; entity?: string } = {};
-    if (this.#entityData instanceof Function) {
-      e = this.getEntityData(this.conn.options.name, this.#entityData);
-    } else {
-      e = this.#entityData;
-    }
+  getEntityQuery(e: { schema?: string; entity?: string }) {
     const query = `${this.clearNames([e.schema, e.entity])}`;
     return `INSERT INTO ${query}`;
   }
 
-  getColumnsQuery() {
+  getColumnsQuery(keys: Array<string>) {
     if (!this.#valuesData.length) {
       return ``;
     }
     const columns: Set<string> = new Set();
-    this.#valuesData.forEach((value) => {
-      const keys = Object.keys(value);
-      keys.forEach((key) => columns.add(this.clearNames(key)));
-    });
+    keys.forEach((key) => columns.add(this.clearNames(key)));
     return `(${[...columns].join(", ")})`;
   }
-
-  getValueQuery(obj: { [x: string]: string | number | Date }) {
-    const columns: string[] = Object.values(obj).map((x) =>
-      this.conn.stringify(x)
-    );
-    if (!columns.length) {
-      return undefined;
-    }
-    return `(${columns.join(", ")})`;
+  getValuesQuery(
+    values: Array<string | number | boolean | Date | Function | null>,
+  ) {
+    return `VALUES (${values.map((v) => this.conn.stringify(v)).join(", ")})`;
   }
 
-  getValuesQuery(data: Array<any> | any) {
-    data = Array.isArray(data) ? data : [data];
-    const objs: Array<string> = [];
-
-    for (const obj of data) {
-      const value = this.getValueQuery(obj);
-      if (value) {
-        objs.push(value);
-      }
-    }
-    return `VALUES ${objs.join(", ")}`;
-  }
-
-  getQuery() {
-    if (!this.#valuesData.length) {
+  getEntityValueQuery(
+    e: { schema?: string; entity?: string },
+    value: { [x: string]: string | number | boolean | Date | Function | null },
+    ps: Array<any> = [],
+  ) {
+    if (!value) {
       return ``;
     }
-    const inserts: string[] = [];
-
-    this.#valuesData.forEach((x) =>
-      inserts.push(
-        `${this.getEntityQuery()}\n${this.getColumnsQuery()}\n${
-          this.getValuesQuery(x)
-        }`,
-      )
-    );
-    return inserts.join(";\n");
+    let primaryGeneratedColumn: {
+      name: string;
+      value: any;
+      autoIncrement: string;
+    } | undefined;
+    const sqls: string[] = [this.getEntityQuery(e)];
+    let cloned: {
+      [x: string]: string | number | boolean | Date | Function | null;
+    } = {};
+    if (!ps.length) {
+      cloned = value;
+    } else {
+      for (const name in value) {
+        for (const p of ps) {
+          if (p.propertyKey === name) {
+            if (p.insert) {
+              cloned[p.name] = value[name];
+            }
+            if (p.primary && p.autoIncrement) {
+              primaryGeneratedColumn = {
+                name: p.name,
+                value: value[name],
+                autoIncrement: p.autoIncrement,
+              };
+            }
+          }
+        }
+      }
+      if (
+        primaryGeneratedColumn /*&& !this.#options.updateWithoutPrimaryKey*/
+      ) {
+        return ``;
+      }
+      for (
+        const p of ps.filter((x) => x.autoInsert && this.#options.autoInsert)
+      ) {
+        if (!(p.name in cloned)) {
+          cloned[p.name] = p.autoInsert;
+        }
+      }
+    }
+    if (!Object.keys(cloned)) {
+      return ``;
+    }
+    Object.values(cloned);
+    sqls.push(this.getColumnsQuery(Object.keys(cloned)));
+    sqls.push(this.getValuesQuery(Object.values(cloned)));
+    return sqls.join(" ");
+  }
+  getQuery() {
+    if (!this.#entityData) {
+      return "";
+    }
+    const sqls: string[] = [];
+    let e: { schema?: string; entity?: string } = {};
+    let ps = [];
+    if (this.#entityData instanceof Function) {
+      e = this.getEntityData(this.conn.options.name, this.#entityData);
+      ps = this.getColumnAccesors(this.conn.options.name, this.#entityData);
+    } else {
+      e = <any> this.#entityData;
+    }
+    for (const value of this.#valuesData) {
+      const sql = `${this.getEntityValueQuery(e, value, ps)}`;
+      if (sql) {
+        sqls.push(sql);
+      }
+    }
+    return sqls.join(";\n");
   }
 }

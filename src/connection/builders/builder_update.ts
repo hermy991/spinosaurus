@@ -7,8 +7,9 @@ export class BuilderUpdate extends BuilderBase {
     updateWithoutPrimaryKey: false,
   };
   #entityData: { entity: string; schema?: string } | Function | null = null;
-  #setData: Array<{ [x: string]: string | number | Date | Function | null }> =
-    [];
+  #setData: Array<
+    { [x: string]: string | number | boolean | Date | Function | null }
+  > = [];
   #whereData: Array<string> = [];
 
   constructor(public conn: ConnectionAll) {
@@ -40,7 +41,7 @@ export class BuilderUpdate extends BuilderBase {
 
   set(
     ...entities: Array<
-      { [x: string]: string | number | Date | Function | null }
+      { [x: string]: string | number | boolean | Date | Function | null }
     >
   ) {
     this.#setData = [];
@@ -48,7 +49,9 @@ export class BuilderUpdate extends BuilderBase {
   }
 
   addSet(
-    columns: { [x: string]: string | number | Date | Function | null },
+    columns: {
+      [x: string]: string | number | boolean | Date | Function | null;
+    },
   ) {
     this.#setData.push(columns);
   }
@@ -89,7 +92,7 @@ export class BuilderUpdate extends BuilderBase {
 
   getEntitySetQuery(
     e: { schema?: string; entity?: string },
-    set: { [x: string]: string | number | Date | Function | null },
+    set: { [x: string]: string | number | boolean | Date | Function | null },
     ps: Array<any> = [],
   ) {
     if (!set) {
@@ -99,7 +102,9 @@ export class BuilderUpdate extends BuilderBase {
     const sqls: string[] = [this.getEntityQuery(e)];
     const columns: string[] = [];
     const addings: string[] = [];
-    let cloned: { [x: string]: any } = {};
+    let cloned: {
+      [x: string]: string | number | boolean | Date | Function | null;
+    } = {};
     if (!ps.length) {
       cloned = set;
     } else {
@@ -145,7 +150,7 @@ export class BuilderUpdate extends BuilderBase {
     if (where) {
       sqls.push(where);
     }
-    return sqls.join("\n");
+    return sqls.join(" ");
   }
 
   getQuery() {

@@ -24,7 +24,7 @@ export class ExecutorUpdate {
 
   set(
     ...columns: Array<
-      { [x: string]: string | number | Date | Function | null }
+      { [x: string]: string | number | boolean | Date | Function | null }
     >
   ): ExecutorUpdate {
     this.ub.set(...columns);
@@ -32,7 +32,9 @@ export class ExecutorUpdate {
   }
 
   addSet(
-    columns: { [x: string]: string | number | Date | Function | null },
+    columns: {
+      [x: string]: string | number | boolean | Date | Function | null;
+    },
   ): ExecutorUpdate {
     this.ub.addSet(columns);
     return this;

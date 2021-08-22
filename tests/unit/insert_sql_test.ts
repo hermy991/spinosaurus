@@ -16,39 +16,46 @@ Deno.test("insert [insert] sql", () => {
 });
 
 Deno.test("insert [insert 'Entity'] sql", async () => {
-  const { FromEntity1, FromEntity2, FromEntity4, FromEntity5 } = await import(
-    "./playground/decorators/FromEntity.ts"
-  );
+  const { InsertEntity1, InsertEntity2, InsertEntity4, InsertEntity5 } =
+    await import(
+      "./playground/decorators/InsertEntity.ts"
+    );
   const db: Connection = new Connection(con1);
-  const qs1 = db.insert(FromEntity1)
-    .values({ column1: "xx" });
+  const qs1 = db.insert(InsertEntity1)
+    .values({ column2: "xx", column3: "xxx", column4: "xxxx" });
   let q1 = qs1.getQuery() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const qe1 = `INSERT INTO "FromEntity1" ("column1") VALUES ('xx')`
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe1 =
+    `INSERT INTO "InsertEntity1" ("column2", "column3") VALUES ('xx', 'xxx')`
+      .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(q1, qe1);
 
-  const qs2 = db.insert(FromEntity2)
-    .values({ column1: "xx" });
+  const qs2 = db.insert(InsertEntity2)
+    .values({ test1: "xx", column1: 1, column2: "xx" });
   let q2 = qs2.getQuery() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const qe2 = `INSERT INTO "FromEntity2" ("column1") VALUES ('xx')`
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe2 = ``.replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(q2, qe2);
 
-  const qs3 = db.insert(FromEntity4)
-    .values({ column1: "xx" });
+  const qs3 = db.insert(InsertEntity4)
+    .values([{ column1: 50 }, { column2: "xx" }, { column3: "xxx" }]);
   let q3 = qs3.getQuery() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const qe3 = `INSERT INTO "FromEntity3" ("column1") VALUES ('xx')`
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe3 =
+    `INSERT INTO "InsertEntity3" ("column2", "column5", "column6") VALUES ('xx', now(), now());
+  INSERT INTO "InsertEntity3" ("column3", "column5", "column6") VALUES ('xxx', now(), now())`
+      .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(q3, qe3);
 
-  const qs4 = db.insert(FromEntity5)
-    .values({ column1: "xx" });
+  const qs4 = db.insert({
+    entity: InsertEntity5,
+    options: { autoInsert: false },
+  })
+    .values([{ column1: 50 }, { column2: "xx" }, { column3: "xxx" }]);
   let q4 = qs4.getQuery() || "";
   q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const qe4 = `INSERT INTO "hello"."FromEntity5" ("column1") VALUES ('xx')`
+  const qe4 = `INSERT INTO "hello"."InsertEntity5" ("column2") VALUES ('xx');
+INSERT INTO "hello"."InsertEntity5" ("column3") VALUES ('xxx')`
     .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(q4, qe4);
 });

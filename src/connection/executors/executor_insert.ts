@@ -18,12 +18,24 @@ export class ExecutorInsert {
     return this;
   }
 
-  values(data: Array<any> | any): ExecutorInsert {
+  values(
+    data:
+      | Array<
+        { [x: string]: string | number | boolean | Date | Function | null }
+      >
+      | { [x: string]: string | number | boolean | Date | Function | null },
+  ): ExecutorInsert {
     this.ib.values(data);
     return this;
   }
 
-  addValues(data: Array<any> | any): ExecutorInsert {
+  addValues(
+    data:
+      | Array<
+        { [x: string]: string | number | boolean | Date | Function | null }
+      >
+      | { [x: string]: string | number | boolean | Date | Function | null },
+  ): ExecutorInsert {
     this.ib.addValues(data);
     return this;
   }
