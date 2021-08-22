@@ -13,8 +13,8 @@ import {
 })
 export class CheckEntity1 {
   @PrimaryGeneratedColumn()
-  column1?: number;
+  column1!: number;
 
   @Column({ length: 100 })
-  column2?: string;
+  column2!: string;
 }
