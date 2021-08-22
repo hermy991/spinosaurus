@@ -2,22 +2,31 @@ import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderInsert extends BuilderBase {
-  private entityData: { entity: string; schema?: string } | Function | null =
-    null;
-  private valuesData: Array<any> = [];
+  #options: { autoInsert?: boolean } = { autoInsert: true };
+  #entityData: { entity: string; schema?: string } | Function | null = null;
+  #valuesData: Array<any> = [];
 
   constructor(public conn: ConnectionAll) {
     super(conn);
   }
 
   insert(
-    req: { entity: string; schema?: string } | [string, string?] | Function,
+    req:
+      | { entity: string; schema?: string }
+      | { entity: Function; options?: { autoInsert?: boolean } }
+      | [string, string?]
+      | Function,
   ): void {
     if (Array.isArray(req)) {
       const [entity, schema] = req;
-      this.entityData = { entity, schema };
+      this.#entityData = { entity, schema };
+    } else if (typeof req === "function") {
+      this.#entityData = req;
+    } else if (req.entity instanceof Function) {
+      this.#entityData = req.entity;
+      this.#options = (<any> req).options || {};
     } else {
-      this.entityData = req;
+      this.#entityData = <any> req;
     }
   }
 
@@ -27,29 +36,29 @@ export class BuilderInsert extends BuilderBase {
 
   addValues(data: Array<any> | any) {
     data = Array.isArray(data) ? data : [data];
-    this.valuesData.push(...data);
+    this.#valuesData.push(...data);
   }
 
   getEntityQuery() {
-    if (!this.entityData) {
+    if (!this.#entityData) {
       return ``;
     }
     let e: { schema?: string; entity?: string } = {};
-    if (this.entityData instanceof Function) {
-      e = this.getEntityData(this.conn.options.name, this.entityData);
+    if (this.#entityData instanceof Function) {
+      e = this.getEntityData(this.conn.options.name, this.#entityData);
     } else {
-      e = this.entityData;
+      e = this.#entityData;
     }
     const query = `${this.clearNames([e.schema, e.entity])}`;
     return `INSERT INTO ${query}`;
   }
 
   getColumnsQuery() {
-    if (!this.valuesData.length) {
+    if (!this.#valuesData.length) {
       return ``;
     }
     const columns: Set<string> = new Set();
-    this.valuesData.forEach((value) => {
+    this.#valuesData.forEach((value) => {
       const keys = Object.keys(value);
       keys.forEach((key) => columns.add(this.clearNames(key)));
     });
@@ -80,12 +89,12 @@ export class BuilderInsert extends BuilderBase {
   }
 
   getQuery() {
-    if (!this.valuesData.length) {
+    if (!this.#valuesData.length) {
       return ``;
     }
     const inserts: string[] = [];
 
-    this.valuesData.forEach((x) =>
+    this.#valuesData.forEach((x) =>
       inserts.push(
         `${this.getEntityQuery()}\n${this.getColumnsQuery()}\n${
           this.getValuesQuery(x)

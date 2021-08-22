@@ -156,18 +156,24 @@ deno run -qA https://code.velociraptor.run test:exec
 
 # TODO
 
-- [ ] testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata
-- [ ] testing primary column executor testing
-- [ ] testing generated column executor testing
-- [ ] configuration env and files flow
-- [ ] column, unique, check alter testing
-- [ ] alter column (implement primary key and auto-increment)
-- [ ] testing for generate columns from entity in select using options
-- [ ] filter columns entity on insert, update
-- [ ] adding primary key column in each delete
-- [ ] using entity test select
-- [ ] create OneToOne decorator
-- [x] implement unique and uniqueOne options in @Column
-- [ ] exclude unique and uniqueOne from @GeneratedPrimaryColumn and
-  @PrimaryColumn
-- [ ] throw a error when @UpdateColumn property is not a Number type
+- testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata
+- testing primary column executor testing
+- testing generated column executor testing
+- configuration env and files flow
+- column, unique, check alter testing
+- alter column (implement primary key and auto-increment)
+- testing for generate columns from entity in select using options
+- filter columns entity on insert, update
+- adding primary key column in each delete
+- using entity test select
+- throw a error when @UpdateColumn property is not a Number type
+- adding interpolation list
+  `( '"primaryKey" IN(:primaryKey)',  { primaryKey: [ 1, 2, 3, 4 ] })`
+- adding @InsertColumn
+- does not update object without primary key in entity mode (updating a antity),
+  create testing too
+- create a option in update entity option witch can update without a primary key
+- does not insert object with a primary generated property in entity mode
+  (inserting a antity), create testing too
+- create a option in insert entity option witch can insert with a primary
+  generated key

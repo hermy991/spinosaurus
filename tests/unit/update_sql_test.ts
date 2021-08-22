@@ -68,6 +68,23 @@ Deno.test("update [update 'Entity'] sql", async () => {
     `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1 AND ( "column2" = '' OR "column2" IS NULL )`
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(q3, qe3);
+  const qs4 = db.update({
+    entity: UpdateEntity2,
+    options: { autoUpdate: false },
+  })
+    .set({
+      primaryGeneratedColumn: 1,
+      column2: "ss",
+      column3: "sss",
+      column4: "dont show columns",
+    })
+    .where([`"column2" = ''`, `OR "column2" IS NULL`]);
+  let q4 = qs4.getQuery() || "";
+  q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe4 =
+    `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss' WHERE "primaryGeneratedColumn" = 1 AND ( "column2" = '' OR "column2" IS NULL )`
+      .replaceAll(/[ \n\t]+/ig, " ").trim();
+  assertEquals(q4, qe4);
 });
 Deno.test("update [update with where] sql", () => {
   const db: Connection = new Connection(con1);

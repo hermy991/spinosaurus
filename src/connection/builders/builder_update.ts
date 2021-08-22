@@ -2,6 +2,10 @@ import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderUpdate extends BuilderBase {
+  #options: { autoUpdate?: boolean; updateWithoutPrimaryKey?: boolean } = {
+    autoUpdate: true,
+    updateWithoutPrimaryKey: false,
+  };
   #entityData: { entity: string; schema?: string } | Function | null = null;
   #setData: Array<{ [x: string]: string | number | Date | Function | null }> =
     [];
@@ -12,13 +16,25 @@ export class BuilderUpdate extends BuilderBase {
   }
 
   update(
-    req: { entity: string; schema?: string } | [string, string?] | Function,
+    req:
+      | { entity: string; schema?: string }
+      | {
+        entity: Function;
+        options?: { autoUpdate?: boolean; updateWithoutPrimaryKey?: boolean };
+      }
+      | [string, string?]
+      | Function,
   ): void {
     if (Array.isArray(req)) {
       const [entity, schema] = req;
       this.#entityData = { entity, schema };
-    } else {
+    } else if (typeof req === "function") {
       this.#entityData = req;
+    } else if (req.entity instanceof Function) {
+      this.#entityData = req.entity;
+      this.#options = (<any> req).options || {};
+    } else {
+      this.#entityData = <any> req;
     }
   }
 
@@ -79,11 +95,11 @@ export class BuilderUpdate extends BuilderBase {
     if (!set) {
       return ``;
     }
+    let primaryColumn: { name: string; value: any } | undefined;
     const sqls: string[] = [this.getEntityQuery(e)];
     const columns: string[] = [];
     const addings: string[] = [];
     let cloned: { [x: string]: any } = {};
-    //let primaryColumn: { name: string; value: any } | undefined;
     if (!ps.length) {
       cloned = set;
     } else {
@@ -94,7 +110,7 @@ export class BuilderUpdate extends BuilderBase {
               cloned[p.name] = set[name];
             }
             if (p.primary) {
-              //primaryColumn = { name: p.name, value: set[name] };
+              primaryColumn = { name: p.name, value: set[name] };
               addings.push(
                 `${this.clearNames(p.name)} = ${
                   this.conn.stringify(set[name])
@@ -104,7 +120,12 @@ export class BuilderUpdate extends BuilderBase {
           }
         }
       }
-      for (const p of ps.filter((x) => x.autoUpdate)) {
+      if (!primaryColumn && !this.#options.updateWithoutPrimaryKey) {
+        return ``;
+      }
+      for (
+        const p of ps.filter((x) => x.autoUpdate && this.#options.autoUpdate)
+      ) {
         if (!(p.name in cloned)) {
           cloned[p.name] = p.autoUpdate;
         }
@@ -142,7 +163,9 @@ export class BuilderUpdate extends BuilderBase {
     }
     for (const set of this.#setData) {
       const sql = `${this.getEntitySetQuery(e, set, ps)}`;
-      sqls.push(sql);
+      if (sql) {
+        sqls.push(sql);
+      }
     }
     return sqls.join(";");
   }

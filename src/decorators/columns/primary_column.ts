@@ -4,7 +4,7 @@ import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
 import { reflect_metadata } from "../../../deps.ts";
 
-export function PrimaryColumn(options: ColumnOptions = {}): any {
+export function PrimaryColumn(options: PrimaryColumnOptions = {}): any {
   return (
     entityf: Object,
     propertyKey: string,

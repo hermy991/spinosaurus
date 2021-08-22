@@ -129,7 +129,14 @@ class Connection {
   }
 
   update(
-    req: { entity: string; schema?: string } | [string, string?] | Function,
+    req:
+      | { entity: string; schema?: string }
+      | {
+        entity: Function;
+        options?: { autoUpdate?: boolean; updateWithoutPrimaryKey?: boolean };
+      }
+      | [string, string?]
+      | Function,
   ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorUpdate = new ExecutorUpdate(this.#connection);
@@ -138,7 +145,11 @@ class Connection {
   }
 
   insert(
-    req: { entity: string; schema?: string } | [string, string?] | Function,
+    req:
+      | { entity: string; schema?: string }
+      | { entity: Function; options?: { autoInsert?: boolean } }
+      | [string, string?]
+      | Function,
   ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorInsert = new ExecutorInsert(this.#connection);

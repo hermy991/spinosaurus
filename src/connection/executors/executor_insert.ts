@@ -8,7 +8,11 @@ export class ExecutorInsert {
   }
 
   insert(
-    req: { entity: string; schema?: string } | [string, string?] | Function,
+    req:
+      | { entity: string; schema?: string }
+      | { entity: Function; options?: { autoInsert?: boolean } }
+      | [string, string?]
+      | Function,
   ): ExecutorInsert {
     this.ib.insert(req);
     return this;
