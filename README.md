@@ -5,7 +5,7 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 ## Features
 
 - [ ] Supports both DataMapper and ActiveRecord (your choice)
-- [ ] Entities and columns
+- [x] Entities and columns
 - [ ] Database-specific column types
 - [ ] Entity manager
 - [ ] Repositories and custom repositories
@@ -24,7 +24,7 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 - [ ] Working with multiple databases types
 - [ ] Cross-database and cross-schema queries
 - [x] Elegant-syntax, flexible and powerful QueryBuilder
-- [ ] Left and inner joins
+- [x] Left and inner joins
 - [ ] Proper pagination for queries using joins
 - [x] Query caching
 - [ ] Streaming raw results
@@ -40,13 +40,13 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
   - [ ] Oracle
 - [ ] Supports MongoDB NoSQL database
 - [ ] works in platforms
-  - [ ] Deno
+  - [x] Deno
   - [ ] NodeJS
   - [ ] Browser
   - [ ] Electron
 - [ ] Language support
   - [ ] JavaScript
-  - [ ] TypeScript
+  - [x] TypeScript
 - [ ] Produced code is performant, flexible, clean and maintainable
 - [ ] Follows all possible best practices
 - [ ] CLI
@@ -156,6 +156,8 @@ deno run -qA https://code.velociraptor.run test:exec
 
 # TODO
 
+- documentation
+- code coments
 - testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata
 - testing primary column executor testing
 - testing generated column executor testing
