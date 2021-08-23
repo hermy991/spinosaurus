@@ -27,44 +27,67 @@ export async function getConnectionOptions(
 }
 
 export async function getConnectionEnvOptions() {
-  const permission = await Deno.permissions.query({ name: "env" } as const);
-  if (
-    permission.state === "granted" &&
-    Deno.env.get("SPINOSAURUS_CONN_TYPE") &&
-    Deno.env.get("SPINOSAURUS_CONN_NAME") &&
-    Deno.env.get("SPINOSAURUS_CONN_HOST")
-  ) {
-    const options: ConnectionOptionsAll = <ConnectionOptionsAll> {
-      type: Deno.env.get("SPINOSAURUS_CONN_TYPE") || "",
-      name: Deno.env.get("SPINOSAURUS_CONN_NAME") || "",
-      host: Deno.env.get("SPINOSAURUS_CONN_HOST") || "",
-      port: Number(Deno.env.get("SPINOSAURUS_CONN_PORT")),
-      username: Deno.env.get("SPINOSAURUS_CONN_USERNAME") || "",
-      password: Deno.env.get("SPINOSAURUS_CONN_PASSWORD") || "",
-      database: Deno.env.get("SPINOSAURUS_CONN_DATABASE") || "",
-      synchronize: Deno.env.get("SPINOSAURUS_CONN_SYNCHRONIZE") &&
-          Deno.env.get("SPINOSAURUS_CONN_SYNCHRONIZE")?.toLowerCase().trim() ==
-            "true"
-        ? true
-        : false,
-      entities: JSON.parse(Deno.env.get("SPINOSAURUS_CONN_ENTITIES") || "[]") ||
-        [],
-    };
-    if (options.entities.length) {
-      const tentities = [];
-      for (let i = 0; i < options.entities.length; i++) {
-        if (/^(\/)|(:)/ig.test(options.entities[i])) {
-          tentities.push(`${options.entities[i]}`);
-        } else {
-          tentities.push(`${Deno.cwd()}/${options.entities[i]}`);
-        }
-      }
-      options.entities = tentities;
+  const variables = {
+    name: "SPINOSAURUS_CONN_NAME",
+    type: "SPINOSAURUS_CONN_TYPE",
+    host: "SPINOSAURUS_CONN_HOST",
+    port: "SPINOSAURUS_CONN_PORT",
+    username: "SPINOSAURUS_CONN_USERNAME",
+    password: "SPINOSAURUS_CONN_PASSWORD",
+    database: "SPINOSAURUS_CONN_DATABASE",
+    synchronize: "SPINOSAURUS_CONN_SYNCHRONIZE",
+    entities: "SPINOSAURUS_CONN_ENTITIES",
+  };
+  const options: any = {};
+  let leave = false;
+  for (const index in Object.entries(variables)) {
+    const entry = Object.entries(variables)[index];
+    let permission = await Deno.permissions.query(
+      { name: "env", variable: entry[1] } as const,
+    );
+    if (Number(index) < 3 && permission.state === "prompt") {
+      permission = await Deno.permissions.request({
+        name: "env",
+        variable: entry[1],
+      });
     }
-    return options;
-  } else {
+    if (Number(index) >= 3 && permission.state === "denied") {
+      leave = true;
+      break;
+    } else if (permission.state === "granted") {
+      console.log(
+        "entities",
+        entry,
+        "Deno.env.get(entry[1])",
+        Deno.env.get(entry[1]),
+      );
+      if (
+        Deno.env.get(entry[1]) === undefined ||
+        Deno.env.get(entry[1]) === null
+      ) {
+        continue;
+      }
+      switch (entry[0]) {
+        case "port":
+          options[entry[0]] = Number(Deno.env.get(entry[1]));
+          break;
+        case "synchronize":
+          Deno.env.get(entry[1]) === "true"
+            ? options[entry[0]] = Deno.env.get(entry[1])
+            : undefined;
+          break;
+        case "entities":
+          options[entry[0]] = JSON.parse(Deno.env.get(entry[1]) + "");
+          break;
+        default:
+          options[entry[0]] = Deno.env.get(entry[1]);
+      }
+    }
+  }
+  if (leave) {
     return;
   }
+  return options;
 }
 
 export async function getConnectionFileOptions(

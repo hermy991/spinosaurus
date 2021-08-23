@@ -22,6 +22,7 @@ const sqls = [
   `${folder}decorator_entity_sql_test.ts`,
 ];
 const execs = [
+  `${folder}files_exec_test.ts`,
   `${folder}create_exec_test.ts`,
   `${folder}drop_exec_test.ts`,
   `${folder}rename_exec_test.ts`,

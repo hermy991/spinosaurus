@@ -17,7 +17,10 @@ import { ExecuteResult } from "./execute_result.ts";
 class Connection {
   #connection?: ConnectionAll;
 
-  constructor(options: ConnectionOptionsAll) {
+  constructor(options?: ConnectionOptionsAll) {
+    // if (!options) {
+    //   options = "";
+    // }
     if (options && options.type === "postgres") {
       this.#connection = new ConnectionPostgres(options);
     }
