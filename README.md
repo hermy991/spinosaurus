@@ -178,7 +178,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - does not insert object with a primary generated property in entity mode
 - create a option in insert entity option witch can insert with a primary
   generated key
-- adding bulk (insert and update), and testing
 - adding joinAndWrap, leftAndWrap, rigthAndWrap and exec testing, remember
   include in joinAndSelect, joinAndSelect, joinAndSelect as a option (wrap:
   boolean)
