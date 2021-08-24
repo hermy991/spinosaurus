@@ -43,6 +43,7 @@ export default {
       allow: {
         net: true,
         read: "./",
+        write: "./",
         env: envs.join(","),
       },
       cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${
@@ -57,6 +58,7 @@ export default {
       allow: {
         net: true,
         read: "./",
+        write: "./",
         env: envs.join(","),
       },
       cmd: "deno test --unsafely-ignore-certificate-errors=localhost ",
@@ -69,6 +71,7 @@ export default {
       allow: {
         net: true,
         read: "./",
+        write: "./",
         env: envs.join(","),
       },
       cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${
@@ -83,6 +86,7 @@ export default {
       allow: {
         net: true,
         read: "./",
+        write: "./",
         env: envs.join(","),
       },
       cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${

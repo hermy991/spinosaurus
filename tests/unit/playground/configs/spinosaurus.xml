@@ -1,0 +1,11 @@
+<connection>
+  <name>neo</name>
+  <type>postgres</type>
+  <host>localhost</host>
+  <port>5432</port>
+  <username>neo</username>
+  <password>hermyde5166</password>
+  <database>neo2</database>
+  <synchronize>true</synchronize>
+  <entities>src/entities/**/*.ts</entities>
+</connection>

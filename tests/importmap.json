@@ -1,7 +1,7 @@
 {
   "imports": {
     "spinosaurus/": "../",
-    "deno/": "https://deno.land/std@0.103.0/",
+    "deno/": "https://deno.land/std@0.105.0/",
     "luxon/mod.ts": "https://moment.github.io/luxon/es6/luxon.min.js"
   }
 }

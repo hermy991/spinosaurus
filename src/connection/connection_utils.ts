@@ -6,6 +6,18 @@ import { error } from "../error/error_utills.ts";
 
 const FILE_NAME = "spinosaurus";
 
+const VARIABLES = {
+  name: "SPINOSAURUS_CONN_NAME",
+  type: "SPINOSAURUS_CONN_TYPE",
+  host: "SPINOSAURUS_CONN_HOST",
+  port: "SPINOSAURUS_CONN_PORT",
+  username: "SPINOSAURUS_CONN_USERNAME",
+  password: "SPINOSAURUS_CONN_PASSWORD",
+  database: "SPINOSAURUS_CONN_DATABASE",
+  synchronize: "SPINOSAURUS_CONN_SYNCHRONIZE",
+  entities: "SPINOSAURUS_CONN_ENTITIES",
+};
+
 export async function getConnectionOptions(
   connectionName: string,
 ): Promise<ConnectionOptionsAll> {
@@ -27,21 +39,10 @@ export async function getConnectionOptions(
 }
 
 export async function getConnectionEnvOptions() {
-  const variables = {
-    name: "SPINOSAURUS_CONN_NAME",
-    type: "SPINOSAURUS_CONN_TYPE",
-    host: "SPINOSAURUS_CONN_HOST",
-    port: "SPINOSAURUS_CONN_PORT",
-    username: "SPINOSAURUS_CONN_USERNAME",
-    password: "SPINOSAURUS_CONN_PASSWORD",
-    database: "SPINOSAURUS_CONN_DATABASE",
-    synchronize: "SPINOSAURUS_CONN_SYNCHRONIZE",
-    entities: "SPINOSAURUS_CONN_ENTITIES",
-  };
   const options: any = {};
   let leave = false;
-  for (const index in Object.entries(variables)) {
-    const entry = Object.entries(variables)[index];
+  for (const index in Object.entries(VARIABLES)) {
+    const entry = Object.entries(VARIABLES)[index];
     let permission = await Deno.permissions.query(
       { name: "env", variable: entry[1] } as const,
     );
@@ -55,32 +56,34 @@ export async function getConnectionEnvOptions() {
       leave = true;
       break;
     } else if (permission.state === "granted") {
-      console.log(
-        "entities",
-        entry,
-        "Deno.env.get(entry[1])",
-        Deno.env.get(entry[1]),
-      );
+      const value = Deno.env.get(entry[1]);
       if (
-        Deno.env.get(entry[1]) === undefined ||
-        Deno.env.get(entry[1]) === null
+        value === undefined ||
+        value === null ||
+        (entry[0] === "entities" && value === "")
       ) {
         continue;
       }
       switch (entry[0]) {
         case "port":
-          options[entry[0]] = Number(Deno.env.get(entry[1]));
+          options[entry[0]] = Number(value);
           break;
         case "synchronize":
-          Deno.env.get(entry[1]) === "true"
-            ? options[entry[0]] = Deno.env.get(entry[1])
-            : undefined;
+          options[entry[0]] = value === "true";
           break;
         case "entities":
-          options[entry[0]] = JSON.parse(Deno.env.get(entry[1]) + "");
+          {
+            try {
+              options[entry[0]] = JSON.parse(value || "");
+            } catch (err) {
+              if (err.name === "SyntaxError") {
+                options[entry[0]] = (value || "").split(",");
+              }
+            }
+          }
           break;
         default:
-          options[entry[0]] = Deno.env.get(entry[1]);
+          options[entry[0]] = value;
       }
     }
   }
@@ -95,24 +98,95 @@ export async function getConnectionFileOptions(
 ) {
   try {
     if (["js", "ts"].includes(extension)) {
-      const options: ConnectionOptionsAll = await import(
-        `${Deno.cwd()}/${FILE_NAME}.${extension}`
-      );
+      const path = `file:///${Deno.cwd()}/${FILE_NAME}.${extension}`;
+      const module: any = await import(path);
+      const options = module.default;
       return options;
     } else {
       const decoder = new TextDecoder("utf-8");
       const raw = Deno.readFileSync(`${Deno.cwd()}/${FILE_NAME}.${extension}`);
       const text = decoder.decode(raw);
       switch (extension) {
-        case "env":
-          return dotenv.dotEnvParser(text);
+        case "env": {
+          const tdata = dotenv.dotEnvParser(text);
+
+          const ndata: any = {};
+          for (const index in VARIABLES) {
+            const value = tdata[(<any> VARIABLES)[index]];
+            if (
+              value === undefined ||
+              value === null ||
+              (index === "entities" && value === "")
+            ) {
+              continue;
+            }
+
+            switch (index) {
+              case "port":
+                ndata[index] = Number(value);
+                break;
+              case "synchronize":
+                ndata[index] = value === "true";
+                break;
+              case "entities":
+                {
+                  try {
+                    ndata[index] = JSON.parse(value || "");
+                  } catch (err) {
+                    if (err.name === "SyntaxError") {
+                      ndata[index] = (value || "").split(",");
+                    }
+                  }
+                }
+                break;
+              default:
+                ndata[index] = value;
+            }
+          }
+          return ndata;
+        }
         case "json":
           return JSON.parse(text);
         case "yml":
         case "yaml":
           return yaml.parse(text);
-        case "xml":
-          return xml.parse(text);
+        case "xml": {
+          const tdata = <any> xml.parse(text);
+          const ndata: any = {};
+          for (const index in tdata.connection) {
+            const value = tdata.connection[index];
+            if (
+              value === undefined ||
+              value === null ||
+              (index === "entities" && value === "")
+            ) {
+              continue;
+            }
+
+            switch (index) {
+              case "port":
+                ndata[index] = Number(value);
+                break;
+              case "synchronize":
+                ndata[index] = (value + "") === "true";
+                break;
+              case "entities":
+                {
+                  try {
+                    ndata[index] = JSON.parse(value || "");
+                  } catch (err) {
+                    if (err.name === "SyntaxError") {
+                      ndata[index] = (value || "").split(",");
+                    }
+                  }
+                }
+                break;
+              default:
+                ndata[index] = value;
+            }
+          }
+          return ndata;
+        }
       }
     }
   } catch (err) {

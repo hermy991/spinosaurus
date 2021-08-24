@@ -182,3 +182,4 @@ deno run -qA https://code.velociraptor.run test:exec
 - adding joinAndWrap, leftAndWrap, rigthAndWrap and exec testing, remember
   include in joinAndSelect, joinAndSelect, joinAndSelect as a option (wrap:
   boolean)
+- suport multiple connection
