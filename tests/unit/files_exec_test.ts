@@ -37,17 +37,19 @@ Deno.test("file configurations data", async () => {
     synchronize: true,
     entities: ["src/entities/**/*.ts"],
   };
-  const path = "./playground/configs/";
+  const path = "./tests/unit/playground/configs/";
   const files = [
-    `${path}spinosaurus.env`,
-    `${path}spinosaurus.js`,
-    `${path}spinosaurus.ts`,
-    `${path}spinosaurus.json`,
-    `${path}spinosaurus.yml`,
-    `${path}spinosaurus.yaml`,
-    `${path}spinosaurus.xml`,
+    `spinosaurus.env`,
+    `spinosaurus.js`,
+    `spinosaurus.ts`,
+    `spinosaurus.json`,
+    `spinosaurus.yml`,
+    `spinosaurus.yaml`,
+    `spinosaurus.xml`,
   ];
-  files.forEach((file) => copy(file, `.${file}`, { overwrite: true }));
+  for (const file of files) {
+    await copy(`${path}${file}`, `./${file}`, { overwrite: true });
+  }
   const fenvOpts = await getConnectionFileOptions("env");
   assertEquals(fenvOpts, opts);
   const fjsOpts = await getConnectionFileOptions("js");
@@ -62,4 +64,7 @@ Deno.test("file configurations data", async () => {
   assertEquals(fyamlOpts, opts);
   const fxmlOpts = await getConnectionFileOptions("xml");
   assertEquals(fxmlOpts, opts);
+  for (const file of files) {
+    await Deno.remove(`./${file}`);
+  }
 });

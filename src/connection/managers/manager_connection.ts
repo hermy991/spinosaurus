@@ -8,8 +8,8 @@ import { Connection } from "../connection.ts";
 import {
   clearMetadata,
   getMetadata,
-  getMetadataToColumnAccesors,
-  getMetadataToFromData,
+  // getMetadataToColumnAccesors,
+  // getMetadataToFromData,
   linkMetadata,
 } from "../../decorators/metadata/metadata.ts";
 import { ConnectionAll } from "../connection_type.ts";
@@ -38,17 +38,25 @@ export async function createConnection(
  * Creates a new connection from the env variables, config file with a given name or from option params.
  */
 export async function createConnection(
-  nameOrOptions?: string | ConnectionOptionsAll,
+  nameOrOptions?: string | ConnectionOptionsAll | Array<ConnectionOptionsAll>,
 ): Promise<Connection> {
-  const options = typeof nameOrOptions === "string"
-    ? await getConnectionOptions(nameOrOptions)
-    : nameOrOptions;
+  const options = typeof nameOrOptions === "object"
+    ? nameOrOptions
+    : await getConnectionOptions(nameOrOptions);
   const tconn = new Connection(<ConnectionOptionsAll> options);
   const sql = await synchronize(tconn);
   if (sql) {
     await tconn.execute(sql);
   }
   return tconn;
+}
+
+export async function getConnection(connectionName?: string) {
+  const options = await getConnectionOptions(connectionName);
+  if (!options) {
+    return;
+  }
+  return new Connection(options);
 }
 
 /**

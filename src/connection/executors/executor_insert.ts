@@ -1,5 +1,6 @@
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderInsert } from "../builders/builder_insert.ts";
+import { ParamInsertValue } from "../builders/params/param_insert.ts";
 
 export class ExecutorInsert {
   ib: BuilderInsert = new BuilderInsert(<ConnectionAll> {});
@@ -18,24 +19,12 @@ export class ExecutorInsert {
     return this;
   }
 
-  values(
-    data:
-      | Array<
-        { [x: string]: string | number | boolean | Date | Function | null }
-      >
-      | { [x: string]: string | number | boolean | Date | Function | null },
-  ): ExecutorInsert {
+  values(data: ParamInsertValue[] | ParamInsertValue): ExecutorInsert {
     this.ib.values(data);
     return this;
   }
 
-  addValues(
-    data:
-      | Array<
-        { [x: string]: string | number | boolean | Date | Function | null }
-      >
-      | { [x: string]: string | number | boolean | Date | Function | null },
-  ): ExecutorInsert {
+  addValues(data: ParamInsertValue | ParamInsertValue): ExecutorInsert {
     this.ib.addValues(data);
     return this;
   }

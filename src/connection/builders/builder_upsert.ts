@@ -1,6 +1,7 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { BuilderUpdate } from "./builder_update.ts";
 import { BuilderInsert } from "./builder_insert.ts";
+import { ParamUpsertValue } from "./params/param_upsert.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderUpsert extends BuilderBase {
@@ -13,9 +14,7 @@ export class BuilderUpsert extends BuilderBase {
     | [string, string?]
     | Function
     | null = null;
-  #valuesData: Array<
-    { [x: string]: string | number | boolean | Date | Function | null }
-  > = [];
+  #valuesData: Array<ParamUpsertValue> = [];
 
   constructor(public conn: ConnectionAll) {
     super(conn);
@@ -34,24 +33,12 @@ export class BuilderUpsert extends BuilderBase {
     this.#entityData = req;
   }
 
-  values(
-    data:
-      | Array<
-        { [x: string]: string | number | boolean | Date | Function | null }
-      >
-      | { [x: string]: string | number | boolean | Date | Function | null },
-  ) {
+  values(data: ParamUpsertValue[] | ParamUpsertValue) {
     this.#valuesData = [];
     this.addValues(data);
   }
 
-  addValues(
-    data:
-      | Array<
-        { [x: string]: string | number | boolean | Date | Function | null }
-      >
-      | { [x: string]: string | number | boolean | Date | Function | null },
-  ) {
+  addValues(data: ParamUpsertValue[] | ParamUpsertValue) {
     data = Array.isArray(data) ? data : [data];
     this.#valuesData.push(...data);
   }
@@ -63,7 +50,7 @@ export class BuilderUpsert extends BuilderBase {
     const sqls: string[] = [];
     const bu = new BuilderUpdate(this.conn);
     bu.update(this.#entityData);
-    bu.set(...this.#valuesData);
+    bu.set(this.#valuesData);
     const u = bu.getQuery();
     const bi = new BuilderInsert(this.conn);
     bi.insert(this.#entityData);

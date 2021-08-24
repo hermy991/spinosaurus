@@ -1,10 +1,11 @@
 import { ConnectionAll } from "../connection_type.ts";
-import { ConnectionPostgres } from "../drivers/postgres/connection_postgres.ts";
+// import { ConnectionPostgres } from "../drivers/postgres/connection_postgres.ts";
 import { BuilderUpdate } from "../builders/builder_update.ts";
+import { ParamUpdateSet } from "../builders/params/param_update.ts";
 
 export class ExecutorUpdate {
   ub: BuilderUpdate = new BuilderUpdate(<ConnectionAll> {});
-  constructor(public conn: ConnectionPostgres) {
+  constructor(public conn: ConnectionAll) {
     this.ub = new BuilderUpdate(conn);
   }
 
@@ -22,20 +23,12 @@ export class ExecutorUpdate {
     return this;
   }
 
-  set(
-    ...columns: Array<
-      { [x: string]: string | number | boolean | Date | Function | null }
-    >
-  ): ExecutorUpdate {
-    this.ub.set(...columns);
+  set(columns: ParamUpdateSet[] | ParamUpdateSet): ExecutorUpdate {
+    this.ub.set(columns);
     return this;
   }
 
-  addSet(
-    columns: {
-      [x: string]: string | number | boolean | Date | Function | null;
-    },
-  ): ExecutorUpdate {
+  addSet(columns: ParamUpdateSet[] | ParamUpdateSet): ExecutorUpdate {
     this.ub.addSet(columns);
     return this;
   }

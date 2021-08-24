@@ -17,9 +17,11 @@ const VARIABLES = {
   synchronize: "SPINOSAURUS_CONN_SYNCHRONIZE",
   entities: "SPINOSAURUS_CONN_ENTITIES",
 };
-
+/**
+ * Reads connection options stored in spinosaurus configuration file.
+ */
 export async function getConnectionOptions(
-  connectionName: string,
+  connectionName?: string,
 ): Promise<ConnectionOptionsAll> {
   const options = findConnection(
     await getConnectionEnvOptions() ||
@@ -195,14 +197,14 @@ export async function getConnectionFileOptions(
   return;
 }
 
-function findConnection(options: any | Array<any>, name: string) {
+function findConnection(options: any | Array<any>, name?: string) {
   if (!options) {
     return;
   }
   if (Array.isArray(options)) {
-    const toptions = options.find((x) => x["name"] === name);
+    const toptions = options.find((x) => !name || x["name"] === name);
     return toptions;
-  } else if (options["name"] === name) {
+  } else if (!name || options["name"] === name) {
     return options;
   }
 }

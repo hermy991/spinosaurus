@@ -13,19 +13,22 @@ export * from "./src/decorators/columns/version_column.ts";
 export * from "./src/decorators/relations/many_to_one.ts";
 export * from "./src/decorators/relations/one_to_one.ts";
 /**
- * Functions
+ * SQL Functions
  */
 export * from "./src/connection/sql/functions/_now.ts";
 /**
- * Operators
+ * Functions and Structures
  */
-export * from "./src/language/operators/between.ts";
-export * from "./src/language/operators/like.ts";
-
 export * from "./src/connection/connection.ts";
 export * from "./src/connection/managers/manager_connection.ts";
+export * from "./src/connection/connection_utils.ts";
 export {
   getMetadata,
   GLOBAL_METADATA_KEY,
   linkMetadata,
 } from "./src/decorators/metadata/metadata.ts";
+/**
+ * Operators
+ */
+export * from "./src/language/operators/between.ts";
+export * from "./src/language/operators/like.ts";

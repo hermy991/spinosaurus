@@ -1,12 +1,11 @@
 import { BuilderBase } from "./base/builder_base.ts";
+import { ParamInsertValue } from "./params/param_insert.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderInsert extends BuilderBase {
   #options: { autoInsert?: boolean } = { autoInsert: true };
   #entityData: { entity: string; schema?: string } | Function | null = null;
-  #valuesData: Array<
-    { [x: string]: string | number | boolean | Date | Function | null }
-  > = [];
+  #valuesData: ParamInsertValue[] = [];
 
   constructor(public conn: ConnectionAll) {
     super(conn);
@@ -32,24 +31,12 @@ export class BuilderInsert extends BuilderBase {
     }
   }
 
-  values(
-    data:
-      | Array<
-        { [x: string]: string | number | boolean | Date | Function | null }
-      >
-      | { [x: string]: string | number | boolean | Date | Function | null },
-  ) {
+  values(data: ParamInsertValue[] | ParamInsertValue) {
     this.#valuesData = [];
     this.addValues(data);
   }
 
-  addValues(
-    data:
-      | Array<
-        { [x: string]: string | number | boolean | Date | Function | null }
-      >
-      | { [x: string]: string | number | boolean | Date | Function | null },
-  ) {
+  addValues(data: ParamInsertValue[] | ParamInsertValue) {
     data = Array.isArray(data) ? data : [data];
     this.#valuesData.push(...data);
   }
@@ -68,14 +55,16 @@ export class BuilderInsert extends BuilderBase {
     return `(${[...columns].join(", ")})`;
   }
   getValuesQuery(
-    values: Array<string | number | boolean | Date | Function | null>,
+    values: Array<
+      string | number | boolean | Date | Function | null | undefined
+    >,
   ) {
     return `VALUES (${values.map((v) => this.conn.stringify(v)).join(", ")})`;
   }
 
   getEntityValueQuery(
     e: { schema?: string; entity?: string },
-    value: { [x: string]: string | number | boolean | Date | Function | null },
+    value: ParamInsertValue,
     ps: Array<any> = [],
   ) {
     if (!value) {
@@ -87,9 +76,7 @@ export class BuilderInsert extends BuilderBase {
       autoIncrement: string;
     } | undefined;
     const sqls: string[] = [this.getEntityQuery(e)];
-    let cloned: {
-      [x: string]: string | number | boolean | Date | Function | null;
-    } = {};
+    let cloned: ParamInsertValue = {};
     if (!ps.length) {
       cloned = value;
     } else {

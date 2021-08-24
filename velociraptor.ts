@@ -16,6 +16,7 @@ const sqls = [
   `${folder}insert_sql_test.ts`,
   `${folder}update_sql_test.ts`,
   `${folder}delete_sql_test.ts`,
+  `${folder}upsert_sql_test.ts`,
   `${folder}join_sql_test.ts`,
   `${folder}function_sql_test.ts`,
   `${folder}decorator_column_sql_test.ts`,

@@ -1,5 +1,6 @@
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderUpsert } from "../builders/builder_upsert.ts";
+import { ParamUpsertValue } from "../builders/params/param_upsert.ts";
 
 export class ExecutorUpsert {
   ub: BuilderUpsert = new BuilderUpsert(<ConnectionAll> {});
@@ -18,24 +19,12 @@ export class ExecutorUpsert {
     return this;
   }
 
-  values(
-    data:
-      | Array<
-        { [x: string]: string | number | boolean | Date | Function | null }
-      >
-      | { [x: string]: string | number | boolean | Date | Function | null },
-  ): ExecutorUpsert {
+  values(data: ParamUpsertValue[] | ParamUpsertValue): ExecutorUpsert {
     this.ub.values(data);
     return this;
   }
 
-  addValues(
-    data:
-      | Array<
-        { [x: string]: string | number | boolean | Date | Function | null }
-      >
-      | { [x: string]: string | number | boolean | Date | Function | null },
-  ): ExecutorUpsert {
+  addValues(data: ParamUpsertValue[] | ParamUpsertValue): ExecutorUpsert {
     this.ub.addValues(data);
     return this;
   }

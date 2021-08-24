@@ -183,3 +183,6 @@ deno run -qA https://code.velociraptor.run test:exec
   include in joinAndSelect, joinAndSelect, joinAndSelect as a option (wrap:
   boolean)
 - suport multiple connection
+- set insert primary column as options and add testing
+- set update primary column as options and add testing
+- set upsert primary column as options and add testing

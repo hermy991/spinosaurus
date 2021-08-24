@@ -1,4 +1,5 @@
 import { BuilderBase } from "./base/builder_base.ts";
+import { ParamUpdateSet } from "./params/param_update.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderUpdate extends BuilderBase {
@@ -7,9 +8,7 @@ export class BuilderUpdate extends BuilderBase {
     updateWithoutPrimaryKey: false,
   };
   #entityData: { entity: string; schema?: string } | Function | null = null;
-  #setData: Array<
-    { [x: string]: string | number | boolean | Date | Function | null }
-  > = [];
+  #setData: ParamUpdateSet[] = [];
   #whereData: Array<string> = [];
 
   constructor(public conn: ConnectionAll) {
@@ -39,21 +38,14 @@ export class BuilderUpdate extends BuilderBase {
     }
   }
 
-  set(
-    ...entities: Array<
-      { [x: string]: string | number | boolean | Date | Function | null }
-    >
-  ) {
+  set(data: ParamUpdateSet[] | ParamUpdateSet) {
     this.#setData = [];
-    entities.forEach((x) => this.addSet(x));
+    this.addSet(data);
   }
 
-  addSet(
-    columns: {
-      [x: string]: string | number | boolean | Date | Function | null;
-    },
-  ) {
-    this.#setData.push(columns);
+  addSet(data: ParamUpdateSet[] | ParamUpdateSet) {
+    data = Array.isArray(data) ? data : [data];
+    this.#setData.push(...data);
   }
 
   where(
@@ -92,7 +84,7 @@ export class BuilderUpdate extends BuilderBase {
 
   getEntitySetQuery(
     e: { schema?: string; entity?: string },
-    set: { [x: string]: string | number | boolean | Date | Function | null },
+    set: ParamUpdateSet,
     ps: Array<any> = [],
   ) {
     if (!set) {
@@ -102,9 +94,7 @@ export class BuilderUpdate extends BuilderBase {
     const sqls: string[] = [this.getEntityQuery(e)];
     const columns: string[] = [];
     const addings: string[] = [];
-    let cloned: {
-      [x: string]: string | number | boolean | Date | Function | null;
-    } = {};
+    let cloned: ParamUpdateSet = {};
     if (!ps.length) {
       cloned = set;
     } else {

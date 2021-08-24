@@ -173,7 +173,10 @@ class Connection {
   upsert(
     req:
       | { entity: string; schema?: string }
-      | { entity: Function; options?: { autoInsert?: boolean } }
+      | {
+        entity: Function;
+        options?: { autoUpdate?: boolean; autoInsert?: boolean };
+      }
       | [string, string?]
       | Function,
   ) {
