@@ -118,16 +118,20 @@ export async function updateStore(
 ) {
   const connName = conn.options.name;
   for (const entity of entities) {
-    for await (const file of fs.expandGlob(entity)) {
-      const path = file.path.replaceAll(`\\`, `/`).replaceAll(`C:/`, `/`);
-      const _ = await import(path);
+    const paths: any[] = [];
+    for await (const we of fs.expandGlob(entity)) {
+      paths.push(we.path);
+    }
+    for (const path of paths) {
+      console.log(`file:///${path}`);
+      const _ = await import(`file:///${path}`);
     }
     /**
      * Link all object from entity
      */
-    const metadata = linkMetadata({ connName });
   }
-  const metadata = getMetadata(connName);
+  const metadata = linkMetadata({ connName });
+  window.close();
   for (const table of metadata.tables) {
     if (!table.columns.length) {
       throw (`Entity '${table.mixeds.name}' needs column(property) definition, use @Column, @PrimaryColumn, @PrimaryGeneratedColumn, etc.`);

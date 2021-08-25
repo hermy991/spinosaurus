@@ -26,6 +26,12 @@ class Connection {
     }
   }
 
+  getConnectionOptions() {
+    if (this.#connection) {
+      return this.#connection.options;
+    }
+  }
+
   getConnection(): ConnectionAll {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     return this.#connection;

@@ -18,14 +18,15 @@ export function OneToOne(
      */
     const fun =
       (entityf instanceof Function ? <Function> entityf : entityf.constructor);
+    const type = reflect_metadata.Reflect.getMetadata(
+      "design:type",
+      entityf,
+      propertyKey,
+    );
     const entity = { target: fun, name: fun.name };
     const property = {
       propertyKey,
-      type: reflect_metadata.Reflect.getMetadata(
-        "design:type",
-        entityf,
-        propertyKey,
-      ),
+      type,
     };
     relationOptions.entity ||= property.type;
     const target: ColumnOptions = {

@@ -19,15 +19,13 @@ export function ManyToOne(
      */
     const fun =
       (entityf instanceof Function ? <Function> entityf : entityf.constructor);
-    const entity = { target: fun, name: fun.name };
-    const property = {
+    const type = reflect_metadata.Reflect.getMetadata(
+      "design:type",
+      entityf,
       propertyKey,
-      type: reflect_metadata.Reflect.getMetadata(
-        "design:type",
-        entityf,
-        propertyKey,
-      ),
-    };
+    );
+    const entity = { target: fun, name: fun.name };
+    const property = { propertyKey, type };
     relationOptions.entity ||= property.type;
     const target: ColumnOptions = {
       name: propertyKey,

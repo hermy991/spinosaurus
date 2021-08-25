@@ -51,7 +51,7 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
       options.length = Number(options.length);
     }
     // Class Column Type
-    if (!(<any> column).relation) {
+    if (!relation) {
       options.spitype = getColumnType({
         type: property.type,
         options,
@@ -243,6 +243,34 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
     }
   }
   // Errors and Exceptions
+  // for (const table of metadata.tables) {
+  //   if (table.target.name === "Company") {
+  //     console.log("Company");
+  //     for (const column of table.columns) {
+  //       if (column.property.propertyKey === "person") {
+  //         // console.log(
+  //         //   "  Column: name",
+  //         //   column.property.propertyKey,
+  //         //   "type",
+  //         //   column.property.type,
+  //         // );
+  //         console.log("entity", column.relation.entity());
+  //         for (const x of metadata.tables) {
+  //           // x.target === column.property.type()
+  //           console.log(x.target);
+  //         }
+  //       }
+  //       //  else {
+  //       //   console.log(
+  //       //     "  Column: name",
+  //       //     column.property.propertyKey,
+  //       //     "type",
+  //       //     column.property.type,
+  //       //   );
+  //       //  }
+  //     }
+  //   }
+  // }
   for (const table of metadata.tables) {
     if (!table.columns.length) {
       throw (`Entity '${table.mixeds.name}' needs column(property) definition, use @Column, @PrimaryColumn, @PrimaryGeneratedColumn, etc.`);

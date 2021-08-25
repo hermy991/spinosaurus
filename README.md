@@ -185,3 +185,4 @@ deno run -qA https://code.velociraptor.run test:exec
 - set insert primary column as options and add testing
 - set update primary column as options and add testing
 - set upsert primary column as options and add testing
+- change Spi to Param type name
