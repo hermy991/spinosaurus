@@ -118,3 +118,20 @@ deno run -qA https://code.velociraptor.run test:exec
   "FK_default_channelUsage_channelType_0b7e7dee87b1c3b98e72131173dfbbbf" will be
   truncated to "FK_default_channelUsage_channelType_0b7e7dee87b1c3b98e72131173d"
 - rename a column, using index in @Column({ columnIndex: 3 })
+- create a method getOneOrFail, it throw a exeption if it does not have one row
+- reverse interpolate transform this `user.name` to `"user"."name"` |
+  `[user].[name]` | ``user`.`name``, this transformation depends on database
+  type
+- create andWhere
+- create orWhere
+- create groupBy
+- create having
+- create addHaving
+- create andHaving
+- create orHaving
+- change getQuery to getSql
+- create printSql
+- create skip
+- create take
+- set maxExecutionTime as a option in select, insert, update, delete and
+  transaction

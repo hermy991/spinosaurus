@@ -46,10 +46,9 @@ export class ExecutorSelect {
   }
 
   from(
-    req: { entity: string; schema?: string; as?: string } | {
-      entity: Function;
-      as?: string;
-    },
+    req:
+      | { entity: string; schema?: string; as?: string }
+      | { entity: Function; as?: string },
   ): ExecutorSelect {
     this.sb.from(req);
     return this;
