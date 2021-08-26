@@ -51,9 +51,10 @@ export class BuilderBase {
       generated += `_${name.trim()}`;
     }
     if (sequence) {
+      // generated += `_${btoa(sequence + "").replaceAll("=", "").toLowerCase()}`;
       const hash = createHash("md5");
       hash.update(`${btoa(sequence + "")}`);
-      generated += `_${hash.toString()}`;
+      generated += `_${hash.toString().substr(0, 6)}`;
     }
     return generated;
   };

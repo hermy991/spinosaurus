@@ -1,6 +1,11 @@
 # Spinosaurus
 
-Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
+Spinosaurus is a ORM that can run in deno platforms and can be use with
+TypeScript. Its goal is to always support the latest TypeScript features and
+provide additional features that help you to develop any kind of application
+that uses databases - from small applications with a few tables to large scale
+enterprise applications with multiple databases. (this project is inspired by
+typeORM)
 
 ## Features
 
@@ -51,110 +56,33 @@ Spinosaurus is a ORM that can run in deno (this project is inspired by typeORM)
 - [ ] Follows all possible best practices
 - [ ] CLI
 
-# Query Builder
+## Scripts (Velociraptor)
 
-## Query
-
-### Example 1, simple retriving data from db
-
-```typescript
-let data = await db.select()
-  .from({ entity: User })
-  .getMany();
-```
-
-## Update
-
-### Example 1, simple update data
-
-```typescript
-await db.update("User")
-  .set({ userName: "yassett77", firstName: "Yassett" })
-  .execute();
-```
-
-### Example 1, simple update multiple data
-
-```typescript
-await db.update("User")
-  .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy" }, {
-    user_ID: 2,
-    userName: "yassett77",
-    firstName: "Yassett",
-  }])
-  .execute();
-```
-
-## Insert
-
-### Example 1, simple insert data
-
-```typescript
-await db.insert("User")
-  .values([{ userName: "hermy991", firstName: "Hermy" }, {
-    userName: "yassett77",
-    firstName: "Yassett",
-  }])
-  .execute();
-```
-
-### Example 2, simple update multiple data
-
-```typescript
-await db.insert("User")
-  .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy" }, {
-    userName: "yassett77",
-    firstName: "Yassett",
-  }])
-  .execute();
-```
-
-### Example 3, more simple update multiple data
-
-```typescript
-import { User } from "./user.ts";
-await db.insert(User)
-  .columns(["userName"])
-  .from([{ user_ID: 1, userName: "hermy991", firstName: "Hermy" }, {
-    userName: "yassett77",
-    firstName: "Yassett",
-  }])
-  .where([`"ege" >= 18`])
-  .execute();
-```
-
-# Scripts (Velociraptor)
-
-<!-- ## Test file
-```bash
-deno run -qA https://code.velociraptor.run <SCRIPT>
-``` -->
-
-## Test all
+### Test all
 
 ```bash
 deno run -qA https://code.velociraptor.run test
 ```
 
-## Test one
+### Test one
 
 ```bash
 deno run -qA https://code.velociraptor.run test:one tests/unit/decorator_column_executor_test.ts
 ```
 
-## Test SQL
+### Test SQL
 
 ```bash
 deno run -qA https://code.velociraptor.run test:sql
 ```
 
-## Test Executor
+### Test Executor
 
 ```bash
 deno run -qA https://code.velociraptor.run test:exec
 ```
 
-# TODO
+## TODO
 
 - documentation
 - code coments
@@ -189,3 +117,4 @@ deno run -qA https://code.velociraptor.run test:exec
 - identifier are too big example: NOTICE: identifier
   "FK_default_channelUsage_channelType_0b7e7dee87b1c3b98e72131173dfbbbf" will be
   truncated to "FK_default_channelUsage_channelType_0b7e7dee87b1c3b98e72131173d"
+- rename a column, using index in @Column({ columnIndex: 3 })
