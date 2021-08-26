@@ -186,3 +186,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - set update primary column as options and add testing
 - set upsert primary column as options and add testing
 - change Spi to Param type name
+- identifier are too big example: NOTICE: identifier
+  "FK_default_channelUsage_channelType_0b7e7dee87b1c3b98e72131173dfbbbf" will be
+  truncated to "FK_default_channelUsage_channelType_0b7e7dee87b1c3b98e72131173d"
