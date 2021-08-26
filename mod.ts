@@ -12,6 +12,7 @@ export * from "./src/decorators/columns/update_column.ts";
 export * from "./src/decorators/columns/version_column.ts";
 export * from "./src/decorators/relations/many_to_one.ts";
 export * from "./src/decorators/relations/one_to_one.ts";
+export * from "./src/decorators/data/data.ts";
 /**
  * SQL Functions
  */

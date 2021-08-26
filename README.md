@@ -135,3 +135,4 @@ deno run -qA https://code.velociraptor.run test:exec
 - create take
 - set maxExecutionTime as a option in select, insert, update, delete and
   transaction
+- Create @Data decorator

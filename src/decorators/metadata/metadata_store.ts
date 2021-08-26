@@ -17,4 +17,5 @@ export class MetadataStore {
       mixeds: AllColumnOptions;
     }
   > = [];
+  readonly data: any[] = [];
 }
