@@ -123,7 +123,6 @@ export async function updateStore(
       paths.push(we.path);
     }
     for (const path of paths) {
-      console.log(`file:///${path}`);
       const _ = await import(`file:///${path}`);
     }
     /**
@@ -131,7 +130,6 @@ export async function updateStore(
      */
   }
   const metadata = linkMetadata({ connName });
-  window.close();
   for (const table of metadata.tables) {
     if (!table.columns.length) {
       throw (`Entity '${table.mixeds.name}' needs column(property) definition, use @Column, @PrimaryColumn, @PrimaryGeneratedColumn, etc.`);
@@ -305,6 +303,5 @@ export async function generateScript(
       script.push(query);
     }
   }
-
   return script;
 }

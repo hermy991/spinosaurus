@@ -57,6 +57,13 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
         options,
         value: instance[target.name || ""],
       });
+    } else if (
+      relation.entity instanceof Function && relation.entity.name === "entity"
+    ) {
+      // When type es a function like { entity: () => Person } changet for entity: Person
+      // this changes mitigate circular decorator depency in TypeScript.
+      property.type = relation.entity();
+      relation.entity = relation.entity();
     }
     // Class Null Data
     target.nullable = false;
@@ -118,7 +125,7 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
   }
   // Indexing column name relation
   for (const table of tables) {
-    const columns = (<any> table).columns;
+    const columns = table.columns;
     for (let i = 0; i < columns.length; i++) {
       if (!columns[i].relation) {
         continue;
@@ -236,41 +243,17 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
       column.mixeds.spitype ||= fcolumn.mixeds.spitype;
       // Update tables and relations
       const table = tables.find((x) => x.target === column.entity.target);
-      if (table) {
+      if (
+        table && !relations.some((x) =>
+          x.entity.target === column.entity.target &&
+          x.mixeds.name === column.mixeds.name
+        )
+      ) {
         table.relations.push(column);
         relations.push(column);
       }
     }
   }
-  // Errors and Exceptions
-  // for (const table of metadata.tables) {
-  //   if (table.target.name === "Company") {
-  //     console.log("Company");
-  //     for (const column of table.columns) {
-  //       if (column.property.propertyKey === "person") {
-  //         // console.log(
-  //         //   "  Column: name",
-  //         //   column.property.propertyKey,
-  //         //   "type",
-  //         //   column.property.type,
-  //         // );
-  //         console.log("entity", column.relation.entity());
-  //         for (const x of metadata.tables) {
-  //           // x.target === column.property.type()
-  //           console.log(x.target);
-  //         }
-  //       }
-  //       //  else {
-  //       //   console.log(
-  //       //     "  Column: name",
-  //       //     column.property.propertyKey,
-  //       //     "type",
-  //       //     column.property.type,
-  //       //   );
-  //       //  }
-  //     }
-  //   }
-  // }
   for (const table of metadata.tables) {
     if (!table.columns.length) {
       throw (`Entity '${table.mixeds.name}' needs column(property) definition, use @Column, @PrimaryColumn, @PrimaryGeneratedColumn, etc.`);
@@ -416,18 +399,18 @@ export function clearTempMetadata(
   }
 }
 
-export function linkMetadataToFromData(
-  req: { connName: string; entity: Function },
-): any {
-  const metadata = linkMetadata(req);
-  const t = metadata.tables.find((x) => x.target === req.entity);
-  if (t) {
-    return {
-      entity: t.mixeds.name,
-      schema: t.mixeds.schema,
-    };
-  }
-}
+// export function linkMetadataToFromData(
+//   req: { connName: string; entity: Function },
+// ): any {
+//   const metadata = linkMetadata(req);
+//   const t = metadata.tables.find((x) => x.target === req.entity);
+//   if (t) {
+//     return {
+//       entity: t.mixeds.name,
+//       schema: t.mixeds.schema,
+//     };
+//   }
+// }
 
 export function getMetadataToFromData(
   req: { connName: string; entity: Function },
@@ -442,39 +425,37 @@ export function getMetadataToFromData(
   }
 }
 
-export function linkMetadataToColumnAccesors(
+// export function linkMetadataToColumnAccesors(
+//   req: { connName: string; entity: Function },
+// ): Array<string> {
+//   const metadata = linkMetadata(req);
+//   const t = metadata.tables.find((x) => x.target === req.entity);
+//   if (t) {
+//     const columns = t.columns.map((x: any) => ({
+//       select: true,
+//       insert: true,
+//       update: true,
+//       ...x.property,
+//       ...x.mixeds,
+//     }));
+//     return columns;
+//   }
+//   return [];
+// }
+
+export function getMetadataToColumnAccesors(
   req: { connName: string; entity: Function },
 ): Array<string> {
-  const metadata = linkMetadata(req);
-  const t = metadata.tables.find((x) => x.target === req.entity);
-  if (t) {
-    const columns = t.columns.map((x: any) => ({
+  const metadata = getMetadata(req.connName);
+  const columns = metadata.columns.filter((x) => x.entity.target === req.entity)
+    .map((x: any) => ({
       select: true,
       insert: true,
       update: true,
       ...x.property,
       ...x.mixeds,
     }));
-    return columns;
-  }
-  return [];
-}
-
-export function getMetadataToColumnAccesors(
-  req: { connName: string; entity: Function },
-): Array<string> {
-  const metadata = getMetadata(req.connName);
-  const t = metadata.tables.find((x) => x.target === req.entity);
-  if (t) {
-    const columns = t.columns.map((x: any) => ({
-      select: true,
-      insert: true,
-      update: true,
-      ...x.mixeds,
-    }));
-    return columns;
-  }
-  return [];
+  return columns;
 }
 
 export function getColumnType(

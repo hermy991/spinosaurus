@@ -2,8 +2,8 @@ import { ConnectionAll } from "../../connection_type.ts";
 import { clearNames } from "./sql.ts";
 import { createHash } from "deno/hash/mod.ts";
 import {
-  linkMetadataToColumnAccesors,
-  linkMetadataToFromData,
+  getMetadataToColumnAccesors,
+  getMetadataToFromData,
 } from "../../../decorators/metadata/metadata.ts";
 
 export class BuilderBase {
@@ -58,9 +58,9 @@ export class BuilderBase {
     return generated;
   };
   getEntityData(connName: string, entity: Function) {
-    return linkMetadataToFromData({ connName, entity });
+    return getMetadataToFromData({ connName, entity });
   }
   getColumnAccesors(connName: string, entity: Function): Array<any> {
-    return linkMetadataToColumnAccesors({ connName, entity });
+    return getMetadataToColumnAccesors({ connName, entity });
   }
 }
