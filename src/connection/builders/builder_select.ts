@@ -50,9 +50,14 @@ export class BuilderSelect extends BuilderBase {
   from(
     req:
       | { entity: string; schema?: string; as?: string }
-      | { entity: Function; as?: string },
+      | { entity: Function; as?: string }
+      | Function,
   ): void {
-    this.#fromData = req;
+    if (typeof req === "function") {
+      this.#fromData = { entity: req };
+    } else {
+      this.#fromData = req;
+    }
   }
 
   join(

@@ -76,7 +76,7 @@ Deno.test("select [select * from 'Entity'] sql", async () => {
       )
       .trim();
   assertEquals(q2, qe2);
-  const qs3 = db.select().from({ entity: SelectEntity5 });
+  const qs3 = db.select().from(SelectEntity5);
   let q3 = qs3.getQuery() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe3 =

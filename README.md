@@ -94,7 +94,7 @@ deno run -qA https://code.velociraptor.run test:exec
 - alter column (implement primary key and auto-increment)
 - testing for generate columns from entity in select using options
 - adding primary key column in each delete
-- using entity in select, example select().from(Entity)
+- adding documentation of select().from(Entity)
 - throw a error when @UpdateColumn property is not a Number type
 - adding interpolation list
   `( '"primaryKey" IN(:primaryKey)',  { primaryKey: [ 1, 2, 3, 4 ] })`
@@ -114,9 +114,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - set update primary column as options and add testing
 - set upsert primary column as options and add testing
 - change Spi to Param type name
-- identifier are too big example: NOTICE: identifier
-  "FK_default_channelUsage_channelType_0b7e7dee87b1c3b98e72131173dfbbbf" will be
-  truncated to "FK_default_channelUsage_channelType_0b7e7dee87b1c3b98e72131173d"
 - rename a column, using index in @Column({ columnIndex: 3 })
 - create a method getOneOrFail, it throw a exeption if it does not have one row
 - reverse interpolate transform this `user.name` to `"user"."name"` |
