@@ -44,6 +44,7 @@ export function interpolate(
       if (y % 2 == 0) {
         for (let x = 0; x < Object.keys(params || {}).length; x++) {
           const key = Object.keys(params || {})[x];
+          if (key.indexOf(";") >= 0) continue;
           const reg = new RegExp(`(^|(?<=[\\s])):${key}((?=[\\s])|$)`, "ig");
           const value = params ? params[key] : "";
           chunk = chunk.replace(reg, value);

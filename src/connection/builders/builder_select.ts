@@ -1,5 +1,10 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
+import {
+  ParamClauseRelation,
+  ParamComplexClauseRelation,
+  ParamComplexOptions,
+} from "./params/param_select.ts";
 
 export class BuilderSelect extends BuilderBase {
   #selectData: Array<{ column: string; as?: string }> = [];
@@ -7,26 +12,12 @@ export class BuilderSelect extends BuilderBase {
     | { entity: string; schema?: string; as?: string }
     | { entity: Function; as?: string }
     | null = null;
-  #clauseData: Array<
-    {
-      join: "inner" | "left" | "right";
-      select: boolean;
-      entity: string;
-      schema?: string;
-      as?: string;
-      on?: string[];
-    } | {
-      join: "inner" | "left" | "right";
-      select: boolean;
-      entity: Function;
-      as?: string;
-      on?: string[];
-    }
-  > = [];
+  #clauseData: Array<ParamComplexClauseRelation> = [];
   #whereData: Array<string> = [];
   #groupByData: Array<string> = [];
   #havingData: Array<string> = [];
   #orderByData: Array<{ column: string; direction?: string }> = [];
+  #paramsData: ParamComplexOptions = {};
 
   /*FLAGS*/
   #distinct = false;
@@ -62,129 +53,51 @@ export class BuilderSelect extends BuilderBase {
     }
   }
 
-  join(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
-  ): void {
-    this.#clauseData.push({
-      ...req,
-      on: typeof req.on === "string" ? [req.on] : req.on,
-      select: false,
-      join: "inner",
-    });
+  join(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+    this.#clauseData.push({ ...req, select: false, join: "inner" });
+    if (params) {
+      this.addParams(params);
+    }
   }
 
-  joinAndSelect(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
-  ): void {
-    this.#clauseData.push({
-      ...req,
-      on: typeof req.on === "string" ? [req.on] : req.on,
-      select: true,
-      join: "inner",
-    });
+  joinAndSelect(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+    this.#clauseData.push({ ...req, select: true, join: "inner" });
+    if (params) {
+      this.addParams(params);
+    }
   }
 
-  left(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
-  ): void {
-    this.#clauseData.push({
-      ...req,
-      on: typeof req.on === "string" ? [req.on] : req.on,
-      select: false,
-      join: "left",
-    });
+  left(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+    this.#clauseData.push({ ...req, select: false, join: "left" });
+    if (params) {
+      this.addParams(params);
+    }
   }
 
-  leftAndSelect(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
-  ): void {
-    this.#clauseData.push({
-      ...req,
-      on: typeof req.on === "string" ? [req.on] : req.on,
-      select: true,
-      join: "left",
-    });
+  leftAndSelect(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+    this.#clauseData.push({ ...req, select: true, join: "left" });
+    if (params) {
+      this.addParams(params);
+    }
   }
 
-  right(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
-  ): void {
-    this.#clauseData.push({
-      ...req,
-      on: typeof req.on === "string" ? [req.on] : req.on,
-      select: false,
-      join: "right",
-    });
+  right(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+    this.#clauseData.push({ ...req, select: false, join: "right" });
+    if (params) {
+      this.addParams(params);
+    }
   }
 
-  rightAndSelect(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
-  ): void {
-    this.#clauseData.push({
-      ...req,
-      on: typeof req.on === "string" ? [req.on] : req.on,
-      select: true,
-      join: "right",
-    });
+  rightAndSelect(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+    this.#clauseData.push({ ...req, select: true, join: "right" });
+    if (params) {
+      this.addParams(params);
+    }
   }
 
   where(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ) {
     this.#whereData = [];
     this.addWhere(conditions, params);
@@ -192,7 +105,7 @@ export class BuilderSelect extends BuilderBase {
 
   andWhere(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -205,7 +118,7 @@ export class BuilderSelect extends BuilderBase {
 
   orWhere(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -218,9 +131,14 @@ export class BuilderSelect extends BuilderBase {
 
   addWhere(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ) {
-    this.#whereData.push(...this.conn.interpolate(conditions, params));
+    this.#whereData.push(
+      ...(Array.isArray(conditions) ? conditions : [conditions]),
+    );
+    if (params) {
+      this.addParams(params);
+    }
   }
 
   groupBy(columns: [string, ...string[]] | string) {
@@ -234,7 +152,7 @@ export class BuilderSelect extends BuilderBase {
 
   having(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ) {
     this.#havingData = [];
     this.addHaving(conditions, params);
@@ -242,7 +160,7 @@ export class BuilderSelect extends BuilderBase {
 
   andHaving(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -255,7 +173,7 @@ export class BuilderSelect extends BuilderBase {
 
   orHaving(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -268,9 +186,14 @@ export class BuilderSelect extends BuilderBase {
 
   addHaving(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ) {
-    this.#havingData.push(...this.conn.interpolate(conditions, params));
+    this.#havingData.push(
+      ...(Array.isArray(conditions) ? conditions : [conditions]),
+    );
+    if (params) {
+      this.addParams(params);
+    }
   }
 
   orderBy(...columns: Array<{ column: string; direction?: string }>): void {
@@ -280,6 +203,17 @@ export class BuilderSelect extends BuilderBase {
 
   addOrderBy(...columns: Array<{ column: string; direction?: string }>): void {
     columns.forEach((x) => this.#orderByData.push(x));
+  }
+
+  params(options?: ParamComplexOptions): void {
+    this.#paramsData = {};
+    if (options) {
+      this.addParams(options);
+    }
+  }
+
+  addParams(options: ParamComplexOptions): void {
+    this.#paramsData = { ...this.#paramsData, ...options };
   }
 
   getSelectQuery() {
@@ -377,10 +311,11 @@ export class BuilderSelect extends BuilderBase {
         te = this.getEntityData(this.conn.options.name, entity);
       }
       const t = `${this.clearNames([te.schema, te.entity])}`;
+      const ton = this.conn.interpolate(on, this.#paramsData);
       sqls.push(
         `${join.toUpperCase()} JOIN ${t}${
           as ? " AS " + this.clearNames(as) : ""
-        } ON ${(on || []).join(" ")}`,
+        } ON ${ton.join(" ")}`,
       );
     }
     return sqls.join(" ");
@@ -390,11 +325,10 @@ export class BuilderSelect extends BuilderBase {
     if (!this.#whereData.length) {
       return ``;
     }
-    const conditions: string[] = [];
-    for (let i = 0; i < this.#whereData.length; i++) {
-      const tempWhere = this.#whereData[i];
-      conditions.push(tempWhere);
-    }
+    const conditions: string[] = this.conn.interpolate(
+      <[string, ...string[]]> this.#whereData,
+      this.#paramsData,
+    );
     return `WHERE ${conditions.join(" ")}`;
   }
 
@@ -414,11 +348,10 @@ export class BuilderSelect extends BuilderBase {
     if (!this.#havingData.length) {
       return ``;
     }
-    const conditions: string[] = [];
-    for (let i = 0; i < this.#havingData.length; i++) {
-      const tempHaving = this.#havingData[i];
-      conditions.push(tempHaving);
-    }
+    const conditions: string[] = this.conn.interpolate(
+      <[string, ...string[]]> this.#havingData,
+      this.#paramsData,
+    );
     return `HAVING ${conditions.join(" ")}`;
   }
 

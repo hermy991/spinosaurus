@@ -7,24 +7,19 @@ import { SpiUniqueDefinition } from "./executors/types/spi_unique_definition.ts"
 import { SpiRelationDefinition } from "./executors/types/spi_relation_definition.ts";
 import { SpiColumnAdjust } from "./executors/types/spi_column_adjust.ts";
 import { SpiColumnComment } from "./executors/types/spi_column_comment.ts";
+import {
+  ParamComplexOptions,
+  ParamSimpleOptions,
+} from "./builders/params/param_select.ts";
 
 export interface IConnectionOperations {
   /* Internal Sql Operations*/
   stringify(
-    value: string | number | boolean | Date | Function | null | undefined,
+    value: ParamSimpleOptions | Array<ParamSimpleOptions>,
   ): string;
   interpolate(
     conditions: [string, ...string[]],
-    params?: {
-      [x: string]:
-        | string
-        | number
-        | boolean
-        | Date
-        | Function
-        | null
-        | undefined;
-    },
+    params?: ParamComplexOptions,
   ): Array<string>;
   getSqlFunction(fun: Function): string;
   createSchema(scs: SpiCreateSchema): string;

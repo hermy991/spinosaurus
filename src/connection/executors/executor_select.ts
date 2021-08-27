@@ -1,5 +1,9 @@
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderSelect } from "../builders/builder_select.ts";
+import {
+  ParamClauseRelation,
+  ParamComplexOptions,
+} from "../builders/params/param_select.ts";
 
 export class ExecutorSelect {
   sb: BuilderSelect = new BuilderSelect(<ConnectionAll> {});
@@ -55,105 +59,51 @@ export class ExecutorSelect {
     return this;
   }
 
-  join(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
-  ): ExecutorSelect {
-    this.sb.join(req);
+  join(req: ParamClauseRelation, params?: ParamComplexOptions): ExecutorSelect {
+    this.sb.join(req, params);
     return this;
   }
 
   joinAndSelect(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
+    req: ParamClauseRelation,
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
-    this.sb.joinAndSelect(req);
+    this.sb.joinAndSelect(req, params);
     return this;
   }
 
-  left(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
-  ): ExecutorSelect {
-    this.sb.left(req);
+  left(req: ParamClauseRelation, params?: ParamComplexOptions): ExecutorSelect {
+    this.sb.left(req, params);
     return this;
   }
 
   leftAndSelect(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
+    req: ParamClauseRelation,
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
-    this.sb.leftAndSelect(req);
+    this.sb.leftAndSelect(req, params);
     return this;
   }
 
   right(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
+    req: ParamClauseRelation,
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
-    this.sb.right(req);
+    this.sb.right(req, params);
     return this;
   }
 
   rightAndSelect(
-    req: {
-      entity: string;
-      schema?: string;
-      as?: string;
-      on: string | string[];
-    } | {
-      entity: Function;
-      as?: string;
-      on: string | string[];
-    },
+    req: ParamClauseRelation,
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
-    this.sb.rightAndSelect(req);
+    this.sb.rightAndSelect(req, params);
     return this;
   }
 
   where(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
     this.sb.where(conditions, params);
     return this;
@@ -161,7 +111,7 @@ export class ExecutorSelect {
 
   andWhere(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
     this.sb.andWhere(conditions, params);
     return this;
@@ -169,7 +119,7 @@ export class ExecutorSelect {
 
   orWhere(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
     this.sb.orWhere(conditions, params);
     return this;
@@ -177,7 +127,7 @@ export class ExecutorSelect {
 
   addWhere(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
     this.sb.addWhere(conditions, params);
     return this;
@@ -195,7 +145,7 @@ export class ExecutorSelect {
 
   having(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
     this.sb.having(conditions, params);
     return this;
@@ -203,7 +153,7 @@ export class ExecutorSelect {
 
   andHaving(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
     this.sb.andHaving(conditions, params);
     return this;
@@ -211,7 +161,7 @@ export class ExecutorSelect {
 
   orHaving(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
     this.sb.orHaving(conditions, params);
     return this;
@@ -219,7 +169,7 @@ export class ExecutorSelect {
 
   addHaving(
     conditions: [string, ...string[]] | string,
-    params?: { [x: string]: string | number | Date },
+    params?: ParamComplexOptions,
   ): ExecutorSelect {
     this.sb.addHaving(conditions, params);
     return this;
@@ -264,6 +214,16 @@ export class ExecutorSelect {
       }
     }
     this.sb.addOrderBy(...tempColumns);
+    return this;
+  }
+
+  params(options?: ParamComplexOptions): ExecutorSelect {
+    this.sb.params(options);
+    return this;
+  }
+
+  addParams(options: ParamComplexOptions): ExecutorSelect {
+    this.sb.addParams(options);
     return this;
   }
 

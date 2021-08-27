@@ -127,3 +127,5 @@ deno run -qA https://code.velociraptor.run test:exec
 - make join, where and having global param
 - numeric param in `groupBy`, `addGroupBy`, `orderBy`, `addOrderBy` and set
   select definition internally
+- change `from({ entity: Entity })` to `from(Entity)` on documentation
+- change param `orderBy` and `addOrderBy` strategic from ... to array

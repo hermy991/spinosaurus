@@ -10,6 +10,10 @@ import { SpiUniqueDefinition } from "../../executors/types/spi_unique_definition
 import { SpiRelationNoEntityDefinition } from "../../executors/types/spi_relation_definition.ts";
 import { SpiColumnAdjust } from "../../executors/types/spi_column_adjust.ts";
 import { SpiColumnComment } from "../../executors/types/spi_column_comment.ts";
+import {
+  ParamComplexOptions,
+  ParamSimpleOptions,
+} from "../../builders/params/param_select.ts";
 import { initConnection } from "./connection_postgres_pool.ts";
 import { filterConnectionProps } from "../../connection_operations.ts";
 import { MetadataStore } from "../../../decorators/metadata/metadata_store.ts";
@@ -31,9 +35,7 @@ class ConnectionPostgres implements IConnectionOperations {
 
   constructor(public options: ConnectionPostgresOptions) {}
   /* Basic Connection Operations*/
-  stringify(
-    value: string | number | boolean | Date | Function | null | undefined,
-  ): string {
+  stringify(value: ParamSimpleOptions | Array<ParamSimpleOptions>): string {
     if (
       value === undefined || value === null || typeof (value) == "boolean" ||
       typeof (value) == "number" || typeof (value) == "string"
@@ -47,24 +49,16 @@ class ConnectionPostgres implements IConnectionOperations {
       const mi = (value.getMinutes() + "").padStart(2, "0");
       const ss = (value.getSeconds() + "").padStart(2, "0");
       return `TO_TIMESTAMP('${yyyy}-${mm}-${dd} ${hh24}:${mi}:${ss}', 'YYYY-MM-DD HH24:MI:SS')`;
-    }
-    if (typeof (value) == "function" && value instanceof Function) {
+    } else if (typeof (value) == "function" && value instanceof Function) {
       return this.getSqlFunction(value);
+    } else if (Array.isArray(value)) {
+      return value.map((x) => stringify(x)).join(", ");
     }
     return `NULL`;
   }
   interpolate(
     conditions: [string, ...string[]] | string,
-    params?: {
-      [x: string]:
-        | string
-        | number
-        | boolean
-        | Date
-        | Function
-        | null
-        | undefined;
-    },
+    params?: ParamComplexOptions,
   ): Array<string> {
     const cloned = self.structuredClone(params || {});
     const keys = Object.keys(cloned);
