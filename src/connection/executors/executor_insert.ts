@@ -29,6 +29,11 @@ export class ExecutorInsert {
     return this;
   }
 
+  printSql(): ExecutorInsert {
+    this.ib.printSql();
+    return this;
+  }
+
   getSql(): string {
     const query = this.ib.getSql();
     return query;
@@ -36,6 +41,7 @@ export class ExecutorInsert {
 
   async execute(): Promise<any> {
     const query = this.ib.getSql();
+    this.ib.usePrintSql(query);
     return await this.conn.execute(query);
   }
 }

@@ -34,6 +34,11 @@ export class ExecutorDrop {
     return this;
   }
 
+  printSql(): ExecutorDrop {
+    this.db.printSql();
+    return this;
+  }
+
   getSql(): string {
     const query = this.db.getSql();
     return query;
@@ -41,6 +46,7 @@ export class ExecutorDrop {
 
   async execute(): Promise<any> {
     const query = this.db.getSql();
+    this.db.usePrintSql(query);
     return await this.conn.execute(query);
   }
 }

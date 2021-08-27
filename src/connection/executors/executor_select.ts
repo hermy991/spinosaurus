@@ -209,6 +209,11 @@ export class ExecutorSelect {
     return this;
   }
 
+  printSql(): ExecutorSelect {
+    this.sb.printSql();
+    return this;
+  }
+
   getSql(): string {
     const query = this.sb.getSql();
     return query;
@@ -216,12 +221,14 @@ export class ExecutorSelect {
 
   async getOne(): Promise<any> {
     const query = this.getSql();
+    this.sb.usePrintSql(query);
     const data = await this.conn.getOne(query);
     return data;
   }
 
   async getMany(): Promise<Array<any>> {
     const query = this.getSql();
+    this.sb.usePrintSql(query);
     const data = await this.conn.getMany(query);
     return data;
   }

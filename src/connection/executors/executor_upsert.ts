@@ -29,6 +29,11 @@ export class ExecutorUpsert {
     return this;
   }
 
+  printSql(): ExecutorUpsert {
+    this.ub.printSql();
+    return this;
+  }
+
   getSql(): string {
     const query = this.ub.getSql();
     return query;
@@ -36,6 +41,7 @@ export class ExecutorUpsert {
 
   async execute(): Promise<any> {
     const query = this.ub.getSql();
+    this.ub.usePrintSql(query);
     return await this.conn.execute(query);
   }
 }

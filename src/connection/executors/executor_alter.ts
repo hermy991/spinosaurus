@@ -63,6 +63,11 @@ export class ExecutorAlter {
     return this;
   }
 
+  printSql(): ExecutorAlter {
+    this.ab.printSql();
+    return this;
+  }
+
   getSql(): string {
     const query = this.ab.getSql();
     return query;
@@ -70,6 +75,7 @@ export class ExecutorAlter {
 
   async execute(): Promise<any> {
     const query = this.getSql();
+    this.ab.usePrintSql(query);
     return await this.conn.execute(query);
   }
 }

@@ -25,6 +25,11 @@ export class ExecutorRename {
     return this;
   }
 
+  printSql(): ExecutorRename {
+    this.rb.printSql();
+    return this;
+  }
+
   getSql(): string {
     const query = this.rb.getSql();
     return query;
@@ -32,6 +37,7 @@ export class ExecutorRename {
 
   async execute(): Promise<any> {
     const query = this.rb.getSql();
+    this.rb.usePrintSql(query);
     return await this.conn.execute(query);
   }
 }

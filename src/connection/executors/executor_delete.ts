@@ -2,15 +2,15 @@ import { ConnectionAll } from "../connection_type.ts";
 import { BuilderDelete } from "../builders/builder_delete.ts";
 
 export class ExecutorDelete {
-  ub: BuilderDelete = new BuilderDelete(<ConnectionAll> {});
+  db: BuilderDelete = new BuilderDelete(<ConnectionAll> {});
   constructor(public conn: ConnectionAll) {
-    this.ub = new BuilderDelete(conn);
+    this.db = new BuilderDelete(conn);
   }
 
   delete(
     req: { entity: string; schema?: string } | [string, string?] | Function,
   ): ExecutorDelete {
-    this.ub.delete(req);
+    this.db.delete(req);
     return this;
   }
 
@@ -18,7 +18,7 @@ export class ExecutorDelete {
     conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ): ExecutorDelete {
-    this.ub.where(conditions, params);
+    this.db.where(conditions, params);
     return this;
   }
 
@@ -26,17 +26,23 @@ export class ExecutorDelete {
     conditions: [string, ...string[]],
     params?: { [x: string]: string | number | Date },
   ): ExecutorDelete {
-    this.ub.addWhere(conditions, params);
+    this.db.addWhere(conditions, params);
+    return this;
+  }
+
+  printSql(): ExecutorDelete {
+    this.db.printSql();
     return this;
   }
 
   getSql(): string {
-    const query = this.ub.getSql();
+    const query = this.db.getSql();
     return query;
   }
 
   async execute(): Promise<any> {
-    const query = this.ub.getSql();
+    const query = this.db.getSql();
+    this.db.usePrintSql(query);
     return await this.conn.execute(query);
   }
 }

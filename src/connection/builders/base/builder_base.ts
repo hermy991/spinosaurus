@@ -7,6 +7,7 @@ import {
 } from "../../../decorators/metadata/metadata.ts";
 
 export class BuilderBase {
+  #printSql = false;
   get #left() {
     return this.conn.delimiters[0];
   }
@@ -21,6 +22,20 @@ export class BuilderBase {
   }
   constructor(public conn: ConnectionAll) {
   }
+  printSql = () => {
+    this.#printSql = true;
+  };
+  usePrintSql = (sqls: string | string[]) => {
+    if (this.#printSql) {
+      this.#printSql = false;
+      const tsql = Array.isArray(sqls) ? sqls.join(";\n") : sqls;
+      if (tsql) {
+        console.log(tsql);
+      }
+      return true;
+    }
+    return false;
+  };
   clearNames = (
     identifiers?: Array<string | undefined> | string | undefined,
   ) => {

@@ -75,6 +75,11 @@ export class ExecutorCreate {
     return this;
   }
 
+  printSql(): ExecutorCreate {
+    this.cb.printSql();
+    return this;
+  }
+
   getSql(): string {
     const query = this.cb.getSql();
     return query;
@@ -82,6 +87,7 @@ export class ExecutorCreate {
 
   async execute(): Promise<any> {
     const query = this.getSql();
+    this.cb.usePrintSql(query);
     return await this.conn.execute(query);
   }
 }

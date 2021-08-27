@@ -126,8 +126,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - create addHaving
 - create andHaving
 - create orHaving
-- change getQuery to getSql
-- create printSql
 - create skip
 - create take
 - set maxExecutionTime as a option in select, insert, update, delete and
