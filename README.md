@@ -119,8 +119,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - reverse interpolate transform this `user.name` to `"user"."name"` |
   `[user].[name]` | ``user`.`name``, this transformation depends on database
   type
-- create andWhere
-- create orWhere
 - create groupBy
 - create having
 - create addHaving

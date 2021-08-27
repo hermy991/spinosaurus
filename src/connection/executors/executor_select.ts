@@ -152,15 +152,31 @@ export class ExecutorSelect {
   }
 
   where(
-    conditions: [string, ...string[]],
+    conditions: [string, ...string[]] | string,
     params?: { [x: string]: string | number | Date },
   ): ExecutorSelect {
     this.sb.where(conditions, params);
     return this;
   }
 
+  andWhere(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ): ExecutorSelect {
+    this.sb.andWhere(conditions, params);
+    return this;
+  }
+
+  orWhere(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ): ExecutorSelect {
+    this.sb.orWhere(conditions, params);
+    return this;
+  }
+
   addWhere(
-    conditions: [string, ...string[]],
+    conditions: [string, ...string[]] | string,
     params?: { [x: string]: string | number | Date },
   ): ExecutorSelect {
     this.sb.addWhere(conditions, params);

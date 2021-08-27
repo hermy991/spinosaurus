@@ -135,15 +135,29 @@ Deno.test("select [select column as] sql", () => {
 });
 Deno.test("select [where] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.select([`u."userName"`], [`u."firstName"`])
+  const qs1 = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
     .where([`u."userName" = 'hermy991'`]);
-  let query = qs.getSql() || "";
-  query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const queryExpected =
+  let q1 = qs1.getSql() || "";
+  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe1 =
     `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" = 'hermy991'`
       .replaceAll(/[ \n\t]+/ig, " ").trim();
-  assertEquals(query, queryExpected);
+  assertEquals(q1, qe1);
+
+  const qs2 = db.select([`u."userName"`], [`u."firstName"`])
+    .from({ entity: "User", as: "u" })
+    .where([`u."userName" = 'hermy991'`])
+    .andWhere(`u."userName" = 'hermy992'`)
+    .orWhere(`u."userName" = 'hermy993'`);
+  let q2 = qs2.getSql() || "";
+  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe2 = `SELECT u."userName", u."firstName" FROM "User" AS "u"
+WHERE u."userName" = 'hermy991'
+AND u."userName" = 'hermy992'
+OR u."userName" = 'hermy993'`
+    .replaceAll(/[ \n\t]+/ig, " ").trim();
+  assertEquals(q2, qe2);
 });
 Deno.test("select [where like] sql", () => {
   const db: Connection = new Connection(con1);

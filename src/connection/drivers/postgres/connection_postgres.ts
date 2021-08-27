@@ -54,7 +54,7 @@ class ConnectionPostgres implements IConnectionOperations {
     return `NULL`;
   }
   interpolate(
-    conditions: [string, ...string[]],
+    conditions: [string, ...string[]] | string,
     params?: {
       [x: string]:
         | string
@@ -72,6 +72,7 @@ class ConnectionPostgres implements IConnectionOperations {
       const key = keys[i];
       cloned[key] = this.stringify(cloned[key]);
     }
+    conditions = Array.isArray(conditions) ? conditions : [conditions];
     return interpolate(conditions, cloned);
   }
   getSqlFunction(fun: Function): string {

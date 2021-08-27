@@ -181,15 +181,41 @@ export class BuilderSelect extends BuilderBase {
   }
 
   where(
-    conditions: [string, ...string[]],
+    conditions: [string, ...string[]] | string,
     params?: { [x: string]: string | number | Date },
   ) {
     this.#whereData = [];
     this.addWhere(conditions, params);
   }
 
+  andWhere(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ) {
+    let tconditions = self.structuredClone(conditions);
+    if (Array.isArray(tconditions)) {
+      for (let i = 0; i < tconditions.length; i++) {
+        tconditions[i] = `AND ${tconditions[i]}`;
+      }
+    } else tconditions = `AND ${tconditions}`;
+    this.addWhere(tconditions, params);
+  }
+
+  orWhere(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ) {
+    let tconditions = self.structuredClone(conditions);
+    if (Array.isArray(tconditions)) {
+      for (let i = 0; i < tconditions.length; i++) {
+        tconditions[i] = `OR ${tconditions[i]}`;
+      }
+    } else tconditions = `OR ${tconditions}`;
+    this.addWhere(tconditions, params);
+  }
+
   addWhere(
-    conditions: [string, ...string[]],
+    conditions: [string, ...string[]] | string,
     params?: { [x: string]: string | number | Date },
   ) {
     this.#whereData.push(...this.conn.interpolate(conditions, params));
