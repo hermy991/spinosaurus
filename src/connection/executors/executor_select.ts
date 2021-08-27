@@ -193,6 +193,38 @@ export class ExecutorSelect {
     return this;
   }
 
+  having(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ): ExecutorSelect {
+    this.sb.having(conditions, params);
+    return this;
+  }
+
+  andHaving(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ): ExecutorSelect {
+    this.sb.andHaving(conditions, params);
+    return this;
+  }
+
+  orHaving(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ): ExecutorSelect {
+    this.sb.orHaving(conditions, params);
+    return this;
+  }
+
+  addHaving(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ): ExecutorSelect {
+    this.sb.addHaving(conditions, params);
+    return this;
+  }
+
   orderBy(
     ...columns: Array<
       { column: string; direction?: "ASC" | "DESC" } | [

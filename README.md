@@ -118,12 +118,12 @@ deno run -qA https://code.velociraptor.run test:exec
 - reverse interpolate transform this `user.name` to `"user"."name"` |
   `[user].[name]` | ``user`.`name``, this transformation depends on database
   type
-- create having
-- create addHaving
-- create andHaving
-- create orHaving
 - create skip
 - create take
 - set maxExecutionTime as a option in select, insert, update, delete and
   transaction
 - Create @Data decorator
+- global method params and addParams in select query selector
+- make join, where and having global param
+- numeric param in `groupBy`, `addGroupBy`, `orderBy`, `addOrderBy` and set
+  select definition internally

@@ -25,6 +25,7 @@ export class BuilderSelect extends BuilderBase {
   > = [];
   #whereData: Array<string> = [];
   #groupByData: Array<string> = [];
+  #havingData: Array<string> = [];
   #orderByData: Array<{ column: string; direction?: string }> = [];
 
   /*FLAGS*/
@@ -231,6 +232,47 @@ export class BuilderSelect extends BuilderBase {
     tcolumns.forEach((x) => this.#groupByData.push(x));
   }
 
+  having(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ) {
+    this.#havingData = [];
+    this.addHaving(conditions, params);
+  }
+
+  andHaving(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ) {
+    let tconditions = self.structuredClone(conditions);
+    if (Array.isArray(tconditions)) {
+      for (let i = 0; i < tconditions.length; i++) {
+        tconditions[i] = `AND ${tconditions[i]}`;
+      }
+    } else tconditions = `AND ${tconditions}`;
+    this.addHaving(tconditions, params);
+  }
+
+  orHaving(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ) {
+    let tconditions = self.structuredClone(conditions);
+    if (Array.isArray(tconditions)) {
+      for (let i = 0; i < tconditions.length; i++) {
+        tconditions[i] = `OR ${tconditions[i]}`;
+      }
+    } else tconditions = `OR ${tconditions}`;
+    this.addHaving(tconditions, params);
+  }
+
+  addHaving(
+    conditions: [string, ...string[]] | string,
+    params?: { [x: string]: string | number | Date },
+  ) {
+    this.#havingData.push(...this.conn.interpolate(conditions, params));
+  }
+
   orderBy(...columns: Array<{ column: string; direction?: string }>): void {
     this.#orderByData = [];
     columns.forEach((x) => this.addOrderBy(x));
@@ -368,6 +410,18 @@ export class BuilderSelect extends BuilderBase {
     return `GROUP BY ${groups.join(", ")}`;
   }
 
+  getHavingQuery() {
+    if (!this.#havingData.length) {
+      return ``;
+    }
+    const conditions: string[] = [];
+    for (let i = 0; i < this.#havingData.length; i++) {
+      const tempHaving = this.#havingData[i];
+      conditions.push(tempHaving);
+    }
+    return `HAVING ${conditions.join(" ")}`;
+  }
+
   getOrderByQuery() {
     if (!this.#orderByData.length) {
       return ``;
@@ -392,6 +446,9 @@ export class BuilderSelect extends BuilderBase {
     }
     if (this.#groupByData.length) {
       query += `\n${this.getGroupByQuery()}`;
+    }
+    if (this.#havingData.length) {
+      query += `\n${this.getHavingQuery()}`;
     }
     if (this.#orderByData.length) {
       query += `\n${this.getOrderByQuery()}`;

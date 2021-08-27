@@ -221,17 +221,57 @@ Deno.test("select [where with params] sql", () => {
 });
 Deno.test("select [group by] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.select([`u."userName"`], [`u."firstName"`], [`SUM(*)`, "sum"])
+  const qs = db.select([`u."userName"`], [`u."firstName"`], [
+    `COUNT(*)`,
+    "count",
+  ])
     .from({ entity: "User", as: "u" })
     .groupBy(`u."userName"`)
     .addGroupBy([`u."firstName"`]);
   let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const queryExpected = `SELECT u."userName", u."firstName", SUM(*) AS "sum"
+  const queryExpected = `SELECT u."userName", u."firstName", COUNT(*) AS "count"
 FROM "User" AS "u"
 GROUP BY u."userName", u."firstName"`
     .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
+});
+Deno.test("select [having] sql", () => {
+  const db: Connection = new Connection(con1);
+  const qs1 = db.select([`u."userName"`], [`u."firstName"`])
+    .from({ entity: "User", as: "u" })
+    .having([`u."userName" = 'hermy991'`]);
+  let q1 = qs1.getSql() || "";
+  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe1 =
+    `SELECT u."userName", u."firstName" FROM "User" AS "u" HAVING u."userName" = 'hermy991'`
+      .replaceAll(/[ \n\t]+/ig, " ").trim();
+  assertEquals(q1, qe1);
+
+  const qs2 = db.select(
+    [`u."userName"`],
+    [`u."firstName"`],
+    [`count(*)`, "sum"],
+    [`avg(prictureQuantity)`, "avg"],
+    [`sum(u."prictureQuantity")`, "prictureQuantity"],
+  )
+    .from({ entity: "User", as: "u" })
+    .groupBy(`u."userName"`)
+    .addGroupBy([`u."firstName"`])
+    .having([`count(*) > 5`])
+    .andHaving(`avg(prictureQuantity) < 200`)
+    .orHaving(`sum(u."prictureQuantity") < 1000`);
+  let q2 = qs2.getSql() || "";
+  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe2 =
+    `SELECT u."userName", u."firstName", count(*) AS "sum", avg(prictureQuantity) AS "avg", sum(u."prictureQuantity") AS "prictureQuantity"
+FROM "User" AS "u"
+GROUP BY u."userName", u."firstName"
+HAVING count(*) > 5
+AND avg(prictureQuantity) < 200
+OR sum(u."prictureQuantity") < 1000`
+      .replaceAll(/[ \n\t]+/ig, " ").trim();
+  assertEquals(q2, qe2);
 });
 Deno.test("select [order by] sql", () => {
   const db: Connection = new Connection(con1);
