@@ -89,7 +89,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata
 - testing primary column executor testing
 - testing generated column executor testing
-- configuration env and files flow
 - column, unique, check alter testing
 - alter column (implement primary key and auto-increment)
 - testing for generate columns from entity in select using options
@@ -119,7 +118,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - reverse interpolate transform this `user.name` to `"user"."name"` |
   `[user].[name]` | ``user`.`name``, this transformation depends on database
   type
-- create groupBy
 - create having
 - create addHaving
 - create andHaving

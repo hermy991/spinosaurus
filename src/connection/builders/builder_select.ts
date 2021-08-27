@@ -24,6 +24,7 @@ export class BuilderSelect extends BuilderBase {
     }
   > = [];
   #whereData: Array<string> = [];
+  #groupByData: Array<string> = [];
   #orderByData: Array<{ column: string; direction?: string }> = [];
 
   /*FLAGS*/
@@ -221,6 +222,15 @@ export class BuilderSelect extends BuilderBase {
     this.#whereData.push(...this.conn.interpolate(conditions, params));
   }
 
+  groupBy(columns: [string, ...string[]] | string) {
+    this.addGroupBy(columns);
+  }
+
+  addGroupBy(columns: [string, ...string[]] | string) {
+    const tcolumns = Array.isArray(columns) ? columns : [columns];
+    tcolumns.forEach((x) => this.#groupByData.push(x));
+  }
+
   orderBy(...columns: Array<{ column: string; direction?: string }>): void {
     this.#orderByData = [];
     columns.forEach((x) => this.addOrderBy(x));
@@ -346,6 +356,18 @@ export class BuilderSelect extends BuilderBase {
     return `WHERE ${conditions.join(" ")}`;
   }
 
+  getGroupByQuery() {
+    if (!this.#groupByData.length) {
+      return ``;
+    }
+    const groups: string[] = [];
+    for (let i = 0; i < this.#groupByData.length; i++) {
+      const column = this.#groupByData[i];
+      groups.push(column);
+    }
+    return `GROUP BY ${groups.join(", ")}`;
+  }
+
   getOrderByQuery() {
     if (!this.#orderByData.length) {
       return ``;
@@ -367,6 +389,9 @@ export class BuilderSelect extends BuilderBase {
     }
     if (this.#whereData.length) {
       query += `\n${this.getWhereQuery()}`;
+    }
+    if (this.#groupByData.length) {
+      query += `\n${this.getGroupByQuery()}`;
     }
     if (this.#orderByData.length) {
       query += `\n${this.getOrderByQuery()}`;

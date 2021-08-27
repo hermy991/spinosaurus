@@ -219,6 +219,20 @@ Deno.test("select [where with params] sql", () => {
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(query, queryExpected);
 });
+Deno.test("select [group by] sql", () => {
+  const db: Connection = new Connection(con1);
+  const qs = db.select([`u."userName"`], [`u."firstName"`], [`SUM(*)`, "sum"])
+    .from({ entity: "User", as: "u" })
+    .groupBy(`u."userName"`)
+    .addGroupBy([`u."firstName"`]);
+  let query = qs.getSql() || "";
+  query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const queryExpected = `SELECT u."userName", u."firstName", SUM(*) AS "sum"
+FROM "User" AS "u"
+GROUP BY u."userName", u."firstName"`
+    .replaceAll(/[ \n\t]+/ig, " ").trim();
+  assertEquals(query, queryExpected);
+});
 Deno.test("select [order by] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.select([`u."userName"`], [`u."firstName"`])

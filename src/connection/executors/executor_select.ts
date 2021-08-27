@@ -183,6 +183,16 @@ export class ExecutorSelect {
     return this;
   }
 
+  groupBy(columns: [string, ...string[]] | string): ExecutorSelect {
+    this.sb.groupBy(columns);
+    return this;
+  }
+
+  addGroupBy(columns: [string, ...string[]] | string): ExecutorSelect {
+    this.sb.addGroupBy(columns);
+    return this;
+  }
+
   orderBy(
     ...columns: Array<
       { column: string; direction?: "ASC" | "DESC" } | [
