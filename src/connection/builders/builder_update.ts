@@ -143,7 +143,7 @@ export class BuilderUpdate extends BuilderBase {
     return sqls.join(" ");
   }
 
-  getQuery() {
+  getSql() {
     if (!this.#entityData) {
       return "";
     }

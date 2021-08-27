@@ -209,19 +209,19 @@ export class ExecutorSelect {
     return this;
   }
 
-  getQuery(): string {
-    const query = this.sb.getQuery();
+  getSql(): string {
+    const query = this.sb.getSql();
     return query;
   }
 
   async getOne(): Promise<any> {
-    const query = this.getQuery();
+    const query = this.getSql();
     const data = await this.conn.getOne(query);
     return data;
   }
 
   async getMany(): Promise<Array<any>> {
-    const query = this.getQuery();
+    const query = this.getSql();
     const data = await this.conn.getMany(query);
     return data;
   }

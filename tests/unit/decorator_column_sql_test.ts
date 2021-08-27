@@ -93,7 +93,7 @@ Deno.test("decorator [column adding columns] sql", async () => {
     columnName: "string1",
     spitype: "bigint",
   });
-  // const csql = `${e1.getQuery()};${e2.getQuery()}`;
+  // const csql = `${e1.getSql()};${e2.getSql()}`;
   await e1.execute();
   await e2.execute();
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
@@ -164,7 +164,7 @@ Deno.test("decorator [column modify columns] sql", async () => {
       { columnName: "blob2", spitype: "text" },
       { columnName: "blob3", spitype: "text" },
     );
-  // const csql = `${e1.getQuery()};${e2.getQuery()}`;
+  // const csql = `${e1.getSql()};${e2.getSql()}`;
   await e1.execute();
   await e2.execute();
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
@@ -268,7 +268,7 @@ Deno.test("decorator [column dropping columns] sql", async () => {
       { columnName: "blob2", spitype: "text" },
       { columnName: "blob3", spitype: "text" },
     );
-  // const csql = `${e1.getQuery()};${e2.getQuery()}`;
+  // const csql = `${e1.getSql()};${e2.getSql()}`;
   await e1.execute();
   await e2.execute();
 

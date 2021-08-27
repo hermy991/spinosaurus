@@ -117,7 +117,7 @@ export class BuilderInsert extends BuilderBase {
     sqls.push(this.getValuesQuery(Object.values(cloned)));
     return sqls.join(" ");
   }
-  getQuery() {
+  getSql() {
     if (!this.#entityData) {
       return "";
     }

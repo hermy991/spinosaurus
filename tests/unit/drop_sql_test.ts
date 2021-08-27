@@ -8,7 +8,7 @@ const con1 = getTestConnection();
  *********************/
 Deno.test("drop [drop table] sql", () => {
   const db: Connection = new Connection(con1);
-  let query = db.drop({ entity: "User", schema: "public" }).getQuery() || "";
+  let query = db.drop({ entity: "User", schema: "public" }).getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected = `DROP TABLE "public"."User"`.replace(
     /[ \n\t]+/ig,
@@ -21,7 +21,7 @@ Deno.test("drop [drop table colums] sql", () => {
   const db: Connection = new Connection(con1);
   let query = db.drop({ entity: "User", schema: "public" })
     .columns(["prueba"])
-    .getQuery() || "";
+    .getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected = `ALTER TABLE "public"."User" DROP COLUMN "prueba"`
     .replace(/[ \n\t]+/ig, " ").trim();
@@ -30,14 +30,14 @@ Deno.test("drop [drop table colums] sql", () => {
 Deno.test("drop [drop schema] sql", () => {
   const db: Connection = new Connection(con1);
   let q1 = db.drop({ schema: "publicX" })
-    .getQuery() || "";
+    .getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe1 = `DROP SCHEMA "publicX"`
     .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(q1, qe1);
 
   let q2 = db.drop({ schema: "publicX", check: true })
-    .getQuery() || "";
+    .getSql() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 = `DROP SCHEMA IF EXISTS "publicX"`
     .replace(/[ \n\t]+/ig, " ").trim();

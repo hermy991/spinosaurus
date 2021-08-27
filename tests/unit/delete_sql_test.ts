@@ -7,7 +7,7 @@ const con1 = getTestConnection();
 Deno.test("delete [delete] sql", () => {
   const db: Connection = new Connection(con1);
   let query = db.delete(["User"])
-    .getQuery() || "";
+    .getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected = `DELETE FROM "User"`.replaceAll(/[ \n\t]+/ig, " ")
     .trim();
@@ -20,28 +20,28 @@ Deno.test("delete [delete 'Entity'] sql", async () => {
   );
   const db: Connection = new Connection(con1);
   let q1 = db.delete(FromEntity1)
-    .getQuery() || "";
+    .getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe1 = `DELETE FROM "FromEntity1"`.replaceAll(/[ \n\t]+/ig, " ")
     .trim();
   assertEquals(q1, qe1);
 
   let q2 = db.delete(FromEntity2)
-    .getQuery() || "";
+    .getSql() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 = `DELETE FROM "FromEntity2"`.replaceAll(/[ \n\t]+/ig, " ")
     .trim();
   assertEquals(q2, qe2);
 
   let q3 = db.delete(FromEntity4)
-    .getQuery() || "";
+    .getSql() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe3 = `DELETE FROM "FromEntity3"`.replaceAll(/[ \n\t]+/ig, " ")
     .trim();
   assertEquals(q3, qe3);
 
   let q5 = db.delete(FromEntity5)
-    .getQuery() || "";
+    .getSql() || "";
   q5 = q5.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe5 = `DELETE FROM "hello"."FromEntity5"`.replaceAll(
     /[ \n\t]+/ig,
@@ -54,7 +54,7 @@ Deno.test("delete [delete with where] sql", () => {
   const db: Connection = new Connection(con1);
   let query = db.delete(["User"])
     .where([`"column1" = 10`])
-    .getQuery() || "";
+    .getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected = `DELETE FROM "User" WHERE "column1" = 10`.replaceAll(
     /[ \n\t]+/ig,
@@ -66,7 +66,7 @@ Deno.test("delete [delete with schema] sql", () => {
   const db: Connection = new Connection(con1);
   let query = db.delete(["User", "bill"])
     .where([`"column1" = 10`])
-    .getQuery() || "";
+    .getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected = `DELETE FROM "bill"."User" WHERE "column1" = 10`
     .replaceAll(/[ \n\t]+/ig, " ").trim();

@@ -29,13 +29,13 @@ export class ExecutorInsert {
     return this;
   }
 
-  getQuery(): string {
-    const query = this.ib.getQuery();
+  getSql(): string {
+    const query = this.ib.getSql();
     return query;
   }
 
   async execute(): Promise<any> {
-    const query = this.ib.getQuery();
+    const query = this.ib.getSql();
     return await this.conn.execute(query);
   }
 }

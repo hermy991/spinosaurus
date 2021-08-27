@@ -168,7 +168,7 @@ export class BuilderAlter extends BuilderBase {
     return `${sqls.join("; ")}`;
   }
 
-  getQuery(): string {
+  getSql(): string {
     if (!this.#nameData) {
       return "";
     }

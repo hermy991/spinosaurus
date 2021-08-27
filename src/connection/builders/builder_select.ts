@@ -334,7 +334,7 @@ export class BuilderSelect extends BuilderBase {
     return `ORDER BY ${orders.join(", ")}`;
   }
 
-  getQuery() {
+  getSql() {
     let query = `${this.getSelectQuery()}\n${this.getFromQuery()}`;
     if (this.#clauseData.length) {
       query += `\n${this.getClauseQuery()}`;

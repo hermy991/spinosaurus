@@ -190,7 +190,7 @@ export class BuilderCreate extends BuilderBase {
     const ba = new BuilderAlter(this.conn);
     ba.alter(<any> this.#nameData);
     ba.relations(...this.#relationsData);
-    return ba.getQuery();
+    return ba.getSql();
   }
 
   getInsertsQuery() {
@@ -203,10 +203,10 @@ export class BuilderCreate extends BuilderBase {
     const ib = new BuilderInsert(this.conn);
     ib.insert(this.#nameData);
     ib.values(this.#valuesData);
-    return ib.getQuery();
+    return ib.getSql();
   }
 
-  getQuery() {
+  getSql() {
     if (!this.#nameData) {
       return "";
     }

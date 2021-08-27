@@ -79,7 +79,7 @@ export class BuilderRename extends BuilderBase {
     return `${query}`;
   }
 
-  getQuery(): string {
+  getSql(): string {
     let query = ``;
     if (this.#toData) {
       query += `${this.getEntityQuery()}`;

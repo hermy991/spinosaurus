@@ -10,7 +10,7 @@ Deno.test("create [create table] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.create({ entity: "User", schema: "public" })
     .columns({ columnName: "column1", spitype: "varchar" });
-  let query = qs.getQuery() || "";
+  let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected = `CREATE TABLE "public"."User" ( "column1" VARCHAR )`
     .replace(/[ \n\t]+/ig, " ").trim();
@@ -21,7 +21,7 @@ Deno.test("create [create table with data] sql", () => {
   const qs = db.create({ entity: "User", schema: "public" })
     .columns({ columnName: "column1", spitype: "varchar" })
     .data([{ column1: "hola" }, { column1: "xx" }]);
-  let query = qs.getQuery() || "";
+  let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected =
     `CREATE TABLE "public"."User" ( "column1" VARCHAR ); INSERT INTO "public"."User" ("column1") VALUES ('hola'); INSERT INTO "public"."User" ("column1") VALUES ('xx')`
@@ -33,7 +33,7 @@ Deno.test("create [create table with primary key] sql", () => {
   const qs = db.create({ entity: "User", schema: "public" })
     .columns({ columnName: "column1", spitype: "integer", primary: true })
     .addColumn({ columnName: "column2", spitype: "varchar" });
-  let query = qs.getQuery() || "";
+  let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected =
     `CREATE TABLE "public"."User" ( "column1" INTEGER PRIMARY KEY, "column2" VARCHAR )`
@@ -50,7 +50,7 @@ Deno.test("create [create table with auto-increment] sql", () => {
         autoIncrement: "increment",
       })
       .addColumn({ columnName: "column2", spitype: "varchar" });
-    let query = qs.getQuery() || "";
+    let query = qs.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
       `CREATE TABLE "public"."User" ( "column1" SERIAL, "column2" VARCHAR )`
@@ -64,7 +64,7 @@ Deno.test("create [create table with auto-increment] sql", () => {
         autoIncrement: "increment",
       })
       .addColumn({ columnName: "column2", spitype: "varchar" });
-    let query = qs.getQuery() || "";
+    let query = qs.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
       `CREATE TABLE "public"."User" ( "column1" SERIAL, "column2" VARCHAR )`
@@ -79,7 +79,7 @@ Deno.test("create [create table with auto-increment] sql", () => {
         autoIncrement: "uuid",
       })
       .addColumn({ columnName: "column2", spitype: "varchar" });
-    let query = qs1.getQuery() || "";
+    let query = qs1.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
       `CREATE TABLE "public"."User" ( "column1" VARCHAR DEFAULT gen_random_uuid()::text, "column2" VARCHAR )`
@@ -93,7 +93,7 @@ Deno.test("create [create table with auto-increment] sql", () => {
         autoIncrement: "uuid",
       })
       .addColumn({ columnName: "column2", spitype: "varchar" });
-    let query = qs1.getQuery() || "";
+    let query = qs1.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
       `CREATE TABLE "public"."User" ( "column1" UUID DEFAULT gen_random_uuid(), "column2" VARCHAR )`
@@ -109,7 +109,7 @@ Deno.test("create [create table with auto-increment] sql", () => {
         autoIncrement: "uuid",
       })
       .addColumn({ columnName: "column2", spitype: "varchar" });
-    let query = qs1.getQuery() || "";
+    let query = qs1.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
       `CREATE TABLE "public"."User" ( "column1" CHARACTER VARYING (30) DEFAULT gen_random_uuid()::text, "column2" VARCHAR )`
@@ -127,7 +127,7 @@ Deno.test("create [create table with auto-increment and primary key] sql", () =>
         primary: true,
       })
       .addColumn({ columnName: "column2", spitype: "varchar" });
-    let query = qs.getQuery() || "";
+    let query = qs.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
       `CREATE TABLE "public"."User" ( "column1" SERIAL PRIMARY KEY, "column2" VARCHAR )`
@@ -142,7 +142,7 @@ Deno.test("create [create table with auto-increment and primary key] sql", () =>
         primary: true,
       })
       .addColumn({ columnName: "column2", spitype: "varchar" });
-    let query = qs.getQuery() || "";
+    let query = qs.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
       `CREATE TABLE "public"."User" ( "column1" UUID DEFAULT gen_random_uuid() PRIMARY KEY, "column2" VARCHAR )`
@@ -153,14 +153,14 @@ Deno.test("create [create table with auto-increment and primary key] sql", () =>
 Deno.test("create [create schema] sql", () => {
   const db: Connection = new Connection(con1);
   let q1 = db.create({ schema: "publicX" })
-    .getQuery() || "";
+    .getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe1 = `CREATE SCHEMA "publicX"`
     .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(q1, qe1);
 
   let q2 = db.create({ schema: "publicX", check: true })
-    .getQuery() || "";
+    .getSql() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 = `CREATE SCHEMA IF NOT EXISTS "publicX"`
     .replace(/[ \n\t]+/ig, " ").trim();
@@ -177,7 +177,7 @@ Deno.test("create [create relations] sql", () => {
       columns: ["AnotherEntity2Column_ID"],
       parentEntity: "AnotherEntity2",
     })
-    .getQuery() || "";
+    .getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe1 =
     `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1_cdd96d" FOREIGN KEY ("AnotherEntity1Column_ID") REFERENCES "AnotherEntity1" ("AnotherEntity1Column_ID");
@@ -197,7 +197,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_0b7e
       parentEntity: "AnotherEntity2",
       parentColumns: ["AnotherEntity2Column_ID"],
     })
-    .getQuery() || "";
+    .getSql() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 =
     `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "anotherSchema"."AnotherEntity1" ("AnotherEntity1Column_ID");
@@ -212,7 +212,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_0b7e
       parentEntity: "AnotherEntity1",
       parentColumns: ["AnotherEntity1Column_ID"],
     })
-    .getQuery() || "";
+    .getSql() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe3 =
     `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1" FOREIGN KEY ("Column_ID") REFERENCES "anotherSchema"."AnotherEntity1" ("AnotherEntity1Column_ID")`

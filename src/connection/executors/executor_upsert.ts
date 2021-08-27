@@ -29,13 +29,13 @@ export class ExecutorUpsert {
     return this;
   }
 
-  getQuery(): string {
-    const query = this.ub.getQuery();
+  getSql(): string {
+    const query = this.ub.getSql();
     return query;
   }
 
   async execute(): Promise<any> {
-    const query = this.ub.getQuery();
+    const query = this.ub.getSql();
     return await this.conn.execute(query);
   }
 }

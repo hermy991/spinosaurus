@@ -25,13 +25,13 @@ export class ExecutorRename {
     return this;
   }
 
-  getQuery(): string {
-    const query = this.rb.getQuery();
+  getSql(): string {
+    const query = this.rb.getSql();
     return query;
   }
 
   async execute(): Promise<any> {
-    const query = this.rb.getQuery();
+    const query = this.rb.getSql();
     return await this.conn.execute(query);
   }
 }

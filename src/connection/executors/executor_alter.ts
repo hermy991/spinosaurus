@@ -63,13 +63,13 @@ export class ExecutorAlter {
     return this;
   }
 
-  getQuery(): string {
-    const query = this.ab.getQuery();
+  getSql(): string {
+    const query = this.ab.getSql();
     return query;
   }
 
   async execute(): Promise<any> {
-    const query = this.getQuery();
+    const query = this.getSql();
     return await this.conn.execute(query);
   }
 }

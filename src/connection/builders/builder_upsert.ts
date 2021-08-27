@@ -43,7 +43,7 @@ export class BuilderUpsert extends BuilderBase {
     this.#valuesData.push(...data);
   }
 
-  getQuery() {
+  getSql() {
     if (!this.#entityData) {
       return "";
     }
@@ -51,11 +51,11 @@ export class BuilderUpsert extends BuilderBase {
     const bu = new BuilderUpdate(this.conn);
     bu.update(this.#entityData);
     bu.set(this.#valuesData);
-    const u = bu.getQuery();
+    const u = bu.getSql();
     const bi = new BuilderInsert(this.conn);
     bi.insert(this.#entityData);
     bi.values(this.#valuesData);
-    const i = bi.getQuery();
+    const i = bi.getSql();
     [u, i].filter((x) => x).forEach((x) => sqls.push(x));
     return sqls.join(";\n");
   }

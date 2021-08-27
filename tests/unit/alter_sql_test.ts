@@ -19,7 +19,7 @@ Deno.test("alter [alter relations] sql", async () => {
       columns: ["AnotherEntity2Column_ID"],
       parentEntity: "AnotherEntity2",
     }])
-    .getQuery() || "";
+    .getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe1 =
     `ALTER TABLE "publicX"."User" DROP CONSTRAINT "FK_publicX_User_AnotherEntity1";
@@ -35,7 +35,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_Cust
       parentEntity: "AnotherEntity1",
       parentColumns: ["AnotherEntity1Column_ID"],
     })
-    .getQuery() || "";
+    .getSql() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 =
     `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "anotherSchema"."AnotherEntity1" ("AnotherEntity1Column_ID")`
@@ -54,7 +54,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_Cust
       parentEntity: ForeinghEntity,
       parentColumns: ["ForeinghEntityColumn_ID"],
     })
-    .getQuery() || "";
+    .getSql() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe3 =
     `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeinghEntity" ("column21");
@@ -66,7 +66,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_0b7e
       columns: ["AnotherEntity1Column_ID"],
       parentEntity: "AnotherEntity1",
     }])
-    .getQuery() || "";
+    .getSql() || "";
   q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe4 =
     `ALTER TABLE "User" DROP CONSTRAINT "FK_publicX_User_AnotherEntity1";

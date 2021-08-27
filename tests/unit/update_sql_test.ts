@@ -9,7 +9,7 @@ Deno.test("update [update] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.update(["User"])
     .set({ column1: "xx", column2: "ss" });
-  let query = qs.getQuery() || "";
+  let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected = `UPDATE "User" SET "column1" = 'xx', "column2" = 'ss'`
     .replaceAll(/[ \n\t]+/ig, " ").trim();
@@ -31,7 +31,7 @@ Deno.test("update [update 'Entity'] sql", async () => {
       versionColumn: 2,
       updateColumn,
     });
-  let q1 = qs1.getQuery() || "";
+  let q1 = qs1.getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe1 =
     `UPDATE "schema"."UpdateEntityCustom" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = 2, "updateColumn" = TO_TIMESTAMP('${
@@ -47,7 +47,7 @@ Deno.test("update [update 'Entity'] sql", async () => {
       column3: "sss",
       column4: "dont show columns",
     });
-  let q2 = qs2.getQuery() || "";
+  let q2 = qs2.getSql() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 =
     `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1`
@@ -62,7 +62,7 @@ Deno.test("update [update 'Entity'] sql", async () => {
       column4: "dont show columns",
     })
     .where([`"column2" = ''`, `OR "column2" IS NULL`]);
-  let q3 = qs3.getQuery() || "";
+  let q3 = qs3.getSql() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe3 =
     `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1 AND ( "column2" = '' OR "column2" IS NULL )`
@@ -79,7 +79,7 @@ Deno.test("update [update 'Entity'] sql", async () => {
       column4: "dont show columns",
     })
     .where([`"column2" = ''`, `OR "column2" IS NULL`]);
-  let q4 = qs4.getQuery() || "";
+  let q4 = qs4.getSql() || "";
   q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe4 =
     `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss' WHERE "primaryGeneratedColumn" = 1 AND ( "column2" = '' OR "column2" IS NULL )`
@@ -91,7 +91,7 @@ Deno.test("update [update with where] sql", () => {
   const qs = db.update(["User"])
     .set({ column1: "xx", column2: "ss" })
     .where([`"user_ID" = 5`]);
-  let query = qs.getQuery() || "";
+  let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected =
     `UPDATE "User" SET "column1" = 'xx', "column2" = 'ss' WHERE "user_ID" = 5`
@@ -103,7 +103,7 @@ Deno.test("update [update with schema] sql", () => {
   const qs = db.update(["User", "bill"])
     .set({ column1: "xx", column2: "ss" })
     .where([`"user_ID" = 5`]);
-  let query = qs.getQuery() || "";
+  let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected =
     `UPDATE "bill"."User" SET "column1" = 'xx', "column2" = 'ss' WHERE "user_ID" = 5`

@@ -34,13 +34,13 @@ export class ExecutorDrop {
     return this;
   }
 
-  getQuery(): string {
-    const query = this.db.getQuery();
+  getSql(): string {
+    const query = this.db.getSql();
     return query;
   }
 
   async execute(): Promise<any> {
-    const query = this.db.getQuery();
+    const query = this.db.getSql();
     return await this.conn.execute(query);
   }
 }

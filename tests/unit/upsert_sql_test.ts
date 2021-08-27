@@ -25,7 +25,7 @@ Deno.test("upsert [upsert 'Entity'] sql", async () => {
   }];
   const qs1 = db.upsert(UpsertEntity1)
     .values(values);
-  let q1 = qs1.getQuery() || "";
+  let q1 = qs1.getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe1 =
     `UPDATE "schema"."UpsertEntityCustom" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = 2, "updateColumn" = TO_TIMESTAMP('${
@@ -43,7 +43,7 @@ INSERT INTO "schema"."UpsertEntityCustom" ("column2", "columnCustom", "versionCo
   }
   const qs2 = db.upsert(UpsertEntity2)
     .values(values);
-  let q2 = qs2.getQuery() || "";
+  let q2 = qs2.getSql() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 =
     `UPDATE "schema"."UpsertEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1 ;

@@ -74,7 +74,7 @@ export class BuilderDelete extends BuilderBase {
     return `WHERE ${conditions.join(" ")}`;
   }
 
-  getQuery() {
+  getSql() {
     let query = `${this.getEntityQuery()}`;
     if (this.whereData.length) {
       query += `\n${this.getWhereQuery()}`;

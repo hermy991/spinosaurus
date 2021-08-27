@@ -12,7 +12,7 @@ Deno.test("rename [rename table] sql", () => {
     entity: "Person",
     schema: "def",
   });
-  let query = qs.getQuery() || "";
+  let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected = `ALTER TABLE "public"."User" RENAME TO "Person"`
     .replace(/[ \n\t]+/ig, " ").trim();
@@ -22,7 +22,7 @@ Deno.test("rename [rename column table] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.rename({ entity: "User", schema: "public" })
     .columns(["column11", "column12"], ["column21", "column22"]);
-  let query = qs.getQuery() || "";
+  let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected =
     `ALTER TABLE "public"."User" RENAME COLUMN "column11" TO "column12";\nALTER TABLE "public"."User" RENAME COLUMN "column21" TO "column22"`
@@ -35,7 +35,7 @@ Deno.test("rename [rename table and column] sql", () => {
     { entity: "User", schema: "public" },
     { entity: "Person", schema: "def" },
   ).columns(["column11", "column12"], ["column21", "column22"]);
-  let query = qs.getQuery() || "";
+  let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected =
     `ALTER TABLE "public"."User" RENAME TO "Person";\nALTER TABLE "public"."Person" RENAME COLUMN "column11" TO "column12"; \nALTER TABLE "public"."Person" RENAME COLUMN "column21" TO "column22"`

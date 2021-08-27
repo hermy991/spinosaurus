@@ -171,7 +171,7 @@ export async function generateScript(
        * NEW
        */
       const qs = conn.create({ schema: schema.name, ...schema });
-      query = qs.getQuery();
+      query = qs.getSql();
       script.push(query);
     }
   }
@@ -207,7 +207,7 @@ export async function generateScript(
       if (colsa.length) {
         const qsa = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
           .columns(...colsa);
-        query = qsa.getQuery() || "";
+        query = qsa.getSql() || "";
         if (query) {
           script.push(query);
         }
@@ -223,7 +223,7 @@ export async function generateScript(
       if (colsm.length) {
         const qsm = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
           .columns(...colsm);
-        query = qsm.getQuery() || "";
+        query = qsm.getSql() || "";
         if (query) {
           script.push(query);
         }
@@ -239,7 +239,7 @@ export async function generateScript(
       if (colsd.length) {
         const qsd = conn.drop({ ...table.mixeds, entity: table.mixeds.name })
           .columns(colsd);
-        query = qsd.getQuery() || "";
+        query = qsd.getSql() || "";
         if (query) {
           script.push(query);
         }
@@ -277,7 +277,7 @@ export async function generateScript(
         .columns(...columns)
         .checks(...checks)
         .uniques(...uniques);
-      const query = qs.getQuery() || "";
+      const query = qs.getSql() || "";
       script.push(query);
     }
   }
@@ -299,7 +299,7 @@ export async function generateScript(
           ? x.relation.columns
           : undefined,
       }));
-      const query = qa.relations(...relations).getQuery();
+      const query = qa.relations(...relations).getSql();
       script.push(query);
     }
   }

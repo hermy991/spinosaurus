@@ -78,7 +78,7 @@ export class BuilderDrop extends BuilderBase {
     return `${query}`;
   }
 
-  getQuery(): string {
+  getSql(): string {
     let query = ``;
     if (this.nameData === null) {
       return ``;
