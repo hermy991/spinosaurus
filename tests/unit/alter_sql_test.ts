@@ -38,7 +38,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_Cust
     .getQuery() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 =
-    `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1_cdd96d3cc73d1dbdaffa03cc6cd7339b" FOREIGN KEY ("Column_ID") REFERENCES "anotherSchema"."AnotherEntity1" ("AnotherEntity1Column_ID")`
+    `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "anotherSchema"."AnotherEntity1" ("AnotherEntity1Column_ID")`
       .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(q2, qe2);
   const { ForeinghEntity } = await import(
@@ -57,8 +57,8 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_Cust
     .getQuery() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe3 =
-    `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_cdd96d3cc73d1dbdaffa03cc6cd7339b" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeinghEntity" ("column21");
-  ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_0b7e7dee87b1c3b98e72131173dfbbbf" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeinghEntity" ("ForeinghEntityColumn_ID")`
+    `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeinghEntity" ("column21");
+ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_0b7e7d" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeinghEntity" ("ForeinghEntityColumn_ID")`
       .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(q3, qe3);
   let q4 = db.alter({ entity: "User" })
