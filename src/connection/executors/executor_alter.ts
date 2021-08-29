@@ -1,6 +1,8 @@
-import { SpiColumnAdjust } from "./types/spi_column_adjust.ts";
-import { SpiColumnDefinition } from "./types/spi_column_definition.ts";
-import { SpiRelationDefinition } from "./types/spi_relation_definition.ts";
+import {
+  ParamColumnAjust,
+  ParamColumnCreate,
+} from "../builders/params/param_column.ts";
+import { ParamRelationDefinition } from "../builders/params/param_relation.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderAlter } from "../builders/builder_alter.ts";
 
@@ -16,25 +18,25 @@ export class ExecutorAlter {
   }
 
   columns(
-    ...columns: Array<[string, SpiColumnAdjust] | SpiColumnDefinition>
+    ...columns: Array<[string, ParamColumnAjust] | ParamColumnCreate>
   ): ExecutorAlter {
     this.ab.columns(...columns);
     return this;
   }
 
   addColumn(
-    column: [string, SpiColumnAdjust] | SpiColumnDefinition,
+    column: [string, ParamColumnAjust] | ParamColumnCreate,
   ): ExecutorAlter {
     this.ab.addColumn(column);
     return this;
   }
 
-  // uniques(...uniques: Array<SpiUniqueDefinition>): ExecutorAlter {
+  // uniques(...uniques: Array<ParamUnique>): ExecutorAlter {
   //   this.cb.uniques(...uniques);
   //   return this;
   // }
 
-  // addUnique(unique: SpiUniqueDefinition): ExecutorAlter {
+  // addUnique(unique: ParamUnique): ExecutorAlter {
   //   this.cb.addUnique(unique);
   //   return this;
   // }
@@ -50,14 +52,16 @@ export class ExecutorAlter {
   // }
 
   relations(
-    ...relations: Array<[string, SpiRelationDefinition] | SpiRelationDefinition>
+    ...relations: Array<
+      [string, ParamRelationDefinition] | ParamRelationDefinition
+    >
   ): ExecutorAlter {
     this.ab.relations(...relations);
     return this;
   }
 
   addRelation(
-    relation: [string, SpiRelationDefinition] | SpiRelationDefinition,
+    relation: [string, ParamRelationDefinition] | ParamRelationDefinition,
   ): ExecutorAlter {
     this.ab.addRelation(relation);
     return this;

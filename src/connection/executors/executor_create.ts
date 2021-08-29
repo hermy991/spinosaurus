@@ -1,7 +1,7 @@
-import { SpiAllColumnDefinition } from "./types/spi_all_column_definition.ts";
-import { SpiCheckDefinition } from "./types/spi_check_definition.ts";
-import { SpiUniqueDefinition } from "./types/spi_unique_definition.ts";
-import { SpiRelationDefinition } from "./types/spi_relation_definition.ts";
+import { ParamColumnDefinition } from "../builders/params/param_column.ts";
+import { ParamCheck } from "../builders/params/param_check.ts";
+import { ParamUnique } from "../builders/params/param_unique.ts";
+import { ParamRelationCreate } from "../builders/params/param_relation.ts";
 import { ParamCreateData } from "../builders/params/param_create.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderCreate } from "../builders/builder_create.ts";
@@ -23,45 +23,43 @@ export class ExecutorCreate {
   }
 
   columns(
-    ...columns: Array<SpiAllColumnDefinition>
+    ...columns: Array<ParamColumnDefinition>
   ): ExecutorCreate {
     this.cb.columns(...columns);
     return this;
   }
 
-  addColumn(
-    column: SpiAllColumnDefinition,
-  ): ExecutorCreate {
+  addColumn(column: ParamColumnDefinition): ExecutorCreate {
     this.cb.addColumn(column);
     return this;
   }
 
-  checks(...checks: Array<SpiCheckDefinition>): ExecutorCreate {
+  checks(...checks: Array<ParamCheck>): ExecutorCreate {
     this.cb.checks(...checks);
     return this;
   }
 
-  addCheck(check: SpiCheckDefinition): ExecutorCreate {
+  addCheck(check: ParamCheck): ExecutorCreate {
     this.cb.addCheck(check);
     return this;
   }
 
-  uniques(...uniques: Array<SpiUniqueDefinition>): ExecutorCreate {
+  uniques(...uniques: Array<ParamUnique>): ExecutorCreate {
     this.cb.uniques(...uniques);
     return this;
   }
 
-  addUnique(unique: SpiUniqueDefinition): ExecutorCreate {
+  addUnique(unique: ParamUnique): ExecutorCreate {
     this.cb.addUnique(unique);
     return this;
   }
 
-  relations(...relations: Array<SpiRelationDefinition>): ExecutorCreate {
+  relations(...relations: Array<ParamRelationCreate>): ExecutorCreate {
     this.cb.relations(...relations);
     return this;
   }
 
-  addRelation(relation: SpiRelationDefinition): ExecutorCreate {
+  addRelation(relation: ParamRelationCreate): ExecutorCreate {
     this.cb.addRelation(relation);
     return this;
   }

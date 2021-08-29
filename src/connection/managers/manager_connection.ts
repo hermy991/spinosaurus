@@ -1,7 +1,9 @@
 import { fs } from "../../../deps.ts";
-import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
-import { SpiCheckDefinition } from "../executors/types/spi_check_definition.ts";
-import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
+import {
+  ParamColumnAjust,
+  ParamColumnCreate,
+} from "../builders/params/param_column.ts";
+import { ParamCheck } from "../builders/params/param_check.ts";
 import { ConnectionOptionsAll } from "../connection_options.ts";
 import { ConnectionPostgresOptions } from "../drivers/postgres/connection_postgres_options.ts";
 import { Connection } from "../connection.ts";
@@ -196,7 +198,7 @@ export async function generateScript(
        * Altering column tables'
        */
       let query = "";
-      const colsa: Array<[string, SpiColumnAdjust]> = table.columns
+      const colsa: Array<[string, ParamColumnAjust]> = table.columns
         .filter((x: any) =>
           dtable.columns.some((y: any) => y.mixeds.name === x.mixeds.name)
         )
@@ -214,7 +216,7 @@ export async function generateScript(
       /**
        * Adding column tables'
        */
-      const colsm: Array<SpiColumnDefinition> = table.columns
+      const colsm: Array<ParamColumnCreate> = table.columns
         .filter((x: any) =>
           !dtable.columns.some((y: any) => y.mixeds.name === x.mixeds.name)
         )
@@ -248,13 +250,13 @@ export async function generateScript(
        * New tables
        */
       // Columns
-      const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
+      const columns: Array<ParamColumnCreate> = (table.columns || []).map((
         x: any,
       ) => ({ ...x.property, ...x.mixeds }));
       /**
        * Checks constraints
        */
-      const checks: Array<SpiCheckDefinition> = (table.checks || []).map((
+      const checks: Array<ParamCheck> = (table.checks || []).map((
         x: any,
       ) => x.mixeds);
       const uniques = [];

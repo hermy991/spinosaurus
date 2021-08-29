@@ -1,11 +1,11 @@
 import { ColumnOptions } from "../options/column_options.ts";
-import { RelationOptions } from "../options/relation_options.ts";
+import { ParamRelation } from "../../connection/builders/params/param_relation.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
 import { reflect_metadata } from "../../../deps.ts";
 
 export function OneToOne(
-  relationOptions: RelationOptions,
+  relation: ParamRelation,
   options: ColumnOptions = {},
 ): any {
   return (
@@ -28,7 +28,7 @@ export function OneToOne(
       propertyKey,
       type,
     };
-    relationOptions.entity ||= property.type;
+    relation.entity ||= property.type;
     const target: ColumnOptions = {
       name: propertyKey,
       spitype: getColumnType({ type: property.type }),
@@ -41,7 +41,7 @@ export function OneToOne(
       entity,
       descriptor,
       property,
-      relation: relationOptions,
+      relation,
       options,
       mixeds,
     };

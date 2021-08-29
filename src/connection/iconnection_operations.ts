@@ -1,12 +1,13 @@
 import { MetadataStore } from "../decorators/metadata/metadata_store.ts";
-import { SpiCreateSchema } from "./executors/types/spi_create_schema.ts";
-import { SpiDropSchema } from "./executors/types/spi_drop_schema.ts";
-import { SpiColumnDefinition } from "./executors/types/spi_column_definition.ts";
-import { SpiCheckDefinition } from "./executors/types/spi_check_definition.ts";
-import { SpiUniqueDefinition } from "./executors/types/spi_unique_definition.ts";
-import { SpiRelationDefinition } from "./executors/types/spi_relation_definition.ts";
-import { SpiColumnAdjust } from "./executors/types/spi_column_adjust.ts";
-import { SpiColumnComment } from "./executors/types/spi_column_comment.ts";
+import { ParamSchemaDefinition } from "./builders/params/param_schema.ts";
+import {
+  ParamColumnAjust,
+  ParamColumnCreate,
+} from "./builders/params/param_column.ts";
+import { ParamCheck } from "./builders/params/param_check.ts";
+import { ParamUnique } from "./builders/params/param_unique.ts";
+import { ParamRelationCreate } from "./builders/params/param_relation.ts";
+import { ParamCommentColumnDerinition } from "./builders/params/param_comment.ts";
 import {
   ParamComplexOptions,
   ParamSimpleOptions,
@@ -22,17 +23,17 @@ export interface IConnectionOperations {
     params?: ParamComplexOptions,
   ): Array<string>;
   getSqlFunction(fun: Function): string;
-  createSchema(scs: SpiCreateSchema): string;
-  dropSchema(sds: SpiDropSchema): string;
-  columnDefinition(scd: SpiColumnDefinition): string;
-  columnComment(scc: SpiColumnComment): string;
-  createCheck(scd: SpiCheckDefinition & { entity: string }): string;
-  createUnique(sud: SpiUniqueDefinition & { entity: string }): string;
-  createRelation(srd: SpiRelationDefinition): string;
+  createSchema(scs: ParamSchemaDefinition): string;
+  dropSchema(sds: ParamSchemaDefinition): string;
+  columnDefinition(scd: ParamColumnCreate): string;
+  columnComment(scc: ParamCommentColumnDerinition): string;
+  createCheck(scd: ParamCheck & { entity: string }): string;
+  createUnique(sud: ParamUnique & { entity: string }): string;
+  createRelation(srd: ParamRelationCreate): string;
   dropConstraint(sdr: { entity: string; name: string }): string;
   columnAlter(
     from: { schema?: string; entity: string; name: string },
-    changes: SpiColumnAdjust,
+    changes: ParamColumnAjust,
   ): string[];
   /* Basic Connection Operations*/
   test(): Promise<boolean>;

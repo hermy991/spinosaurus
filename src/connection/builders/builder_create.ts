@@ -1,7 +1,7 @@
-import { SpiAllColumnDefinition } from "../executors/types/spi_all_column_definition.ts";
-import { SpiCheckDefinition } from "../executors/types/spi_check_definition.ts";
-import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts";
-import { SpiRelationDefinition } from "../executors/types/spi_relation_definition.ts";
+import { ParamColumnDefinition } from "./params/param_column.ts";
+import { ParamCheck } from "./params/param_check.ts";
+import { ParamUnique } from "./params/param_unique.ts";
+import { ParamRelationCreate } from "./params/param_relation.ts";
 import { ParamCreateData } from "./params/param_create.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderBase } from "./base/builder_base.ts";
@@ -14,10 +14,10 @@ export class BuilderCreate extends BuilderBase {
     | { schema: string; check?: boolean }
     | Function
     | null = null;
-  #columnsData: Array<SpiAllColumnDefinition> = [];
-  #checkData: Array<SpiCheckDefinition> = [];
+  #columnsData: Array<ParamColumnDefinition> = [];
+  #checkData: Array<ParamCheck> = [];
   #uniquesData: Array<{ name?: string; columns: Array<string> }> = [];
-  #relationsData: Array<SpiRelationDefinition> = [];
+  #relationsData: Array<ParamRelationCreate> = [];
   #createData: Array<ParamCreateData> = [];
   constructor(public conn: ConnectionAll) {
     super(conn);
@@ -32,48 +32,48 @@ export class BuilderCreate extends BuilderBase {
     this.#entityData = req;
   }
 
-  columns(...columns: Array<SpiAllColumnDefinition>): void {
+  columns(...columns: Array<ParamColumnDefinition>): void {
     this.#columnsData = [];
     columns.forEach((x) => {
       this.addColumn(x);
     });
   }
 
-  addColumn(column: SpiAllColumnDefinition): void {
+  addColumn(column: ParamColumnDefinition): void {
     column.name = `${column.name}`;
     this.#columnsData.push(column);
   }
 
-  checks(...checks: Array<SpiCheckDefinition>): void {
+  checks(...checks: Array<ParamCheck>): void {
     this.#checkData = [];
     checks.forEach((x) => {
       this.addCheck(x);
     });
   }
 
-  addCheck(check: SpiCheckDefinition): void {
+  addCheck(check: ParamCheck): void {
     this.#checkData.push(check);
   }
 
-  uniques(...uniques: Array<SpiUniqueDefinition>): void {
+  uniques(...uniques: Array<ParamUnique>): void {
     this.#uniquesData = [];
     uniques.forEach((x) => {
       this.addUnique(x);
     });
   }
 
-  addUnique(unique: SpiUniqueDefinition): void {
+  addUnique(unique: ParamUnique): void {
     this.#uniquesData.push(unique);
   }
 
-  relations(...relations: Array<SpiRelationDefinition>): void {
+  relations(...relations: Array<ParamRelationCreate>): void {
     this.#relationsData = [];
     relations.forEach((x) => {
       this.addRelation(x);
     });
   }
 
-  addRelation(relation: SpiRelationDefinition): void {
+  addRelation(relation: ParamRelationCreate): void {
     this.#relationsData.push(relation);
   }
 
@@ -112,7 +112,7 @@ export class BuilderCreate extends BuilderBase {
     return `CREATE TABLE ${query}`;
   }
 
-  getColumnsQuery(cs: Array<SpiAllColumnDefinition> = []) {
+  getColumnsQuery(cs: Array<ParamColumnDefinition> = []) {
     if (!cs.length) {
       return ``;
     }
@@ -190,7 +190,7 @@ export class BuilderCreate extends BuilderBase {
 
   getInsertsQuery(
     e: { schema?: string; entity?: string },
-    cs: Array<SpiAllColumnDefinition>,
+    cs: Array<ParamColumnDefinition>,
   ) {
     if (!e.entity) {
       return ``;
@@ -224,7 +224,7 @@ export class BuilderCreate extends BuilderBase {
     }
     const sqls = [];
     let e: { schema?: string; entity?: string } = {};
-    let cs: SpiAllColumnDefinition[] = [];
+    let cs: ParamColumnDefinition[] = [];
     if (this.#entityData instanceof Function) {
       e = this.getEntityData(this.conn.options.name, this.#entityData);
       if (this.#columnsData.length) {

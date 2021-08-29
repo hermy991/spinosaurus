@@ -1,14 +1,13 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import { SpiColumnDefinition } from "../executors/types/spi_column_definition.ts";
-import { SpiRelationDefinition } from "../executors/types/spi_relation_definition.ts";
-import { SpiColumnAdjust } from "../executors/types/spi_column_adjust.ts";
+import { ParamColumnAjust, ParamColumnCreate } from "./params/param_column.ts";
+import { ParamRelationDefinition } from "./params/param_relation.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderAlter extends BuilderBase {
   #nameData: { entity: string; schema?: string } | undefined = undefined;
-  #columnsData: Array<[string, SpiColumnAdjust] | SpiColumnDefinition> = [];
+  #columnsData: Array<[string, ParamColumnAjust] | ParamColumnCreate> = [];
   #relationsData: Array<
-    [string, SpiRelationDefinition] | SpiRelationDefinition
+    [string, ParamRelationDefinition] | ParamRelationDefinition
   > = [];
 
   constructor(public conn: ConnectionAll) {
@@ -20,7 +19,7 @@ export class BuilderAlter extends BuilderBase {
   }
 
   columns(
-    ...columns: Array<[string, SpiColumnAdjust] | SpiColumnDefinition>
+    ...columns: Array<[string, ParamColumnAjust] | ParamColumnCreate>
   ): void {
     this.#columnsData = [];
     columns.forEach((x) => {
@@ -28,12 +27,14 @@ export class BuilderAlter extends BuilderBase {
     });
   }
 
-  addColumn(column: [string, SpiColumnAdjust] | SpiColumnDefinition): void {
+  addColumn(column: [string, ParamColumnAjust] | ParamColumnCreate): void {
     this.#columnsData.push(column);
   }
 
   relations(
-    ...relations: Array<[string, SpiRelationDefinition] | SpiRelationDefinition>
+    ...relations: Array<
+      [string, ParamRelationDefinition] | ParamRelationDefinition
+    >
   ): void {
     this.#relationsData = [];
     relations.forEach((x) => {
@@ -42,7 +43,7 @@ export class BuilderAlter extends BuilderBase {
   }
 
   addRelation(
-    relation: [string, SpiRelationDefinition] | SpiRelationDefinition,
+    relation: [string, ParamRelationDefinition] | ParamRelationDefinition,
   ): void {
     this.#relationsData.push(relation);
   }
@@ -58,11 +59,11 @@ export class BuilderAlter extends BuilderBase {
     let querys: string[] = [];
 
     for (let i = 0; i < this.#columnsData.length; i++) {
-      let name = "", def: SpiColumnAdjust | SpiColumnDefinition;
+      let name = "", def: ParamColumnAjust | ParamColumnCreate;
       if (Array.isArray(this.#columnsData[i])) {
-        [name, def] = <[string, SpiColumnAdjust]> this.#columnsData[i];
+        [name, def] = <[string, ParamColumnAjust]> this.#columnsData[i];
       } else {
-        def = <SpiColumnDefinition> this.#columnsData[i];
+        def = <ParamColumnCreate> this.#columnsData[i];
       }
       name = name ? this.clearNames(name) : name;
       def.name = def.name ? this.clearNames(def.name) : def.name;

@@ -18,7 +18,7 @@ typeORM)
 - [ ] Associations (relations)
 - [ ] Eager and lazy relations
 - [ ] Uni-directional, bi-directional and self-referenced relations
-- [ ] Supports multiple inheritance patterns
+- [x] Supports multiple inheritance patterns
 - [ ] Cascades
 - [ ] Indices
 - [ ] Transactions
@@ -36,7 +36,7 @@ typeORM)
 - [ ] Logging
 - [ ] Listeners and subscribers (hooks)
 - [ ] Supports closure table pattern
-- [ ] Schema declaration in models or separate configuration files
+- [x] Schema declaration in models or separate configuration files
 - [x] Connection configuration in json / xml / yml / yaml / env formats
 - [ ] Database supports
   - [x] Postgresql

@@ -1,4 +1,5 @@
 import { AllColumnOptions } from "../options/all_column_options.ts";
+import { ParamData } from "../../connection/builders/params/param_data.ts";
 
 export class MetadataStore {
   readonly tables: any[] = [];
@@ -17,5 +18,5 @@ export class MetadataStore {
       mixeds: AllColumnOptions;
     }
   > = [];
-  readonly data: any[] = [];
+  readonly data: { target: Function; entries: ParamData[] }[] = [];
 }

@@ -1,15 +1,16 @@
 import { ConnectionPostgresOptions } from "./connection_postgres_options.ts";
 import { interpolate, stringify } from "../../builders/base/sql.ts";
 import { IConnectionOperations } from "../../iconnection_operations.ts";
-import { SpiCreateSchema } from "../../executors/types/spi_create_schema.ts";
-import { SpiDropSchema } from "../../executors/types/spi_drop_schema.ts";
-import { SpiAllColumnDefinition } from "../../executors/types/spi_all_column_definition.ts";
-import { SpiColumnDefinition } from "../../executors/types/spi_column_definition.ts";
-import { SpiCheckDefinition } from "../../executors/types/spi_check_definition.ts";
-import { SpiUniqueDefinition } from "../../executors/types/spi_unique_definition.ts";
-import { SpiRelationNoEntityDefinition } from "../../executors/types/spi_relation_definition.ts";
-import { SpiColumnAdjust } from "../../executors/types/spi_column_adjust.ts";
-import { SpiColumnComment } from "../../executors/types/spi_column_comment.ts";
+import { ParamSchemaDefinition } from "../../builders/params/param_schema.ts";
+import {
+  ParamColumnAjust,
+  ParamColumnCreate,
+  ParamColumnDefinition,
+} from "../../builders/params/param_column.ts";
+import { ParamCheck } from "../../builders/params/param_check.ts";
+import { ParamUnique } from "../../builders/params/param_unique.ts";
+import { ParamRelationCreate } from "../../builders/params/param_relation.ts";
+import { ParamCommentColumnDerinition } from "../../builders/params/param_comment.ts";
 import {
   ParamComplexOptions,
   ParamSimpleOptions,
@@ -75,7 +76,7 @@ class ConnectionPostgres implements IConnectionOperations {
     }
     return stringify(fun);
   }
-  createSchema = (scs: SpiCreateSchema): string => {
+  createSchema = (scs: ParamSchemaDefinition): string => {
     /**
      * Create schema
      */
@@ -84,7 +85,7 @@ class ConnectionPostgres implements IConnectionOperations {
     return sql;
   };
 
-  dropSchema = (sds: SpiDropSchema): string => {
+  dropSchema = (sds: ParamSchemaDefinition): string => {
     /**
      * Droping schema
      */
@@ -93,7 +94,7 @@ class ConnectionPostgres implements IConnectionOperations {
     return sql;
   };
 
-  columnDefinition = (scd: SpiAllColumnDefinition): string => {
+  columnDefinition = (scd: ParamColumnDefinition): string => {
     /**
      * Column definition
      */
@@ -128,7 +129,7 @@ class ConnectionPostgres implements IConnectionOperations {
     return defs.join(" ");
   };
 
-  createCheck = (scd: SpiCheckDefinition & { entity: string }): string => {
+  createCheck = (scd: ParamCheck & { entity: string }): string => {
     /**
      * Creating Check
      */
@@ -138,7 +139,7 @@ class ConnectionPostgres implements IConnectionOperations {
     return sql;
   };
 
-  createUnique = (sud: SpiUniqueDefinition & { entity: string }): string => {
+  createUnique = (sud: ParamUnique & { entity: string }): string => {
     /**
      * Creating Unique
      */
@@ -150,7 +151,7 @@ class ConnectionPostgres implements IConnectionOperations {
   };
 
   createRelation = (
-    srd: SpiRelationNoEntityDefinition & { schema?: string; entity: string },
+    srd: ParamRelationCreate & { schema?: string; entity: string },
   ): string => {
     /**
      * Creating Relation
@@ -188,7 +189,7 @@ class ConnectionPostgres implements IConnectionOperations {
   };
   columnAlter = (
     from: { schema?: string; entity: string; name: string },
-    changes: SpiColumnAdjust | SpiColumnDefinition,
+    changes: ParamColumnAjust | ParamColumnCreate,
   ): string[] => {
     const { schema, entity, name } = from;
     const querys: string[] = [];
@@ -257,7 +258,7 @@ class ConnectionPostgres implements IConnectionOperations {
     return querys;
   };
 
-  columnComment = (scc: SpiColumnComment): string => {
+  columnComment = (scc: ParamCommentColumnDerinition): string => {
     const { schema, entity, name, comment } = scc;
     let sql = `COMMENT ON COLUMN ${
       schema ? schema + "." : ""
@@ -279,7 +280,7 @@ class ConnectionPostgres implements IConnectionOperations {
       client.release();
       await pool.end();
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   }
