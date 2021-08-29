@@ -2,6 +2,7 @@ import { SpiAllColumnDefinition } from "./types/spi_all_column_definition.ts";
 import { SpiCheckDefinition } from "./types/spi_check_definition.ts";
 import { SpiUniqueDefinition } from "./types/spi_unique_definition.ts";
 import { SpiRelationDefinition } from "./types/spi_relation_definition.ts";
+import { ParamCreateData } from "../builders/params/param_create.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderCreate } from "../builders/builder_create.ts";
 
@@ -15,7 +16,7 @@ export class ExecutorCreate {
     req: { entity: string; schema?: string } | {
       schema: string;
       check?: boolean;
-    },
+    } | Function,
   ): ExecutorCreate {
     this.cb.create(req);
     return this;
@@ -65,13 +66,13 @@ export class ExecutorCreate {
     return this;
   }
 
-  data(data: Array<any> | any): ExecutorCreate {
+  data(data: ParamCreateData[] | ParamCreateData): ExecutorCreate {
     this.cb.data(data);
     return this;
   }
 
-  addData(data: Array<any> | any): ExecutorCreate {
-    this.cb.addColumn(data);
+  addData(data: ParamCreateData[] | ParamCreateData): ExecutorCreate {
+    this.cb.addData(data);
     return this;
   }
 

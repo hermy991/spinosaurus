@@ -96,9 +96,8 @@ export class BuilderInsert extends BuilderBase {
           }
         }
       }
-      if (
-        primaryGeneratedColumn /*&& !this.#options.updateWithoutPrimaryKey*/
-      ) {
+      /*&& !this.#options.updateWithoutPrimaryKey*/
+      if (primaryGeneratedColumn) {
         return ``;
       }
       for (
@@ -128,7 +127,7 @@ export class BuilderInsert extends BuilderBase {
       e = this.getEntityData(this.conn.options.name, this.#entityData);
       ps = this.getColumnAccesors(this.conn.options.name, this.#entityData);
     } else {
-      e = <any> this.#entityData;
+      e = this.#entityData;
     }
     for (const value of this.#valuesData) {
       const sql = `${this.getEntityValueQuery(e, value, ps)}`;

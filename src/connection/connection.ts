@@ -83,7 +83,7 @@ class Connection {
     req: { entity: string; schema?: string } | {
       schema: string;
       check?: boolean;
-    },
+    } | Function,
   ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor = new ExecutorCreate(this.#connection);

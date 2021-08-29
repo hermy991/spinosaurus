@@ -2,21 +2,23 @@ import { SpiAllColumnDefinition } from "../executors/types/spi_all_column_defini
 import { SpiCheckDefinition } from "../executors/types/spi_check_definition.ts";
 import { SpiUniqueDefinition } from "../executors/types/spi_unique_definition.ts";
 import { SpiRelationDefinition } from "../executors/types/spi_relation_definition.ts";
+import { ParamCreateData } from "./params/param_create.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { BuilderAlter } from "./builder_alter.ts";
 import { BuilderInsert } from "./builder_insert.ts";
 
 export class BuilderCreate extends BuilderBase {
-  #nameData:
+  #entityData:
     | { entity: string; schema?: string }
     | { schema: string; check?: boolean }
+    | Function
     | null = null;
   #columnsData: Array<SpiAllColumnDefinition> = [];
   #checkData: Array<SpiCheckDefinition> = [];
   #uniquesData: Array<{ name?: string; columns: Array<string> }> = [];
   #relationsData: Array<SpiRelationDefinition> = [];
-  #valuesData: Array<any> = [];
+  #createData: Array<ParamCreateData> = [];
   constructor(public conn: ConnectionAll) {
     super(conn);
   }
@@ -25,9 +27,9 @@ export class BuilderCreate extends BuilderBase {
     req: { entity: string; schema?: string } | {
       schema: string;
       check?: boolean;
-    },
+    } | Function,
   ): void {
-    this.#nameData = req;
+    this.#entityData = req;
   }
 
   columns(...columns: Array<SpiAllColumnDefinition>): void {
@@ -75,33 +77,34 @@ export class BuilderCreate extends BuilderBase {
     this.#relationsData.push(relation);
   }
 
-  data(data: Array<any> | any) {
+  data(data: ParamCreateData[] | ParamCreateData) {
+    this.#createData = [];
     this.addData(data);
   }
 
-  addData(data: Array<any> | any) {
+  addData(data: ParamCreateData[] | ParamCreateData) {
     data = Array.isArray(data) ? data : [data];
-    this.#valuesData.push(...data);
+    this.#createData.push(...data);
   }
 
   getCreateSchemaQuery() {
-    if (!this.#nameData) {
+    if (!this.#entityData) {
       return ``;
     }
-    const nameData = self.structuredClone(this.#nameData);
+    const nameData = self.structuredClone(this.#entityData);
     nameData.schema = this.clearNames(nameData.schema);
     return this.conn.createSchema(nameData);
   }
 
-  getCreateTableQuery() {
-    if (!this.#nameData) {
+  getCreateTableQuery(e: { schema?: string; entity?: string }) {
+    if (!e.entity) {
       return ``;
     }
     let entity = undefined;
-    if ("entity" in this.#nameData) {
-      entity = this.#nameData.entity;
+    if ("entity" in e) {
+      entity = e.entity;
     }
-    const { schema } = this.#nameData;
+    const { schema } = e;
     let query = `${this.clearNames(entity)}`;
     if (schema) {
       query = `${this.clearNames([schema, entity])}`;
@@ -109,37 +112,33 @@ export class BuilderCreate extends BuilderBase {
     return `CREATE TABLE ${query}`;
   }
 
-  getColumnsQuery() {
-    if (!this.#columnsData.length) {
+  getColumnsQuery(cs: Array<SpiAllColumnDefinition> = []) {
+    if (!cs.length) {
       return ``;
     }
     const sqls: string[] = [];
-    for (let i = 0; i < this.#columnsData.length; i++) {
+    for (let i = 0; i < cs.length; i++) {
       let sql = "";
-      const columnName = this.clearNames(this.#columnsData[i].columnName);
-      sql = this.conn.columnDefinition({ ...this.#columnsData[i], columnName });
+      const columnName = this.clearNames(cs[i].columnName);
+      sql = this.conn.columnDefinition({ ...cs[i], columnName });
       sqls.push(sql);
     }
     return `( ${sqls.join(", ")} )`;
   }
 
-  getChecksQuery() {
-    if (!this.#checkData.length || !this.#nameData) {
+  getChecksQuery(e: { schema?: string; entity?: string }) {
+    if (!this.#checkData.length) {
       return ``;
     }
     const sqls: string[] = [];
-    const schema = this.#nameData?.schema;
-    let entity = undefined;
-    if ("entity" in this.#nameData) {
-      entity = this.#nameData.entity;
-    }
+    const { schema, entity } = e;
 
     for (let i = 0; i < this.#checkData.length; i++) {
       let sql = "";
       const name = this.clearNames(
         this.#checkData[i].name ? this.#checkData[i].name : this.generateName1({
           prefix: "CHK",
-          ...this.#nameData,
+          ...e,
           sequence: i + 1,
         }),
       );
@@ -153,23 +152,19 @@ export class BuilderCreate extends BuilderBase {
     return `${sqls.join("; ")}`;
   }
 
-  getUniquesQuery() {
-    if (!this.#uniquesData.length || !this.#nameData) {
+  getUniquesQuery(e: { schema?: string; entity?: string }) {
+    if (!this.#uniquesData.length) {
       return ``;
     }
     const sqls: string[] = [];
-    const schema = this.#nameData?.schema;
-    let entity = undefined;
-    if ("entity" in this.#nameData) {
-      entity = this.#nameData.entity;
-    }
+    const { schema, entity } = e;
 
     for (let i = 0; i < this.#uniquesData.length; i++) {
       let sql = "";
       const unique = self.structuredClone(this.#uniquesData[i]);
       unique.name ||= this.generateName1({
         prefix: "UQ",
-        ...this.#nameData,
+        ...e,
         sequence: i + 1,
       });
       unique.name = this.clearNames(unique.name);
@@ -183,52 +178,79 @@ export class BuilderCreate extends BuilderBase {
     return `${sqls.join("; ")}`;
   }
 
-  getRelationsQuery() {
-    if (!this.#relationsData.length || !this.#nameData) {
+  getRelationsQuery(e: { schema?: string; entity?: string }) {
+    if (!this.#relationsData.length) {
       return ``;
     }
     const ba = new BuilderAlter(this.conn);
-    ba.alter(<any> this.#nameData);
+    ba.alter(<any> e);
     ba.relations(...this.#relationsData);
     return ba.getSql();
   }
 
-  getInsertsQuery() {
-    if (!this.#nameData) {
-      return ``;
-    }
-    if (!("entity" in this.#nameData)) {
+  getInsertsQuery(
+    e: { schema?: string; entity?: string },
+    cs: Array<SpiAllColumnDefinition>,
+  ) {
+    if (!e.entity) {
       return ``;
     }
     const ib = new BuilderInsert(this.conn);
-    ib.insert(this.#nameData);
-    ib.values(this.#valuesData);
+    ib.insert(<any> e);
+    if (this.#entityData instanceof Function) {
+      ib.values(this.#createData);
+    } else {
+      for (const create of this.#createData) {
+        const tcreate: ParamCreateData = {};
+        for (const c of cs) {
+          if (c.columnName in create) {
+            if (!c.autoIncrement) {
+              tcreate[c.columnName] = create[c.columnName];
+            }
+          }
+        }
+        ib.addValues(tcreate);
+      }
+    }
     return ib.getSql();
   }
 
   getSql() {
-    if (!this.#nameData) {
+    if (!this.#entityData) {
       return "";
     }
-    if ("schema" in this.#nameData && !("entity" in this.#nameData)) {
+    if ("schema" in this.#entityData && !("entity" in this.#entityData)) {
       return `${this.getCreateSchemaQuery()}`;
     }
-    const querys = [];
+    const sqls = [];
+    let e: { schema?: string; entity?: string } = {};
+    let cs: SpiAllColumnDefinition[] = [];
+    if (this.#entityData instanceof Function) {
+      e = this.getEntityData(this.conn.options.name, this.#entityData);
+      if (this.#columnsData.length) {
+        cs = this.#columnsData;
+      } else {
+        cs = this.getColumnAccesors(this.conn.options.name, this.#entityData);
+      }
+    } else {
+      e = this.#entityData;
+      cs = this.#columnsData;
+    }
     if (this.#columnsData.length) {
-      querys.push(this.getCreateTableQuery() + " " + this.getColumnsQuery());
+      sqls.push(this.getCreateTableQuery(e) + " " + this.getColumnsQuery(cs));
     }
     if (this.#checkData.length) {
-      querys.push(this.getChecksQuery());
+      sqls.push(this.getChecksQuery(e));
     }
     if (this.#uniquesData.length) {
-      querys.push(this.getUniquesQuery());
+      sqls.push(this.getUniquesQuery(e));
     }
     if (this.#relationsData.length) {
-      querys.push(this.getRelationsQuery());
+      sqls.push(this.getRelationsQuery(e));
     }
-    if (this.#valuesData.length) {
-      querys.push(this.getInsertsQuery());
+    if (this.#createData.length) {
+      sqls.push(this.getInsertsQuery(e, cs));
     }
-    return querys.join(";\n");
+    return sqls.join(";\n");
   }
 }

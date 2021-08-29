@@ -8,26 +8,73 @@ const con1 = getTestConnection();
  *********************/
 Deno.test("create [create table] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.create({ entity: "User", schema: "public" })
+  const qs1 = db.create({ entity: "User", schema: "public" })
     .columns({ columnName: "column1", spitype: "varchar" });
-  let query = qs.getSql() || "";
-  query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const queryExpected = `CREATE TABLE "public"."User" ( "column1" VARCHAR )`
+  let q1 = qs1.getSql() || "";
+  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe1 = `CREATE TABLE "public"."User" ( "column1" VARCHAR )`
     .replace(/[ \n\t]+/ig, " ").trim();
-  assertEquals(query, queryExpected);
+  assertEquals(q1, qe1);
 });
 Deno.test("create [create table with data] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.create({ entity: "User", schema: "public" })
+  const qs1 = db.create({ entity: "User", schema: "public" })
     .columns({ columnName: "column1", spitype: "varchar" })
     .data([{ column1: "hola" }, { column1: "xx" }]);
-  let query = qs.getSql() || "";
-  query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
-  const queryExpected =
-    `CREATE TABLE "public"."User" ( "column1" VARCHAR ); INSERT INTO "public"."User" ("column1") VALUES ('hola'); INSERT INTO "public"."User" ("column1") VALUES ('xx')`
+  let q1 = qs1.getSql() || "";
+  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe1 = `CREATE TABLE "public"."User" ( "column1" VARCHAR );
+INSERT INTO "public"."User" ("column1") VALUES ('hola');
+INSERT INTO "public"."User" ("column1") VALUES ('xx')`
+    .replace(/[ \n\t]+/ig, " ").trim();
+  assertEquals(q1, qe1);
+  const data = [{
+    column1: 1,
+    column2: "row1 column2, this have to show",
+    column3: "row1 column3, this have to show",
+    column4: "row1 column4, don't show",
+  }, {
+    column1: 2,
+    column2: "row2 column2, this have to show",
+    column3: "row2 column3, this have to show",
+    column4: "row2 column4, don't show",
+  }];
+  let q2 = db.create({ schema: "publicX", entity: "User" })
+    .columns({
+      columnName: "column1",
+      autoIncrement: "increment",
+      primary: true,
+    })
+    .addColumn({ columnName: "column2", spitype: "text", nullable: false })
+    .addColumn({
+      columnName: "column3",
+      spitype: "varchar",
+      length: 100,
+      nullable: false,
+    })
+    .data(data)
+    .getSql() || "";
+  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe2 =
+    `CREATE TABLE "publicX"."User" ( "column1" SERIAL PRIMARY KEY, "column2" TEXT NOT NULL, "column3" CHARACTER VARYING (100) NOT NULL );
+INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row1 column2, this have to show', 'row1 column3, this have to show');
+INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row2 column2, this have to show', 'row2 column3, this have to show')`
       .replace(/[ \n\t]+/ig, " ").trim();
-  assertEquals(query, queryExpected);
+  assertEquals(q2, qe2);
 });
+// Deno.test("create [create table 'Entity'] sql", async () => {
+//   const { CreateEntity1 } = await import(
+//     "./playground/decorators/CreateEntity.ts"
+//   );
+//   const db: Connection = new Connection(con1);
+//   const qs1 = db.create(CreateEntity1)
+//     .columns({ columnName: "column1", spitype: "varchar" });
+//   let q1 = qs1.getSql() || "";
+//   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+//   const qe1 = `CREATE TABLE "public"."User" ( "column1" VARCHAR )`
+//     .replace(/[ \n\t]+/ig, " ").trim();
+//   assertEquals(q1, qe1);
+// });
 Deno.test("create [create table with primary key] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.create({ entity: "User", schema: "public" })
