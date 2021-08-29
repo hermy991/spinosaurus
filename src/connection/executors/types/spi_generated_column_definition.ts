@@ -5,7 +5,7 @@ import { ColumnType } from "../../../decorators/options/column_type.ts";
  * columnas antes de la capa de base de datos.
  */
 export type SpiGeneratedColumnDefinition = {
-  columnName: string;
+  name: string;
   spitype?: ColumnType;
   length?: number;
   precision?: number;

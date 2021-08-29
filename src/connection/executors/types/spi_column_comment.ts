@@ -5,6 +5,6 @@
 export type SpiColumnComment = {
   schema?: string;
   entity: string;
-  columnName: string;
+  name: string;
   comment: string;
 };

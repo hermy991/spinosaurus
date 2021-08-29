@@ -13,8 +13,8 @@ Deno.test("delete execute() function", async () => {
     await db.drop({ entity: currEntity }).execute();
   }
   await db.create({ entity: currEntity })
-    .columns({ columnName: "UserName", spitype: "varchar", length: 100 }, {
-      columnName: "FirstName",
+    .columns({ name: "UserName", spitype: "varchar", length: 100 }, {
+      name: "FirstName",
       spitype: "varchar",
       length: 100,
     })

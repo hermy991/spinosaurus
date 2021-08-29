@@ -19,7 +19,7 @@ Deno.test("rename [rename table] execute() function", async () => {
   }
 
   const _cr = await db.create({ entity: oldEntity })
-    .columns({ columnName: "column1", spitype: "varchar" })
+    .columns({ name: "column1", spitype: "varchar" })
     .data({ column1: "que lo que" })
     .execute();
 
@@ -47,7 +47,7 @@ Deno.test("rename [rename table column] execute() function", async () => {
   }
 
   const _cr = await db.create({ entity: oldEntity })
-    .columns({ columnName: "column1", spitype: "varchar" })
+    .columns({ name: "column1", spitype: "varchar" })
     .data({ column1: "que lo que" })
     .execute();
 
@@ -81,7 +81,7 @@ Deno.test("rename [rename table and column] execute() function", async () => {
   }
 
   const _cr = await db.create({ entity: oldEntity })
-    .columns({ columnName: "column1", spitype: "varchar" })
+    .columns({ name: "column1", spitype: "varchar" })
     .data({ column1: "que lo que" })
     .execute();
 

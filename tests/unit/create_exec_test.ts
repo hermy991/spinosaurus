@@ -13,7 +13,7 @@ Deno.test("create [create table] execute() function", async () => {
   }
 
   const _qs = await db.create({ entity: currEntity })
-    .columns({ columnName: "column1", spitype: "varchar" })
+    .columns({ name: "column1", spitype: "varchar" })
     .execute();
 
   const sr = await db.select([`"column1"`])
@@ -42,8 +42,8 @@ Deno.test("create [create table with data] execute() function", async () => {
   }];
 
   const _r = await db.create({ entity: currEntity })
-    .columns({ columnName: "column1", spitype: "varchar", length: 100 }, {
-      columnName: "column2",
+    .columns({ name: "column1", spitype: "varchar", length: 100 }, {
+      name: "column2",
       spitype: "varchar",
       length: 100,
     })

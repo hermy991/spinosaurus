@@ -26,7 +26,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     const cds = await conn.execute(query, { database });
     for (const column of table.columns) {
       const {
-        name: columnName,
+        name,
         spitype,
         length,
         nullable,
@@ -34,48 +34,48 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         scale,
       } = column.mixeds;
       assert(
-        (cds.rows || []).some((x) => x.column_name === columnName),
-        `column '${columnName}' must to be created`,
+        (cds.rows || []).some((x) => x.column_name === name),
+        `column '${name}' must to be created`,
       );
       if (nullable === true) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.is_nullable === "YES"
+            x.column_name === name && x.is_nullable === "YES"
           ),
-          `column '${columnName}' must to be null`,
+          `column '${name}' must to be null`,
         );
       }
       if (nullable === false) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.is_nullable === "NO"
+            x.column_name === name && x.is_nullable === "NO"
           ),
-          `column '${columnName}' must be not null`,
+          `column '${name}' must be not null`,
         );
       }
       if (precision) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.numeric_precision === precision
+            x.column_name === name && x.numeric_precision === precision
           ),
-          `column '${columnName}' must has precision of '${precision}'`,
+          `column '${name}' must has precision of '${precision}'`,
         );
       }
       if (scale) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.numeric_scale === scale
+            x.column_name === name && x.numeric_scale === scale
           ),
-          `column '${columnName}' must has scale of '${scale}'`,
+          `column '${name}' must has scale of '${scale}'`,
         );
       }
       if (spitype == "varchar" && length) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName &&
+            x.column_name === name &&
             x.character_maximum_length === length
           ),
-          `column '${columnName}' must has length of '${length}'`,
+          `column '${name}' must has length of '${length}'`,
         );
       }
     }
@@ -153,7 +153,7 @@ Deno.test("decorator column adding columns should work", async () => {
   await db.create({ schema, check: true })
     .execute();
   await db.create({ entity, schema })
-    .columns({ columnName: "string1", spitype: "bigint" })
+    .columns({ name: "string1", spitype: "bigint" })
     .execute();
 
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
@@ -190,77 +190,77 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
     for (const column of table.columns) {
       const {
-        name: columnName,
+        name,
         spitype,
         // length,
         // nullable,
         // precision,
         // scale,
       } = column.mixeds;
-      if (["string2", "string3", "string4"].includes(columnName)) {
+      if (["string2", "string3", "string4"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "text" &&
+            x.column_name === name && x.data_type === "text" &&
             spitype === "text"
           ),
-          `column '${columnName}' must be 'text' type and spitype(${spitype}) must by 'text'`,
+          `column '${name}' must be 'text' type and spitype(${spitype}) must by 'text'`,
         );
       }
-      if (["number1", "number2", "number3"].includes(columnName)) {
+      if (["number1", "number2", "number3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "numeric" &&
+            x.column_name === name && x.data_type === "numeric" &&
             spitype === "numeric"
           ),
-          `column '${columnName}' must be 'numeric' type and spitype(${spitype}) must by 'numeric'`,
+          `column '${name}' must be 'numeric' type and spitype(${spitype}) must by 'numeric'`,
         );
       }
-      if (["bigint1", "bigint2", "bigint3"].includes(columnName)) {
+      if (["bigint1", "bigint2", "bigint3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "bigint" &&
+            x.column_name === name && x.data_type === "bigint" &&
             spitype === "bigint"
           ),
-          `column '${columnName}' must be 'bigint' type and spitype(${spitype}) must by 'bigint'`,
+          `column '${name}' must be 'bigint' type and spitype(${spitype}) must by 'bigint'`,
         );
       }
-      if (["boolean1", "boolean2", "boolean3"].includes(columnName)) {
+      if (["boolean1", "boolean2", "boolean3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "boolean" &&
+            x.column_name === name && x.data_type === "boolean" &&
             spitype === "boolean"
           ),
-          `column '${columnName}' must be 'boolean' type and spitype(${spitype}) must by 'boolean'`,
+          `column '${name}' must be 'boolean' type and spitype(${spitype}) must by 'boolean'`,
         );
       }
-      if (["timestamp1", "timestamp2", "timestamp3"].includes(columnName)) {
+      if (["timestamp1", "timestamp2", "timestamp3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName &&
+            x.column_name === name &&
             x.data_type === "timestamp without time zone" &&
             spitype === "timestamp"
           ),
-          `column '${columnName}' must be 'timestamp without time zone' type and spitype(${spitype}) must by 'timestamp'`,
+          `column '${name}' must be 'timestamp without time zone' type and spitype(${spitype}) must by 'timestamp'`,
         );
       }
       if (
-        ["arraybuffer1", "arraybuffer3", "arraybuffer3"].includes(columnName)
+        ["arraybuffer1", "arraybuffer3", "arraybuffer3"].includes(name)
       ) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "bytea" &&
+            x.column_name === name && x.data_type === "bytea" &&
             spitype === "bytearray"
           ),
-          `column '${columnName}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
+          `column '${name}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
         );
       }
-      if (["blob1", "blob2", "blob3"].includes(columnName)) {
+      if (["blob1", "blob2", "blob3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "bytea" &&
+            x.column_name === name && x.data_type === "bytea" &&
             spitype === "bytearray"
           ),
-          `column '${columnName}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
+          `column '${name}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
         );
       }
     }
@@ -298,27 +298,27 @@ Deno.test("decorator column modify columns should work", async () => {
     .execute();
   await db.create({ entity, schema })
     .columns(
-      { columnName: "string1", spitype: "numeric" },
-      { columnName: "string2", spitype: "numeric" },
-      { columnName: "string3", spitype: "numeric" },
-      { columnName: "number1", spitype: "text" },
-      { columnName: "number2", spitype: "text" },
-      { columnName: "number3", spitype: "text" },
-      { columnName: "bigint1", spitype: "numeric" },
-      { columnName: "bigint2", spitype: "numeric" },
-      { columnName: "bigint3", spitype: "numeric" },
-      { columnName: "boolean1", spitype: "numeric" },
-      { columnName: "boolean2", spitype: "numeric" },
-      { columnName: "boolean3", spitype: "numeric" },
-      { columnName: "timestamp1", spitype: "text" },
-      { columnName: "timestamp2", spitype: "text" },
-      { columnName: "timestamp3", spitype: "text" },
-      { columnName: "arraybuffer1", spitype: "text" },
-      { columnName: "arraybuffer2", spitype: "text" },
-      { columnName: "arraybuffer3", spitype: "text" },
-      { columnName: "blob1", spitype: "text" },
-      { columnName: "blob2", spitype: "text" },
-      { columnName: "blob3", spitype: "text" },
+      { name: "string1", spitype: "numeric" },
+      { name: "string2", spitype: "numeric" },
+      { name: "string3", spitype: "numeric" },
+      { name: "number1", spitype: "text" },
+      { name: "number2", spitype: "text" },
+      { name: "number3", spitype: "text" },
+      { name: "bigint1", spitype: "numeric" },
+      { name: "bigint2", spitype: "numeric" },
+      { name: "bigint3", spitype: "numeric" },
+      { name: "boolean1", spitype: "numeric" },
+      { name: "boolean2", spitype: "numeric" },
+      { name: "boolean3", spitype: "numeric" },
+      { name: "timestamp1", spitype: "text" },
+      { name: "timestamp2", spitype: "text" },
+      { name: "timestamp3", spitype: "text" },
+      { name: "arraybuffer1", spitype: "text" },
+      { name: "arraybuffer2", spitype: "text" },
+      { name: "arraybuffer3", spitype: "text" },
+      { name: "blob1", spitype: "text" },
+      { name: "blob2", spitype: "text" },
+      { name: "blob3", spitype: "text" },
     )
     .execute();
 
@@ -356,7 +356,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
     for (const column of table.columns) {
       const {
-        name: columnName,
+        name,
         spitype,
         // length,
         // nullable,
@@ -364,70 +364,70 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         // scale,
         // default
       } = column.mixeds;
-      if (["string1", "string2", "string3"].includes(columnName)) {
+      if (["string1", "string2", "string3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "text" &&
+            x.column_name === name && x.data_type === "text" &&
             spitype === "text"
           ),
-          `column '${columnName}' must be 'text' type and spitype(${spitype}) must by 'text'`,
+          `column '${name}' must be 'text' type and spitype(${spitype}) must by 'text'`,
         );
       }
-      if (["number1", "number2", "number3"].includes(columnName)) {
+      if (["number1", "number2", "number3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "numeric" &&
+            x.column_name === name && x.data_type === "numeric" &&
             spitype === "numeric"
           ),
-          `column '${columnName}' must be 'numeric' type and spitype(${spitype}) must by 'numeric'`,
+          `column '${name}' must be 'numeric' type and spitype(${spitype}) must by 'numeric'`,
         );
       }
-      if (["bigint1", "bigint2", "bigint3"].includes(columnName)) {
+      if (["bigint1", "bigint2", "bigint3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "bigint" &&
+            x.column_name === name && x.data_type === "bigint" &&
             spitype === "bigint"
           ),
-          `column '${columnName}' must be 'bigint' type and spitype(${spitype}) must by 'bigint'`,
+          `column '${name}' must be 'bigint' type and spitype(${spitype}) must by 'bigint'`,
         );
       }
-      if (["boolean1", "boolean2", "boolean3"].includes(columnName)) {
+      if (["boolean1", "boolean2", "boolean3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "boolean" &&
+            x.column_name === name && x.data_type === "boolean" &&
             spitype === "boolean"
           ),
-          `column '${columnName}' must be 'boolean' type and spitype(${spitype}) must by 'boolean'`,
+          `column '${name}' must be 'boolean' type and spitype(${spitype}) must by 'boolean'`,
         );
       }
-      if (["timestamp1", "timestamp2", "timestamp3"].includes(columnName)) {
+      if (["timestamp1", "timestamp2", "timestamp3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName &&
+            x.column_name === name &&
             x.data_type === "timestamp without time zone" &&
             spitype === "timestamp"
           ),
-          `column '${columnName}' must be 'timestamp without time zone' type and spitype(${spitype}) must by 'timestamp'`,
+          `column '${name}' must be 'timestamp without time zone' type and spitype(${spitype}) must by 'timestamp'`,
         );
       }
       if (
-        ["arraybuffer1", "arraybuffer3", "arraybuffer3"].includes(columnName)
+        ["arraybuffer1", "arraybuffer3", "arraybuffer3"].includes(name)
       ) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "bytea" &&
+            x.column_name === name && x.data_type === "bytea" &&
             spitype === "bytearray"
           ),
-          `column '${columnName}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
+          `column '${name}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
         );
       }
-      if (["blob1", "blob2", "blob3"].includes(columnName)) {
+      if (["blob1", "blob2", "blob3"].includes(name)) {
         assert(
           (cds.rows || []).some((x) =>
-            x.column_name === columnName && x.data_type === "bytea" &&
+            x.column_name === name && x.data_type === "bytea" &&
             spitype === "bytearray"
           ),
-          `column '${columnName}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
+          `column '${name}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
         );
       }
     }
@@ -465,27 +465,27 @@ Deno.test("decorator column dropping columns should work", async () => {
     .execute();
   await db.create({ entity, schema })
     .columns(
-      { columnName: "string1", spitype: "numeric" },
-      { columnName: "string2", spitype: "numeric" },
-      { columnName: "string3", spitype: "numeric" },
-      { columnName: "number1", spitype: "text" },
-      { columnName: "number2", spitype: "text" },
-      { columnName: "number3", spitype: "text" },
-      { columnName: "bigint1", spitype: "numeric" },
-      { columnName: "bigint2", spitype: "numeric" },
-      { columnName: "bigint3", spitype: "numeric" },
-      { columnName: "boolean1", spitype: "numeric" },
-      { columnName: "boolean2", spitype: "numeric" },
-      { columnName: "boolean3", spitype: "numeric" },
-      { columnName: "timestamp1", spitype: "text" },
-      { columnName: "timestamp2", spitype: "text" },
-      { columnName: "timestamp3", spitype: "text" },
-      { columnName: "arraybuffer1", spitype: "text" },
-      { columnName: "arraybuffer2", spitype: "text" },
-      { columnName: "arraybuffer3", spitype: "text" },
-      { columnName: "blob1", spitype: "text" },
-      { columnName: "blob2", spitype: "text" },
-      { columnName: "blob3", spitype: "text" },
+      { name: "string1", spitype: "numeric" },
+      { name: "string2", spitype: "numeric" },
+      { name: "string3", spitype: "numeric" },
+      { name: "number1", spitype: "text" },
+      { name: "number2", spitype: "text" },
+      { name: "number3", spitype: "text" },
+      { name: "bigint1", spitype: "numeric" },
+      { name: "bigint2", spitype: "numeric" },
+      { name: "bigint3", spitype: "numeric" },
+      { name: "boolean1", spitype: "numeric" },
+      { name: "boolean2", spitype: "numeric" },
+      { name: "boolean3", spitype: "numeric" },
+      { name: "timestamp1", spitype: "text" },
+      { name: "timestamp2", spitype: "text" },
+      { name: "timestamp3", spitype: "text" },
+      { name: "arraybuffer1", spitype: "text" },
+      { name: "arraybuffer2", spitype: "text" },
+      { name: "arraybuffer3", spitype: "text" },
+      { name: "blob1", spitype: "text" },
+      { name: "blob2", spitype: "text" },
+      { name: "blob3", spitype: "text" },
     )
     .execute();
 

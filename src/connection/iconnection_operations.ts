@@ -31,7 +31,7 @@ export interface IConnectionOperations {
   createRelation(srd: SpiRelationDefinition): string;
   dropConstraint(sdr: { entity: string; name: string }): string;
   columnAlter(
-    from: { schema?: string; entity: string; columnName: string },
+    from: { schema?: string; entity: string; name: string },
     changes: SpiColumnAdjust,
   ): string[];
   /* Basic Connection Operations*/

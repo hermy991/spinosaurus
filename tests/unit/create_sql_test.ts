@@ -9,7 +9,7 @@ const con1 = getTestConnection();
 Deno.test("create [create table] sql", () => {
   const db: Connection = new Connection(con1);
   const qs1 = db.create({ entity: "User", schema: "public" })
-    .columns({ columnName: "column1", spitype: "varchar" });
+    .columns({ name: "column1", spitype: "varchar" });
   let q1 = qs1.getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe1 = `CREATE TABLE "public"."User" ( "column1" VARCHAR )`
@@ -19,7 +19,7 @@ Deno.test("create [create table] sql", () => {
 Deno.test("create [create table with data] sql", () => {
   const db: Connection = new Connection(con1);
   const qs1 = db.create({ entity: "User", schema: "public" })
-    .columns({ columnName: "column1", spitype: "varchar" })
+    .columns({ name: "column1", spitype: "varchar" })
     .data([{ column1: "hola" }, { column1: "xx" }]);
   let q1 = qs1.getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
@@ -41,13 +41,13 @@ INSERT INTO "public"."User" ("column1") VALUES ('xx')`
   }];
   let q2 = db.create({ schema: "publicX", entity: "User" })
     .columns({
-      columnName: "column1",
+      name: "column1",
       autoIncrement: "increment",
       primary: true,
     })
-    .addColumn({ columnName: "column2", spitype: "text", nullable: false })
+    .addColumn({ name: "column2", spitype: "text", nullable: false })
     .addColumn({
-      columnName: "column3",
+      name: "column3",
       spitype: "varchar",
       length: 100,
       nullable: false,
@@ -68,7 +68,7 @@ INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row2 column2, this 
 //   );
 //   const db: Connection = new Connection(con1);
 //   const qs1 = db.create(CreateEntity1)
-//     .columns({ columnName: "column1", spitype: "varchar" });
+//     .columns({ name: "column1", spitype: "varchar" });
 //   let q1 = qs1.getSql() || "";
 //   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
 //   const qe1 = `CREATE TABLE "public"."User" ( "column1" VARCHAR )`
@@ -78,8 +78,8 @@ INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row2 column2, this 
 Deno.test("create [create table with primary key] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.create({ entity: "User", schema: "public" })
-    .columns({ columnName: "column1", spitype: "integer", primary: true })
-    .addColumn({ columnName: "column2", spitype: "varchar" });
+    .columns({ name: "column1", spitype: "integer", primary: true })
+    .addColumn({ name: "column2", spitype: "varchar" });
   let query = qs.getSql() || "";
   query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
   const queryExpected =
@@ -92,11 +92,11 @@ Deno.test("create [create table with auto-increment] sql", () => {
   {
     const qs = db.create({ entity: "User", schema: "public" })
       .columns({
-        columnName: "column1",
+        name: "column1",
         spitype: "integer",
         autoIncrement: "increment",
       })
-      .addColumn({ columnName: "column2", spitype: "varchar" });
+      .addColumn({ name: "column2", spitype: "varchar" });
     let query = qs.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
@@ -107,10 +107,10 @@ Deno.test("create [create table with auto-increment] sql", () => {
   {
     const qs = db.create({ entity: "User", schema: "public" })
       .columns({
-        columnName: "column1",
+        name: "column1",
         autoIncrement: "increment",
       })
-      .addColumn({ columnName: "column2", spitype: "varchar" });
+      .addColumn({ name: "column2", spitype: "varchar" });
     let query = qs.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
@@ -121,11 +121,11 @@ Deno.test("create [create table with auto-increment] sql", () => {
   {
     const qs1 = db.create({ entity: "User", schema: "public" })
       .columns({
-        columnName: "column1",
+        name: "column1",
         spitype: "varchar",
         autoIncrement: "uuid",
       })
-      .addColumn({ columnName: "column2", spitype: "varchar" });
+      .addColumn({ name: "column2", spitype: "varchar" });
     let query = qs1.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
@@ -136,10 +136,10 @@ Deno.test("create [create table with auto-increment] sql", () => {
   {
     const qs1 = db.create({ entity: "User", schema: "public" })
       .columns({
-        columnName: "column1",
+        name: "column1",
         autoIncrement: "uuid",
       })
-      .addColumn({ columnName: "column2", spitype: "varchar" });
+      .addColumn({ name: "column2", spitype: "varchar" });
     let query = qs1.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
@@ -150,12 +150,12 @@ Deno.test("create [create table with auto-increment] sql", () => {
   {
     const qs1 = db.create({ entity: "User", schema: "public" })
       .columns({
-        columnName: "column1",
+        name: "column1",
         spitype: "varchar",
         length: 30,
         autoIncrement: "uuid",
       })
-      .addColumn({ columnName: "column2", spitype: "varchar" });
+      .addColumn({ name: "column2", spitype: "varchar" });
     let query = qs1.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
@@ -169,11 +169,11 @@ Deno.test("create [create table with auto-increment and primary key] sql", () =>
   {
     const qs = db.create({ entity: "User", schema: "public" })
       .columns({
-        columnName: "column1",
+        name: "column1",
         autoIncrement: "increment",
         primary: true,
       })
-      .addColumn({ columnName: "column2", spitype: "varchar" });
+      .addColumn({ name: "column2", spitype: "varchar" });
     let query = qs.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =
@@ -184,11 +184,11 @@ Deno.test("create [create table with auto-increment and primary key] sql", () =>
   {
     const qs = db.create({ entity: "User", schema: "public" })
       .columns({
-        columnName: "column1",
+        name: "column1",
         autoIncrement: "uuid",
         primary: true,
       })
-      .addColumn({ columnName: "column2", spitype: "varchar" });
+      .addColumn({ name: "column2", spitype: "varchar" });
     let query = qs.getSql() || "";
     query = query.replaceAll(/[ \n\t]+/ig, " ").trim();
     const queryExpected =

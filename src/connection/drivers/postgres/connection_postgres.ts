@@ -98,7 +98,7 @@ class ConnectionPostgres implements IConnectionOperations {
      * Column definition
      */
     const defs: string[] = [];
-    defs.push(scd.columnName);
+    defs.push(scd.name);
     const ctype = this.getDbColumnType(scd).toUpperCase();
     defs.push(ctype);
 
@@ -187,27 +187,27 @@ class ConnectionPostgres implements IConnectionOperations {
     return sql;
   };
   columnAlter = (
-    from: { schema?: string; entity: string; columnName: string },
+    from: { schema?: string; entity: string; name: string },
     changes: SpiColumnAdjust | SpiColumnDefinition,
   ): string[] => {
-    const { schema, entity, columnName } = from;
+    const { schema, entity, name } = from;
     const querys: string[] = [];
     const efrom = `${schema ? schema + "." : ""}${entity}`;
-    if (!columnName && !changes.columnName) {
+    if (!name && !changes.name) {
       return querys;
     }
-    let fcolumnName = columnName;
-    if (columnName && changes.columnName && columnName != changes.columnName) {
+    let fname = name;
+    if (name && changes.name && name != changes.name) {
       querys.push(
-        `ALTER TABLE ${efrom} RENAME COLUMN ${columnName} TO ${changes.columnName}`,
+        `ALTER TABLE ${efrom} RENAME COLUMN ${name} TO ${changes.name}`,
       );
-      fcolumnName = changes.columnName;
+      fname = changes.name;
     }
-    if (!columnName && changes.columnName) {
+    if (!name && changes.name) {
       /**
        * New column
        */
-      let aquery = `ALTER TABLE ${efrom} ADD COLUMN ${changes.columnName} ${
+      let aquery = `ALTER TABLE ${efrom} ADD COLUMN ${changes.name} ${
         this.getDbColumnType(changes).toUpperCase()
       }`;
       if ("nullable" in changes) {
@@ -217,7 +217,7 @@ class ConnectionPostgres implements IConnectionOperations {
         aquery += (" DEFAULT " + this.stringify(changes.default));
       }
       querys.push(aquery);
-      fcolumnName = changes.columnName;
+      fname = changes.name;
     } else {
       /**
        * Alter column
@@ -225,28 +225,28 @@ class ConnectionPostgres implements IConnectionOperations {
       if (changes.spitype) {
         const ntype = this.getDbColumnType(changes);
         let tquery =
-          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} TYPE ${ntype.toUpperCase()}`;
+          `ALTER TABLE ${efrom} ALTER COLUMN ${fname} TYPE ${ntype.toUpperCase()}`;
         if (["numeric"].includes(changes.spitype)) {
-          tquery += ` USING (${fcolumnName})::${ntype}`;
+          tquery += ` USING (${fname})::${ntype}`;
         } else if (["boolean"].includes(changes.spitype)) {
-          tquery += ` USING (${fcolumnName})::int::${ntype}`;
+          tquery += ` USING (${fname})::int::${ntype}`;
         } else if (["timestamp"].includes(changes.spitype)) {
-          tquery += ` USING (${fcolumnName})::timestamp without time zone`;
+          tquery += ` USING (${fname})::timestamp without time zone`;
         } else if (["bytearray"].includes(changes.spitype)) {
-          tquery += ` USING (${fcolumnName})::bytea`;
+          tquery += ` USING (${fname})::bytea`;
         }
         querys.push(tquery);
       }
       if ("nullable" in changes) {
         querys.push(
-          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
+          `ALTER TABLE ${efrom} ALTER COLUMN ${fname} ${
             changes.nullable ? "DROP" : "SET"
           } NOT NULL`,
         );
       }
       if ("default" in changes) {
         querys.push(
-          `ALTER TABLE ${efrom} ALTER COLUMN ${fcolumnName} ${
+          `ALTER TABLE ${efrom} ALTER COLUMN ${fname} ${
             changes.default
               ? "SET DEFAULT " + this.stringify(changes.default)
               : "DROP DEFAULT"
@@ -258,10 +258,10 @@ class ConnectionPostgres implements IConnectionOperations {
   };
 
   columnComment = (scc: SpiColumnComment): string => {
-    const { schema, entity, columnName, comment } = scc;
+    const { schema, entity, name, comment } = scc;
     let sql = `COMMENT ON COLUMN ${
       schema ? schema + "." : ""
-    }${entity}.${columnName} IS `;
+    }${entity}.${name} IS `;
     sql += `${
       comment === null || comment === undefined
         ? "NULL"

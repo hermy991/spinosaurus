@@ -21,8 +21,8 @@ Deno.test("select getOne() function", async () => {
     firstName: "Danny",
   }];
   const _cr = await db.create({ entity: currEntity })
-    .columns({ columnName: "userName", spitype: "varchar", length: 100 }, {
-      columnName: "firstName",
+    .columns({ name: "userName", spitype: "varchar", length: 100 }, {
+      name: "firstName",
       spitype: "varchar",
       length: 100,
     })
@@ -51,8 +51,8 @@ Deno.test("select getMany() function", async () => {
     firstName: "Danny",
   }, { userName: "yasset77", firstName: "Yasset" }];
   const _cr = await db.create({ entity: currEntity })
-    .columns({ columnName: "userName", spitype: "varchar", length: 100 }, {
-      columnName: "firstName",
+    .columns({ name: "userName", spitype: "varchar", length: 100 }, {
+      name: "firstName",
       spitype: "varchar",
       length: 100,
     })
@@ -76,8 +76,8 @@ Deno.test("select getMany() function with where", async () => {
     firstName: "Danny",
   }, { userName: "yasset77", firstName: "Yasset" }];
   const _cr = await db.create({ entity: currEntity })
-    .columns({ columnName: "userName", spitype: "varchar", length: 100 }, {
-      columnName: "firstName",
+    .columns({ name: "userName", spitype: "varchar", length: 100 }, {
+      name: "firstName",
       spitype: "varchar",
       length: 100,
     })

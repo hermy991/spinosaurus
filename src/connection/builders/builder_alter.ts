@@ -58,27 +58,25 @@ export class BuilderAlter extends BuilderBase {
     let querys: string[] = [];
 
     for (let i = 0; i < this.#columnsData.length; i++) {
-      let columnName = "", def: SpiColumnAdjust | SpiColumnDefinition;
+      let name = "", def: SpiColumnAdjust | SpiColumnDefinition;
       if (Array.isArray(this.#columnsData[i])) {
-        [columnName, def] = <[string, SpiColumnAdjust]> this.#columnsData[i];
+        [name, def] = <[string, SpiColumnAdjust]> this.#columnsData[i];
       } else {
         def = <SpiColumnDefinition> this.#columnsData[i];
       }
-      columnName = columnName ? this.clearNames(columnName) : columnName;
-      def.columnName = def.columnName
-        ? this.clearNames(def.columnName)
-        : def.columnName;
+      name = name ? this.clearNames(name) : name;
+      def.name = def.name ? this.clearNames(def.name) : def.name;
 
       querys = [
         ...querys,
-        ...this.conn.columnAlter({ schema, entity, columnName }, def),
+        ...this.conn.columnAlter({ schema, entity, name }, def),
       ];
       if (def.comment) {
         querys.push(
           this.conn.columnComment({
             schema,
             entity,
-            columnName: def.columnName || columnName,
+            name: def.name || name,
             comment: def.comment,
           }),
         );

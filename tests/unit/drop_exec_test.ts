@@ -15,7 +15,7 @@ Deno.test("drop [drop table] execute() function", async () => {
     const _drop1r = await drop1.execute();
   }
   const qs1 = db.create({ entity: currEntity })
-    .columns({ columnName: "column1", spitype: "varchar" });
+    .columns({ name: "column1", spitype: "varchar" });
   const _creater1 = await qs1.execute();
   const _drop2 = await db.drop({ entity: currEntity }).execute();
   const chk2 = await db.checkObject({ name: currEntity });

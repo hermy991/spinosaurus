@@ -40,7 +40,7 @@ export class BuilderCreate extends BuilderBase {
   }
 
   addColumn(column: SpiAllColumnDefinition): void {
-    column.columnName = `${column.columnName}`;
+    column.name = `${column.name}`;
     this.#columnsData.push(column);
   }
 
@@ -119,8 +119,8 @@ export class BuilderCreate extends BuilderBase {
     const sqls: string[] = [];
     for (let i = 0; i < cs.length; i++) {
       let sql = "";
-      const columnName = this.clearNames(cs[i].columnName);
-      sql = this.conn.columnDefinition({ ...cs[i], columnName });
+      const name = this.clearNames(cs[i].name);
+      sql = this.conn.columnDefinition({ ...cs[i], name });
       sqls.push(sql);
     }
     return `( ${sqls.join(", ")} )`;
@@ -203,9 +203,9 @@ export class BuilderCreate extends BuilderBase {
       for (const create of this.#createData) {
         const tcreate: ParamCreateData = {};
         for (const c of cs) {
-          if (c.columnName in create) {
+          if (c.name in create) {
             if (!c.autoIncrement) {
-              tcreate[c.columnName] = create[c.columnName];
+              tcreate[c.name] = create[c.name];
             }
           }
         }

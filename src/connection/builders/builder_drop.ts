@@ -69,8 +69,8 @@ export class BuilderDrop extends BuilderBase {
     }
     let query = "";
     for (let i = 0; i < this.columnsData.length; i++) {
-      const columnName = this.clearNames(this.columnsData[i]);
-      query += `DROP COLUMN ${columnName}`;
+      const name = this.clearNames(this.columnsData[i]);
+      query += `DROP COLUMN ${name}`;
       if (i + 1 !== this.columnsData.length) {
         query += ", ";
       }

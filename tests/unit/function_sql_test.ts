@@ -6,7 +6,7 @@ const con1 = getTestConnection();
 Deno.test("function [anonymous function] sql", () => {
   const db: Connection = new Connection(con1);
   const qs1 = db.create({ entity: "User" }).columns({
-    columnName: "column1",
+    name: "column1",
     spitype: "date",
     default: () => "NOW() - interval '12 hour'",
   });
@@ -45,7 +45,7 @@ Deno.test("function [anonymous function] sql", () => {
 Deno.test("function [now] sql", () => {
   const db: Connection = new Connection(con1);
   const qs1 = db.create({ entity: "User" }).columns({
-    columnName: "column1",
+    name: "column1",
     spitype: "date",
     default: _NOW,
   });

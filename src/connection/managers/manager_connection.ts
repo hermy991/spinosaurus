@@ -202,7 +202,6 @@ export async function generateScript(
         )
         .map((x: any) => [x.mixeds.name, {
           ...x.mixeds,
-          columnName: x.mixeds.name,
         }]);
       if (colsa.length) {
         const qsa = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
@@ -219,7 +218,7 @@ export async function generateScript(
         .filter((x: any) =>
           !dtable.columns.some((y: any) => y.mixeds.name === x.mixeds.name)
         )
-        .map((x: any) => ({ ...x.mixeds, columnName: x.mixeds.name }));
+        .map((x: any) => x.mixeds);
       if (colsm.length) {
         const qsm = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
           .columns(...colsm);
@@ -251,7 +250,7 @@ export async function generateScript(
       // Columns
       const columns: Array<SpiColumnDefinition> = (table.columns || []).map((
         x: any,
-      ) => ({ ...x.property, ...x.mixeds, columnName: x.mixeds.name }));
+      ) => ({ ...x.property, ...x.mixeds }));
       /**
        * Checks constraints
        */

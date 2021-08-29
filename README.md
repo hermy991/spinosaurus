@@ -87,7 +87,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - documentation
 - code coments
 - testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata
-- change columnName to just name in alter(...).columns() and
   create(...).columns() functions
 - testing primary column executor testing
 - testing generated column executor testing
