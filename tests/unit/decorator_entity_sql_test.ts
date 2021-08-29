@@ -134,3 +134,20 @@ ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneE
     .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(s1, se1);
 });
+Deno.test("decorator [inherit] sql", async () => {
+  const conOptsX = self.structuredClone(conOpts);
+  const db = new Connection(conOptsX);
+  const dirname = path.dirname(path.fromFileUrl(import.meta.url));
+  conOptsX.entities = [
+    `${dirname}/playground/decorators/**/DerivedEntity.ts`,
+  ];
+  let s1 = await queryConnection(conOptsX);
+  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const _metadata = getMetadata(conOptsX.name);
+  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  const se1 =
+    `CREATE TABLE "public"."DerivedEntity1" ( "derivedColumn1" SERIAL PRIMARY KEY, "derivedColumn2" NUMERIC NOT NULL, "derivedColumn3" NUMERIC NOT NULL, "superColumn1" TEXT NOT NULL, "superColumn2" TEXT NOT NULL, "superColumn3" TEXT NOT NULL );
+CREATE TABLE "public"."SubEntity2" ( "derivedColumn7" SERIAL PRIMARY KEY, "derivedColumn8" NUMERIC NOT NULL, "baseColumn3" NUMERIC NOT NULL, "superColumn1" TEXT NOT NULL, "superColumn2" TEXT NOT NULL, "superColumn3" TEXT NOT NULL )`
+      .replaceAll(/[ \n\t]+/ig, " ").trim();
+  assertEquals(s1, se1);
+});
