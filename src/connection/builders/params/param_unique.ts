@@ -4,5 +4,9 @@
  */
 export type ParamUnique = {
   name?: string;
-  columns: Array<string>;
+  columns: [string, ...string[]];
 };
+export type ParamUniqueCreate = {
+  entity: string;
+  schema?: string;
+} & ParamUnique;

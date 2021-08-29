@@ -4,8 +4,8 @@ import {
   ParamColumnAjust,
   ParamColumnCreate,
 } from "./builders/params/param_column.ts";
-import { ParamCheck } from "./builders/params/param_check.ts";
-import { ParamUnique } from "./builders/params/param_unique.ts";
+import { ParamCheckCreate } from "./builders/params/param_check.ts";
+import { ParamUniqueCreate } from "./builders/params/param_unique.ts";
 import { ParamRelationCreate } from "./builders/params/param_relation.ts";
 import { ParamCommentColumnDerinition } from "./builders/params/param_comment.ts";
 import {
@@ -27,8 +27,8 @@ export interface IConnectionOperations {
   dropSchema(sds: ParamSchemaDefinition): string;
   columnDefinition(scd: ParamColumnCreate): string;
   columnComment(scc: ParamCommentColumnDerinition): string;
-  createCheck(scd: ParamCheck & { entity: string }): string;
-  createUnique(sud: ParamUnique & { entity: string }): string;
+  createCheck(scd: ParamCheckCreate): string;
+  createUnique(sud: ParamUniqueCreate): string;
   createRelation(srd: ParamRelationCreate): string;
   dropConstraint(sdr: { entity: string; name: string }): string;
   columnAlter(

@@ -7,3 +7,6 @@ export type ParamCheck = {
   name?: string;
   expression: string;
 };
+export type ParamCheckCreate =
+  & { entity?: string; schema?: string }
+  & ParamCheck;

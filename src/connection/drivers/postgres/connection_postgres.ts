@@ -7,8 +7,8 @@ import {
   ParamColumnCreate,
   ParamColumnDefinition,
 } from "../../builders/params/param_column.ts";
-import { ParamCheck } from "../../builders/params/param_check.ts";
-import { ParamUnique } from "../../builders/params/param_unique.ts";
+import { ParamCheckCreate } from "../../builders/params/param_check.ts";
+import { ParamUniqueCreate } from "../../builders/params/param_unique.ts";
 import { ParamRelationCreate } from "../../builders/params/param_relation.ts";
 import { ParamCommentColumnDerinition } from "../../builders/params/param_comment.ts";
 import {
@@ -129,24 +129,25 @@ class ConnectionPostgres implements IConnectionOperations {
     return defs.join(" ");
   };
 
-  createCheck = (scd: ParamCheck & { entity: string }): string => {
+  createCheck = (scd: ParamCheckCreate): string => {
     /**
      * Creating Check
      */
-    const { entity, name, expression } = scd;
-    const sql =
-      `ALTER TABLE ${entity} ADD CONSTRAINT ${name} CHECK (${expression})`;
+    const { schema, entity, name, expression } = scd;
+    const sql = `ALTER TABLE ${
+      [schema, entity].join(".")
+    } ADD CONSTRAINT ${name} CHECK (${expression})`;
     return sql;
   };
 
-  createUnique = (sud: ParamUnique & { entity: string }): string => {
+  createUnique = (sud: ParamUniqueCreate): string => {
     /**
      * Creating Unique
      */
-    const { entity, name, columns } = sud;
-    const sql = `ALTER TABLE ${entity} ADD CONSTRAINT ${name} UNIQUE (${
-      columns.join(", ")
-    })`;
+    const { schema, entity, name, columns } = sud;
+    const sql = `ALTER TABLE ${
+      [schema, entity].join(".")
+    } ADD CONSTRAINT ${name} UNIQUE (${columns.join(", ")})`;
     return sql;
   };
 

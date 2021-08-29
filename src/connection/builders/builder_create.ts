@@ -135,17 +135,16 @@ export class BuilderCreate extends BuilderBase {
 
     for (let i = 0; i < this.#checkData.length; i++) {
       let sql = "";
-      const name = this.clearNames(
-        this.#checkData[i].name ? this.#checkData[i].name : this.generateName1({
-          prefix: "CHK",
-          ...e,
-          sequence: i + 1,
-        }),
-      );
+      this.#checkData[i].name ||= this.generateName1({
+        prefix: "CHK",
+        ...e,
+        sequence: i + 1,
+      });
+      this.#checkData[i].name = this.clearNames(this.#checkData[i].name);
       sql = this.conn.createCheck({
-        entity: this.clearNames([schema, entity]),
+        entity: entity && this.clearNames(entity),
+        schema: schema && this.clearNames(schema),
         ...this.#checkData[i],
-        name,
       });
       sqls.push(sql);
     }
@@ -170,7 +169,8 @@ export class BuilderCreate extends BuilderBase {
       unique.name = this.clearNames(unique.name);
       unique.columns = unique.columns.map((x: string) => this.clearNames(x));
       sql = this.conn.createUnique({
-        entity: this.clearNames([schema, entity]),
+        entity: entity && this.clearNames(entity),
+        schema: schema && this.clearNames(schema),
         ...unique,
       });
       sqls.push(sql);
