@@ -50,6 +50,10 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
    */
   linkRelationsWithTables(metadata);
   /**
+   * Link relation constrains with tables
+   */
+  linkDataWithTables(metadata);
+  /**
    * Check errors and exeptions
    */
   checkErrorsAndExeptions(metadata);
@@ -530,6 +534,23 @@ function linkColumnsWithTables(metadata: MetadataStore) {
     )
   );
   return { columns, tables };
+}
+function linkDataWithTables(metadata: MetadataStore) {
+  const { columns, tables, data } = metadata;
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i];
+    const table = tables.find((x: any) => x.target === row.target);
+    if (!table) {
+      continue;
+    }
+    const primaryColumn = columns.find((c) =>
+      c.entity.target === row.target && (<any> c.mixeds).primary === true
+    );
+    if (primaryColumn) {
+      table.data.indexOf(row) === -1 ? table.data.push(row) : undefined;
+    }
+  }
+  return { tables, data };
 }
 function checkErrorsAndExeptions(metadata: MetadataStore) {
   const { columns, tables } = metadata;

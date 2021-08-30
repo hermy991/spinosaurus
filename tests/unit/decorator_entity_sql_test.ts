@@ -151,3 +151,20 @@ CREATE TABLE "public"."SubEntity2" ( "derivedColumn7" SERIAL PRIMARY KEY, "deriv
       .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(s1, se1);
 });
+Deno.test("decorator [data] sql", async () => {
+  const conOptsX = self.structuredClone(conOpts);
+  const db = new Connection(conOptsX);
+  const dirname = path.dirname(path.fromFileUrl(import.meta.url));
+  conOptsX.entities = [
+    `${dirname}/playground/decorators/**/DataEntity.ts`,
+  ];
+  let s1 = await queryConnection(conOptsX);
+  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const _metadata = getMetadata(conOptsX.name);
+  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  const se1 =
+    `CREATE TABLE "DataEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" VARCHAR (100) NOT NULL );
+INSERT INTO "DataEntity1" ("column2") VALUES ( "hola como estas" ) `
+      .replaceAll(/[ \n\t]+/ig, " ").trim();
+  assertEquals(s1, se1);
+});

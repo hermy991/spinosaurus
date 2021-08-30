@@ -5,6 +5,7 @@ import {
 } from "../builders/params/param_column.ts";
 import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
+import { ParamData } from "../builders/params/param_data.ts";
 import { ConnectionOptions } from "../connection_options.ts";
 import { Connection } from "../connection.ts";
 import {
@@ -43,7 +44,7 @@ export async function createConnection(
  * Creates a new connection and registers it in the manager.
  *
  * If connection options were not specified, then it will try to create connection automatically,
- * based on content of ormconfig (json/js/yml/xml/env) file or environment variables.
+ * based on content of spinosaurus (env/js/ts/json/yml/xml) file or environment variables.
  * Only one connection from ormconfig will be created (name "default" or connection without name).
  */
 export async function createConnection(
@@ -59,12 +60,20 @@ export async function createConnection(
   }
   return tconn;
 }
+
 /**
- * Creates new connections and registers them in the manager.
+ * Creates new connections and registers.
  *
  * If connection options were not specified, then it will try to create connection automatically,
- * based on content of ormconfig (json/js/yml/xml/env) file or environment variables.
- * All connections from the ormconfig will be created.
+ * based on content of spinosaurus (env/js/ts/json/yml/xml) file or environment variables.
+ * All connections from the spinosaurus will be created.
+ */
+export async function createConnections(): Promise<Connection[]>;
+
+/**
+ * Creates new connections and registers.
+ *
+ * All connections from the spinosaurus will be created.
  */
 export async function createConnections(
   options?: ConnectionOptions[],
@@ -126,7 +135,7 @@ export async function queryConnection(
 
 export async function synchronize(conn: Connection) {
   const options = conn.getConnection().options;
-  if (options.synchronize) {
+  if (options.synchronize === true) {
     const entities = typeof options.entities == "string"
       ? [options.entities]
       : options.entities;
@@ -291,13 +300,16 @@ export async function generateScript(
       const uniques: Array<ParamUnique> = table.uniques.map((
         x: any,
       ) => ({ ...x.mixeds, columns: x.mixeds.columnNames }));
+      const data: Array<ParamData> = table.data
+        .map((x: any) => <any[]> x.entries).flapMap((x: any[]) => x);
       /**
        * Create entity
        */
       const qs = conn.create({ entity: topts.name, schema: topts.schema })
         .columns(...columns)
         .checks(...checks)
-        .uniques(...uniques);
+        .uniques(...uniques)
+        .data(data);
       const query = qs.getSql() || "";
       script.push(query);
     }
