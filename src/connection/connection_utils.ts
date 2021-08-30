@@ -1,7 +1,7 @@
 import { dotenv } from "../../deps.ts";
 import { yaml } from "../../deps.ts";
 import { xml } from "../../deps.ts";
-import { ConnectionOptionsAll } from "./connection_options.ts";
+import { ConnectionOptions } from "./connection_options.ts";
 import { error } from "../error/error_utills.ts";
 
 const FILE_NAME = "spinosaurus";
@@ -22,7 +22,7 @@ const VARIABLES = {
  */
 export async function getConnectionOptions(
   connectionName?: string,
-): Promise<ConnectionOptionsAll> {
+): Promise<ConnectionOptions> {
   const fileOptions = await getConnectionEnvOptions() ||
     await getConnectionFileOptions(`.env`) ||
     await getConnectionFileOptions(`env`) ||

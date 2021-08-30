@@ -1,8 +1,5 @@
-import { ConnectionPostgresOptions } from "./drivers/postgres/connection_postgres_options.ts";
-
-export type ConnectionBaseOptions = {
+export type ConnectionOptionsBase = {
   name: string;
-  type: string;
   host: string;
   port: number;
   username: string;
@@ -12,6 +9,9 @@ export type ConnectionBaseOptions = {
   entities: string | string[];
 };
 
-export type { ConnectionPostgresOptions };
+export type ConnectionOptionsPostgres = ConnectionOptionsBase & {
+  type: "postgres";
+  hostaddr?: string;
+};
 
-export type ConnectionOptionsAll = ConnectionPostgresOptions;
+export type ConnectionOptions = ConnectionOptionsPostgres;

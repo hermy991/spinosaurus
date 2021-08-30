@@ -1,5 +1,5 @@
 import { ConnectionAll } from "./connection_type.ts";
-import { ConnectionOptionsAll } from "./connection_options.ts";
+import { ConnectionOptions } from "./connection_options.ts";
 import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
 
 import { error } from "../error/error_utills.ts";
@@ -17,7 +17,7 @@ import { ExecuteResult } from "./execute_result.ts";
 class Connection {
   #connection?: ConnectionAll;
 
-  constructor(options?: ConnectionOptionsAll) {
+  constructor(options?: ConnectionOptions) {
     // if (!options) {
     //   options = "";
     // }

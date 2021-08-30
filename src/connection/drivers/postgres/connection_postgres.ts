@@ -1,4 +1,4 @@
-import { ConnectionPostgresOptions } from "./connection_postgres_options.ts";
+import { ConnectionOptionsPostgres } from "../../connection_options.ts";
 import { interpolate, stringify } from "../../builders/base/sql.ts";
 import { IConnectionOperations } from "../../iconnection_operations.ts";
 import { ParamSchemaDefinition } from "../../builders/params/param_schema.ts";
@@ -34,7 +34,7 @@ class ConnectionPostgres implements IConnectionOperations {
    * Connection Options
    */
 
-  constructor(public options: ConnectionPostgresOptions) {}
+  constructor(public options: ConnectionOptionsPostgres) {}
   /* Basic Connection Operations*/
   stringify(value: ParamSimpleOptions | Array<ParamSimpleOptions>): string {
     if (

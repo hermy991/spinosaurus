@@ -5,8 +5,7 @@ import {
 } from "../builders/params/param_column.ts";
 import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
-import { ConnectionOptionsAll } from "../connection_options.ts";
-import { ConnectionPostgresOptions } from "../drivers/postgres/connection_postgres_options.ts";
+import { ConnectionOptions } from "../connection_options.ts";
 import { Connection } from "../connection.ts";
 import {
   clearMetadata,
@@ -34,19 +33,19 @@ export async function createConnection(name: string): Promise<Connection>;
  * Creates a new connection from option params.
  */
 export async function createConnection(
-  options: ConnectionPostgresOptions,
+  options: ConnectionOptions,
 ): Promise<Connection>;
 
 /**
  * Creates a new connection from the env variables, config file with a given name or from option params.
  */
 export async function createConnection(
-  nameOrOptions?: string | ConnectionOptionsAll | Array<ConnectionOptionsAll>,
+  nameOrOptions?: string | ConnectionOptions | Array<ConnectionOptions>,
 ): Promise<Connection> {
   const options = typeof nameOrOptions === "object"
     ? nameOrOptions
     : await getConnectionOptions(nameOrOptions);
-  const tconn = new Connection(<ConnectionOptionsAll> options);
+  const tconn = new Connection(<ConnectionOptions> options);
   const sql = await synchronize(tconn);
   if (sql) {
     await tconn.execute(sql);
@@ -79,19 +78,19 @@ export async function queryConnection(
  * Creates a new connection from option params.
  */
 export async function queryConnection(
-  options: ConnectionPostgresOptions,
+  options: ConnectionOptions,
 ): Promise<string | undefined>;
 
 /**
  * Creates a new connection from the env variables, config file with a given name or from option params.
  */
 export async function queryConnection(
-  nameOrOptions?: string | ConnectionOptionsAll,
+  nameOrOptions?: string | ConnectionOptions,
 ): Promise<string | undefined> {
   const options = typeof nameOrOptions === "string"
     ? await getConnectionOptions(nameOrOptions)
     : nameOrOptions;
-  const tconn = new Connection(<ConnectionOptionsAll> options);
+  const tconn = new Connection(<ConnectionOptions> options);
   const sql = await synchronize(tconn);
   return sql;
 }
