@@ -126,26 +126,26 @@ const user = await getConnection()
 
 - `InsertQueryBuilder` - used to build and execute `INSERT` queries. Example:
 
-      ```typescript
-      ```
+```typescript
+import { getConnection } from "typeorm";
 
-import {getConnection} from "typeorm";
+await getConnection().insert(User).values([{
+  firstName: "Timber",
+  lastName: "Saw",
+}, { firstName: "Phantom", lastName: "Lancer" }]).execute();
+```
 
-await getConnection() .insert(User) .values([ { firstName: "Timber", lastName:
-"Saw" }, { firstName: "Phantom", lastName: "Lancer" } ]) .execute();
-
-````
-* `UpdateQueryBuilder` - used to build and execute `UPDATE` queries. Example:
+- `UpdateQueryBuilder` - used to build and execute `UPDATE` queries. Example:
 
 ```typescript
-import {getConnection} from "typeorm";
+import { getConnection } from "typeorm";
 
 await getConnection()
-    .update(User)
-    .set({ firstName: "Timber", lastName: "Saw" })
-    .where("id = :id", { id: 1 })
-    .execute();
-````
+  .update(User)
+  .set({ firstName: "Timber", lastName: "Saw" })
+  .where("id = :id", { id: 1 })
+  .execute();
+```
 
 - `DeleteQueryBuilder` - used to build and execute `DELETE` queries. Example:
 

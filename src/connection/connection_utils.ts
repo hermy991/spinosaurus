@@ -25,13 +25,14 @@ export async function getConnectionOptions(
 ): Promise<ConnectionOptionsAll> {
   const options = findConnection(
     await getConnectionEnvOptions() ||
-      await getConnectionFileOptions("env") ||
-      await getConnectionFileOptions("js") ||
-      await getConnectionFileOptions("ts") ||
-      await getConnectionFileOptions("json") ||
-      await getConnectionFileOptions("yml") ||
-      await getConnectionFileOptions("yaml") ||
-      await getConnectionFileOptions("xml"),
+      await getConnectionFileOptions(`.env`) ||
+      await getConnectionFileOptions(`env`) ||
+      await getConnectionFileOptions(`js`) ||
+      await getConnectionFileOptions(`ts`) ||
+      await getConnectionFileOptions(`json`) ||
+      await getConnectionFileOptions(`yml`) ||
+      await getConnectionFileOptions(`yaml`) ||
+      await getConnectionFileOptions(`xml`),
     connectionName,
   );
   if (options) {
@@ -96,22 +97,40 @@ export async function getConnectionEnvOptions() {
 }
 
 export async function getConnectionFileOptions(
-  extension: "env" | "js" | "ts" | "json" | "yml" | "yaml" | "xml",
+  fileNameOrExtenxion:
+    | string
+    | ".env"
+    | "env"
+    | "js"
+    | "ts"
+    | "json"
+    | "yml"
+    | "yaml"
+    | "xml",
 ) {
   try {
+    let name = FILE_NAME;
+    let extension = fileNameOrExtenxion;
+
+    if (fileNameOrExtenxion.indexOf(".") >= 0) {
+      name = `${
+        fileNameOrExtenxion.substring(0, fileNameOrExtenxion.lastIndexOf("."))
+      }`;
+      extension = `${extension.substring(extension.lastIndexOf(".") + 1)}`;
+    }
+    const fileName = `${name}.${extension}`;
     if (["js", "ts"].includes(extension)) {
-      const path = `file:///${Deno.cwd()}/${FILE_NAME}.${extension}`;
+      const path = `file:///${Deno.cwd()}/${fileName}`;
       const module: any = await import(path);
       const options = module.default;
       return options;
     } else {
       const decoder = new TextDecoder("utf-8");
-      const raw = Deno.readFileSync(`${Deno.cwd()}/${FILE_NAME}.${extension}`);
+      const raw = Deno.readFileSync(`${Deno.cwd()}/${fileName}`);
       const text = decoder.decode(raw);
       switch (extension) {
         case "env": {
           const tdata = dotenv.dotEnvParser(text);
-
           const ndata: any = {};
           for (const index in VARIABLES) {
             const value = tdata[(<any> VARIABLES)[index]];
@@ -122,7 +141,6 @@ export async function getConnectionFileOptions(
             ) {
               continue;
             }
-
             switch (index) {
               case "port":
                 ndata[index] = Number(value);
