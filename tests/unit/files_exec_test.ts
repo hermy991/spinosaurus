@@ -39,6 +39,7 @@ Deno.test("file configurations data", async () => {
   };
   const path = "./tests/unit/playground/configs/";
   const files = [
+    `.env`,
     `spinosaurus.env`,
     `spinosaurus.js`,
     `spinosaurus.ts`,
@@ -50,8 +51,10 @@ Deno.test("file configurations data", async () => {
   for (const file of files) {
     await copy(`${path}${file}`, `./${file}`, { overwrite: true });
   }
-  const fenvOpts = await getConnectionFileOptions("env");
-  assertEquals(fenvOpts, opts);
+  const fenvOpts1 = await getConnectionFileOptions(".env");
+  assertEquals(fenvOpts1, opts);
+  const fenvOpts2 = await getConnectionFileOptions("env");
+  assertEquals(fenvOpts2, opts);
   const fjsOpts = await getConnectionFileOptions("js");
   assertEquals(fjsOpts, opts);
   const ftsOpts = await getConnectionFileOptions("ts");
