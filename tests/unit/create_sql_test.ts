@@ -62,19 +62,55 @@ INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row2 column2, this 
       .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(q2, qe2);
 });
-// Deno.test("create [create table 'Entity'] sql", async () => {
-//   const { CreateEntity1 } = await import(
-//     "./playground/decorators/CreateEntity.ts"
-//   );
-//   const db: Connection = new Connection(con1);
-//   const qs1 = db.create(CreateEntity1)
-//     .columns({ name: "column1", spitype: "varchar" });
-//   let q1 = qs1.getSql() || "";
-//   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
-//   const qe1 = `CREATE TABLE "public"."User" ( "column1" VARCHAR )`
-//     .replace(/[ \n\t]+/ig, " ").trim();
-//   assertEquals(q1, qe1);
-// });
+Deno.test("create [create table 'Entity'] sql", async () => {
+  const { CreateEntity1, CreateEntity2, UniqueEntity1 } = await import(
+    "./playground/decorators/CreateEntity.ts"
+  );
+  const db: Connection = new Connection(con1);
+  const qs1 = db.create(CreateEntity1)
+    .columns({ name: "column1", spitype: "varchar" });
+  let q1 = qs1.getSql() || "";
+  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe1 = `CREATE TABLE "CustomEntity1" ( "column1" VARCHAR )`
+    .replace(/[ \n\t]+/ig, " ").trim();
+  assertEquals(q1, qe1);
+
+  const qs2 = db.create(CreateEntity1);
+  let q2 = qs2.getSql() || "";
+  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe2 =
+    `CREATE TABLE "CustomEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" TEXT NOT NULL, "column3" TEXT NOT NULL )`
+      .replace(/[ \n\t]+/ig, " ").trim();
+  assertEquals(q2, qe2);
+
+  const qs3 = db.create(CreateEntity2);
+  let q3 = qs3.getSql() || "";
+  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const qe3 =
+    `CREATE TABLE "CustomCheckEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" TEXT NOT NULL, "column3" TEXT NOT NULL );
+ALTER TABLE "CustomCheckEntity1" ADD CONSTRAINT "CHK_CustomCheckEntity1_cdd96d" CHECK (LENGTH("column2") > 0);
+ALTER TABLE "CustomCheckEntity1" ADD CONSTRAINT "CHK_CheckEntity1_column2_2" CHECK (LENGTH("column2") > 0)`
+      .replace(/[ \n\t]+/ig, " ").trim();
+  assertEquals(q3, qe3);
+
+  //   const qs4 = db.create(UniqueEntity1);
+  //   let q4 = qs4.getSql() || "";
+  //   q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
+  //   const qe4 = `CREATE SCHEMA "decorator";
+  // CREATE TABLE "decorator"."UniqueEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "column3" CHARACTER VARYING (100) NOT NULL, "custom4" CHARACTER VARYING (100) NOT NULL, "custom5" CHARACTER VARYING (100) NOT NULL, "column6" CHARACTER VARYING (100) NOT NULL, "column7" CHARACTER VARYING (100) NOT NULL, "column8" CHARACTER VARYING (100) NOT NULL, "custom9" CHARACTER VARYING (100) NOT NULL, "custom10" CHARACTER VARYING (100) NOT NULL, "custom11" CHARACTER VARYING (100) NOT NULL );
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_cdd96d" UNIQUE ("column8");
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_0b7e7d" UNIQUE ("custom11");
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_0b24df" UNIQUE ("column6", "column7", "custom9", "custom10");
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_f7947d" UNIQUE ("column2");
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_8b9af1" UNIQUE ("column2", "column3");
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_006d12" UNIQUE ("column2", "column3", "custom4");
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_b523ff" UNIQUE ("custom4", "custom5");
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_1" UNIQUE ("column2");
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_2" UNIQUE ("column2", "column3"); ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_3" UNIQUE ("column2", "column3", "custom4");
+  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_4" UNIQUE ("custom4", "custom5")`
+  //     .replace(/[ \n\t]+/ig, " ").trim();
+  //   assertEquals(q4, qe4);
+});
 Deno.test("create [create table with primary key] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.create({ entity: "User", schema: "public" })

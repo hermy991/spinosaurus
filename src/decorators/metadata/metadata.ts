@@ -36,7 +36,7 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
   /**
    * Link relation to a columns
    */
-  linkRelationsToColumns(metadata);
+  linkRelationsWithColumns(metadata);
   /**
    * Link checks constrains with tables
    */
@@ -155,7 +155,7 @@ export function clearTempMetadata(
     window[GLOBAL_TEMP_METADATA_KEY] = {};
   }
 }
-export function getMetadataToFromData(
+export function getMetadataEntityData(
   req: { connName: string; entity: Function },
 ): any {
   const metadata = getMetadata(req.connName);
@@ -167,11 +167,15 @@ export function getMetadataToFromData(
     };
   }
 }
-export function getMetadataToColumnAccesors(
+export function getMetadataColumns(
   req: { connName: string; entity: Function },
-): Array<string> {
+): Array<any> {
   const metadata = getMetadata(req.connName);
-  const columns = metadata.columns.filter((x) => x.entity.target === req.entity)
+  linkColumnsProperties(metadata);
+  const columns = metadata.columns.filter((x) =>
+    x.entity.target === req.entity ||
+    (new (<any> req).entity()) instanceof x.entity.target
+  )
     .map((x: any) => ({
       select: true,
       insert: true,
@@ -180,6 +184,23 @@ export function getMetadataToColumnAccesors(
       ...x.mixeds,
     }));
   return columns;
+}
+export function getMetadataChecks(
+  req: { connName: string; entity: Function },
+): Array<string> {
+  const metadata = getMetadata(req.connName);
+  const chks = metadata.checks.filter((x) => x.target === req.entity)
+    .map((x: any) => ({ ...x.mixeds }));
+  return chks;
+}
+export function getMetadataUniques(
+  req: { connName: string; entity: Function },
+): Array<string> {
+  const metadata = getMetadata(req.connName);
+  linkUniquesWithTables(metadata);
+  const chks = metadata.uniques.filter((x) => x.target === req.entity)
+    .map((x: any) => ({ ...x.mixeds }));
+  return chks;
 }
 
 export function getColumnType(
@@ -240,19 +261,6 @@ export function getColumnType(
   return spitype;
 }
 
-function linkSchemas(metadata: MetadataStore) {
-  const { tables, schemas } = metadata;
-  for (const table of tables) {
-    if (
-      table.mixeds.schema &&
-      !schemas.some((x: any) => x.name === table.mixeds.schema)
-    ) {
-      schemas.push({ name: table.mixeds.schema });
-    }
-  }
-  return { tables, schemas };
-}
-
 function linkColumnsProperties(metadata: MetadataStore) {
   const { columns, tables } = metadata;
   for (const column of columns) {
@@ -302,7 +310,21 @@ function linkColumnsProperties(metadata: MetadataStore) {
   }
   return { columns, tables };
 }
-function linkRelationsToColumns(metadata: MetadataStore) {
+
+function linkSchemas(metadata: MetadataStore) {
+  const { tables, schemas } = metadata;
+  for (const table of tables) {
+    if (
+      table.mixeds.schema &&
+      !schemas.some((x: any) => x.name === table.mixeds.schema)
+    ) {
+      schemas.push({ name: table.mixeds.schema });
+    }
+  }
+  return { tables, schemas };
+}
+
+function linkRelationsWithColumns(metadata: MetadataStore) {
   const { columns, tables } = metadata;
   for (const column of columns) {
     const { target, property, relation, options } = <any> column;
@@ -378,7 +400,7 @@ function linkChecksWithTables(metadata: MetadataStore) {
   return { tables, checks };
 }
 function linkUniquesWithTables(metadata: MetadataStore) {
-  const { tables, uniques } = metadata;
+  const { columns, tables, uniques } = metadata;
   tables.forEach((x) => x.uniques = x.uniques || []);
   // Global uniques constraints
   for (let i = tables.length - 1; i >= 0; i--) {
@@ -418,6 +440,18 @@ function linkUniquesWithTables(metadata: MetadataStore) {
       }
     }
   }
+  // Changing property column to database column
+  uniques.forEach((m) => {
+    m.mixeds["columnNames"] = m.mixeds.columns.map((x: any) => {
+      const column = columns.find((c) =>
+        c.entity.target === m.target && c.property.propertyKey === x
+      );
+      if (column) {
+        return column.mixeds.name;
+      }
+    }).filter((x: any) => x);
+  });
+  // Link uniques to tables
   for (let i = 0; i < uniques.length; i++) {
     const unique = uniques[i];
     const table = tables.find((x: any) => x.target === unique.target);

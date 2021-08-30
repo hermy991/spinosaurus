@@ -226,7 +226,7 @@ export class BuilderSelect extends BuilderBase {
         if (as) {
           t = this.clearNames(as);
         }
-        const cols = this.getColumnAccesors(this.conn.options.name, entity);
+        const cols = this.getColumns(this.conn.options.name, entity);
         sql += cols.filter((x) => x.select).map((x) =>
           `${t}."${x.name}" "${x.name}"`
         )
@@ -252,7 +252,7 @@ export class BuilderSelect extends BuilderBase {
               t = this.clearNames(as);
             }
             // column list
-            const cols = this.getColumnAccesors(this.conn.options.name, entity);
+            const cols = this.getColumns(this.conn.options.name, entity);
             sql += ", " +
               cols.filter((x) => x.select).map((x) =>
                 `${t}."${x.name}" "${t.replaceAll(`"`, "")}.${x.name}"`

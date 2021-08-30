@@ -88,7 +88,7 @@ export class BuilderCreate extends BuilderBase {
   }
 
   getCreateSchemaQuery() {
-    if (!this.#entityData) {
+    if (!this.#entityData || this.#entityData instanceof Function) {
       return ``;
     }
     const nameData = self.structuredClone(this.#entityData);
@@ -112,39 +112,39 @@ export class BuilderCreate extends BuilderBase {
     return `CREATE TABLE ${query}`;
   }
 
-  getColumnsQuery(cs: Array<ParamColumnDefinition> = []) {
-    if (!cs.length) {
+  getColumnsQuery(cols: Array<ParamColumnDefinition> = []) {
+    if (!cols.length) {
       return ``;
     }
     const sqls: string[] = [];
-    for (let i = 0; i < cs.length; i++) {
+    for (let i = 0; i < cols.length; i++) {
       let sql = "";
-      const name = this.clearNames(cs[i].name);
-      sql = this.conn.columnDefinition({ ...cs[i], name });
+      const name = this.clearNames(cols[i].name);
+      sql = this.conn.columnDefinition({ ...cols[i], name });
       sqls.push(sql);
     }
     return `( ${sqls.join(", ")} )`;
   }
 
-  getChecksQuery(e: { schema?: string; entity?: string }) {
-    if (!this.#checkData.length) {
+  getChecksQuery(e: { schema?: string; entity?: string }, chks: ParamCheck[]) {
+    if (!chks.length) {
       return ``;
     }
     const sqls: string[] = [];
     const { schema, entity } = e;
-
-    for (let i = 0; i < this.#checkData.length; i++) {
+    const tchks: ParamCheck[] = chks;
+    for (let i = 0; i < tchks.length; i++) {
       let sql = "";
-      this.#checkData[i].name ||= this.generateName1({
+      tchks[i].name ||= this.generateName1({
         prefix: "CHK",
         ...e,
         sequence: i + 1,
       });
-      this.#checkData[i].name = this.clearNames(this.#checkData[i].name);
+      tchks[i].name = this.clearNames(tchks[i].name);
       sql = this.conn.createCheck({
         entity: entity && this.clearNames(entity),
         schema: schema && this.clearNames(schema),
-        ...this.#checkData[i],
+        ...tchks[i],
       });
       sqls.push(sql);
     }
@@ -190,7 +190,7 @@ export class BuilderCreate extends BuilderBase {
 
   getInsertsQuery(
     e: { schema?: string; entity?: string },
-    cs: Array<ParamColumnDefinition>,
+    cols: Array<ParamColumnDefinition>,
   ) {
     if (!e.entity) {
       return ``;
@@ -202,7 +202,7 @@ export class BuilderCreate extends BuilderBase {
     } else {
       for (const create of this.#createData) {
         const tcreate: ParamCreateData = {};
-        for (const c of cs) {
+        for (const c of cols) {
           if (c.name in create) {
             if (!c.autoIncrement) {
               tcreate[c.name] = create[c.name];
@@ -224,23 +224,24 @@ export class BuilderCreate extends BuilderBase {
     }
     const sqls = [];
     let e: { schema?: string; entity?: string } = {};
-    let cs: ParamColumnDefinition[] = [];
+    let cols: ParamColumnDefinition[] = this.#columnsData;
+    let chks: ParamCheck[] = self.structuredClone(this.#checkData);
     if (this.#entityData instanceof Function) {
       e = this.getEntityData(this.conn.options.name, this.#entityData);
-      if (this.#columnsData.length) {
-        cs = this.#columnsData;
-      } else {
-        cs = this.getColumnAccesors(this.conn.options.name, this.#entityData);
-      }
+      cols = cols.length
+        ? cols
+        : this.getColumns(this.conn.options.name, this.#entityData);
+      chks = chks.length
+        ? chks
+        : this.getChecks(this.conn.options.name, this.#entityData);
     } else {
       e = this.#entityData;
-      cs = this.#columnsData;
     }
-    if (this.#columnsData.length) {
-      sqls.push(this.getCreateTableQuery(e) + " " + this.getColumnsQuery(cs));
+    if (cols.length) {
+      sqls.push(this.getCreateTableQuery(e) + " " + this.getColumnsQuery(cols));
     }
-    if (this.#checkData.length) {
-      sqls.push(this.getChecksQuery(e));
+    if (chks.length) {
+      sqls.push(this.getChecksQuery(e, chks));
     }
     if (this.#uniquesData.length) {
       sqls.push(this.getUniquesQuery(e));
@@ -249,7 +250,7 @@ export class BuilderCreate extends BuilderBase {
       sqls.push(this.getRelationsQuery(e));
     }
     if (this.#createData.length) {
-      sqls.push(this.getInsertsQuery(e, cs));
+      sqls.push(this.getInsertsQuery(e, cols));
     }
     return sqls.join(";\n");
   }

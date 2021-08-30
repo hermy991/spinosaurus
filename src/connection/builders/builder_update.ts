@@ -152,7 +152,7 @@ export class BuilderUpdate extends BuilderBase {
     let ps = [];
     if (this.#entityData instanceof Function) {
       e = this.getEntityData(this.conn.options.name, this.#entityData);
-      ps = this.getColumnAccesors(this.conn.options.name, this.#entityData);
+      ps = this.getColumns(this.conn.options.name, this.#entityData);
     } else {
       e = <any> this.#entityData;
     }

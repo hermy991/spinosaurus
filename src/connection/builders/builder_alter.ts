@@ -118,7 +118,7 @@ export class BuilderAlter extends BuilderBase {
       if (parentEntity instanceof Function) {
         const r = this.getEntityData(connName, parentEntity);
         if (!parentColumns?.length) {
-          parentColumns = this.getColumnAccesors(connName, parentEntity)
+          parentColumns = this.getColumns(connName, parentEntity)
             .filter((x: any) => x.primary)
             .map((x: any) => x.name);
         }

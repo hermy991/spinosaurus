@@ -2,8 +2,9 @@ import { ConnectionAll } from "../../connection_type.ts";
 import { clearNames } from "./sql.ts";
 import { createHash } from "deno/hash/mod.ts";
 import {
-  getMetadataToColumnAccesors,
-  getMetadataToFromData,
+  getMetadataChecks,
+  getMetadataColumns,
+  getMetadataEntityData,
 } from "../../../decorators/metadata/metadata.ts";
 
 export class BuilderBase {
@@ -74,9 +75,12 @@ export class BuilderBase {
     return generated;
   };
   getEntityData(connName: string, entity: Function) {
-    return getMetadataToFromData({ connName, entity });
+    return getMetadataEntityData({ connName, entity });
   }
-  getColumnAccesors(connName: string, entity: Function): Array<any> {
-    return getMetadataToColumnAccesors({ connName, entity });
+  getColumns(connName: string, entity: Function): Array<any> {
+    return getMetadataColumns({ connName, entity });
+  }
+  getChecks(connName: string, entity: Function): Array<any> {
+    return getMetadataChecks({ connName, entity });
   }
 }

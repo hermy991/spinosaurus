@@ -4,14 +4,15 @@ import {
   ParamColumnCreate,
 } from "../builders/params/param_column.ts";
 import { ParamCheck } from "../builders/params/param_check.ts";
+import { ParamUnique } from "../builders/params/param_unique.ts";
 import { ConnectionOptionsAll } from "../connection_options.ts";
 import { ConnectionPostgresOptions } from "../drivers/postgres/connection_postgres_options.ts";
 import { Connection } from "../connection.ts";
 import {
   clearMetadata,
   getMetadata,
-  // getMetadataToColumnAccesors,
-  // getMetadataToFromData,
+  // getMetadataColumns,
+  // getMetadataEntityData,
   linkMetadata,
 } from "../../decorators/metadata/metadata.ts";
 import { ConnectionAll } from "../connection_type.ts";
@@ -256,21 +257,12 @@ export async function generateScript(
       /**
        * Checks constraints
        */
-      const checks: Array<ParamCheck> = (table.checks || []).map((
+      const checks: Array<ParamCheck> = table.checks.map((
         x: any,
       ) => x.mixeds);
-      const uniques = [];
-      // Defined uniques constraints
-      for (let i = 0; i < table.uniques.length; i++) {
-        const unique = table.uniques[i].mixeds;
-        uniques.push({
-          name: unique.name,
-          columns: unique.columns.map((x: any) =>
-            (<any> (columns || []).find((c) => (<any> c).propertyKey === x))
-              .name
-          ),
-        });
-      }
+      const uniques: Array<ParamUnique> = table.uniques.map((
+        x: any,
+      ) => ({ ...x.mixeds, columns: x.mixeds.columnNames }));
       /**
        * Create entity
        */

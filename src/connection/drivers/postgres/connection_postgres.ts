@@ -135,7 +135,7 @@ class ConnectionPostgres implements IConnectionOperations {
      */
     const { schema, entity, name, expression } = scd;
     const sql = `ALTER TABLE ${
-      [schema, entity].join(".")
+      [schema, entity].filter((x) => x).join(".")
     } ADD CONSTRAINT ${name} CHECK (${expression})`;
     return sql;
   };
@@ -146,7 +146,7 @@ class ConnectionPostgres implements IConnectionOperations {
      */
     const { schema, entity, name, columns } = sud;
     const sql = `ALTER TABLE ${
-      [schema, entity].join(".")
+      [schema, entity].filter((x) => x).join(".")
     } ADD CONSTRAINT ${name} UNIQUE (${columns.join(", ")})`;
     return sql;
   };
