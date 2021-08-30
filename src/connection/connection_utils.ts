@@ -49,6 +49,25 @@ export async function getConnectionOptions(
   }
   throw error({ name: "ErrorConnectionOptionsNotFound" });
 }
+export async function getConnectionsOptions(): Promise<ConnectionOptions[]> {
+  const fileOptions = await getConnectionEnvOptions() ||
+    await getConnectionFileOptions(`.env`) ||
+    await getConnectionFileOptions(`env`) ||
+    await getConnectionFileOptions(`js`) ||
+    await getConnectionFileOptions(`ts`) ||
+    await getConnectionFileOptions(`json`) ||
+    await getConnectionFileOptions(`yml`) ||
+    await getConnectionFileOptions(`yaml`) ||
+    await getConnectionFileOptions(`xml`);
+  if (!fileOptions) {
+    throw error({ name: "ErrorConnectionOptionsNotFound" });
+  }
+  if (Array.isArray(fileOptions)) {
+    return fileOptions;
+  } else {
+    return [fileOptions];
+  }
+}
 
 export async function getConnectionEnvOptions() {
   const options: any = {};

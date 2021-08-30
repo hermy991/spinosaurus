@@ -16,41 +16,70 @@ import {
 } from "../../decorators/metadata/metadata.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
-import { getConnectionOptions } from "../connection_utils.ts";
+import {
+  getConnectionOptions,
+  getConnectionsOptions,
+} from "../connection_utils.ts";
 
 /**
- * Creates a new connection from env variables, config files
- * Only one connection from config will be created
+ * Creates a new connection and registers it in the manager.
+ * Only one connection from ormconfig will be created (name "default" or connection without name).
  */
 export async function createConnection(): Promise<Connection>;
 
 /**
-* Creates a new connection from the env variables, config file with a given name.
-*/
+ * Creates a new connection from the ormconfig file with a given name.
+ */
 export async function createConnection(name: string): Promise<Connection>;
 
 /**
- * Creates a new connection from option params.
+ * Creates a new connection and registers it in the manager.
  */
 export async function createConnection(
   options: ConnectionOptions,
 ): Promise<Connection>;
 
 /**
- * Creates a new connection from the env variables, config file with a given name or from option params.
+ * Creates a new connection and registers it in the manager.
+ *
+ * If connection options were not specified, then it will try to create connection automatically,
+ * based on content of ormconfig (json/js/yml/xml/env) file or environment variables.
+ * Only one connection from ormconfig will be created (name "default" or connection without name).
  */
 export async function createConnection(
-  nameOrOptions?: string | ConnectionOptions | Array<ConnectionOptions>,
+  nameOrOptions?: any,
 ): Promise<Connection> {
   const options = typeof nameOrOptions === "object"
     ? nameOrOptions
     : await getConnectionOptions(nameOrOptions);
-  const tconn = new Connection(<ConnectionOptions> options);
+  const tconn = new Connection(options);
   const sql = await synchronize(tconn);
   if (sql) {
     await tconn.execute(sql);
   }
   return tconn;
+}
+/**
+ * Creates new connections and registers them in the manager.
+ *
+ * If connection options were not specified, then it will try to create connection automatically,
+ * based on content of ormconfig (json/js/yml/xml/env) file or environment variables.
+ * All connections from the ormconfig will be created.
+ */
+export async function createConnections(
+  options?: ConnectionOptions[],
+): Promise<Connection[]> {
+  options = options ? options : await getConnectionsOptions();
+  const arrConn: Connection[] = [];
+  for (const toptions of options) {
+    const tconn = new Connection(toptions);
+    const sql = await synchronize(tconn);
+    if (sql) {
+      await tconn.execute(sql);
+    }
+    arrConn.push(tconn);
+  }
+  return arrConn;
 }
 
 export async function getConnection(connectionName?: string) {
