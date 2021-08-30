@@ -23,18 +23,27 @@ const VARIABLES = {
 export async function getConnectionOptions(
   connectionName?: string,
 ): Promise<ConnectionOptionsAll> {
-  const options = findConnection(
-    await getConnectionEnvOptions() ||
-      await getConnectionFileOptions(`.env`) ||
-      await getConnectionFileOptions(`env`) ||
-      await getConnectionFileOptions(`js`) ||
-      await getConnectionFileOptions(`ts`) ||
-      await getConnectionFileOptions(`json`) ||
-      await getConnectionFileOptions(`yml`) ||
-      await getConnectionFileOptions(`yaml`) ||
-      await getConnectionFileOptions(`xml`),
-    connectionName,
-  );
+  const fileOptions = await getConnectionEnvOptions() ||
+    await getConnectionFileOptions(`.env`) ||
+    await getConnectionFileOptions(`env`) ||
+    await getConnectionFileOptions(`js`) ||
+    await getConnectionFileOptions(`ts`) ||
+    await getConnectionFileOptions(`json`) ||
+    await getConnectionFileOptions(`yml`) ||
+    await getConnectionFileOptions(`yaml`) ||
+    await getConnectionFileOptions(`xml`);
+  if (!fileOptions) {
+    throw error({ name: "ErrorConnectionOptionsNotFound" });
+  }
+  if (Array.isArray(fileOptions)) {
+    for (let i = 0; i < fileOptions.length; i++) {
+      const tfileOptions = fileOptions[i];
+      tfileOptions.name = tfileOptions.name || "default";
+    }
+  } else {
+    fileOptions.name = fileOptions.name || "default";
+  }
+  const options = findConnection(fileOptions, connectionName);
   if (options) {
     return options;
   }
@@ -111,7 +120,6 @@ export async function getConnectionFileOptions(
   try {
     let name = FILE_NAME;
     let extension = fileNameOrExtenxion;
-
     if (fileNameOrExtenxion.indexOf(".") >= 0) {
       name = `${
         fileNameOrExtenxion.substring(0, fileNameOrExtenxion.lastIndexOf("."))
@@ -119,10 +127,34 @@ export async function getConnectionFileOptions(
       extension = `${extension.substring(extension.lastIndexOf(".") + 1)}`;
     }
     const fileName = `${name}.${extension}`;
+    const parseEntities = (value: any) => {
+      try {
+        if (typeof value === "string") {
+          return JSON.parse(value || "");
+        } else if (typeof value === "object" && Array.isArray(value)) {
+          return value;
+        }
+      } catch (err) {
+        if (err.name === "SyntaxError") {
+          return (value || "").split(",");
+        }
+      }
+    };
     if (["js", "ts"].includes(extension)) {
       const path = `file:///${Deno.cwd()}/${fileName}`;
       const module: any = await import(path);
       const options = module.default;
+      if (Array.isArray(options)) {
+        for (let i = 0; i < options.length; i++) {
+          const toptions = options[i];
+          if (toptions.entity) {
+            toptions.entity = parseEntities(toptions.entities);
+          }
+        }
+      }
+      if (options.entity) {
+        options.entity = parseEntities(options.entities);
+      }
       return options;
     } else {
       const decoder = new TextDecoder("utf-8");
@@ -149,15 +181,7 @@ export async function getConnectionFileOptions(
                 ndata[index] = value === "true";
                 break;
               case "entities":
-                {
-                  try {
-                    ndata[index] = JSON.parse(value || "");
-                  } catch (err) {
-                    if (err.name === "SyntaxError") {
-                      ndata[index] = (value || "").split(",");
-                    }
-                  }
-                }
+                ndata[index] = parseEntities(ndata[index]);
                 break;
               default:
                 ndata[index] = value;
@@ -191,15 +215,7 @@ export async function getConnectionFileOptions(
                 ndata[index] = (value + "") === "true";
                 break;
               case "entities":
-                {
-                  try {
-                    ndata[index] = JSON.parse(value || "");
-                  } catch (err) {
-                    if (err.name === "SyntaxError") {
-                      ndata[index] = (value || "").split(",");
-                    }
-                  }
-                }
+                ndata[index] = parseEntities(ndata[index]);
                 break;
               default:
                 ndata[index] = value;
@@ -220,7 +236,13 @@ function findConnection(options: any | Array<any>, name?: string) {
     return;
   }
   if (Array.isArray(options)) {
-    const toptions = options.find((x) => !name || x["name"] === name);
+    let toptions = options.find((x) => x["name"] === name);
+    if (!toptions) {
+      toptions = options.find((x) => !name && x["name"] === "default");
+    }
+    if (!toptions) {
+      toptions = options.find(() => !name);
+    }
     return toptions;
   } else if (!name || options["name"] === name) {
     return options;

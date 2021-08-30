@@ -53,12 +53,13 @@ Here is a small example of connection options for mysql:
 
 ```typescript
 {
+    name: "conn1",
+    type: "postgres",
     host: "localhost",
     port: 3306,
     username: "test",
     password: "test",
     database: "test",
-    logging: true,
     synchronize: true,
     entities: [
         "entity/*.js"
