@@ -162,9 +162,9 @@ Deno.test("decorator [data] sql", async () => {
   s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  const se1 =
-    `CREATE TABLE "DataEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" VARCHAR (100) NOT NULL );
-INSERT INTO "DataEntity1" ("column2") VALUES ( "hola como estas" ) `
-      .replaceAll(/[ \n\t]+/ig, " ").trim();
+  const se1 = `CREATE SCHEMA "decorator";
+CREATE TABLE "decorator"."DataEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL );
+INSERT INTO "decorator"."DataEntity1" ("column2") VALUES ('hola como estas') `
+    .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(s1, se1);
 });

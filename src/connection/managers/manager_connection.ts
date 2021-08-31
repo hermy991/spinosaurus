@@ -301,7 +301,7 @@ export async function generateScript(
         x: any,
       ) => ({ ...x.mixeds, columns: x.mixeds.columnNames }));
       const data: Array<ParamData> = table.data
-        .map((x: any) => <any[]> x.entries).flapMap((x: any[]) => x);
+        .map((x: any) => <any[]> x.entries).flatMap((x: any[]) => x);
       /**
        * Create entity
        */

@@ -13,10 +13,14 @@ export class ExecutorCreate {
   }
 
   create(
-    req: { entity: string; schema?: string } | {
-      schema: string;
-      check?: boolean;
-    } | Function,
+    req:
+      | { entity: string; schema?: string }
+      | {
+        entity: Function;
+        options?: { createByEntity?: boolean };
+      }
+      | { schema: string; check?: boolean }
+      | Function,
   ): ExecutorCreate {
     this.cb.create(req);
     return this;

@@ -67,7 +67,10 @@ Deno.test("create [create table 'Entity'] sql", async () => {
     "./playground/decorators/CreateEntity.ts"
   );
   const db: Connection = new Connection(con1);
-  const qs1 = db.create(CreateEntity1)
+  const qs1 = db.create({
+    entity: CreateEntity1,
+    options: { createByEntity: true },
+  })
     .columns({ name: "column1", spitype: "varchar" });
   let q1 = qs1.getSql() || "";
   q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
@@ -75,7 +78,10 @@ Deno.test("create [create table 'Entity'] sql", async () => {
     .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(q1, qe1);
 
-  const qs2 = db.create(CreateEntity1);
+  const qs2 = db.create({
+    entity: CreateEntity1,
+    options: { createByEntity: true },
+  });
   let q2 = qs2.getSql() || "";
   q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe2 =
@@ -83,7 +89,10 @@ Deno.test("create [create table 'Entity'] sql", async () => {
       .replace(/[ \n\t]+/ig, " ").trim();
   assertEquals(q2, qe2);
 
-  const qs3 = db.create(CreateEntity2);
+  const qs3 = db.create({
+    entity: CreateEntity2,
+    options: { createByEntity: true },
+  });
   let q3 = qs3.getSql() || "";
   q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
   const qe3 =

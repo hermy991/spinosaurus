@@ -537,6 +537,7 @@ function linkColumnsWithTables(metadata: MetadataStore) {
 }
 function linkDataWithTables(metadata: MetadataStore) {
   const { columns, tables, data } = metadata;
+  tables.forEach((x) => x.data = x.data || []);
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     const table = tables.find((x: any) => x.target === row.target);

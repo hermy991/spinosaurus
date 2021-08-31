@@ -9,6 +9,7 @@ import { BuilderAlter } from "./builder_alter.ts";
 import { BuilderInsert } from "./builder_insert.ts";
 
 export class BuilderCreate extends BuilderBase {
+  #options: { createByEntity?: boolean } = { createByEntity: false };
   #entityData:
     | { entity: string; schema?: string }
     | { schema: string; check?: boolean }
@@ -24,12 +25,21 @@ export class BuilderCreate extends BuilderBase {
   }
 
   create(
-    req: { entity: string; schema?: string } | {
-      schema: string;
-      check?: boolean;
-    } | Function,
+    req:
+      | { entity: string; schema?: string }
+      | {
+        entity: Function;
+        options?: { createByEntity?: boolean };
+      }
+      | { schema: string; check?: boolean }
+      | Function,
   ): void {
-    this.#entityData = req;
+    if (req instanceof Function) {
+      this.#entityData = <any> req;
+    } else if (typeof (<any> req).entity === "function") {
+      this.#entityData = (<any> req).entity;
+      (<any> req).options ? this.#options = (<any> req).options : undefined;
+    } else this.#entityData = <any> req;
   }
 
   columns(...columns: Array<ParamColumnDefinition>): void {
@@ -228,12 +238,14 @@ export class BuilderCreate extends BuilderBase {
     let chks: ParamCheck[] = self.structuredClone(this.#checkData);
     if (this.#entityData instanceof Function) {
       e = this.getEntityData(this.conn.options.name, this.#entityData);
-      cols = cols.length
-        ? cols
-        : this.getColumns(this.conn.options.name, this.#entityData);
-      chks = chks.length
-        ? chks
-        : this.getChecks(this.conn.options.name, this.#entityData);
+      if (this.#options.createByEntity) {
+        cols = cols.length
+          ? cols
+          : this.getColumns(this.conn.options.name, this.#entityData);
+        chks = chks.length
+          ? chks
+          : this.getChecks(this.conn.options.name, this.#entityData);
+      }
     } else {
       e = this.#entityData;
     }

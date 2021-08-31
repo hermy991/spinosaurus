@@ -80,10 +80,14 @@ class Connection {
   }
 
   create(
-    req: { entity: string; schema?: string } | {
-      schema: string;
-      check?: boolean;
-    } | Function,
+    req:
+      | { entity: string; schema?: string }
+      | {
+        entity: Function;
+        options?: { createByEntity?: boolean };
+      }
+      | { schema: string; check?: boolean }
+      | Function,
   ) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor = new ExecutorCreate(this.#connection);

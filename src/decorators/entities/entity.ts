@@ -6,7 +6,6 @@ export function Entity(options: EntityOptions = {}): any {
     let mixeds: EntityOptions = { name: target.name };
     mixeds = Object.assign(mixeds, options);
     const columns: any[] = [];
-    // const schemas: any[] = [];
 
     getTempMetadata().tables.push({
       target,
