@@ -5,7 +5,7 @@ import { ParamData } from "../../connection/builders/params/param_data.ts";
  * Can be used on entity.
  * Can insert entities after entity is created in the database
  */
-export function Data(entities: ParamData | [ParamData, ...ParamData[]]): any {
+export function Data(entities: ParamData | ParamData[]): any {
   return function (target: Function) {
     getTempMetadata().data.unshift({
       target,
