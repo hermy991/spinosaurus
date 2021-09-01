@@ -13,6 +13,8 @@ export * from "./src/decorators/columns/version_column.ts";
 export * from "./src/decorators/relations/many_to_one.ts";
 export * from "./src/decorators/relations/one_to_one.ts";
 export * from "./src/decorators/data/data.ts";
+export * from "./src/decorators/extra/next.ts";
+export * from "./src/decorators/extra/after.ts";
 /**
  * SQL Functions
  */

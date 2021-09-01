@@ -19,4 +19,6 @@ export class MetadataStore {
     }
   > = [];
   readonly data: { target: Function; entries: ParamData[] }[] = [];
+  readonly nexts: { target: Function; steps: string[] }[] = [];
+  readonly afters: { target: Function; steps: string[] }[] = [];
 }
