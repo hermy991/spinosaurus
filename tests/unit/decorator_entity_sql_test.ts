@@ -168,3 +168,21 @@ INSERT INTO "decorator"."DataEntity1" ("column2") VALUES ('hola como estas') `
     .replaceAll(/[ \n\t]+/ig, " ").trim();
   assertEquals(s1, se1);
 });
+Deno.test("decorator [next] sql", async () => {
+  const conOptsX = self.structuredClone(conOpts);
+  const db = new Connection(conOptsX);
+  const dirname = path.dirname(path.fromFileUrl(import.meta.url));
+  conOptsX.entities = [
+    `${dirname}/playground/decorators/**/NextEntity.ts`,
+  ];
+  let s1 = await queryConnection(conOptsX);
+  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const _metadata = getMetadata(conOptsX.name);
+  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  const se1 = `CREATE SCHEMA "decorator";
+CREATE TABLE "decorator"."NextEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL );
+INSERT INTO "decorator"."NextEntity1" ("column2") VALUES ( 'THIS A TEST' );
+INSERT INTO "decorator"."NextEntity1" ("column2") VALUES ( 'THIS A ANOTHER TEST' );`
+    .replaceAll(/[ \n\t]+/ig, " ").trim();
+  assertEquals(s1, se1);
+});

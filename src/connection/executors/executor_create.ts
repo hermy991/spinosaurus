@@ -3,6 +3,7 @@ import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
 import { ParamRelationCreate } from "../builders/params/param_relation.ts";
 import { ParamCreateData } from "../builders/params/param_create.ts";
+import { ParamNext } from "../builders/params/param_create.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderCreate } from "../builders/builder_create.ts";
 
@@ -75,6 +76,16 @@ export class ExecutorCreate {
 
   addData(data: ParamCreateData[] | ParamCreateData): ExecutorCreate {
     this.cb.addData(data);
+    return this;
+  }
+
+  next(data: ParamNext[] | ParamNext): ExecutorCreate {
+    this.cb.next(data);
+    return this;
+  }
+
+  addNext(data: ParamNext[] | ParamNext): ExecutorCreate {
+    this.cb.addNext(data);
     return this;
   }
 

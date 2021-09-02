@@ -309,7 +309,8 @@ export async function generateScript(
         .columns(...columns)
         .checks(...checks)
         .uniques(...uniques)
-        .data(data);
+        .data(data)
+        .next(next);
       const query = qs.getSql() || "";
       script.push(query);
     }
