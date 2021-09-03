@@ -123,11 +123,7 @@ deno run -qA https://code.velociraptor.run test:exec
 - create take
 - set maxExecutionTime as a option in select, insert, update, delete and
   transaction
-- Create @Data decorator
 - numeric param in `groupBy`, `addGroupBy`, `orderBy`, `addOrderBy` and set
   select definition internally
 - change `from({ entity: Entity })` to `from(Entity)` on documentation
 - change param `orderBy` and `addOrderBy` strategic from ... to array
-- create @After
-- change sql string to sql array in all internal return return
-- improving @After testing
