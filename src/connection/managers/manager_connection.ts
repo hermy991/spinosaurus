@@ -6,6 +6,8 @@ import {
 import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
 import { ParamData } from "../builders/params/param_data.ts";
+import { ParamNext } from "../builders/params/param_next.ts";
+import { ParamAfter } from "../builders/params/param_after.ts";
 import { ConnectionOptions } from "../connection_options.ts";
 import { Connection } from "../connection.ts";
 import {
@@ -302,6 +304,9 @@ export async function generateScript(
       ) => ({ ...x.mixeds, columns: x.mixeds.columnNames }));
       const data: Array<ParamData> = table.data
         .map((x: any) => <any[]> x.entries).flatMap((x: any[]) => x);
+      const nexts: ParamNext[] = table.nexts.map((
+        x: any,
+      ) => x.steps);
       /**
        * Create entity
        */
@@ -310,7 +315,7 @@ export async function generateScript(
         .checks(...checks)
         .uniques(...uniques)
         .data(data)
-        .next(next);
+        .next(nexts);
       const query = qs.getSql() || "";
       script.push(query);
     }

@@ -128,5 +128,5 @@ deno run -qA https://code.velociraptor.run test:exec
   select definition internally
 - change `from({ entity: Entity })` to `from(Entity)` on documentation
 - change param `orderBy` and `addOrderBy` strategic from ... to array
-- create @Next
 - create @After
+- change sql string to sql array in all internal return return

@@ -54,6 +54,10 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
    */
   linkDataWithTables(metadata);
   /**
+   * Link nexts sql sentences with tables
+   */
+  linkNextWithTables(metadata);
+  /**
    * Check errors and exeptions
    */
   checkErrorsAndExeptions(metadata);
@@ -552,6 +556,19 @@ function linkDataWithTables(metadata: MetadataStore) {
     }
   }
   return { tables, data };
+}
+function linkNextWithTables(metadata: MetadataStore) {
+  const { tables, nexts } = metadata;
+  tables.forEach((x) => x.nexts = x.nexts || []);
+  for (let i = 0; i < nexts.length; i++) {
+    const row = nexts[i];
+    const table = tables.find((x: any) => x.target === row.target);
+    if (!table) {
+      continue;
+    }
+    table.nexts.indexOf(row) === -1 ? table.nexts.push(row) : undefined;
+  }
+  return { tables, nexts };
 }
 function checkErrorsAndExeptions(metadata: MetadataStore) {
   const { columns, tables } = metadata;

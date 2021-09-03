@@ -1,5 +1,7 @@
 import { AllColumnOptions } from "../options/all_column_options.ts";
 import { ParamData } from "../../connection/builders/params/param_data.ts";
+import { ParamNext } from "../../connection/builders/params/param_next.ts";
+import { ParamAfter } from "../../connection/builders/params/param_after.ts";
 
 export class MetadataStore {
   readonly tables: any[] = [];
@@ -19,6 +21,6 @@ export class MetadataStore {
     }
   > = [];
   readonly data: { target: Function; entries: ParamData[] }[] = [];
-  readonly nexts: { target: Function; steps: string[] }[] = [];
-  readonly afters: { target: Function; steps: string[] }[] = [];
+  readonly nexts: { target: Function; steps: ParamNext[] }[] = [];
+  readonly afters: { target: Function; steps: ParamAfter[] }[] = [];
 }

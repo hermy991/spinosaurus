@@ -5,7 +5,9 @@ import {
   PrimaryGeneratedColumn,
 } from "spinosaurus/mod.ts";
 
-const data = await Deno.readTextFile("../files/NextEntity.ts");
+const data =
+  `INSERT INTO "decorator"."NextEntity1" ("column2") VALUES ( 'THIS A TEST' );
+INSERT INTO "decorator"."NextEntity1" ("column2") VALUES ( 'THIS A ANOTHER TEST' );`;
 
 @Entity({ schema: "decorator" })
 @Next(data)

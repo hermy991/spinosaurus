@@ -2,16 +2,11 @@ import { ParamColumnDefinition } from "../builders/params/param_column.ts";
 import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
 import { ParamRelationCreate } from "../builders/params/param_relation.ts";
-<<<<<<< Updated upstream
-import { ParamCreateData } from "../builders/params/param_create.ts";
-import { ParamNext } from "../builders/params/param_create.ts";
-=======
 import {
   ParamCreateAfter,
   ParamCreateData,
   ParamCreateNext,
 } from "../builders/params/param_create.ts";
->>>>>>> Stashed changes
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderCreate } from "../builders/builder_create.ts";
 
@@ -87,26 +82,16 @@ export class ExecutorCreate {
     return this;
   }
 
-<<<<<<< Updated upstream
-  next(data: ParamNext[] | ParamNext): ExecutorCreate {
-=======
   next(data: ParamCreateNext[] | ParamCreateNext): ExecutorCreate {
->>>>>>> Stashed changes
     this.cb.next(data);
     return this;
   }
 
-<<<<<<< Updated upstream
-  addNext(data: ParamNext[] | ParamNext): ExecutorCreate {
-=======
   addNext(data: ParamCreateNext[] | ParamCreateNext): ExecutorCreate {
->>>>>>> Stashed changes
     this.cb.addNext(data);
     return this;
   }
 
-<<<<<<< Updated upstream
-=======
   after(data: ParamCreateAfter[] | ParamCreateAfter): ExecutorCreate {
     this.cb.after(data);
     return this;
@@ -117,7 +102,6 @@ export class ExecutorCreate {
     return this;
   }
 
->>>>>>> Stashed changes
   printSql(): ExecutorCreate {
     this.cb.printSql();
     return this;
