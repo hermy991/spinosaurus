@@ -342,5 +342,12 @@ export async function generateScript(
       script.push(query);
     }
   }
+  /**
+   * Afters
+   */
+  for (let i = 0; i < localMetadata.afters.length; i++) {
+    const afters = localMetadata.afters[i];
+    script.push(...afters.steps.flatMap((x) => x).filter((x) => x));
+  }
   return script;
 }
