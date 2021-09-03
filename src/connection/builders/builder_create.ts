@@ -2,7 +2,11 @@ import { ParamColumnDefinition } from "./params/param_column.ts";
 import { ParamCheck } from "./params/param_check.ts";
 import { ParamUnique } from "./params/param_unique.ts";
 import { ParamRelationCreate } from "./params/param_relation.ts";
-import { ParamCreateData } from "./params/param_create.ts";
+import {
+  ParamCreateAfter,
+  ParamCreateData,
+  ParamCreateNext,
+} from "./params/param_create.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { BuilderAlter } from "./builder_alter.ts";
@@ -15,11 +19,13 @@ export class BuilderCreate extends BuilderBase {
     | { schema: string; check?: boolean }
     | Function
     | null = null;
-  #columnsData: Array<ParamColumnDefinition> = [];
-  #checkData: Array<ParamCheck> = [];
-  #uniquesData: Array<{ name?: string; columns: Array<string> }> = [];
-  #relationsData: Array<ParamRelationCreate> = [];
-  #createData: Array<ParamCreateData> = [];
+  #columnsData: ParamColumnDefinition[] = [];
+  #checkData: ParamCheck[] = [];
+  #uniquesData: { name?: string; columns: string[] }[] = [];
+  #relationsData: ParamRelationCreate[] = [];
+  #createData: ParamCreateData[] = [];
+  #nextData: ParamCreateNext[] = [];
+  #afterData: ParamCreateAfter[] = [];
   constructor(public conn: ConnectionAll) {
     super(conn);
   }
@@ -95,6 +101,26 @@ export class BuilderCreate extends BuilderBase {
   addData(data: ParamCreateData[] | ParamCreateData) {
     data = Array.isArray(data) ? data : [data];
     this.#createData.push(...data);
+  }
+
+  next(sqls: ParamCreateNext[] | ParamCreateNext) {
+    this.#nextData = [];
+    this.addNext(sqls);
+  }
+
+  addNext(sqls: ParamCreateNext[] | ParamCreateNext) {
+    sqls = Array.isArray(sqls) ? sqls : [sqls];
+    this.#nextData.push(...sqls);
+  }
+
+  after(sqls: ParamCreateAfter[] | ParamCreateAfter) {
+    this.#afterData = [];
+    this.addAfter(sqls);
+  }
+
+  addAfter(sqls: ParamCreateAfter[] | ParamCreateAfter) {
+    sqls = Array.isArray(sqls) ? sqls : [sqls];
+    this.#afterData.push(...sqls);
   }
 
   getCreateSchemaQuery() {
@@ -225,6 +251,14 @@ export class BuilderCreate extends BuilderBase {
     return ib.getSql();
   }
 
+  getNextQuery() {
+    return this.#nextData.flatMap((x) => x).filter((x) => x).join("\n");
+  }
+
+  getAfterQuery() {
+    return this.#afterData.flatMap((x) => x).filter((x) => x).join("\n");
+  }
+
   getSql() {
     if (!this.#entityData) {
       return "";
@@ -263,6 +297,12 @@ export class BuilderCreate extends BuilderBase {
     }
     if (this.#createData.length) {
       sqls.push(this.getInsertsQuery(e, cols));
+    }
+    if (this.#nextData.length) {
+      sqls.push(this.getNextQuery());
+    }
+    if (this.#afterData.length) {
+      sqls.push(this.getAfterQuery());
     }
     return sqls.join(";\n");
   }
