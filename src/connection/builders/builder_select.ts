@@ -12,11 +12,11 @@ export class BuilderSelect extends BuilderBase {
     | { entity: string; schema?: string; as?: string }
     | { entity: Function; as?: string }
     | null = null;
-  #clauseData: Array<ParamComplexClauseRelation> = [];
-  #whereData: Array<string> = [];
-  #groupByData: Array<string> = [];
-  #havingData: Array<string> = [];
-  #orderByData: Array<{ column: string; direction?: string }> = [];
+  #clauseData: ParamComplexClauseRelation[] = [];
+  #whereData: string[] = [];
+  #groupByData: string[] = [];
+  #havingData: string[] = [];
+  #orderByData: { column: string; direction?: string }[] = [];
   #paramsData: ParamComplexOptions = {};
 
   /*FLAGS*/
@@ -369,23 +369,23 @@ export class BuilderSelect extends BuilderBase {
     return `ORDER BY ${orders.join(", ")}`;
   }
 
-  getSql() {
-    let query = `${this.getSelectQuery()}\n${this.getFromQuery()}`;
+  getSqls(): string[] {
+    let sql = `${this.getSelectQuery()} ${this.getFromQuery()}`;
     if (this.#clauseData.length) {
-      query += `\n${this.getClauseQuery()}`;
+      sql += ` ${this.getClauseQuery()}`;
     }
     if (this.#whereData.length) {
-      query += `\n${this.getWhereQuery()}`;
+      sql += ` ${this.getWhereQuery()}`;
     }
     if (this.#groupByData.length) {
-      query += `\n${this.getGroupByQuery()}`;
+      sql += ` ${this.getGroupByQuery()}`;
     }
     if (this.#havingData.length) {
-      query += `\n${this.getHavingQuery()}`;
+      sql += ` ${this.getHavingQuery()}`;
     }
     if (this.#orderByData.length) {
-      query += `\n${this.getOrderByQuery()}`;
+      sql += ` ${this.getOrderByQuery()}`;
     }
-    return query;
+    return [sql];
   }
 }

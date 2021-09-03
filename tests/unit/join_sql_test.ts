@@ -13,8 +13,7 @@ Deno.test("join [join] sql", async () => {
       entity: "FromEntity2",
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -29,8 +28,7 @@ Deno.test("join [join] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -45,8 +43,7 @@ Deno.test("join [join] sql", async () => {
       entity: "FromEntity2",
       on: `"example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "example"."FromEntity2" ON "example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -67,8 +64,7 @@ Deno.test("join [join 'Entity'] sql", async () => {
       entity: FromEntity2,
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -83,8 +79,7 @@ Deno.test("join [join 'Entity'] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -98,8 +93,7 @@ Deno.test("join [join 'Entity'] sql", async () => {
       entity: FromEntity5,
       on: `"hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "hello"."FromEntity5" ON "hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -114,8 +108,7 @@ Deno.test("join [join 'Entity'] sql", async () => {
       as: "u5",
       on: `"u5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q4 = qs4.getSql() || "";
-  q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q4 = qs4.getSqls().join(";\n");
   const qe4 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "hello"."FromEntity5" AS "u5" ON "u5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -134,8 +127,7 @@ Deno.test("join [select join] sql", async () => {
       entity: "FromEntity2",
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1", "FromEntity2".* FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -150,8 +142,7 @@ Deno.test("join [select join] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1", "u2".* FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -166,8 +157,7 @@ Deno.test("join [select join] sql", async () => {
       entity: "FromEntity2",
       on: `"example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1", "example"."FromEntity2".* FROM "FromEntity1" AS "u1" INNER JOIN "example"."FromEntity2" ON "example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -188,8 +178,7 @@ Deno.test("join [select join 'Entity'] sql", async () => {
       entity: FromEntity2,
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1", "FromEntity2"."test1" "FromEntity2.test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -204,8 +193,7 @@ Deno.test("join [select join 'Entity'] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1", "u2"."test1" "u2.test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -219,8 +207,7 @@ Deno.test("join [select join 'Entity'] sql", async () => {
       entity: FromEntity5,
       on: `"hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1", "hello"."FromEntity5"."test1" "hello.FromEntity5.test1" FROM "FromEntity1" AS "u1" INNER JOIN "hello"."FromEntity5" ON "hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -235,8 +222,7 @@ Deno.test("join [select join 'Entity'] sql", async () => {
       as: "u5",
       on: `"u5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q4 = qs4.getSql() || "";
-  q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q4 = qs4.getSqls().join(";\n");
   const qe4 =
     `SELECT "u1"."test1" "test1", "u5"."test1" "u5.test1" FROM "FromEntity1" AS "u1" INNER JOIN "hello"."FromEntity5" AS "u5" ON "u5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -255,8 +241,7 @@ Deno.test("join [left join] sql", async () => {
       entity: "FromEntity2",
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" LEFT JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -271,8 +256,7 @@ Deno.test("join [left join] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" LEFT JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -287,8 +271,7 @@ Deno.test("join [left join] sql", async () => {
       entity: "FromEntity2",
       on: `"example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" LEFT JOIN "example"."FromEntity2" ON "example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -309,8 +292,7 @@ Deno.test("join [left join 'Entity'] sql", async () => {
       entity: FromEntity2,
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" LEFT JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -325,8 +307,7 @@ Deno.test("join [left join 'Entity'] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" LEFT JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -340,8 +321,7 @@ Deno.test("join [left join 'Entity'] sql", async () => {
       entity: FromEntity5,
       on: `"hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" LEFT JOIN "hello"."FromEntity5" ON "hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -356,8 +336,7 @@ Deno.test("join [left join 'Entity'] sql", async () => {
       as: "u5",
       on: `"u5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q4 = qs4.getSql() || "";
-  q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q4 = qs4.getSqls().join(";\n");
   const qe4 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" LEFT JOIN "hello"."FromEntity5" AS "u5" ON "u5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -376,8 +355,7 @@ Deno.test("join [select left join] sql", async () => {
       entity: "FromEntity2",
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1", "FromEntity2".* FROM "FromEntity1" AS "u1" LEFT JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -392,8 +370,7 @@ Deno.test("join [select left join] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1", "u2".* FROM "FromEntity1" AS "u1" LEFT JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -408,8 +385,7 @@ Deno.test("join [select left join] sql", async () => {
       entity: "FromEntity2",
       on: `"example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1", "example"."FromEntity2".* FROM "FromEntity1" AS "u1" LEFT JOIN "example"."FromEntity2" ON "example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -430,8 +406,7 @@ Deno.test("join [select left join 'Entity'] sql", async () => {
       entity: FromEntity2,
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1", "FromEntity2"."test1" "FromEntity2.test1" FROM "FromEntity1" AS "u1" LEFT JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -446,8 +421,7 @@ Deno.test("join [select left join 'Entity'] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1", "u2"."test1" "u2.test1" FROM "FromEntity1" AS "u1" LEFT JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -461,8 +435,7 @@ Deno.test("join [select left join 'Entity'] sql", async () => {
       entity: FromEntity5,
       on: `"hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1", "hello"."FromEntity5"."test1" "hello.FromEntity5.test1" FROM "FromEntity1" AS "u1" LEFT JOIN "hello"."FromEntity5" ON "hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -477,8 +450,7 @@ Deno.test("join [select left join 'Entity'] sql", async () => {
       as: "u5",
       on: `"u5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q4 = qs4.getSql() || "";
-  q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q4 = qs4.getSqls().join(";\n");
   const qe4 =
     `SELECT "u1"."test1" "test1", "u5"."test1" "u5.test1" FROM "FromEntity1" AS "u1" LEFT JOIN "hello"."FromEntity5" AS "u5" ON "u5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -497,8 +469,7 @@ Deno.test("join [right join] sql", async () => {
       entity: "FromEntity2",
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -513,8 +484,7 @@ Deno.test("join [right join] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -529,8 +499,7 @@ Deno.test("join [right join] sql", async () => {
       entity: "FromEntity2",
       on: `"example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "example"."FromEntity2" ON "example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -551,8 +520,7 @@ Deno.test("join [right join 'Entity'] sql", async () => {
       entity: FromEntity2,
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -567,8 +535,7 @@ Deno.test("join [right join 'Entity'] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -582,8 +549,7 @@ Deno.test("join [right join 'Entity'] sql", async () => {
       entity: FromEntity5,
       on: `"hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "hello"."FromEntity5" ON "hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -598,8 +564,7 @@ Deno.test("join [right join 'Entity'] sql", async () => {
       as: "u5",
       on: `"u5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q4 = qs4.getSql() || "";
-  q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q4 = qs4.getSqls().join(";\n");
   const qe4 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "hello"."FromEntity5" AS "u5" ON "u5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -618,8 +583,7 @@ Deno.test("join [select right join] sql", async () => {
       entity: "FromEntity2",
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1", "FromEntity2".* FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -634,8 +598,7 @@ Deno.test("join [select right join] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1", "u2".* FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -650,8 +613,7 @@ Deno.test("join [select right join] sql", async () => {
       entity: "FromEntity2",
       on: `"example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1", "example"."FromEntity2".* FROM "FromEntity1" AS "u1" RIGHT JOIN "example"."FromEntity2" ON "example"."FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -672,8 +634,7 @@ Deno.test("join [select right join 'Entity'] sql", async () => {
       entity: FromEntity2,
       on: `"FromEntity2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `SELECT "u1"."test1" "test1", "FromEntity2"."test1" "FromEntity2.test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -688,8 +649,7 @@ Deno.test("join [select right join 'Entity'] sql", async () => {
       as: "u2",
       on: `"u2"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 =
     `SELECT "u1"."test1" "test1", "u2"."test1" "u2.test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" AS "u2" ON "u2"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -703,8 +663,7 @@ Deno.test("join [select right join 'Entity'] sql", async () => {
       entity: FromEntity5,
       on: `"hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 =
     `SELECT "u1"."test1" "test1", "hello"."FromEntity5"."test1" "hello.FromEntity5.test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "hello"."FromEntity5" ON "hello"."FromEntity5"."columnKey1" = "u1"."columnKey1"`
       .replace(
@@ -719,8 +678,7 @@ Deno.test("join [select right join 'Entity'] sql", async () => {
       as: "u5",
       on: `"u5"."columnKey1" = "u1"."columnKey1"`,
     });
-  let q4 = qs4.getSql() || "";
-  q4 = q4.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q4 = qs4.getSqls().join(";\n");
   const qe4 =
     `SELECT "u1"."test1" "test1", "u5"."test1" "u5.test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "hello"."FromEntity5" AS "u5" ON "u5"."columnKey1" = "u1"."columnKey1"`
       .replace(

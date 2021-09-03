@@ -66,7 +66,7 @@ export class BuilderInsert extends BuilderBase {
     e: { schema?: string; entity?: string },
     value: ParamInsertValue,
     ps: Array<any> = [],
-  ) {
+  ): string {
     if (!value) {
       return ``;
     }
@@ -108,7 +108,7 @@ export class BuilderInsert extends BuilderBase {
         }
       }
     }
-    if (!Object.keys(cloned)) {
+    if (!Object.keys(cloned).length) {
       return ``;
     }
     Object.values(cloned);
@@ -116,9 +116,9 @@ export class BuilderInsert extends BuilderBase {
     sqls.push(this.getValuesQuery(Object.values(cloned)));
     return sqls.join(" ");
   }
-  getSql() {
+  getSqls(): string[] {
     if (!this.#entityData) {
-      return "";
+      return [];
     }
     const sqls: string[] = [];
     let e: { schema?: string; entity?: string } = {};
@@ -135,6 +135,6 @@ export class BuilderInsert extends BuilderBase {
         sqls.push(sql);
       }
     }
-    return sqls.join(";\n");
+    return sqls;
   }
 }

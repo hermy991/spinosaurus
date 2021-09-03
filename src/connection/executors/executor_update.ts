@@ -1,7 +1,10 @@
 import { ConnectionAll } from "../connection_type.ts";
 // import { ConnectionPostgres } from "../drivers/postgres/connection_postgres.ts";
 import { BuilderUpdate } from "../builders/builder_update.ts";
-import { ParamUpdateSet } from "../builders/params/param_update.ts";
+import {
+  ParamUpdateParams,
+  ParamUpdateSet,
+} from "../builders/params/param_update.ts";
 
 export class ExecutorUpdate {
   ub: BuilderUpdate = new BuilderUpdate(<ConnectionAll> {});
@@ -34,16 +37,32 @@ export class ExecutorUpdate {
   }
 
   where(
-    conditions: [string, ...string[]],
-    params?: { [x: string]: string | number | Date },
+    conditions: [string, ...string[]] | string,
+    params?: ParamUpdateParams,
   ): ExecutorUpdate {
     this.ub.where(conditions, params);
     return this;
   }
 
+  andWhere(
+    conditions: [string, ...string[]] | string,
+    params?: ParamUpdateParams,
+  ): ExecutorUpdate {
+    this.ub.andWhere(conditions, params);
+    return this;
+  }
+
+  orWhere(
+    conditions: [string, ...string[]] | string,
+    params?: ParamUpdateParams,
+  ): ExecutorUpdate {
+    this.ub.orWhere(conditions, params);
+    return this;
+  }
+
   addWhere(
-    conditions: [string, ...string[]],
-    params?: { [x: string]: string | number | Date },
+    conditions: [string, ...string[]] | string,
+    params?: ParamUpdateParams,
   ): ExecutorUpdate {
     this.ub.addWhere(conditions, params);
     return this;
@@ -54,14 +73,19 @@ export class ExecutorUpdate {
     return this;
   }
 
+  getSqls(): string[] {
+    const sqls = this.ub.getSqls();
+    return sqls;
+  }
+
   getSql(): string {
-    const query = this.ub.getSql();
-    return query;
+    const sqls = this.getSqls();
+    return sqls.join(";\n");
   }
 
   async execute(): Promise<any> {
-    const query = this.ub.getSql();
+    const query = this.ub.getSqls();
     this.ub.usePrintSql(query);
-    return await this.conn.execute(query);
+    return await this.conn.execute(query.join(";\n"));
   }
 }

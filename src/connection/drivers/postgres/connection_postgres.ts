@@ -277,7 +277,7 @@ class ConnectionPostgres implements IConnectionOperations {
     try {
       const pool = (initConnection(driverConf) as postgres.Pool);
       const client = await pool.connect();
-      // const query = this.getSql()
+      // const query = this.getSqls()
       client.release();
       await pool.end();
       return true;

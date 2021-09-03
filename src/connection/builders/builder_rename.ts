@@ -49,19 +49,19 @@ export class BuilderRename extends BuilderBase {
     return o;
   }
 
-  getEntityQuery(): string {
+  getEntityQuery(): string[] {
     if (!this.#fromData && !this.#toData) {
-      return ``;
+      return [];
     }
     const { from, to } = this.getEntityParts();
-    return `ALTER TABLE ${from} RENAME TO ${to}`;
+    return [`ALTER TABLE ${from} RENAME TO ${to}`];
   }
 
-  getColumnsQuery(): string {
+  getColumnsQuery(): string[] {
     if (!this.#columnsData.length) {
-      return ``;
+      return [];
     }
-    let query = ``;
+    const sqls: string[] = [];
     const o = this.getEntityParts();
     let ename = o.from;
     if (o.to) {
@@ -71,22 +71,19 @@ export class BuilderRename extends BuilderBase {
       let [from, to] = this.#columnsData[i];
       from = this.clearNames(from);
       to = this.clearNames(to);
-      query += `ALTER TABLE ${ename} RENAME COLUMN ${from} TO ${to}`;
-      if (i + 1 != this.#columnsData.length) {
-        query += `;\n`;
-      }
+      sqls.push(`ALTER TABLE ${ename} RENAME COLUMN ${from} TO ${to}`);
     }
-    return `${query}`;
+    return sqls;
   }
 
-  getSql(): string {
-    let query = ``;
+  getSqls(): string[] {
+    let sqls: string[] = [];
     if (this.#toData) {
-      query += `${this.getEntityQuery()}`;
+      sqls.push(...this.getEntityQuery());
     }
     if (this.#columnsData.length) {
-      query += `${this.#toData ? `;\n` : ``}${this.getColumnsQuery()}`;
+      sqls.push(...this.getColumnsQuery());
     }
-    return query;
+    return sqls;
   }
 }

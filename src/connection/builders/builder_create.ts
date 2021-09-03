@@ -48,7 +48,7 @@ export class BuilderCreate extends BuilderBase {
     } else this.#entityData = <any> req;
   }
 
-  columns(...columns: Array<ParamColumnDefinition>): void {
+  columns(columns: Array<ParamColumnDefinition>): void {
     this.#columnsData = [];
     columns.forEach((x) => {
       this.addColumn(x);
@@ -60,7 +60,7 @@ export class BuilderCreate extends BuilderBase {
     this.#columnsData.push(column);
   }
 
-  checks(...checks: Array<ParamCheck>): void {
+  checks(checks: Array<ParamCheck>): void {
     this.#checkData = [];
     checks.forEach((x) => {
       this.addCheck(x);
@@ -71,7 +71,7 @@ export class BuilderCreate extends BuilderBase {
     this.#checkData.push(check);
   }
 
-  uniques(...uniques: Array<ParamUnique>): void {
+  uniques(uniques: Array<ParamUnique>): void {
     this.#uniquesData = [];
     uniques.forEach((x) => {
       this.addUnique(x);
@@ -82,7 +82,7 @@ export class BuilderCreate extends BuilderBase {
     this.#uniquesData.push(unique);
   }
 
-  relations(...relations: Array<ParamRelationCreate>): void {
+  relations(relations: Array<ParamRelationCreate>): void {
     this.#relationsData = [];
     relations.forEach((x) => {
       this.addRelation(x);
@@ -123,16 +123,16 @@ export class BuilderCreate extends BuilderBase {
     this.#afterData.push(...sqls);
   }
 
-  getCreateSchemaQuery() {
+  getCreateSchemaQuery(): string[] {
     if (!this.#entityData || this.#entityData instanceof Function) {
-      return ``;
+      return [];
     }
     const nameData = self.structuredClone(this.#entityData);
     nameData.schema = this.clearNames(nameData.schema);
-    return this.conn.createSchema(nameData);
+    return [this.conn.createSchema(nameData)];
   }
 
-  getCreateTableQuery(e: { schema?: string; entity?: string }) {
+  getCreateTableQuery(e: { schema?: string; entity?: string }): string {
     if (!e.entity) {
       return ``;
     }
@@ -148,54 +148,54 @@ export class BuilderCreate extends BuilderBase {
     return `CREATE TABLE ${query}`;
   }
 
-  getColumnsQuery(cols: Array<ParamColumnDefinition> = []) {
+  getColumnsQuery(cols: Array<ParamColumnDefinition> = []): string {
     if (!cols.length) {
       return ``;
     }
     const sqls: string[] = [];
     for (let i = 0; i < cols.length; i++) {
-      let sql = "";
       const name = this.clearNames(cols[i].name);
-      sql = this.conn.columnDefinition({ ...cols[i], name });
+      const sql = this.conn.columnDefinition({ ...cols[i], name });
       sqls.push(sql);
     }
     return `( ${sqls.join(", ")} )`;
   }
 
-  getChecksQuery(e: { schema?: string; entity?: string }, chks: ParamCheck[]) {
+  getChecksQuery(
+    e: { schema?: string; entity?: string },
+    chks: ParamCheck[],
+  ): string[] {
     if (!chks.length) {
-      return ``;
+      return [];
     }
     const sqls: string[] = [];
     const { schema, entity } = e;
     const tchks: ParamCheck[] = chks;
     for (let i = 0; i < tchks.length; i++) {
-      let sql = "";
       tchks[i].name ||= this.generateName1({
         prefix: "CHK",
         ...e,
         sequence: i + 1,
       });
       tchks[i].name = this.clearNames(tchks[i].name);
-      sql = this.conn.createCheck({
+      const sql = this.conn.createCheck({
         entity: entity && this.clearNames(entity),
         schema: schema && this.clearNames(schema),
         ...tchks[i],
       });
       sqls.push(sql);
     }
-    return `${sqls.join("; ")}`;
+    return sqls;
   }
 
-  getUniquesQuery(e: { schema?: string; entity?: string }) {
+  getUniquesQuery(e: { schema?: string; entity?: string }): string[] {
     if (!this.#uniquesData.length) {
-      return ``;
+      return [];
     }
     const sqls: string[] = [];
     const { schema, entity } = e;
 
     for (let i = 0; i < this.#uniquesData.length; i++) {
-      let sql = "";
       const unique = self.structuredClone(this.#uniquesData[i]);
       unique.name ||= this.generateName1({
         prefix: "UQ",
@@ -204,32 +204,32 @@ export class BuilderCreate extends BuilderBase {
       });
       unique.name = this.clearNames(unique.name);
       unique.columns = unique.columns.map((x: string) => this.clearNames(x));
-      sql = this.conn.createUnique({
+      const sql = this.conn.createUnique({
         entity: entity && this.clearNames(entity),
         schema: schema && this.clearNames(schema),
         ...unique,
       });
       sqls.push(sql);
     }
-    return `${sqls.join("; ")}`;
+    return sqls;
   }
 
-  getRelationsQuery(e: { schema?: string; entity?: string }) {
+  getRelationsQuery(e: { schema?: string; entity?: string }): string[] {
     if (!this.#relationsData.length) {
-      return ``;
+      return [];
     }
     const ba = new BuilderAlter(this.conn);
     ba.alter(<any> e);
-    ba.relations(...this.#relationsData);
-    return ba.getSql();
+    ba.relations(this.#relationsData);
+    return ba.getSqls();
   }
 
   getInsertsQuery(
     e: { schema?: string; entity?: string },
     cols: Array<ParamColumnDefinition>,
-  ) {
+  ): string[] {
     if (!e.entity) {
-      return ``;
+      return [];
     }
     const ib = new BuilderInsert(this.conn);
     ib.insert(<any> e);
@@ -248,23 +248,33 @@ export class BuilderCreate extends BuilderBase {
         ib.addValues(tcreate);
       }
     }
-    return ib.getSql();
+    return ib.getSqls();
   }
 
-  getNextQuery() {
-    return this.#nextData.flatMap((x) => x).filter((x) => x).join("\n");
+  getNextQuery(): string[] {
+    return this.#nextData.flatMap((x) => x)
+      .map((x) => x.trim())
+      .map((x) =>
+        x.lastIndexOf(";") === x.length - 1 ? x.substring(0, x.length - 1) : x
+      )
+      .filter((x) => x);
   }
 
-  getAfterQuery() {
-    return this.#afterData.flatMap((x) => x).filter((x) => x).join("\n");
+  getAfterQuery(): string[] {
+    return this.#afterData.flatMap((x) => x)
+      .map((x) => x.trim())
+      .map((x) =>
+        x.lastIndexOf(";") === x.length - 1 ? x.substring(0, x.length - 1) : x
+      )
+      .filter((x) => x);
   }
 
-  getSql() {
+  getSqls(): string[] {
     if (!this.#entityData) {
-      return "";
+      return [];
     }
     if ("schema" in this.#entityData && !("entity" in this.#entityData)) {
-      return `${this.getCreateSchemaQuery()}`;
+      return this.getCreateSchemaQuery();
     }
     const sqls = [];
     let e: { schema?: string; entity?: string } = {};
@@ -287,23 +297,23 @@ export class BuilderCreate extends BuilderBase {
       sqls.push(this.getCreateTableQuery(e) + " " + this.getColumnsQuery(cols));
     }
     if (chks.length) {
-      sqls.push(this.getChecksQuery(e, chks));
+      sqls.push(...this.getChecksQuery(e, chks));
     }
     if (this.#uniquesData.length) {
-      sqls.push(this.getUniquesQuery(e));
+      sqls.push(...this.getUniquesQuery(e));
     }
     if (this.#relationsData.length) {
-      sqls.push(this.getRelationsQuery(e));
+      sqls.push(...this.getRelationsQuery(e));
     }
     if (this.#createData.length) {
-      sqls.push(this.getInsertsQuery(e, cols));
+      sqls.push(...this.getInsertsQuery(e, cols));
     }
     if (this.#nextData.length) {
-      sqls.push(this.getNextQuery());
+      sqls.push(...this.getNextQuery());
     }
     if (this.#afterData.length) {
-      sqls.push(this.getAfterQuery());
+      sqls.push(...this.getAfterQuery());
     }
-    return sqls.join(";\n");
+    return sqls;
   }
 }

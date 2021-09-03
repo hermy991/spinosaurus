@@ -232,22 +232,27 @@ export class ExecutorSelect {
     return this;
   }
 
+  getSqls(): string[] {
+    const sqls = this.sb.getSqls();
+    return sqls;
+  }
+
   getSql(): string {
-    const query = this.sb.getSql();
-    return query;
+    const sqls = this.getSqls();
+    return sqls.join(";\n");
   }
 
   async getOne(): Promise<any> {
-    const query = this.getSql();
+    const query = this.getSqls();
     this.sb.usePrintSql(query);
-    const data = await this.conn.getOne(query);
+    const data = await this.conn.getOne(query.join(";\n"));
     return data;
   }
 
   async getMany(): Promise<Array<any>> {
-    const query = this.getSql();
+    const query = this.getSqls();
     this.sb.usePrintSql(query);
-    const data = await this.conn.getMany(query);
+    const data = await this.conn.getMany(query.join(";\n"));
     return data;
   }
 

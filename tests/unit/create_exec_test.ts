@@ -13,7 +13,7 @@ Deno.test("create [create table] execute() function", async () => {
   }
 
   const _qs = await db.create({ entity: currEntity })
-    .columns({ name: "column1", spitype: "varchar" })
+    .columns([{ name: "column1", spitype: "varchar" }])
     .execute();
 
   const sr = await db.select([`"column1"`])
@@ -21,11 +21,8 @@ Deno.test("create [create table] execute() function", async () => {
     .orderBy([`"column1"`, "ASC"])
     .getMany();
 
-  const resultShouldBe: any[] = [];
-
   const _dr = await db.drop({ entity: currEntity }).execute();
-
-  assertEquals(sr, resultShouldBe);
+  assertEquals(sr, []);
 });
 
 Deno.test("create [create table with data] execute() function", async () => {
@@ -42,11 +39,10 @@ Deno.test("create [create table with data] execute() function", async () => {
   }];
 
   const _r = await db.create({ entity: currEntity })
-    .columns({ name: "column1", spitype: "varchar", length: 100 }, {
-      name: "column2",
-      spitype: "varchar",
-      length: 100,
-    })
+    .columns([
+      { name: "column1", spitype: "varchar", length: 100 },
+      { name: "column2", spitype: "varchar", length: 100 },
+    ])
     .data(resultShouldBe)
     .execute();
 

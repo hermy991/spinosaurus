@@ -39,14 +39,19 @@ export class ExecutorDrop {
     return this;
   }
 
+  getSqls(): string[] {
+    const sqls = this.db.getSqls();
+    return sqls;
+  }
+
   getSql(): string {
-    const query = this.db.getSql();
-    return query;
+    const sqls = this.getSqls();
+    return sqls.join(";\n");
   }
 
   async execute(): Promise<any> {
-    const query = this.db.getSql();
+    const query = this.db.getSqls();
     this.db.usePrintSql(query);
-    return await this.conn.execute(query);
+    return await this.conn.execute(query.join(";\n"));
   }
 }

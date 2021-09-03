@@ -34,14 +34,19 @@ export class ExecutorInsert {
     return this;
   }
 
+  getSqls(): string[] {
+    const sqls = this.ib.getSqls();
+    return sqls;
+  }
+
   getSql(): string {
-    const query = this.ib.getSql();
-    return query;
+    const sqls = this.getSqls();
+    return sqls.join(";\n");
   }
 
   async execute(): Promise<any> {
-    const query = this.ib.getSql();
+    const query = this.ib.getSqls();
     this.ib.usePrintSql(query);
-    return await this.conn.execute(query);
+    return await this.conn.execute(query.join(";\n"));
   }
 }

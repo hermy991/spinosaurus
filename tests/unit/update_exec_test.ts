@@ -13,11 +13,10 @@ Deno.test("update execute() function", async () => {
     await db.drop({ entity: currEntity }).execute();
   }
   await db.create({ entity: currEntity })
-    .columns({ name: "UserName", spitype: "varchar", length: 100 }, {
-      name: "FirstName",
-      spitype: "varchar",
-      length: 100,
-    })
+    .columns([
+      { name: "UserName", spitype: "varchar", length: 100 },
+      { name: "FirstName", spitype: "varchar", length: 100 },
+    ])
     .execute();
   const data = [{ UserName: "hermy991", FirstName: "Hermy" }, {
     UserName: "yassett77",

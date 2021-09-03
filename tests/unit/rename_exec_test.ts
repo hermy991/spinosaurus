@@ -19,7 +19,7 @@ Deno.test("rename [rename table] execute() function", async () => {
   }
 
   const _cr = await db.create({ entity: oldEntity })
-    .columns({ name: "column1", spitype: "varchar" })
+    .columns([{ name: "column1", spitype: "varchar" }])
     .data({ column1: "que lo que" })
     .execute();
 
@@ -31,7 +31,7 @@ Deno.test("rename [rename table] execute() function", async () => {
     .orderBy([`"column1"`, "ASC"])
     .getMany();
 
-  const resultShouldBe: any[] = [{ column1: "que lo que" }];
+  const resultShouldBe = [{ column1: "que lo que" }];
 
   const _dr = await db.drop({ entity: newEntity }).execute();
 
@@ -47,7 +47,7 @@ Deno.test("rename [rename table column] execute() function", async () => {
   }
 
   const _cr = await db.create({ entity: oldEntity })
-    .columns({ name: "column1", spitype: "varchar" })
+    .columns([{ name: "column1", spitype: "varchar" }])
     .data({ column1: "que lo que" })
     .execute();
 
@@ -60,7 +60,7 @@ Deno.test("rename [rename table column] execute() function", async () => {
     .orderBy([`"columnXX"`, "ASC"])
     .getMany();
 
-  const resultShouldBe: any[] = [{ columnXX: "que lo que" }];
+  const resultShouldBe = [{ columnXX: "que lo que" }];
 
   const _dr = await db.drop({ entity: oldEntity }).execute();
 
@@ -81,7 +81,7 @@ Deno.test("rename [rename table and column] execute() function", async () => {
   }
 
   const _cr = await db.create({ entity: oldEntity })
-    .columns({ name: "column1", spitype: "varchar" })
+    .columns([{ name: "column1", spitype: "varchar" }])
     .data({ column1: "que lo que" })
     .execute();
 
@@ -94,7 +94,7 @@ Deno.test("rename [rename table and column] execute() function", async () => {
     .orderBy([`"columnXX"`, "ASC"])
     .getMany();
 
-  const resultShouldBe: any[] = [{ columnXX: "que lo que" }];
+  const resultShouldBe = [{ columnXX: "que lo que" }];
 
   const _dr = await db.drop({ entity: newEntity }).execute();
 

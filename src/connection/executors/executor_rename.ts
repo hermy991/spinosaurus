@@ -30,14 +30,19 @@ export class ExecutorRename {
     return this;
   }
 
+  getSqls(): string[] {
+    const sqls = this.rb.getSqls();
+    return sqls;
+  }
+
   getSql(): string {
-    const query = this.rb.getSql();
-    return query;
+    const sqls = this.getSqls();
+    return sqls.join(";\n");
   }
 
   async execute(): Promise<any> {
-    const query = this.rb.getSql();
+    const query = this.rb.getSqls();
     this.rb.usePrintSql(query);
-    return await this.conn.execute(query);
+    return await this.conn.execute(query.join(";\n"));
   }
 }

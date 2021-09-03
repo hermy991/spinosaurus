@@ -153,7 +153,7 @@ Deno.test("decorator column adding columns should work", async () => {
   await db.create({ schema, check: true })
     .execute();
   await db.create({ entity, schema })
-    .columns({ name: "string1", spitype: "bigint" })
+    .columns([{ name: "string1", spitype: "bigint" }])
     .execute();
 
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
@@ -297,7 +297,7 @@ Deno.test("decorator column modify columns should work", async () => {
   await db.create({ schema, check: true })
     .execute();
   await db.create({ entity, schema })
-    .columns(
+    .columns([
       { name: "string1", spitype: "numeric" },
       { name: "string2", spitype: "numeric" },
       { name: "string3", spitype: "numeric" },
@@ -319,7 +319,7 @@ Deno.test("decorator column modify columns should work", async () => {
       { name: "blob1", spitype: "text" },
       { name: "blob2", spitype: "text" },
       { name: "blob3", spitype: "text" },
-    )
+    ])
     .execute();
 
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
@@ -464,7 +464,7 @@ Deno.test("decorator column dropping columns should work", async () => {
   await db.create({ schema, check: true })
     .execute();
   await db.create({ entity, schema })
-    .columns(
+    .columns([
       { name: "string1", spitype: "numeric" },
       { name: "string2", spitype: "numeric" },
       { name: "string3", spitype: "numeric" },
@@ -486,7 +486,7 @@ Deno.test("decorator column dropping columns should work", async () => {
       { name: "blob1", spitype: "text" },
       { name: "blob2", spitype: "text" },
       { name: "blob3", spitype: "text" },
-    )
+    ])
     .execute();
 
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));

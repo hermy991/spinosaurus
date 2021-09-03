@@ -13,22 +13,19 @@ Deno.test("delete execute() function", async () => {
     await db.drop({ entity: currEntity }).execute();
   }
   await db.create({ entity: currEntity })
-    .columns({ name: "UserName", spitype: "varchar", length: 100 }, {
-      name: "FirstName",
-      spitype: "varchar",
-      length: 100,
-    })
+    .columns([
+      { name: "UserName", spitype: "varchar", length: 100 },
+      { name: "FirstName", spitype: "varchar", length: 100 },
+    ])
     .execute();
   const data = [{ UserName: "hermy991", FirstName: "Hermy" }, {
     UserName: "yassett77",
     FirstName: "Yassett",
   }];
-  await db.insert({ entity: currEntity })
-    .values(data)
+  await db.insert({ entity: currEntity }).values(data)
     .execute();
 
-  await db.delete({ entity: currEntity })
-    .where([`"UserName" = 'hermy991'`])
+  await db.delete({ entity: currEntity }).where([`"UserName" = 'hermy991'`])
     .execute();
 
   const qs = db.select([`"UserName"`], [`"FirstName"`])

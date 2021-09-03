@@ -1,10 +1,11 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
+import { ParamComplexOptions } from "./params/param_select.ts";
 
 export class BuilderDelete extends BuilderBase {
-  private entityData: { entity: string; schema?: string } | Function | null =
-    null;
-  private whereData: Array<string> = [];
+  #entityData: { entity: string; schema?: string } | Function | null = null;
+  #whereData: Array<string> = [];
+  #paramsData: ParamComplexOptions = {};
 
   constructor(public conn: ConnectionAll) {
     super(conn);
@@ -15,70 +16,105 @@ export class BuilderDelete extends BuilderBase {
   ): void {
     if (Array.isArray(req)) {
       const [entity, schema] = req;
-      this.entityData = { entity, schema };
+      this.#entityData = { entity, schema };
     } else {
-      this.entityData = req;
+      this.#entityData = req;
     }
   }
 
   where(
-    conditions: [string, ...string[]],
-    params?: { [x: string]: string | number | Date },
+    conditions: [string, ...string[]] | string,
+    params?: ParamComplexOptions,
   ) {
-    this.whereData = [];
+    this.#whereData = [];
     this.addWhere(conditions, params);
   }
 
-  addWhere(
-    conditions: [string, ...string[]],
-    params?: {
-      [x: string]:
-        | string
-        | number
-        | boolean
-        | Date
-        | Function
-        | null
-        | undefined;
-    },
+  andWhere(
+    conditions: [string, ...string[]] | string,
+    params?: ParamComplexOptions,
   ) {
-    this.whereData.push(...this.conn.interpolate(conditions, params));
+    let tconditions = self.structuredClone(conditions);
+    if (Array.isArray(tconditions)) {
+      for (let i = 0; i < tconditions.length; i++) {
+        tconditions[i] = `AND ${tconditions[i]}`;
+      }
+    } else tconditions = `AND ${tconditions}`;
+    this.addWhere(tconditions, params);
+  }
+
+  orWhere(
+    conditions: [string, ...string[]] | string,
+    params?: ParamComplexOptions,
+  ) {
+    let tconditions = self.structuredClone(conditions);
+    if (Array.isArray(tconditions)) {
+      for (let i = 0; i < tconditions.length; i++) {
+        tconditions[i] = `OR ${tconditions[i]}`;
+      }
+    } else tconditions = `OR ${tconditions}`;
+    this.addWhere(tconditions, params);
+  }
+
+  addWhere(
+    conditions: [string, ...string[]] | string,
+    params?: ParamComplexOptions,
+  ) {
+    this.#whereData.push(
+      ...(Array.isArray(conditions) ? conditions : [conditions]),
+    );
+    if (params) {
+      this.addParams(params);
+    }
+  }
+
+  params(options?: ParamComplexOptions): void {
+    this.#paramsData = {};
+    if (options) {
+      this.addParams(options);
+    }
+  }
+
+  addParams(options: ParamComplexOptions): void {
+    this.#paramsData = { ...this.#paramsData, ...options };
   }
 
   getEntityQuery() {
-    if (!this.entityData) {
+    if (!this.#entityData) {
       return ``;
     }
     let e: { schema?: string; entity?: string } = {};
-    if (this.entityData instanceof Function) {
+    if (this.#entityData instanceof Function) {
       e = this.getEntityData(
         this.conn.options.name,
-        this.entityData,
+        this.#entityData,
       );
     } else {
-      e = this.entityData;
+      e = this.#entityData;
     }
     const query = `${this.clearNames([e.schema, e.entity])}`;
     return `DELETE FROM ${query}`;
   }
 
-  getWhereQuery() {
-    if (!this.whereData.length) {
+  getWhereQuery(): string {
+    if (!this.#whereData.length) {
       return ``;
     }
-    const conditions: string[] = [];
-    for (let i = 0; i < this.whereData.length; i++) {
-      const tempWhere = this.whereData[i];
-      conditions.push(tempWhere);
-    }
+    const conditions: string[] = this.conn.interpolate(
+      <[string, ...string[]]> this.#whereData,
+      this.#paramsData,
+    );
     return `WHERE ${conditions.join(" ")}`;
   }
 
-  getSql() {
-    let query = `${this.getEntityQuery()}`;
-    if (this.whereData.length) {
-      query += `\n${this.getWhereQuery()}`;
+  getSqls(): string[] {
+    if (!this.#entityData) {
+      return [];
     }
-    return query;
+    let sql: string = this.getEntityQuery();
+    if (this.#whereData.length) {
+      sql += ` ` + this.getWhereQuery();
+    }
+    return [sql];
   }
 }

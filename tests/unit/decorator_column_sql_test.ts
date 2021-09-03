@@ -2,7 +2,6 @@ import { getTestConnection } from "./tool/tool.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 import { Connection, getMetadata, queryConnection } from "spinosaurus/mod.ts";
 import * as path from "deno/path/mod.ts";
-import * as luxon from "luxon/mod.ts";
 
 async function clearPlayground(
   db: any,
@@ -37,45 +36,10 @@ Deno.test("decorator [column] sql", async () => {
   const conOptsX = self.structuredClone(conOpts);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/Column*.ts`];
-  let sql = await queryConnection(conOptsX);
-  sql = (sql || "").replace(/[ \n\t]+/ig, " ").trim();
-  const sqlSpected = `CREATE TABLE "public"."ColumnOptions1" (
-"varchar1" CHARACTER VARYING (100) DEFAULT '' NOT NULL,
-"text1" CHARACTER VARYING (100) DEFAULT '' NOT NULL,
-"numeric1" NUMERIC (15,4) DEFAULT 0 NOT NULL,
-"numeric2" NUMERIC (15) DEFAULT 0 NOT NULL,
-"numeric3" BIGINT DEFAULT 0 NOT NULL,
-"numeric4" INTEGER DEFAULT 0 NOT NULL,
-"numeric5" SMALLINT DEFAULT 0 NOT NULL,
-"integer1" NUMERIC DEFAULT 0 NOT NULL,
-"integer2" NUMERIC DEFAULT 0 NOT NULL,
-"boolean2" BOOLEAN DEFAULT '0' NOT NULL,
-"bigint1" BIGINT DEFAULT NULL NOT NULL
-);
-CREATE TABLE "public"."ColumnTypes1" (
-"string1" TEXT DEFAULT '' NOT NULL,
-"string2" TEXT NOT NULL,
-"string3" TEXT DEFAULT '' NOT NULL,
-"number1" NUMERIC DEFAULT 100 NOT NULL,
-"number2" NUMERIC NOT NULL,
-"number3" NUMERIC DEFAULT 100 NOT NULL,
-"bigint1" BIGINT DEFAULT NULL NOT NULL,
-"bigint2" BIGINT NOT NULL,
-"bigint3" BIGINT DEFAULT NULL NOT NULL,
-"boolean1" BOOLEAN DEFAULT '1' NOT NULL,
-"boolean2" BOOLEAN NOT NULL,
-"boolean3" BOOLEAN DEFAULT '1' NOT NULL,
-"timestamp1" TIMESTAMP DEFAULT now() NOT NULL,
-"timestamp2" TIMESTAMP NOT NULL,
-"timestamp3" TIMESTAMP DEFAULT now() NOT NULL,
-"arraybuffer1" BYTEA DEFAULT NULL NOT NULL,
-"arraybuffer2" BYTEA NOT NULL,
-"arraybuffer3" BYTEA DEFAULT NULL NOT NULL,
-"blob1" BYTEA DEFAULT NULL NOT NULL,
-"blob2" BYTEA NOT NULL,
-"blob3" BYTEA DEFAULT NULL NOT NULL
-)`
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+  const sql = (await queryConnection(conOptsX)).join(";\n");
+  const sqlSpected =
+    `CREATE TABLE "public"."ColumnOptions1" ( "varchar1" CHARACTER VARYING (100) DEFAULT '' NOT NULL, "text1" CHARACTER VARYING (100) DEFAULT '' NOT NULL, "numeric1" NUMERIC (15,4) DEFAULT 0 NOT NULL, "numeric2" NUMERIC (15) DEFAULT 0 NOT NULL, "numeric3" BIGINT DEFAULT 0 NOT NULL, "numeric4" INTEGER DEFAULT 0 NOT NULL, "numeric5" SMALLINT DEFAULT 0 NOT NULL, "integer1" NUMERIC DEFAULT 0 NOT NULL, "integer2" NUMERIC DEFAULT 0 NOT NULL, "boolean2" BOOLEAN DEFAULT '0' NOT NULL, "bigint1" BIGINT DEFAULT NULL NOT NULL );
+CREATE TABLE "public"."ColumnTypes1" ( "string1" TEXT DEFAULT '' NOT NULL, "string2" TEXT NOT NULL, "string3" TEXT DEFAULT '' NOT NULL, "number1" NUMERIC DEFAULT 100 NOT NULL, "number2" NUMERIC NOT NULL, "number3" NUMERIC DEFAULT 100 NOT NULL, "bigint1" BIGINT DEFAULT NULL NOT NULL, "bigint2" BIGINT NOT NULL, "bigint3" BIGINT DEFAULT NULL NOT NULL, "boolean1" BOOLEAN DEFAULT '1' NOT NULL, "boolean2" BOOLEAN NOT NULL, "boolean3" BOOLEAN DEFAULT '1' NOT NULL, "timestamp1" TIMESTAMP DEFAULT now() NOT NULL, "timestamp2" TIMESTAMP NOT NULL, "timestamp3" TIMESTAMP DEFAULT now() NOT NULL, "arraybuffer1" BYTEA DEFAULT NULL NOT NULL, "arraybuffer2" BYTEA NOT NULL, "arraybuffer3" BYTEA DEFAULT NULL NOT NULL, "blob1" BYTEA DEFAULT NULL NOT NULL, "blob2" BYTEA NOT NULL, "blob3" BYTEA DEFAULT NULL NOT NULL )`;
   assertEquals(sql, sqlSpected);
 });
 
@@ -89,19 +53,16 @@ Deno.test("decorator [column adding columns] sql", async () => {
     await db.drop({ entity }).execute();
   }
   const e1 = db.create({ schema, check: true });
-  const e2 = db.create({ entity, schema }).columns({
-    name: "string1",
-    spitype: "bigint",
-  });
-  // const csql = `${e1.getSql()};${e2.getSql()}`;
+  const e2 = db.create({ entity, schema }).columns([
+    { name: "string1", spitype: "bigint" },
+  ]);
   await e1.execute();
   await e2.execute();
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/AddColumn*.ts`];
-  let sql = await queryConnection(conOptsX);
+  const sql = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  sql = (sql || "").replace(/[ \n\t]+/ig, " ").trim();
   const sqlSpected =
     `ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "string2" TEXT NOT NULL DEFAULT '';
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "string3" TEXT NOT NULL;
@@ -124,8 +85,7 @@ ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "arraybuffer3" BYTEA NOT NU
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "blob1" BYTEA NOT NULL DEFAULT NULL;
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "blob2" BYTEA NOT NULL;
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "blob3" BYTEA NOT NULL DEFAULT NULL;
-ALTER TABLE "decorator"."AddColumnTypes1" DROP COLUMN "string1"`
-      .replaceAll(/[ \n\t]+/ig, " ").trim();
+ALTER TABLE "decorator"."AddColumnTypes1" DROP COLUMN "string1"`;
   assertEquals(sql, sqlSpected);
 });
 
@@ -141,7 +101,7 @@ Deno.test("decorator [column modify columns] sql", async () => {
 
   const e1 = db.create({ schema, check: true });
   const e2 = db.create({ entity, schema })
-    .columns(
+    .columns([
       { name: "string1", spitype: "numeric" },
       { name: "string2", spitype: "numeric" },
       { name: "string3", spitype: "numeric" },
@@ -163,16 +123,15 @@ Deno.test("decorator [column modify columns] sql", async () => {
       { name: "blob1", spitype: "text" },
       { name: "blob2", spitype: "text" },
       { name: "blob3", spitype: "text" },
-    );
-  // const csql = `${e1.getSql()};${e2.getSql()}`;
+    ]);
+  // const csql = `${e1.getSqls()};${e2.getSqls()}`;
   await e1.execute();
   await e2.execute();
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/ModColumn*.ts`];
-  let sql = await queryConnection(conOptsX);
+  const sql = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  sql = (sql || "").replace(/[ \n\t]+/ig, " ").trim();
   const sqlSpected =
     `ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "string1" TYPE TEXT;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "string1" SET NOT NULL;
@@ -229,8 +188,7 @@ ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob2" TYPE BYTEA USING 
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob2" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob3" TYPE BYTEA USING ("blob3")::bytea;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob3" SET NOT NULL;
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob3" SET DEFAULT NULL`
-      .replaceAll(/[ \n\t]+/ig, " ").trim();
+ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob3" SET DEFAULT NULL`;
   assertEquals(sql, sqlSpected);
 });
 
@@ -245,7 +203,7 @@ Deno.test("decorator [column dropping columns] sql", async () => {
   }
   const e1 = db.create({ schema, check: true });
   const e2 = db.create({ entity, schema })
-    .columns(
+    .columns([
       { name: "string1", spitype: "numeric" },
       { name: "string2", spitype: "numeric" },
       { name: "string3", spitype: "numeric" },
@@ -267,22 +225,20 @@ Deno.test("decorator [column dropping columns] sql", async () => {
       { name: "blob1", spitype: "text" },
       { name: "blob2", spitype: "text" },
       { name: "blob3", spitype: "text" },
-    );
-  // const csql = `${e1.getSql()};${e2.getSql()}`;
+    ]);
+  // const csql = `${e1.getSqls()};${e2.getSqls()}`;
   await e1.execute();
   await e2.execute();
 
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/DroColumn*.ts`];
-  let sql = await queryConnection(conOptsX);
+  const sql = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  sql = (sql || "").replace(/[ \n\t]+/ig, " ").trim();
   const sqlSpected =
     `ALTER TABLE "decorator"."DroColumnTypes1" ALTER COLUMN "string1" TYPE TEXT;
 ALTER TABLE "decorator"."DroColumnTypes1" ALTER COLUMN "string1" SET NOT NULL;
 ALTER TABLE "decorator"."DroColumnTypes1" ALTER COLUMN "string1" DROP DEFAULT;
-ALTER TABLE "decorator"."DroColumnTypes1" DROP COLUMN "string2", DROP COLUMN "string3", DROP COLUMN "number1", DROP COLUMN "number2", DROP COLUMN "number3", DROP COLUMN "bigint1", DROP COLUMN "bigint2", DROP COLUMN "bigint3", DROP COLUMN "boolean1", DROP COLUMN "boolean2", DROP COLUMN "boolean3", DROP COLUMN "timestamp1", DROP COLUMN "timestamp2", DROP COLUMN "timestamp3", DROP COLUMN "arraybuffer1", DROP COLUMN "arraybuffer2", DROP COLUMN "arraybuffer3", DROP COLUMN "blob1", DROP COLUMN "blob2", DROP COLUMN "blob3"`
-      .replaceAll(/[ \n\t]+/ig, " ").trim();
+ALTER TABLE "decorator"."DroColumnTypes1" DROP COLUMN "string2", DROP COLUMN "string3", DROP COLUMN "number1", DROP COLUMN "number2", DROP COLUMN "number3", DROP COLUMN "bigint1", DROP COLUMN "bigint2", DROP COLUMN "bigint3", DROP COLUMN "boolean1", DROP COLUMN "boolean2", DROP COLUMN "boolean3", DROP COLUMN "timestamp1", DROP COLUMN "timestamp2", DROP COLUMN "timestamp3", DROP COLUMN "arraybuffer1", DROP COLUMN "arraybuffer2", DROP COLUMN "arraybuffer3", DROP COLUMN "blob1", DROP COLUMN "blob2", DROP COLUMN "blob3"`;
   assertEquals(sql, sqlSpected);
 });

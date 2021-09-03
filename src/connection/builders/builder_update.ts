@@ -1,5 +1,5 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import { ParamUpdateSet } from "./params/param_update.ts";
+import { ParamUpdateParams, ParamUpdateSet } from "./params/param_update.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderUpdate extends BuilderBase {
@@ -10,6 +10,7 @@ export class BuilderUpdate extends BuilderBase {
   #entityData: { entity: string; schema?: string } | Function | null = null;
   #setData: ParamUpdateSet[] = [];
   #whereData: Array<string> = [];
+  #paramsData: ParamUpdateParams = {};
 
   constructor(public conn: ConnectionAll) {
     super(conn);
@@ -49,18 +50,60 @@ export class BuilderUpdate extends BuilderBase {
   }
 
   where(
-    conditions: [string, ...string[]],
-    params?: { [x: string]: string | number | Date },
+    conditions: [string, ...string[]] | string,
+    params?: ParamUpdateParams,
   ) {
     this.#whereData = [];
     this.addWhere(conditions, params);
   }
 
-  addWhere(
-    conditions: [string, ...string[]],
-    params?: { [x: string]: string | number | Date },
+  andWhere(
+    conditions: [string, ...string[]] | string,
+    params?: ParamUpdateParams,
   ) {
-    this.#whereData.push(...this.conn.interpolate(conditions, params));
+    let tconditions = self.structuredClone(conditions);
+    if (Array.isArray(tconditions)) {
+      for (let i = 0; i < tconditions.length; i++) {
+        tconditions[i] = `AND ${tconditions[i]}`;
+      }
+    } else tconditions = `AND ${tconditions}`;
+    this.addWhere(tconditions, params);
+  }
+
+  orWhere(
+    conditions: [string, ...string[]] | string,
+    params?: ParamUpdateParams,
+  ) {
+    let tconditions = self.structuredClone(conditions);
+    if (Array.isArray(tconditions)) {
+      for (let i = 0; i < tconditions.length; i++) {
+        tconditions[i] = `OR ${tconditions[i]}`;
+      }
+    } else tconditions = `OR ${tconditions}`;
+    this.addWhere(tconditions, params);
+  }
+
+  addWhere(
+    conditions: [string, ...string[]] | string,
+    params?: ParamUpdateParams,
+  ) {
+    this.#whereData.push(
+      ...(Array.isArray(conditions) ? conditions : [conditions]),
+    );
+    if (params) {
+      this.addParams(params);
+    }
+  }
+
+  params(options?: ParamUpdateParams): void {
+    this.#paramsData = {};
+    if (options) {
+      this.addParams(options);
+    }
+  }
+
+  addParams(options: ParamUpdateParams): void {
+    this.#paramsData = { ...this.#paramsData, ...options };
   }
 
   getEntityQuery(e: { schema?: string; entity?: string }) {
@@ -74,10 +117,15 @@ export class BuilderUpdate extends BuilderBase {
     }
     let sql: string[] = [];
     sql.push(`WHERE`);
-    if (addings.length && this.#whereData.length) {
-      sql.push(`${addings.join(" ")} AND ( ${this.#whereData.join(" ")} )`);
+    const conditions: string[] = this.conn.interpolate(
+      <[string, ...string[]]> this.#whereData,
+      this.#paramsData,
+    );
+    if (addings.length && conditions.length) {
+      sql.push(`${addings.join(" ")} AND ( ${conditions.join(" ")} )`);
     } else {
-      sql = [...sql, `${addings.join(" ")}`, `${this.#whereData.join(" ")}`];
+      sql = [...sql, `${addings.join(" ")}`, `${conditions.join(" ")}`]
+        .filter((x) => x);
     }
     return sql.join(" ");
   }
@@ -143,9 +191,9 @@ export class BuilderUpdate extends BuilderBase {
     return sqls.join(" ");
   }
 
-  getSql() {
+  getSqls(): string[] {
     if (!this.#entityData) {
-      return "";
+      return [];
     }
     const sqls: string[] = [];
     let e: { schema?: string; entity?: string } = {};
@@ -157,11 +205,11 @@ export class BuilderUpdate extends BuilderBase {
       e = <any> this.#entityData;
     }
     for (const set of this.#setData) {
-      const sql = `${this.getEntitySetQuery(e, set, ps)}`;
+      const sql = this.getEntitySetQuery(e, set, ps);
       if (sql) {
         sqls.push(sql);
       }
     }
-    return sqls.join(";");
+    return sqls;
   }
 }

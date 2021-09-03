@@ -7,7 +7,6 @@ import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
 import { ParamData } from "../builders/params/param_data.ts";
 import { ParamNext } from "../builders/params/param_next.ts";
-import { ParamAfter } from "../builders/params/param_after.ts";
 import { ConnectionOptions } from "../connection_options.ts";
 import { Connection } from "../connection.ts";
 import {
@@ -57,8 +56,8 @@ export async function createConnection(
     : await getConnectionOptions(nameOrOptions);
   const tconn = new Connection(options);
   const sql = await synchronize(tconn);
-  if (sql) {
-    await tconn.execute(sql);
+  if (sql && sql.length) {
+    await tconn.execute(sql.join(";\n"));
   }
   return tconn;
 }
@@ -85,8 +84,8 @@ export async function createConnections(
   for (const toptions of options) {
     const tconn = new Connection(toptions);
     const sql = await synchronize(tconn);
-    if (sql) {
-      await tconn.execute(sql);
+    if (sql?.length) {
+      await tconn.execute(sql.join(";\n"));
     }
     arrConn.push(tconn);
   }
@@ -105,37 +104,39 @@ export async function getConnection(connectionName?: string) {
  * Creates a new connection from env variables, config files
  * Only one connection from config will be created
  */
-export async function queryConnection(): Promise<string | undefined>;
+export async function queryConnection(): Promise<string[]>;
 
 /**
 * Creates a new connection from the env variables, config file with a given name.
 */
 export async function queryConnection(
   name: string,
-): Promise<string | undefined>;
+): Promise<string[]>;
 
 /**
  * Creates a new connection from option params.
  */
 export async function queryConnection(
   options: ConnectionOptions,
-): Promise<string | undefined>;
+): Promise<string[]>;
 
 /**
  * Creates a new connection from the env variables, config file with a given name or from option params.
  */
 export async function queryConnection(
   nameOrOptions?: string | ConnectionOptions,
-): Promise<string | undefined> {
+): Promise<string[]> {
   const options = typeof nameOrOptions === "string"
     ? await getConnectionOptions(nameOrOptions)
     : nameOrOptions;
   const tconn = new Connection(<ConnectionOptions> options);
-  const sql = await synchronize(tconn);
-  return sql;
+  const sqls = await synchronize(tconn) || [];
+  return sqls;
 }
 
-export async function synchronize(conn: Connection) {
+export async function synchronize(
+  conn: Connection,
+): Promise<string[] | undefined> {
   const options = conn.getConnection().options;
   if (options.synchronize === true) {
     const entities = typeof options.entities == "string"
@@ -150,7 +151,7 @@ export async function synchronize(conn: Connection) {
       localMetadata,
       destinyMetadata,
     });
-    return script.join(";\n");
+    return script || [];
   }
 }
 
@@ -213,8 +214,7 @@ export async function generateScript(
        * NEW
        */
       const qs = conn.create({ schema: schema.name, ...schema });
-      query = qs.getSql();
-      script.push(query);
+      script.push(...qs.getSqls());
     }
   }
   /**
@@ -247,11 +247,8 @@ export async function generateScript(
         }]);
       if (colsa.length) {
         const qsa = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
-          .columns(...colsa);
-        query = qsa.getSql() || "";
-        if (query) {
-          script.push(query);
-        }
+          .columns(colsa);
+        script.push(...qsa.getSqls());
       }
       /**
        * Adding column tables'
@@ -263,11 +260,8 @@ export async function generateScript(
         .map((x: any) => x.mixeds);
       if (colsm.length) {
         const qsm = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
-          .columns(...colsm);
-        query = qsm.getSql() || "";
-        if (query) {
-          script.push(query);
-        }
+          .columns(colsm);
+        script.push(...qsm.getSqls());
       }
       /**
        * Dropping column tables'
@@ -280,10 +274,7 @@ export async function generateScript(
       if (colsd.length) {
         const qsd = conn.drop({ ...table.mixeds, entity: table.mixeds.name })
           .columns(colsd);
-        query = qsd.getSql() || "";
-        if (query) {
-          script.push(query);
-        }
+        script.push(...qsd.getSqls());
       }
     } else {
       /**
@@ -311,13 +302,12 @@ export async function generateScript(
        * Create entity
        */
       const qs = conn.create({ entity: topts.name, schema: topts.schema })
-        .columns(...columns)
-        .checks(...checks)
-        .uniques(...uniques)
+        .columns(columns)
+        .checks(checks)
+        .uniques(uniques)
         .data(data)
         .next(nexts);
-      const query = qs.getSql() || "";
-      script.push(query);
+      script.push(...qs.getSqls());
     }
   }
   /**
@@ -338,16 +328,39 @@ export async function generateScript(
           ? x.relation.columns
           : undefined,
       }));
-      const query = qa.relations(...relations).getSql();
-      script.push(query);
+      const sqls = qa.relations(relations).getSqls();
+      script.push(...sqls);
     }
   }
   /**
    * Afters
    */
-  for (let i = 0; i < localMetadata.afters.length; i++) {
-    const afters = localMetadata.afters[i];
-    script.push(...afters.steps.flatMap((x) => x).filter((x) => x));
+  for (let i = 0; i < localMetadata.tables.length; i++) {
+    const table = localMetadata.tables[i];
+    if (table.afters.length) {
+      script.push(
+        ...table.afters.map((x: any) => x.steps)
+          .flatMap((x: any) => x)
+          .map((x: any) => x.trim())
+          .map((x: any) =>
+            x.lastIndexOf(";") === x.length - 1
+              ? x.substring(0, x.length - 1)
+              : x
+          )
+          .filter((x: any) => x),
+      );
+    }
   }
+  // for (let i = 0; i < localMetadata.afters.length; i++) {
+  //   const afters = localMetadata.afters[i];
+  //   script.push(
+  //     ...afters.steps.flatMap((x) => x)
+  //       .map((x) => x.trim())
+  //       .map((x) =>
+  //         x.lastIndexOf(";") === x.length - 1 ? x.substring(0, x.length - 1) : x
+  //       )
+  //       .filter((x) => x),
+  //   );
+  // }
   return script;
 }

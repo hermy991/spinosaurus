@@ -58,6 +58,10 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
    */
   linkNextWithTables(metadata);
   /**
+   * Link afters sql sentences with tables
+   */
+  linkAfterWithTables(metadata);
+  /**
    * Check errors and exeptions
    */
   checkErrorsAndExeptions(metadata);
@@ -569,6 +573,19 @@ function linkNextWithTables(metadata: MetadataStore) {
     table.nexts.indexOf(row) === -1 ? table.nexts.push(row) : undefined;
   }
   return { tables, nexts };
+}
+function linkAfterWithTables(metadata: MetadataStore) {
+  const { tables, afters } = metadata;
+  tables.forEach((x) => x.afters = x.afters || []);
+  for (let i = 0; i < afters.length; i++) {
+    const row = afters[i];
+    const table = tables.find((x: any) => x.target === row.target);
+    if (!table) {
+      continue;
+    }
+    table.afters.indexOf(row) === -1 ? table.afters.push(row) : undefined;
+  }
+  return { tables, afters };
 }
 function checkErrorsAndExeptions(metadata: MetadataStore) {
   const { columns, tables } = metadata;

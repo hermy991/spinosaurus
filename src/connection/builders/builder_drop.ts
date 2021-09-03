@@ -34,13 +34,13 @@ export class BuilderDrop extends BuilderBase {
     this.columnsData.push(column);
   }
 
-  getDropSchemaQuery(): string {
+  getDropSchemaQuery(): string[] {
     if (!this.nameData) {
-      return ``;
+      return [];
     }
     const nameData = self.structuredClone(this.nameData);
     nameData.schema = this.clearNames(nameData.schema);
-    return this.conn.dropSchema(nameData);
+    return [this.conn.dropSchema(nameData)];
   }
 
   getEntityQuery(type: "drop" | "alter"): string {
@@ -78,20 +78,17 @@ export class BuilderDrop extends BuilderBase {
     return `${query}`;
   }
 
-  getSql(): string {
-    let query = ``;
+  getSqls(): string[] {
     if (this.nameData === null) {
-      return ``;
+      return [];
     }
     if (!("entity" in this.nameData)) {
-      query = `${this.getDropSchemaQuery()}`;
-      return query;
+      return this.getDropSchemaQuery();
     }
     if (this.columnsData.length) {
-      query = `${this.getEntityQuery("alter")}\n${this.getColumnsQuery()}`;
+      return [this.getEntityQuery("alter") + " " + this.getColumnsQuery()];
     } else {
-      query = `${this.getEntityQuery("drop")}`;
+      return [this.getEntityQuery("drop")];
     }
-    return query;
   }
 }

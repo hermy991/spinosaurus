@@ -43,15 +43,13 @@ Deno.test("decorator [check] sql", async () => {
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/CheckEntity.ts`];
-  let s1 = await queryConnection(conOptsX);
-  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const s1 = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
 CREATE TABLE "decorator"."CheckEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL );
 ALTER TABLE "decorator"."CheckEntity1" ADD CONSTRAINT "CHK_decorator_CheckEntity1_cdd96d" CHECK (LENGTH("column2") > 0);
-ALTER TABLE "decorator"."CheckEntity1" ADD CONSTRAINT "CHK_CheckEntity1_column2_2" CHECK (LENGTH("column2") > 0)`
-    .replaceAll(/[ \n\t]+/ig, " ");
+ALTER TABLE "decorator"."CheckEntity1" ADD CONSTRAINT "CHK_CheckEntity1_column2_2" CHECK (LENGTH("column2") > 0)`;
   assertEquals(s1, se1);
 });
 
@@ -60,8 +58,7 @@ Deno.test("decorator [unique] sql", async () => {
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/UniqueEntity.ts`];
-  let s1 = await queryConnection(conOptsX);
-  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const s1 = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -73,10 +70,10 @@ ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntit
 ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_8b9af1" UNIQUE ("column2", "column3");
 ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_006d12" UNIQUE ("column2", "column3", "custom4");
 ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_b523ff" UNIQUE ("custom4", "custom5");
-ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_1" UNIQUE ("column2"); 
-ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_2" UNIQUE ("column2", "column3"); ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_3" UNIQUE ("column2", "column3", "custom4");
-ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_4" UNIQUE ("custom4", "custom5")`
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_1" UNIQUE ("column2");
+ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_2" UNIQUE ("column2", "column3");
+ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_3" UNIQUE ("column2", "column3", "custom4");
+ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_4" UNIQUE ("custom4", "custom5")`;
   assertEquals(s1, se1);
 });
 
@@ -87,8 +84,7 @@ Deno.test("decorator [many-to-one] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/ManyToOneEntity.ts`,
   ];
-  let s1 = await queryConnection(conOptsX);
-  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const s1 = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -99,8 +95,7 @@ ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOn
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b7e7d" FOREIGN KEY ("ManyToOneEntity3_column11_2") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b24df" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_ManyToOneEntity2_primary_ID" FOREIGN KEY ("ManyToOneEntity3_column11_3") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_8b9af1" FOREIGN KEY ("ManyToOneEntity1_column21") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_8b9af1" FOREIGN KEY ("ManyToOneEntity1_column21") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`;
   assertEquals(s1, se1);
 });
 
@@ -111,8 +106,7 @@ Deno.test("decorator [one-to-one] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/OneToOneEntity.ts`,
   ];
-  let s1 = await queryConnection(conOptsX);
-  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const s1 = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -130,8 +124,7 @@ ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneE
 ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_0b24df" FOREIGN KEY ("column11") REFERENCES "decorator"."OneToOneEntity3" ("column11");
 ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_OneToOneEntity2_primary_ID" FOREIGN KEY ("OneToOneEntity3_column11_3") REFERENCES "decorator"."OneToOneEntity3" ("column11");
 ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_8b9af1" FOREIGN KEY ("OneToOneEntity1_column21_1") REFERENCES "decorator"."OneToOneEntity1" ("column21");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_006d12" FOREIGN KEY ("OneToOneEntity1_column21_2") REFERENCES "decorator"."OneToOneEntity1" ("column21")`
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_006d12" FOREIGN KEY ("OneToOneEntity1_column21_2") REFERENCES "decorator"."OneToOneEntity1" ("column21")`;
   assertEquals(s1, se1);
 });
 Deno.test("decorator [inherit] sql", async () => {
@@ -141,14 +134,12 @@ Deno.test("decorator [inherit] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/DerivedEntity.ts`,
   ];
-  let s1 = await queryConnection(conOptsX);
-  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const s1 = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 =
     `CREATE TABLE "public"."DerivedEntity1" ( "derivedColumn1" SERIAL PRIMARY KEY, "derivedColumn2" NUMERIC NOT NULL, "derivedColumn3" NUMERIC NOT NULL, "superColumn1" TEXT NOT NULL, "superColumn2" TEXT NOT NULL, "superColumn3" TEXT NOT NULL );
-CREATE TABLE "public"."SubEntity2" ( "derivedColumn7" SERIAL PRIMARY KEY, "derivedColumn8" NUMERIC NOT NULL, "baseColumn3" NUMERIC NOT NULL, "superColumn1" TEXT NOT NULL, "superColumn2" TEXT NOT NULL, "superColumn3" TEXT NOT NULL )`
-      .replaceAll(/[ \n\t]+/ig, " ").trim();
+CREATE TABLE "public"."SubEntity2" ( "derivedColumn7" SERIAL PRIMARY KEY, "derivedColumn8" NUMERIC NOT NULL, "baseColumn3" NUMERIC NOT NULL, "superColumn1" TEXT NOT NULL, "superColumn2" TEXT NOT NULL, "superColumn3" TEXT NOT NULL )`;
   assertEquals(s1, se1);
 });
 Deno.test("decorator [data] sql", async () => {
@@ -158,14 +149,12 @@ Deno.test("decorator [data] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/DataEntity.ts`,
   ];
-  let s1 = await queryConnection(conOptsX);
-  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const s1 = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
 CREATE TABLE "decorator"."DataEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL );
-INSERT INTO "decorator"."DataEntity1" ("column2") VALUES ('hola como estas') `
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+INSERT INTO "decorator"."DataEntity1" ("column2") VALUES ('hola como estas')`;
   assertEquals(s1, se1);
 });
 Deno.test("decorator [next] sql", async () => {
@@ -175,17 +164,13 @@ Deno.test("decorator [next] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/NextEntity.ts`,
   ];
-  let s1 = await queryConnection(conOptsX);
-  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const s1 = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
-CREATE TABLE "decorator"."AfterEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL );
-CREATE TABLE "decorator"."AfterEntity2" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL );
-INSERT INTO "decorator"."AfterEntity2" ("column2") VALUES ( 'THIS A TEST' );
-INSERT INTO "decorator"."AfterEntity2" ("column2") VALUES ( 'THIS A ANOTHER TEST' );;INSERT INTO "decorator"."AfterEntity1" ("column2") VALUES ( 'THIS A TEST' );
-INSERT INTO "decorator"."AfterEntity1" ("column2") VALUES ( 'THIS A ANOTHER TEST' );`
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+CREATE TABLE "decorator"."NextEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL );
+INSERT INTO "decorator"."NextEntity1" ("column2") VALUES ( 'THIS A TEST' );
+INSERT INTO "decorator"."NextEntity1" ("column2") VALUES ( 'THIS A ANOTHER TEST' )`;
   assertEquals(s1, se1);
 });
 
@@ -196,8 +181,7 @@ Deno.test("decorator [afters] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/AfterEntity.ts`,
   ];
-  let s1 = await queryConnection(conOptsX);
-  s1 = (s1 || "").replace(/[ \n\t]+/ig, " ").trim();
+  const s1 = (await queryConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -206,7 +190,6 @@ CREATE TABLE "decorator"."AfterEntity2" ( "column1" SERIAL PRIMARY KEY, "column2
 INSERT INTO "decorator"."AfterEntity1" ("column2") VALUES ( 'THIS A TEST' );
 INSERT INTO "decorator"."AfterEntity1" ("column2") VALUES ( 'THIS A ANOTHER TEST' );
 INSERT INTO "decorator"."AfterEntity2" ("column2") VALUES ( 'THIS A TEST' );
-INSERT INTO "decorator"."AfterEntity2" ("column2") VALUES ( 'THIS A ANOTHER TEST' );`
-    .replaceAll(/[ \n\t]+/ig, " ").trim();
+INSERT INTO "decorator"."AfterEntity2" ("column2") VALUES ( 'THIS A ANOTHER TEST' )`;
   assertEquals(s1, se1);
 });

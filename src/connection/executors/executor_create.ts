@@ -30,10 +30,8 @@ export class ExecutorCreate {
     return this;
   }
 
-  columns(
-    ...columns: Array<ParamColumnDefinition>
-  ): ExecutorCreate {
-    this.cb.columns(...columns);
+  columns(columns: Array<ParamColumnDefinition>): ExecutorCreate {
+    this.cb.columns(columns);
     return this;
   }
 
@@ -42,8 +40,8 @@ export class ExecutorCreate {
     return this;
   }
 
-  checks(...checks: Array<ParamCheck>): ExecutorCreate {
-    this.cb.checks(...checks);
+  checks(checks: Array<ParamCheck>): ExecutorCreate {
+    this.cb.checks(checks);
     return this;
   }
 
@@ -52,8 +50,8 @@ export class ExecutorCreate {
     return this;
   }
 
-  uniques(...uniques: Array<ParamUnique>): ExecutorCreate {
-    this.cb.uniques(...uniques);
+  uniques(uniques: Array<ParamUnique>): ExecutorCreate {
+    this.cb.uniques(uniques);
     return this;
   }
 
@@ -62,8 +60,8 @@ export class ExecutorCreate {
     return this;
   }
 
-  relations(...relations: Array<ParamRelationCreate>): ExecutorCreate {
-    this.cb.relations(...relations);
+  relations(relations: Array<ParamRelationCreate>): ExecutorCreate {
+    this.cb.relations(relations);
     return this;
   }
 
@@ -107,14 +105,19 @@ export class ExecutorCreate {
     return this;
   }
 
+  getSqls(): string[] {
+    const sqls = this.cb.getSqls();
+    return sqls;
+  }
+
   getSql(): string {
-    const query = this.cb.getSql();
-    return query;
+    const sqls = this.getSqls();
+    return sqls.join(";\n");
   }
 
   async execute(): Promise<any> {
-    const query = this.getSql();
+    const query = this.getSqls();
     this.cb.usePrintSql(query);
-    return await this.conn.execute(query);
+    return await this.conn.execute(query.join(";\n"));
   }
 }

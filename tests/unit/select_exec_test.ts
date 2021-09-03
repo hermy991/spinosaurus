@@ -21,11 +21,10 @@ Deno.test("select getOne() function", async () => {
     firstName: "Danny",
   }];
   const _cr = await db.create({ entity: currEntity })
-    .columns({ name: "userName", spitype: "varchar", length: 100 }, {
-      name: "firstName",
-      spitype: "varchar",
-      length: 100,
-    })
+    .columns([
+      { name: "userName", spitype: "varchar", length: 100 },
+      { name: "firstName", spitype: "varchar", length: 100 },
+    ])
     .data(data)
     .execute();
   const sr = await db.select([`u."userName"`, `UserName`], [
@@ -51,11 +50,10 @@ Deno.test("select getMany() function", async () => {
     firstName: "Danny",
   }, { userName: "yasset77", firstName: "Yasset" }];
   const _cr = await db.create({ entity: currEntity })
-    .columns({ name: "userName", spitype: "varchar", length: 100 }, {
-      name: "firstName",
-      spitype: "varchar",
-      length: 100,
-    })
+    .columns([
+      { name: "userName", spitype: "varchar", length: 100 },
+      { name: "firstName", spitype: "varchar", length: 100 },
+    ])
     .data(data)
     .execute();
   const sr = await db.select()
@@ -76,11 +74,10 @@ Deno.test("select getMany() function with where", async () => {
     firstName: "Danny",
   }, { userName: "yasset77", firstName: "Yasset" }];
   const _cr = await db.create({ entity: currEntity })
-    .columns({ name: "userName", spitype: "varchar", length: 100 }, {
-      name: "firstName",
-      spitype: "varchar",
-      length: 100,
-    })
+    .columns([
+      { name: "userName", spitype: "varchar", length: 100 },
+      { name: "firstName", spitype: "varchar", length: 100 },
+    ])
     .data(data)
     .execute();
   const sr = await db.select()

@@ -16,8 +16,7 @@ Deno.test("params [joins] sql", async () => {
       on:
         `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
     }, simpleParams);
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = '1'`
@@ -35,8 +34,7 @@ INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "
         `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
     })
     .params(simpleParams);
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = '1'`
@@ -54,8 +52,7 @@ INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "
         `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
     })
     .addParams(simpleParams);
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = '1'`
@@ -71,8 +68,7 @@ Deno.test("params [where] sql", async () => {
   const qs1 = db.select()
     .from({ entity: FromEntity1, as: "u1" })
     .where(`"FromEntity2"."active" = :_boolean`, simpleParams);
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 WHERE "FromEntity2"."active" = '1'`
@@ -83,8 +79,7 @@ WHERE "FromEntity2"."active" = '1'`
     .from({ entity: FromEntity1, as: "u1" })
     .where(`"FromEntity2"."active" = :_boolean`)
     .params(simpleParams);
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 WHERE "FromEntity2"."active" = '1'`
@@ -95,8 +90,7 @@ WHERE "FromEntity2"."active" = '1'`
     .from({ entity: FromEntity1, as: "u1" })
     .where(`"FromEntity2"."active" = :_boolean`)
     .addParams(simpleParams);
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 WHERE "FromEntity2"."active" = '1'`
@@ -113,8 +107,7 @@ Deno.test("params [having] sql", async () => {
   const qs1 = db.select()
     .from({ entity: FromEntity1, as: "u1" })
     .having(`"FromEntity2"."active" = :_boolean`, simpleParams);
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 HAVING "FromEntity2"."active" = '1'`
@@ -125,8 +118,7 @@ HAVING "FromEntity2"."active" = '1'`
     .from({ entity: FromEntity1, as: "u1" })
     .having(`"FromEntity2"."active" = :_boolean`)
     .params(simpleParams);
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q2 = qs2.getSqls().join(";\n");
   const qe2 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 HAVING "FromEntity2"."active" = '1'`
@@ -137,8 +129,7 @@ HAVING "FromEntity2"."active" = '1'`
     .from({ entity: FromEntity1, as: "u1" })
     .addHaving([`"FromEntity2"."active" = :_boolean`])
     .addParams(simpleParams);
-  let q3 = qs3.getSql() || "";
-  q3 = q3.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q3 = qs3.getSqls().join(";\n");
   const qe3 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 HAVING "FromEntity2"."active" = '1'`

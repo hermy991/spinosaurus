@@ -18,13 +18,15 @@ export class BuilderAlter extends BuilderBase {
     this.#nameData = req;
   }
 
-  columns(
-    ...columns: Array<[string, ParamColumnAjust] | ParamColumnCreate>
-  ): void {
+  columns(columns: ([string, ParamColumnAjust] | ParamColumnCreate)[]): void {
     this.#columnsData = [];
-    columns.forEach((x) => {
-      this.addColumn(x);
-    });
+    this.addColumns(columns);
+  }
+
+  addColumns(
+    columns: ([string, ParamColumnAjust] | ParamColumnCreate)[],
+  ): void {
+    this.#columnsData.push(...columns);
   }
 
   addColumn(column: [string, ParamColumnAjust] | ParamColumnCreate): void {
@@ -32,14 +34,16 @@ export class BuilderAlter extends BuilderBase {
   }
 
   relations(
-    ...relations: Array<
-      [string, ParamRelationDefinition] | ParamRelationDefinition
-    >
+    relations: ([string, ParamRelationDefinition] | ParamRelationDefinition)[],
   ): void {
     this.#relationsData = [];
-    relations.forEach((x) => {
-      this.addRelation(x);
-    });
+    this.addRelations(relations);
+  }
+
+  addRelations(
+    relations: ([string, ParamRelationDefinition] | ParamRelationDefinition)[],
+  ): void {
+    this.#relationsData.push(...relations);
   }
 
   addRelation(
@@ -48,9 +52,9 @@ export class BuilderAlter extends BuilderBase {
     this.#relationsData.push(relation);
   }
 
-  getColumnsQuery(): string {
+  getColumnsQuery(): string[] {
     if (!this.#columnsData.length || !this.#nameData) {
-      return ``;
+      return [];
     }
     let { entity, schema } = this.#nameData;
     entity = entity ? this.clearNames(entity) : entity;
@@ -93,12 +97,12 @@ export class BuilderAlter extends BuilderBase {
        *   ALTER TABLE users ALTER COLUMN name TYPE character varying(255) COLLATE "en_US"
        */
     }
-    return `${querys.join(";\n")}`;
+    return querys;
   }
 
-  getRelationsQuery() {
+  getRelationsQuery(): string[] {
     if (!this.#relationsData.length || !this.#nameData) {
-      return ``;
+      return [];
     }
     const connName = (<any> this.conn.options).name;
     const sqls: string[] = [];
@@ -164,20 +168,16 @@ export class BuilderAlter extends BuilderBase {
       });
       sqls.push(sql);
     }
-    return `${sqls.join("; ")}`;
+    return sqls;
   }
 
-  getSql(): string {
+  getSqls(): string[] {
     if (!this.#nameData) {
-      return "";
+      return [];
     }
     const querys: string[] = [];
-    if (this.#nameData && this.#columnsData.length) {
-      querys.push(this.getColumnsQuery());
-    }
-    if (this.#relationsData.length) {
-      querys.push(`${this.getRelationsQuery()}`);
-    }
-    return querys.join(";\n");
+    querys.push(...this.getColumnsQuery());
+    querys.push(...this.getRelationsQuery());
+    return querys;
   }
 }

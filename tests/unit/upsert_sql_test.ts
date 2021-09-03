@@ -25,16 +25,14 @@ Deno.test("upsert [upsert 'Entity'] sql", async () => {
   }];
   const qs1 = db.upsert(UpsertEntity1)
     .values(values);
-  let q1 = qs1.getSql() || "";
-  q1 = q1.replaceAll(/[ \n\t]+/ig, " ").trim();
+  const q1 = qs1.getSqls().join(";\n");
   const qe1 =
     `UPDATE "schema"."UpsertEntityCustom" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = 2, "updateColumn" = TO_TIMESTAMP('${
       luxon.DateTime.fromJSDate(updateColumn).toFormat("yyyy-MM-dd HH:mm:ss")
-    }', 'YYYY-MM-DD HH24:MI:SS') WHERE "primaryGeneratedColumn" = 1 ;
+    }', 'YYYY-MM-DD HH24:MI:SS') WHERE "primaryGeneratedColumn" = 1;
 INSERT INTO "schema"."UpsertEntityCustom" ("column2", "columnCustom", "versionColumn", "updateColumn") VALUES ('ss', 'sss', 2, TO_TIMESTAMP('${
       luxon.DateTime.fromJSDate(updateColumn).toFormat("yyyy-MM-dd HH:mm:ss")
-    }', 'YYYY-MM-DD HH24:MI:SS'))`
-      .replaceAll(/[ \n\t]+/ig, " ").trim();
+    }', 'YYYY-MM-DD HH24:MI:SS'))`;
   assertEquals(q1, qe1);
 
   for (const value of values) {
@@ -43,11 +41,9 @@ INSERT INTO "schema"."UpsertEntityCustom" ("column2", "columnCustom", "versionCo
   }
   const qs2 = db.upsert(UpsertEntity2)
     .values(values);
-  let q2 = qs2.getSql() || "";
-  q2 = q2.replaceAll(/[ \n\t]+/ig, " ").trim();
+  let q2 = qs2.getSqls().join(";\n");
   const qe2 =
-    `UPDATE "schema"."UpsertEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1 ;
-INSERT INTO "schema"."UpsertEntity2" ("column2", "columnCustom") VALUES ('ss', 'sss')`
-      .replaceAll(/[ \n\t]+/ig, " ").trim();
+    `UPDATE "schema"."UpsertEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1;
+INSERT INTO "schema"."UpsertEntity2" ("column2", "columnCustom") VALUES ('ss', 'sss')`;
   assertEquals(q2, qe2);
 });

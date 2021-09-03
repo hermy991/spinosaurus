@@ -18,9 +18,16 @@ export class ExecutorAlter {
   }
 
   columns(
-    ...columns: Array<[string, ParamColumnAjust] | ParamColumnCreate>
+    columns: ([string, ParamColumnAjust] | ParamColumnCreate)[],
   ): ExecutorAlter {
-    this.ab.columns(...columns);
+    this.ab.columns(columns);
+    return this;
+  }
+
+  addColumns(
+    columns: ([string, ParamColumnAjust] | ParamColumnCreate)[],
+  ): ExecutorAlter {
+    this.ab.addColumns(columns);
     return this;
   }
 
@@ -52,11 +59,16 @@ export class ExecutorAlter {
   // }
 
   relations(
-    ...relations: Array<
-      [string, ParamRelationDefinition] | ParamRelationDefinition
-    >
+    relations: ([string, ParamRelationDefinition] | ParamRelationDefinition)[],
   ): ExecutorAlter {
-    this.ab.relations(...relations);
+    this.ab.relations(relations);
+    return this;
+  }
+
+  addRelations(
+    relation: ([string, ParamRelationDefinition] | ParamRelationDefinition)[],
+  ): ExecutorAlter {
+    this.ab.addRelations(relation);
     return this;
   }
 
@@ -72,14 +84,19 @@ export class ExecutorAlter {
     return this;
   }
 
+  getSqls(): string[] {
+    const sqls = this.ab.getSqls();
+    return sqls;
+  }
+
   getSql(): string {
-    const query = this.ab.getSql();
-    return query;
+    const sqls = this.getSqls();
+    return sqls.join(";\n");
   }
 
   async execute(): Promise<any> {
-    const query = this.getSql();
+    const query = this.getSqls();
     this.ab.usePrintSql(query);
-    return await this.conn.execute(query);
+    return await this.conn.execute(query.join(`;\n`));
   }
 }

@@ -34,14 +34,19 @@ export class ExecutorUpsert {
     return this;
   }
 
+  getSqls(): string[] {
+    const sqls = this.ub.getSqls();
+    return sqls;
+  }
+
   getSql(): string {
-    const query = this.ub.getSql();
-    return query;
+    const sqls = this.getSqls();
+    return sqls.join(";\n");
   }
 
   async execute(): Promise<any> {
-    const query = this.ub.getSql();
+    const query = this.ub.getSqls();
     this.ub.usePrintSql(query);
-    return await this.conn.execute(query);
+    return await this.conn.execute(query.join(";\n"));
   }
 }
