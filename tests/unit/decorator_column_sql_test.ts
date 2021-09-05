@@ -1,6 +1,6 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
-import { Connection, getMetadata, queryConnection } from "spinosaurus/mod.ts";
+import { Connection, getMetadata, sqlConnection } from "spinosaurus/mod.ts";
 import * as path from "deno/path/mod.ts";
 
 async function clearPlayground(
@@ -36,7 +36,7 @@ Deno.test("decorator [column] sql", async () => {
   const conOptsX = self.structuredClone(conOpts);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/Column*.ts`];
-  const sql = (await queryConnection(conOptsX)).join(";\n");
+  const sql = (await sqlConnection(conOptsX)).join(";\n");
   const sqlSpected =
     `CREATE TABLE "public"."ColumnOptions1" ( "varchar1" CHARACTER VARYING (100) DEFAULT '' NOT NULL, "text1" CHARACTER VARYING (100) DEFAULT '' NOT NULL, "numeric1" NUMERIC (15,4) DEFAULT 0 NOT NULL, "numeric2" NUMERIC (15) DEFAULT 0 NOT NULL, "numeric3" BIGINT DEFAULT 0 NOT NULL, "numeric4" INTEGER DEFAULT 0 NOT NULL, "numeric5" SMALLINT DEFAULT 0 NOT NULL, "integer1" NUMERIC DEFAULT 0 NOT NULL, "integer2" NUMERIC DEFAULT 0 NOT NULL, "boolean2" BOOLEAN DEFAULT '0' NOT NULL, "bigint1" BIGINT DEFAULT NULL NOT NULL );
 CREATE TABLE "public"."ColumnTypes1" ( "string1" TEXT DEFAULT '' NOT NULL, "string2" TEXT NOT NULL, "string3" TEXT DEFAULT '' NOT NULL, "number1" NUMERIC DEFAULT 100 NOT NULL, "number2" NUMERIC NOT NULL, "number3" NUMERIC DEFAULT 100 NOT NULL, "bigint1" BIGINT DEFAULT NULL NOT NULL, "bigint2" BIGINT NOT NULL, "bigint3" BIGINT DEFAULT NULL NOT NULL, "boolean1" BOOLEAN DEFAULT '1' NOT NULL, "boolean2" BOOLEAN NOT NULL, "boolean3" BOOLEAN DEFAULT '1' NOT NULL, "timestamp1" TIMESTAMP DEFAULT now() NOT NULL, "timestamp2" TIMESTAMP NOT NULL, "timestamp3" TIMESTAMP DEFAULT now() NOT NULL, "arraybuffer1" BYTEA DEFAULT NULL NOT NULL, "arraybuffer2" BYTEA NOT NULL, "arraybuffer3" BYTEA DEFAULT NULL NOT NULL, "blob1" BYTEA DEFAULT NULL NOT NULL, "blob2" BYTEA NOT NULL, "blob3" BYTEA DEFAULT NULL NOT NULL )`;
@@ -60,7 +60,7 @@ Deno.test("decorator [column adding columns] sql", async () => {
   await e2.execute();
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/AddColumn*.ts`];
-  const sql = (await queryConnection(conOptsX)).join(";\n");
+  const sql = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const sqlSpected =
@@ -129,7 +129,7 @@ Deno.test("decorator [column modify columns] sql", async () => {
   await e2.execute();
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/ModColumn*.ts`];
-  const sql = (await queryConnection(conOptsX)).join(";\n");
+  const sql = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const sqlSpected =
@@ -232,7 +232,7 @@ Deno.test("decorator [column dropping columns] sql", async () => {
 
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/DroColumn*.ts`];
-  const sql = (await queryConnection(conOptsX)).join(";\n");
+  const sql = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const sqlSpected =

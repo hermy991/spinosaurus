@@ -120,3 +120,4 @@ deno run -qA https://code.velociraptor.run test:exec
 - change `from({ entity: Entity })` to `from(Entity)` on documentation
 - change param `orderBy` and `addOrderBy` strategic from ... to array
 - using path in Next and After in decorators and query builder
+- updating database with createConnection

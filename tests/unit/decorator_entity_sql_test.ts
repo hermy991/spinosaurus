@@ -4,7 +4,7 @@ import {
   Connection,
   // createConnection,
   getMetadata,
-  queryConnection,
+  sqlConnection,
 } from "spinosaurus/mod.ts";
 import * as path from "deno/path/mod.ts";
 // import * as luxon from "luxon/mod.ts";
@@ -43,7 +43,7 @@ Deno.test("decorator [check] sql", async () => {
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/CheckEntity.ts`];
-  const s1 = (await queryConnection(conOptsX)).join(";\n");
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -58,7 +58,7 @@ Deno.test("decorator [unique] sql", async () => {
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
   conOptsX.entities = [`${dirname}/playground/decorators/**/UniqueEntity.ts`];
-  const s1 = (await queryConnection(conOptsX)).join(";\n");
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -84,7 +84,7 @@ Deno.test("decorator [many-to-one] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/ManyToOneEntity.ts`,
   ];
-  const s1 = (await queryConnection(conOptsX)).join(";\n");
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -106,7 +106,7 @@ Deno.test("decorator [one-to-one] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/OneToOneEntity.ts`,
   ];
-  const s1 = (await queryConnection(conOptsX)).join(";\n");
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -134,7 +134,7 @@ Deno.test("decorator [inherit] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/DerivedEntity.ts`,
   ];
-  const s1 = (await queryConnection(conOptsX)).join(";\n");
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 =
@@ -149,7 +149,7 @@ Deno.test("decorator [data] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/DataEntity.ts`,
   ];
-  const s1 = (await queryConnection(conOptsX)).join(";\n");
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -164,7 +164,7 @@ Deno.test("decorator [next] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/NextEntity.ts`,
   ];
-  const s1 = (await queryConnection(conOptsX)).join(";\n");
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
@@ -181,7 +181,7 @@ Deno.test("decorator [afters] sql", async () => {
   conOptsX.entities = [
     `${dirname}/playground/decorators/**/AfterEntity.ts`,
   ];
-  const s1 = (await queryConnection(conOptsX)).join(";\n");
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";

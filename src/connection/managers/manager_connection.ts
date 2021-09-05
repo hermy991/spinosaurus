@@ -104,26 +104,26 @@ export async function getConnection(connectionName?: string) {
  * Creates a new connection from env variables, config files
  * Only one connection from config will be created
  */
-export async function queryConnection(): Promise<string[]>;
+export async function sqlConnection(): Promise<string[]>;
 
 /**
 * Creates a new connection from the env variables, config file with a given name.
 */
-export async function queryConnection(
+export async function sqlConnection(
   name: string,
 ): Promise<string[]>;
 
 /**
  * Creates a new connection from option params.
  */
-export async function queryConnection(
+export async function sqlConnection(
   options: ConnectionOptions,
 ): Promise<string[]>;
 
 /**
  * Creates a new connection from the env variables, config file with a given name or from option params.
  */
-export async function queryConnection(
+export async function sqlConnection(
   nameOrOptions?: string | ConnectionOptions,
 ): Promise<string[]> {
   const options = typeof nameOrOptions === "string"
@@ -203,7 +203,6 @@ export async function generateScript(
    */
   for (let i = 0; i < localMetadata.schemas.length; i++) {
     const schema = localMetadata.schemas[i];
-    let query = "";
     if (destinyMetadata.schemas.some((x: any) => x.name === schema.name)) {
       /*
      * CHANGING
@@ -234,10 +233,10 @@ export async function generateScript(
       x.mixeds.name === topts.name
     );
     if (dtable) {
+      console.log("dtable", dtable);
       /**
        * Altering column tables'
        */
-      let query = "";
       const colsa: Array<[string, ParamColumnAjust]> = table.columns
         .filter((x: any) =>
           dtable.columns.some((y: any) => y.mixeds.name === x.mixeds.name)
