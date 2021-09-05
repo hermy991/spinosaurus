@@ -16,7 +16,7 @@ Deno.test("params [joins] sql", async () => {
       on:
         `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
     }, simpleParams);
-  const q1 = qs1.getSqls().join(";\n");
+  const q1 = qs1.getSql();
   const qe1 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = '1'`
@@ -34,7 +34,7 @@ INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "
         `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
     })
     .params(simpleParams);
-  const q2 = qs2.getSqls().join(";\n");
+  const q2 = qs2.getSql();
   const qe2 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = '1'`
@@ -52,7 +52,7 @@ INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "
         `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
     })
     .addParams(simpleParams);
-  const q3 = qs3.getSqls().join(";\n");
+  const q3 = qs3.getSql();
   const qe3 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = '1'`
@@ -68,7 +68,7 @@ Deno.test("params [where] sql", async () => {
   const qs1 = db.select()
     .from({ entity: FromEntity1, as: "u1" })
     .where(`"FromEntity2"."active" = :_boolean`, simpleParams);
-  const q1 = qs1.getSqls().join(";\n");
+  const q1 = qs1.getSql();
   const qe1 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 WHERE "FromEntity2"."active" = '1'`
@@ -79,7 +79,7 @@ WHERE "FromEntity2"."active" = '1'`
     .from({ entity: FromEntity1, as: "u1" })
     .where(`"FromEntity2"."active" = :_boolean`)
     .params(simpleParams);
-  const q2 = qs2.getSqls().join(";\n");
+  const q2 = qs2.getSql();
   const qe2 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 WHERE "FromEntity2"."active" = '1'`
@@ -90,7 +90,7 @@ WHERE "FromEntity2"."active" = '1'`
     .from({ entity: FromEntity1, as: "u1" })
     .where(`"FromEntity2"."active" = :_boolean`)
     .addParams(simpleParams);
-  const q3 = qs3.getSqls().join(";\n");
+  const q3 = qs3.getSql();
   const qe3 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 WHERE "FromEntity2"."active" = '1'`
@@ -107,7 +107,7 @@ Deno.test("params [having] sql", async () => {
   const qs1 = db.select()
     .from({ entity: FromEntity1, as: "u1" })
     .having(`"FromEntity2"."active" = :_boolean`, simpleParams);
-  const q1 = qs1.getSqls().join(";\n");
+  const q1 = qs1.getSql();
   const qe1 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 HAVING "FromEntity2"."active" = '1'`
@@ -118,7 +118,7 @@ HAVING "FromEntity2"."active" = '1'`
     .from({ entity: FromEntity1, as: "u1" })
     .having(`"FromEntity2"."active" = :_boolean`)
     .params(simpleParams);
-  const q2 = qs2.getSqls().join(";\n");
+  const q2 = qs2.getSql();
   const qe2 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 HAVING "FromEntity2"."active" = '1'`
@@ -129,7 +129,7 @@ HAVING "FromEntity2"."active" = '1'`
     .from({ entity: FromEntity1, as: "u1" })
     .addHaving([`"FromEntity2"."active" = :_boolean`])
     .addParams(simpleParams);
-  const q3 = qs3.getSqls().join(";\n");
+  const q3 = qs3.getSql();
   const qe3 = `SELECT "u1"."test1" "test1"
 FROM "FromEntity1" AS "u1"
 HAVING "FromEntity2"."active" = '1'`

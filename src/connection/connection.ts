@@ -1,6 +1,10 @@
 import { ConnectionAll } from "./connection_type.ts";
 import { ConnectionOptions } from "./connection_options.ts";
 import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
+import { ParamCreateEntity } from "./builders/params/param_create.ts";
+import { ParamUpdateEntity } from "./builders/params/param_update.ts";
+import { ParamInsertEntity } from "./builders/params/param_insert.ts";
+import { ParamUpsertEntity } from "./builders/params/param_upsert.ts";
 
 import { error } from "../error/error_utills.ts";
 import { ExecutorDrop } from "./executors/executor_drop.ts";
@@ -79,16 +83,7 @@ class Connection {
     return res;
   }
 
-  create(
-    req:
-      | { entity: string; schema?: string }
-      | {
-        entity: Function;
-        options?: { createByEntity?: boolean };
-      }
-      | { schema: string; check?: boolean }
-      | Function,
-  ) {
+  create(req: ParamCreateEntity) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor = new ExecutorCreate(this.#connection);
     executor.create(req);
@@ -142,29 +137,14 @@ class Connection {
     return executor;
   }
 
-  update(
-    req:
-      | { entity: string; schema?: string }
-      | {
-        entity: Function;
-        options?: { autoUpdate?: boolean; updateWithoutPrimaryKey?: boolean };
-      }
-      | [string, string?]
-      | Function,
-  ) {
+  update(req: ParamUpdateEntity) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorUpdate = new ExecutorUpdate(this.#connection);
     executor.update(req);
     return executor;
   }
 
-  insert(
-    req:
-      | { entity: string; schema?: string }
-      | { entity: Function; options?: { autoInsert?: boolean } }
-      | [string, string?]
-      | Function,
-  ) {
+  insert(req: ParamInsertEntity) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorInsert = new ExecutorInsert(this.#connection);
     executor.insert(req);
@@ -180,16 +160,7 @@ class Connection {
     return executor;
   }
 
-  upsert(
-    req:
-      | { entity: string; schema?: string }
-      | {
-        entity: Function;
-        options?: { autoUpdate?: boolean; autoInsert?: boolean };
-      }
-      | [string, string?]
-      | Function,
-  ) {
+  upsert(req: ParamUpsertEntity) {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorUpsert = new ExecutorUpsert(this.#connection);
     executor.upsert(req);

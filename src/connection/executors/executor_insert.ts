@@ -1,6 +1,9 @@
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderInsert } from "../builders/builder_insert.ts";
-import { ParamInsertValue } from "../builders/params/param_insert.ts";
+import {
+  ParamInsertEntity,
+  ParamInsertValue,
+} from "../builders/params/param_insert.ts";
 
 export class ExecutorInsert {
   ib: BuilderInsert = new BuilderInsert(<ConnectionAll> {});
@@ -8,13 +11,7 @@ export class ExecutorInsert {
     this.ib = new BuilderInsert(conn);
   }
 
-  insert(
-    req:
-      | { entity: string; schema?: string }
-      | { entity: Function; options?: { autoInsert?: boolean } }
-      | [string, string?]
-      | Function,
-  ): ExecutorInsert {
+  insert(req: ParamInsertEntity): ExecutorInsert {
     this.ib.insert(req);
     return this;
   }

@@ -19,7 +19,7 @@ Deno.test("alter [alter relations] sql", async () => {
       columns: ["AnotherEntity2Column_ID"],
       parentEntity: "AnotherEntity2",
     }])
-    .getSqls().join(";\n");
+    .getSql();
   const qe1 =
     `ALTER TABLE "publicX"."User" DROP CONSTRAINT "FK_publicX_User_AnotherEntity1";
 ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1" FOREIGN KEY ("AnotherEntity1Column_ID") REFERENCES "AnotherEntity1" ("AnotherEntity1Column_ID");
@@ -33,7 +33,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_Cust
       parentEntity: "AnotherEntity1",
       parentColumns: ["AnotherEntity1Column_ID"],
     }])
-    .getSqls().join(";\n");
+    .getSql();
   const qe2 =
     `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "anotherSchema"."AnotherEntity1" ("AnotherEntity1Column_ID")`;
   assertEquals(q2, qe2);
@@ -50,7 +50,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_Cust
       parentEntity: ForeinghEntity,
       parentColumns: ["ForeinghEntityColumn_ID"],
     })
-    .getSqls().join(";\n");
+    .getSql();
   const qe3 =
     `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeinghEntity" ("column21");
 ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_0b7e7d" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeinghEntity" ("ForeinghEntityColumn_ID")`;
@@ -60,7 +60,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_0b7e
       columns: ["AnotherEntity1Column_ID"],
       parentEntity: "AnotherEntity1",
     }]])
-    .getSqls().join(";\n");
+    .getSql();
   const qe4 =
     `ALTER TABLE "User" DROP CONSTRAINT "FK_publicX_User_AnotherEntity1";
 ALTER TABLE "User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1" FOREIGN KEY ("AnotherEntity1Column_ID") REFERENCES "AnotherEntity1" ("AnotherEntity1Column_ID")`;

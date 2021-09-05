@@ -2,6 +2,7 @@ import { ConnectionAll } from "../connection_type.ts";
 // import { ConnectionPostgres } from "../drivers/postgres/connection_postgres.ts";
 import { BuilderUpdate } from "../builders/builder_update.ts";
 import {
+  ParamUpdateEntity,
   ParamUpdateParams,
   ParamUpdateSet,
 } from "../builders/params/param_update.ts";
@@ -12,16 +13,7 @@ export class ExecutorUpdate {
     this.ub = new BuilderUpdate(conn);
   }
 
-  update(
-    req:
-      | { entity: string; schema?: string }
-      | {
-        entity: Function;
-        options?: { autoUpdate?: boolean; updateWithoutPrimaryKey?: boolean };
-      }
-      | [string, string?]
-      | Function,
-  ): ExecutorUpdate {
+  update(req: ParamUpdateEntity): ExecutorUpdate {
     this.ub.update(req);
     return this;
   }

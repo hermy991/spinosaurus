@@ -5,7 +5,9 @@ import { ParamRelationCreate } from "./params/param_relation.ts";
 import {
   ParamCreateAfter,
   ParamCreateData,
+  ParamCreateEntity,
   ParamCreateNext,
+  ParamCreateOptions,
 } from "./params/param_create.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderBase } from "./base/builder_base.ts";
@@ -13,7 +15,10 @@ import { BuilderAlter } from "./builder_alter.ts";
 import { BuilderInsert } from "./builder_insert.ts";
 
 export class BuilderCreate extends BuilderBase {
-  #options: { createByEntity?: boolean } = { createByEntity: false };
+  #options: ParamCreateOptions = {
+    createByEntity: false,
+    autoGeneratePrimaryKey: true,
+  };
   #entityData:
     | { entity: string; schema?: string }
     | { schema: string; check?: boolean }
@@ -23,29 +28,23 @@ export class BuilderCreate extends BuilderBase {
   #checkData: ParamCheck[] = [];
   #uniquesData: { name?: string; columns: string[] }[] = [];
   #relationsData: ParamRelationCreate[] = [];
-  #createData: ParamCreateData[] = [];
+  #initData: ParamCreateData[] = [];
   #nextData: ParamCreateNext[] = [];
   #afterData: ParamCreateAfter[] = [];
   constructor(public conn: ConnectionAll) {
     super(conn);
   }
 
-  create(
-    req:
-      | { entity: string; schema?: string }
-      | {
-        entity: Function;
-        options?: { createByEntity?: boolean };
-      }
-      | { schema: string; check?: boolean }
-      | Function,
-  ): void {
+  create(req: ParamCreateEntity): void {
     if (req instanceof Function) {
       this.#entityData = <any> req;
     } else if (typeof (<any> req).entity === "function") {
       this.#entityData = (<any> req).entity;
-      (<any> req).options ? this.#options = (<any> req).options : undefined;
-    } else this.#entityData = <any> req;
+      this.#options = { ...this.#options, ...((<any> req).options || {}) };
+    } else {
+      this.#entityData = <any> req;
+      this.#options = { ...this.#options, ...((<any> req).options || {}) };
+    }
   }
 
   columns(columns: Array<ParamColumnDefinition>): void {
@@ -94,13 +93,13 @@ export class BuilderCreate extends BuilderBase {
   }
 
   data(data: ParamCreateData[] | ParamCreateData) {
-    this.#createData = [];
+    this.#initData = [];
     this.addData(data);
   }
 
   addData(data: ParamCreateData[] | ParamCreateData) {
     data = Array.isArray(data) ? data : [data];
-    this.#createData.push(...data);
+    this.#initData.push(...data);
   }
 
   next(sqls: ParamCreateNext[] | ParamCreateNext) {
@@ -232,15 +231,24 @@ export class BuilderCreate extends BuilderBase {
       return [];
     }
     const ib = new BuilderInsert(this.conn);
-    ib.insert(<any> e);
     if (this.#entityData instanceof Function) {
-      ib.values(this.#createData);
+      ib.insert({
+        entity: this.#entityData,
+        options: { ...this.#options },
+      });
+      ib.values(this.#initData);
     } else {
-      for (const create of this.#createData) {
+      ib.insert(<any> e);
+      for (const create of this.#initData) {
         const tcreate: ParamCreateData = {};
         for (const c of cols) {
           if (c.name in create) {
             if (!c.autoIncrement) {
+              tcreate[c.name] = create[c.name];
+            } else if (
+              !(c.primary && c.autoIncrement) ||
+              !this.#options.autoGeneratePrimaryKey
+            ) {
               tcreate[c.name] = create[c.name];
             }
           }
@@ -305,7 +313,7 @@ export class BuilderCreate extends BuilderBase {
     if (this.#relationsData.length) {
       sqls.push(...this.getRelationsQuery(e));
     }
-    if (this.#createData.length) {
+    if (this.#initData.length) {
       sqls.push(...this.getInsertsQuery(e, cols));
     }
     if (this.#nextData.length) {

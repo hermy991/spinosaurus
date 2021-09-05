@@ -1,7 +1,7 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { BuilderUpdate } from "./builder_update.ts";
 import { BuilderInsert } from "./builder_insert.ts";
-import { ParamUpsertValue } from "./params/param_upsert.ts";
+import { ParamUpsertEntity, ParamUpsertValue } from "./params/param_upsert.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderUpsert extends BuilderBase {
@@ -20,16 +20,7 @@ export class BuilderUpsert extends BuilderBase {
     super(conn);
   }
 
-  upsert(
-    req:
-      | { entity: string; schema?: string }
-      | {
-        entity: Function;
-        options?: { autoUpdate?: boolean; autoInsert?: boolean };
-      }
-      | [string, string?]
-      | Function,
-  ): void {
+  upsert(req: ParamUpsertEntity): void {
     this.#entityData = req;
   }
 

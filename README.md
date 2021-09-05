@@ -94,7 +94,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - alter column (implement primary key and auto-increment)
 - testing for generate columns from entity in select using options
 - adding primary key column in each delete
-- adding documentation of select().from(Entity)
 - throw a error when @UpdateColumn property is not a Number type
 - adding interpolation list
   `( '"primaryKey" IN(:primaryKey)',  { primaryKey: [ 1, 2, 3, 4 ] })`
@@ -103,21 +102,14 @@ deno run -qA https://code.velociraptor.run test:exec
 - does not update object without primary key in entity mode (updating a antity),
   create testing too
 - create a option in update entity option witch can update without a primary key
-- does not insert object with a primary generated property in entity mode
-- create a option in insert entity option witch can insert with a primary
-  generated key
 - adding joinAndWrap, leftAndWrap, rigthAndWrap and exec testing, remember
   include in joinAndSelect, joinAndSelect, joinAndSelect as a option (wrap:
   boolean)
 - suport multiple connection
-- set insert primary column as options and add testing
-- set update primary column as options and add testing
-- set upsert primary column as options and add testing
-- change Spi to Param type name
 - rename a column, using index in @Column({ columnIndex: 3 })
 - create a method getOneOrFail, it throw a exeption if it does not have one row
 - reverse interpolate transform this `user.name` to `"user"."name"` |
-  `[user].[name]` | ``user`.`name``, this transformation depends on database
+  `[user].[name]` | `` `user`.`name` ``, this transformation depends on database
   type
 - create skip
 - create take
@@ -127,3 +119,4 @@ deno run -qA https://code.velociraptor.run test:exec
   select definition internally
 - change `from({ entity: Entity })` to `from(Entity)` on documentation
 - change param `orderBy` and `addOrderBy` strategic from ... to array
+- using path in Next and After in decorators and query builder

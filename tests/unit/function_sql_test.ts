@@ -11,7 +11,7 @@ Deno.test("function [anonymous function] sql", () => {
       spitype: "date",
       default: () => "NOW() - interval '12 hour'",
     }]);
-  const q1 = qs1.getSqls().join(";\n");
+  const q1 = qs1.getSql();
   const qe1 =
     `CREATE TABLE "User" ( "column1" DATE DEFAULT NOW() - interval '12 hour' )`
       .replace(/[ \n\t]+/ig, " ")
@@ -50,7 +50,7 @@ Deno.test("function [now] sql", () => {
       spitype: "date",
       default: _NOW,
     }]);
-  const q1 = qs1.getSqls().join(";\n");
+  const q1 = qs1.getSql();
   const qe1 = `CREATE TABLE "User" ( "column1" DATE DEFAULT now() )`
     .replace(/[ \n\t]+/ig, " ")
     .trim();

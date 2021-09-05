@@ -1,7 +1,14 @@
-/**
- * The name of a column in table. The column name can be qualified with a subfield name or array subscript,
- * if needed.
- */
+export type ParamInsertOptions = {
+  autoInsert?: boolean;
+  autoGeneratePrimaryKey?: boolean;
+};
+
+export type ParamInsertEntity =
+  | { entity: string; schema?: string }
+  | { entity: Function; options?: ParamInsertOptions }
+  | [string, string?]
+  | Function;
+
 export type ParamInsertValue = {
   [x: string]: string | number | boolean | Date | Function | null | undefined;
 };

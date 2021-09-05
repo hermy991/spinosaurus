@@ -1,9 +1,14 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import { ParamUpdateParams, ParamUpdateSet } from "./params/param_update.ts";
+import {
+  ParamUpdateEntity,
+  ParamUpdateOptions,
+  ParamUpdateParams,
+  ParamUpdateSet,
+} from "./params/param_update.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderUpdate extends BuilderBase {
-  #options: { autoUpdate?: boolean; updateWithoutPrimaryKey?: boolean } = {
+  #options: ParamUpdateOptions = {
     autoUpdate: true,
     updateWithoutPrimaryKey: false,
   };
@@ -16,16 +21,7 @@ export class BuilderUpdate extends BuilderBase {
     super(conn);
   }
 
-  update(
-    req:
-      | { entity: string; schema?: string }
-      | {
-        entity: Function;
-        options?: { autoUpdate?: boolean; updateWithoutPrimaryKey?: boolean };
-      }
-      | [string, string?]
-      | Function,
-  ): void {
+  update(req: ParamUpdateEntity): void {
     if (Array.isArray(req)) {
       const [entity, schema] = req;
       this.#entityData = { entity, schema };
@@ -33,7 +29,7 @@ export class BuilderUpdate extends BuilderBase {
       this.#entityData = req;
     } else if (req.entity instanceof Function) {
       this.#entityData = req.entity;
-      this.#options = (<any> req).options || {};
+      this.#options = { ...this.#options, ...((<any> req).options || {}) };
     } else {
       this.#entityData = <any> req;
     }

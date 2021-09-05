@@ -1,8 +1,16 @@
 import { ParamComplexOptions } from "./param_select.ts";
-/**
- * The name of a column in table. The column name can be qualified with a subfield name or array subscript,
- * if needed.
- */
+
+export type ParamUpdateOptions = {
+  autoUpdate?: boolean;
+  updateWithoutPrimaryKey?: boolean;
+};
+
+export type ParamUpdateEntity =
+  | { entity: string; schema?: string }
+  | { entity: Function; options?: ParamUpdateOptions }
+  | [string, string?]
+  | Function;
+
 export type ParamUpdateSet = {
   [x: string]: string | number | boolean | Date | Function | null | undefined;
 };

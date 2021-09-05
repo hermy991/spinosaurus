@@ -301,7 +301,11 @@ export async function generateScript(
       /**
        * Create entity
        */
-      const qs = conn.create({ entity: topts.name, schema: topts.schema })
+      const qs = conn.create({
+        entity: topts.name,
+        schema: topts.schema,
+        options: { autoGeneratePrimaryKey: false },
+      })
         .columns(columns)
         .checks(checks)
         .uniques(uniques)

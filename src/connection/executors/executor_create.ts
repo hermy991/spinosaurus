@@ -5,6 +5,7 @@ import { ParamRelationCreate } from "../builders/params/param_relation.ts";
 import {
   ParamCreateAfter,
   ParamCreateData,
+  ParamCreateEntity,
   ParamCreateNext,
 } from "../builders/params/param_create.ts";
 import { ConnectionAll } from "../connection_type.ts";
@@ -16,16 +17,7 @@ export class ExecutorCreate {
     this.cb = new BuilderCreate(conn);
   }
 
-  create(
-    req:
-      | { entity: string; schema?: string }
-      | {
-        entity: Function;
-        options?: { createByEntity?: boolean };
-      }
-      | { schema: string; check?: boolean }
-      | Function,
-  ): ExecutorCreate {
+  create(req: ParamCreateEntity): ExecutorCreate {
     this.cb.create(req);
     return this;
   }

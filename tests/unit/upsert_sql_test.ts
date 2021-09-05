@@ -25,7 +25,7 @@ Deno.test("upsert [upsert 'Entity'] sql", async () => {
   }];
   const qs1 = db.upsert(UpsertEntity1)
     .values(values);
-  const q1 = qs1.getSqls().join(";\n");
+  const q1 = qs1.getSql();
   const qe1 =
     `UPDATE "schema"."UpsertEntityCustom" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = 2, "updateColumn" = TO_TIMESTAMP('${
       luxon.DateTime.fromJSDate(updateColumn).toFormat("yyyy-MM-dd HH:mm:ss")
@@ -41,7 +41,7 @@ INSERT INTO "schema"."UpsertEntityCustom" ("column2", "columnCustom", "versionCo
   }
   const qs2 = db.upsert(UpsertEntity2)
     .values(values);
-  let q2 = qs2.getSqls().join(";\n");
+  let q2 = qs2.getSql();
   const qe2 =
     `UPDATE "schema"."UpsertEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1;
 INSERT INTO "schema"."UpsertEntity2" ("column2", "columnCustom") VALUES ('ss', 'sss')`;

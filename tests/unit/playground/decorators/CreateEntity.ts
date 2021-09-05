@@ -20,7 +20,7 @@ export class CreateEntity1 {
   column3!: string;
 }
 
-@Entity({ name: "CustomCheckEntity1" })
+@Entity({ name: "CustomCreateEntity1" })
 @Check({ expression: `LENGTH("column2") > 0` })
 @Check({
   name: `CHK_CheckEntity1_column2_2`,

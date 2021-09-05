@@ -1,9 +1,16 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import { ParamInsertValue } from "./params/param_insert.ts";
+import {
+  ParamInsertEntity,
+  ParamInsertOptions,
+  ParamInsertValue,
+} from "./params/param_insert.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderInsert extends BuilderBase {
-  #options: { autoInsert?: boolean } = { autoInsert: true };
+  #options: ParamInsertOptions = {
+    autoInsert: true,
+    autoGeneratePrimaryKey: true,
+  };
   #entityData: { entity: string; schema?: string } | Function | null = null;
   #valuesData: ParamInsertValue[] = [];
 
@@ -11,13 +18,7 @@ export class BuilderInsert extends BuilderBase {
     super(conn);
   }
 
-  insert(
-    req:
-      | { entity: string; schema?: string }
-      | { entity: Function; options?: { autoInsert?: boolean } }
-      | [string, string?]
-      | Function,
-  ): void {
+  insert(req: ParamInsertEntity): void {
     if (Array.isArray(req)) {
       const [entity, schema] = req;
       this.#entityData = { entity, schema };
@@ -25,7 +26,7 @@ export class BuilderInsert extends BuilderBase {
       this.#entityData = req;
     } else if (req.entity instanceof Function) {
       this.#entityData = req.entity;
-      this.#options = (<any> req).options || {};
+      this.#options = { ...this.#options, ...((<any> req).options || {}) };
     } else {
       this.#entityData = <any> req;
     }
@@ -77,6 +78,7 @@ export class BuilderInsert extends BuilderBase {
     } | undefined;
     const sqls: string[] = [this.getEntityQuery(e)];
     let cloned: ParamInsertValue = {};
+    const { autoInsert, autoGeneratePrimaryKey } = this.#options;
     if (!ps.length) {
       cloned = value;
     } else {
@@ -84,6 +86,10 @@ export class BuilderInsert extends BuilderBase {
         for (const p of ps) {
           if (p.propertyKey === name) {
             if (p.insert) {
+              cloned[p.name] = value[name];
+            } else if (
+              p.primary && p.autoIncrement && !autoGeneratePrimaryKey
+            ) {
               cloned[p.name] = value[name];
             }
             if (p.primary && p.autoIncrement) {
@@ -96,12 +102,11 @@ export class BuilderInsert extends BuilderBase {
           }
         }
       }
-      /*&& !this.#options.updateWithoutPrimaryKey*/
-      if (primaryGeneratedColumn) {
+      if (primaryGeneratedColumn && autoGeneratePrimaryKey) {
         return ``;
       }
       for (
-        const p of ps.filter((x) => x.autoInsert && this.#options.autoInsert)
+        const p of ps.filter((x) => x.autoInsert && autoInsert)
       ) {
         if (!(p.name in cloned)) {
           cloned[p.name] = p.autoInsert;

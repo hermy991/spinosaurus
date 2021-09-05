@@ -198,10 +198,8 @@ export class ExecutorSelect {
 
   addOrderBy(
     ...columns: Array<
-      { column: string; direction?: "ASC" | "DESC" } | [
-        string,
-        ("ASC" | "DESC")?,
-      ]
+      | { column: string; direction?: "ASC" | "DESC" }
+      | [string, ("ASC" | "DESC")?]
     >
   ): ExecutorSelect {
     const tempColumns: Array<{ column: string; direction?: string }> = [];

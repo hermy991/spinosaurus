@@ -1,6 +1,9 @@
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderUpsert } from "../builders/builder_upsert.ts";
-import { ParamUpsertValue } from "../builders/params/param_upsert.ts";
+import {
+  ParamUpsertEntity,
+  ParamUpsertValue,
+} from "../builders/params/param_upsert.ts";
 
 export class ExecutorUpsert {
   ub: BuilderUpsert = new BuilderUpsert(<ConnectionAll> {});
@@ -8,13 +11,7 @@ export class ExecutorUpsert {
     this.ub = new BuilderUpsert(conn);
   }
 
-  upsert(
-    req:
-      | { entity: string; schema?: string }
-      | { entity: Function; options?: { autoInsert?: boolean } }
-      | [string, string?]
-      | Function,
-  ): ExecutorUpsert {
+  upsert(req: ParamUpsertEntity): ExecutorUpsert {
     this.ub.upsert(req);
     return this;
   }
