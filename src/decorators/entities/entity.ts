@@ -5,20 +5,18 @@ export function Entity(options: EntityOptions = {}): any {
   return function (target: Function) {
     let mixeds: EntityOptions = { name: target.name };
     mixeds = Object.assign(mixeds, options);
-    const columns: any[] = [];
 
     getTempMetadata().tables.push({
       target,
       options,
       mixeds,
-      columns,
+      columns: [],
+      checks: [],
+      uniques: [],
+      relations: [],
+      data: [],
+      nexts: [],
+      afters: [],
     });
-
-    // if (
-    //   mixeds.schema &&
-    //   !getTempMetadata().schemas.some((x) => x.name === mixeds.schema)
-    // ) {
-    //   getTempMetadata().schemas.push({ name: mixeds.schema });
-    // }
   };
 }

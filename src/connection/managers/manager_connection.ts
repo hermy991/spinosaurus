@@ -3,6 +3,7 @@ import {
   ParamColumnAjust,
   ParamColumnCreate,
 } from "../builders/params/param_column.ts";
+import { StoreColumnOptions } from "../../decorators/metadata/metadata_store.ts";
 import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
 import { ParamData } from "../builders/params/param_data.ts";
@@ -137,15 +138,15 @@ export async function sqlConnection(
 export async function synchronize(
   conn: Connection,
 ): Promise<string[] | undefined> {
-  const options = conn.getConnection().options;
+  const options = conn.getDriver().options;
   if (options.synchronize === true) {
     const entities = typeof options.entities == "string"
       ? [options.entities]
       : options.entities;
     clearMetadata(options);
-    await updateStore(conn.getConnection(), entities);
+    await updateStore(conn.getDriver(), entities);
     const localMetadata = getMetadata(options);
-    const destinyMetadata = await getDestinyMetadata(conn.getConnection());
+    const destinyMetadata = await getDestinyMetadata(conn.getDriver());
     const script = await generateScript({
       conn,
       localMetadata,
@@ -220,83 +221,131 @@ export async function generateScript(
    * TABLES
    */
   for (let i = 0; i < localMetadata.tables.length; i++) {
-    const table = localMetadata.tables[i];
-    table.mixeds.database = table.mixeds.database || ddatabase;
-    table.mixeds.schema = table.mixeds.schema || dschema;
-    if (table.mixeds.database != ddatabase) {
+    const lt = localMetadata.tables[i];
+    lt.mixeds.database = lt.mixeds.database || ddatabase;
+    lt.mixeds.schema = lt.mixeds.schema || dschema;
+    if (lt.mixeds.database != ddatabase) {
       continue;
     }
-    const topts = table.mixeds;
-    const dtable = destinyMetadata.tables.find((x: any) =>
+    const topts = lt.mixeds;
+    const dt = destinyMetadata.tables.find((x: any) =>
       (x.mixeds.database || ddatabase) === (topts.database || ddatabase) &&
       (x.mixeds.schema || dschema) === (topts.schema || dschema) &&
       x.mixeds.name === topts.name
     );
-    if (dtable) {
-      console.log("dtable", dtable);
+    if (dt && lt.mixeds.name) {
       /**
        * Altering column tables'
        */
-      const colsa: Array<[string, ParamColumnAjust]> = table.columns
-        .filter((x: any) =>
-          dtable.columns.some((y: any) => y.mixeds.name === x.mixeds.name)
-        )
-        .map((x: any) => [x.mixeds.name, {
-          ...x.mixeds,
-        }]);
-      if (colsa.length) {
-        const qsa = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
-          .columns(colsa);
-        script.push(...qsa.getSqls());
+      const acols: Array<[string, ParamColumnAjust, ParamColumnAjust]> = lt
+        .columns
+        .filter((x) => dt.columns.some((y) => y.mixeds.name === x.mixeds.name))
+        .map((x) =>
+          <any> [
+            x.mixeds.name,
+            x.mixeds,
+            (<any> dt.columns.find((y) => y.mixeds.name === x.mixeds.name))
+              .mixeds,
+          ]
+        );
+      const qsa = conn.alter({ ...lt.mixeds, entity: lt.mixeds.name });
+      acols.forEach((col) => {
+        if (lt.mixeds.name === "person") {
+          console.log(
+            `alter`,
+            lt.mixeds.name,
+            `local`,
+            col[1],
+            `destiny`,
+            col[2],
+          );
+        }
+        const tcol: [string, ParamColumnAjust] = [col[0], {}];
+        // spitype
+        (col[1].spitype !== col[2].spitype)
+          ? tcol[1].spitype = col[1].spitype
+          : 0;
+        // length
+        (col[1].length !== col[2].length) ? tcol[1].length = col[1].length : 0;
+        // precision
+        (col[1].precision !== col[2].precision)
+          ? tcol[1].precision = col[1].precision
+          : 0;
+        // scale
+        (col[1].scale !== col[2].scale) ? tcol[1].scale = col[1].scale : 0;
+        // nullable
+        (col[1].nullable !== col[2].nullable)
+          ? tcol[1].nullable = col[1].nullable
+          : 0;
+        // primary
+        (col[1].primary !== col[2].primary)
+          ? tcol[1].primary = col[1].primary
+          : 0;
+        // autoIncrement
+        (col[1].autoIncrement !== col[2].autoIncrement)
+          ? tcol[1].autoIncrement = col[1].autoIncrement
+          : 0;
+
+        if (Object.keys(tcol[1]).length) {
+          qsa.addColumn(tcol);
+        }
+      });
+      const sqls = qsa.getSqls();
+      if (lt.mixeds.name === "person") {
+        console.log(
+          "alter ",
+          lt.mixeds.name,
+          "sqls.length",
+          sqls.length,
+          "sqls",
+          sqls.join(";\n"),
+        );
       }
+      script.push(...sqls);
       /**
        * Adding column tables'
        */
-      const colsm: Array<ParamColumnCreate> = table.columns
-        .filter((x: any) =>
-          !dtable.columns.some((y: any) => y.mixeds.name === x.mixeds.name)
-        )
-        .map((x: any) => x.mixeds);
+      const colsm: Array<ParamColumnCreate> = lt.columns
+        .filter((x) => !dt.columns.some((y) => y.mixeds.name === x.mixeds.name))
+        .map((x) => <any> ({ ...x.mixeds }));
       if (colsm.length) {
-        const qsm = conn.alter({ ...table.mixeds, entity: table.mixeds.name })
+        const qsm = conn.alter({ ...lt.mixeds, entity: lt.mixeds.name })
           .columns(colsm);
         script.push(...qsm.getSqls());
       }
       /**
        * Dropping column tables'
        */
-      const colsd: Array<string> = dtable.columns
-        .filter((x: any) =>
-          !table.columns.some((y: any) => y.mixeds.name === x.mixeds.name)
-        )
-        .map((x: any) => x.mixeds.name);
-      if (colsd.length) {
-        const qsd = conn.drop({ ...table.mixeds, entity: table.mixeds.name })
+      const colsd: Array<string> = dt.columns
+        .filter((x) => !lt.columns.some((y) => y.mixeds.name === x.mixeds.name))
+        .map((x) => x.mixeds.name || "");
+      if (colsd.length && lt.mixeds.name) {
+        const qsd = conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
           .columns(colsd);
         script.push(...qsd.getSqls());
       }
-    } else {
+    } else if (topts.name) {
       /**
        * New tables
        */
       // Columns
-      const columns: Array<ParamColumnCreate> = (table.columns || []).map((
-        x: any,
-      ) => ({ ...x.property, ...x.mixeds }));
+      const columns: Array<ParamColumnCreate> = lt.columns
+        .map((x) => ({ ...x.property, ...x.mixeds }));
       /**
        * Checks constraints
        */
-      const checks: Array<ParamCheck> = table.checks.map((
-        x: any,
-      ) => x.mixeds);
-      const uniques: Array<ParamUnique> = table.uniques.map((
-        x: any,
-      ) => ({ ...x.mixeds, columns: x.mixeds.columnNames }));
-      const data: Array<ParamData> = table.data
-        .map((x: any) => <any[]> x.entries).flatMap((x: any[]) => x);
-      const nexts: ParamNext[] = table.nexts.map((
-        x: any,
-      ) => x.steps);
+      const checks: Array<ParamCheck> = lt.checks
+        .map((x) => x.mixeds);
+      /**
+       * Uniques constraints
+       */
+      const uniques: Array<ParamUnique> = lt.uniques
+        .map(
+          (x) => ({ ...x.mixeds, columns: (<any> x.mixeds).columnNames }),
+        );
+      const data: Array<ParamData> = lt.data
+        .map((x) => x.entries).flatMap((x) => x);
+      const nexts = lt.nexts.flatMap((x) => x.steps);
       /**
        * Create entity
        */
@@ -318,21 +367,23 @@ export async function generateScript(
    */
   for (let i = 0; i < localMetadata.tables.length; i++) {
     const table = localMetadata.tables[i];
-    const qa = conn.alter({
-      entity: table.mixeds.name,
-      schema: table.mixeds.schema,
-    });
-    if (table.relations.length) {
-      const relations = table.relations.map((x: any) => ({
-        name: x.relation.name,
-        columns: [x.mixeds.name].filter((x) => x),
-        parentEntity: x.relation.entity,
-        parentColumns: x.relation.columns && x.relation.columns.length
-          ? x.relation.columns
-          : undefined,
-      }));
-      const sqls = qa.relations(relations).getSqls();
-      script.push(...sqls);
+    if (table.mixeds.name) {
+      const qa = conn.alter({
+        entity: table.mixeds.name,
+        schema: table.mixeds.schema,
+      });
+      if (table.relations.length) {
+        const relations = table.relations.map((x: any) => ({
+          name: x.relation.name,
+          columns: [x.mixeds.name].filter((x) => x),
+          parentEntity: x.relation.entity,
+          parentColumns: x.relation.columns && x.relation.columns.length
+            ? x.relation.columns
+            : undefined,
+        }));
+        const sqls = qa.relations(relations).getSqls();
+        script.push(...sqls);
+      }
     }
   }
   /**
@@ -354,16 +405,6 @@ export async function generateScript(
       );
     }
   }
-  // for (let i = 0; i < localMetadata.afters.length; i++) {
-  //   const afters = localMetadata.afters[i];
-  //   script.push(
-  //     ...afters.steps.flatMap((x) => x)
-  //       .map((x) => x.trim())
-  //       .map((x) =>
-  //         x.lastIndexOf(";") === x.length - 1 ? x.substring(0, x.length - 1) : x
-  //       )
-  //       .filter((x) => x),
-  //   );
-  // }
+  window.close();
   return script;
 }

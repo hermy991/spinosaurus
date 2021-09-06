@@ -431,7 +431,7 @@ function linkUniquesWithTables(metadata: MetadataStore) {
       mixeds: { columns: gcolumns },
     };
     if (gunique.mixeds.columns.length) {
-      uniques.unshift(gunique);
+      uniques.unshift(<any> gunique);
     }
   }
   // Column uniques constraints
@@ -448,13 +448,13 @@ function linkUniquesWithTables(metadata: MetadataStore) {
         mixeds: { columns: [column.property.propertyKey] },
       };
       if (cunique.mixeds.columns.length) {
-        uniques.unshift(cunique);
+        uniques.unshift(<any> cunique);
       }
     }
   }
   // Changing property column to database column
   uniques.forEach((m) => {
-    m.mixeds["columnNames"] = m.mixeds.columns.map((x: any) => {
+    (<any> m.mixeds)["columnNames"] = m.mixeds.columns.map((x: any) => {
       const column = columns.find((c) =>
         c.entity.target === m.target && c.property.propertyKey === x
       );
@@ -488,12 +488,12 @@ function linkRelationsWithTables(metadata: MetadataStore) {
   tables.forEach((x) => x.relations = x.relations || []);
   for (let i = 0; i < columns.length; i++) {
     const column = columns[i];
-    if ((<any> column).relation) {
-      const relation = (<any> column).relation;
+    if (column.relation) {
+      const relation = column.relation;
       // Find foreing column
       const fcolumn = columns.find((x) =>
         x.entity.target === relation.entity &&
-        (<any> x.mixeds).primary === true
+        x.mixeds.primary === true
       );
       // Find foreing entity
       const ftable = tables.find((x) => x.target === relation.entity);
@@ -512,8 +512,8 @@ function linkRelationsWithTables(metadata: MetadataStore) {
           x.mixeds.name === column.mixeds.name
         )
       ) {
-        table.relations.push(column);
-        relations.push(column);
+        table.relations.push(<any> column);
+        relations.push(<any> column);
       }
     }
   }

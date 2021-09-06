@@ -36,7 +36,7 @@ class Connection {
     }
   }
 
-  getConnection(): ConnectionAll {
+  getDriver(): ConnectionAll {
     if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
     return this.#connection;
   }

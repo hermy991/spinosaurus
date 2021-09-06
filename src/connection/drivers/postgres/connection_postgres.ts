@@ -567,52 +567,59 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
 
   async getMetadata(): Promise<MetadataStore> {
     const metadata: MetadataStore = new MetadataStore();
-    const query = `
-SELECT table_catalog
-  ,table_schema
-  ,table_name
-  ,column_name
-  ,ordinal_position
-  ,column_default
-  ,is_nullable,data_type
-  ,character_maximum_length
-  ,character_octet_length
-  ,numeric_precision
-  ,numeric_precision_radix
-  ,numeric_scale
-  ,datetime_precision
-  ,interval_type
-  ,interval_precision
-  ,character_set_catalog
-  ,character_set_schema
-  ,character_set_name
-  ,collation_catalog
-  ,collation_schema
-  ,collation_name
-  ,domain_catalog
-  ,domain_schema
-  ,domain_name
-  ,udt_catalog
-  ,udt_schema
-  ,udt_name
-  ,scope_catalog
-  ,scope_schema
-  ,scope_name
-  ,maximum_cardinality
-  ,dtd_identifier
-  ,is_self_referencing
-  ,is_identity
-  ,identity_generation
-  ,identity_start
-  ,identity_increment
-  ,identity_maximum
-  ,identity_minimum
-  ,identity_cycle
-  ,is_generated
-  ,generation_expression
-  ,is_updatable
+    const query = `SELECT c.table_catalog
+  ,c.table_schema
+  ,c.table_name
+  ,c.column_name
+  ,c.ordinal_position
+  ,c.column_default
+  ,c.is_nullable,data_type
+  ,c.character_maximum_length
+  ,c.character_octet_length
+  ,c.numeric_precision
+  ,c.numeric_precision_radix
+  ,c.numeric_scale
+  ,c.datetime_precision
+  ,c.interval_type
+  ,c.interval_precision
+  ,c.character_set_catalog
+  ,c.character_set_schema
+  ,c.character_set_name
+  ,c.collation_catalog
+  ,c.collation_schema
+  ,c.collation_name
+  ,c.domain_catalog
+  ,c.domain_schema
+  ,c.domain_name
+  ,c.udt_catalog
+  ,c.udt_schema
+  ,c.udt_name
+  ,c.scope_catalog
+  ,c.scope_schema
+  ,c.scope_name
+  ,c.maximum_cardinality
+  ,c.dtd_identifier
+  ,c.is_self_referencing
+  ,c.is_identity
+  ,c.identity_generation
+  ,c.identity_start
+  ,c.identity_increment
+  ,c.identity_maximum
+  ,c.identity_minimum
+  ,c.identity_cycle
+  ,c.is_generated
+  ,c.generation_expression
+  ,c.is_updatable
+  , ccu.constraint_name constraint_primary_key_name
 FROM  information_schema.columns c
+    LEFT JOIN information_schema.table_constraints tc ON tc.constraint_schema = c.table_schema
+                                                      AND tc.table_name = c.table_name
+                                                      AND tc.constraint_type = 'PRIMARY KEY'
+        LEFT JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_schema = tc.constraint_schema
+                                                                      AND ccu.constraint_name = tc.constraint_name
+                                                                      AND ccu.column_name = c.column_name
 WHERE c.table_schema NOT IN('pg_catalog','information_schema','pg_toast')
+ORDER BY c.table_schema ASC, c.table_name ASC, c.ordinal_position ASC
     `;
     const pgr = await this.execute(query);
     let rows: any[] = pgr.rows || [];
@@ -667,42 +674,50 @@ WHERE c.table_schema NOT IN('pg_catalog','information_schema','pg_toast')
           name: <string> row.table_name,
         };
         metadata.tables.push({
-          // target,
-          // options,
+          // target: {},
+          options: {},
           mixeds,
           columns: [],
+          checks: [],
+          uniques: [],
+          relations: [],
+          data: [],
+          nexts: [],
+          afters: [],
         });
         table = metadata.tables[metadata.tables.length - 1];
       }
       const type = {
         columnType: <string> row.data_type,
         length: <number> row.character_maximum_length,
-        precision: <number> row.numeric_precision,
-        scale: <number> row.numeric_scale,
+        precision: [32, 0].includes(row.numeric_precision)
+          ? undefined
+          : row.numeric_precision,
+        scale: row.numeric_scale === 0 ? undefined : row.numeric_scale,
       };
+      const mixeds: any = {};
+      mixeds.name = row.column_name;
+      mixeds.spitype = this.getColumnTypeReverse(type);
+      mixeds.type = row.data_type;
+      mixeds.nullable = row.is_nullable == "YES";
+      row.character_maximum_length
+        ? mixeds.length = row.character_maximum_length
+        : 0;
+      row.column_default ? mixeds.default = row.column_default : 0;
+      row.column_default && row.column_default.startsWith("nextval(")
+        ? mixeds.autoIncrement = true
+        : 0;
+      row.constraint_primary_key_name ? mixeds.primary = true : 0;
+      type.precision ? mixeds.precision = type.precision : 0;
+      type.scale ? mixeds.scale = type.scale : 0;
+
       const column = {
-        target: <ColumnOptions> {},
-        entity: { name: <string> row.table_name },
-        descriptor: <any> {},
-        property: <any> {},
-        options: <ColumnOptions> {},
-        mixeds: <ColumnOptions> {
-          type: this.getColumnTypeReverse(type),
-          name: <string> row.column_name,
-          length: <number> row.character_maximum_length,
-          nullable: row.is_nullable == "YES",
-          default: row.column_default,
-          // default:
-          //   ["text", "varchar"].includes(
-          //       this.getColumnTypeReverse(type) || "",
-          //     ) &&
-          //     (row.column_default || "")
-          //     ? row.column_default.replace(/::text/ig, "").replace(
-          //       /^'|'$/ig,
-          //       "",
-          //     )
-          //     : row.column_default,
-        },
+        target: {},
+        entity: { name: row.table_name },
+        descriptor: {},
+        property: {},
+        options: {},
+        mixeds,
       };
       table.columns.push(column);
       metadata.columns.push(column);
@@ -719,7 +734,7 @@ WHERE c.table_schema NOT IN('pg_catalog','information_schema','pg_toast')
       scale?: number;
     },
   ) {
-    const { columnType, length /*, precision, scale*/ } = req;
+    const { columnType, length, precision, scale } = req;
     let r: ColumnType;
     const charAlikes = [
       "character",
@@ -743,9 +758,11 @@ WHERE c.table_schema NOT IN('pg_catalog','information_schema','pg_toast')
       r = "text";
     } else if (["double precision", "real", "money"].includes(columnType)) {
       r = "numeric";
-    } // else if(scale && ["numeric"].includes(columnType))
-    //   r = "integer";
-    else {
+    } else if (["timestamp without time zone"].includes(columnType)) {
+      r = "timestamp";
+    } else if (!precision && !scale && ["integer"].includes(columnType)) {
+      r = "numeric";
+    } else {
       r = <ColumnType> columnType;
     }
 
