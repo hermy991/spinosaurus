@@ -16,8 +16,10 @@ typeORM)
 - [ ] Repositories and custom repositories
 - [ ] Clean object relational model
 - [ ] Associations (relations)
+  - [x] Uni-directional relations
+  - [ ] Bi-directional relations
+  - [x] Self-referenced relations
 - [ ] Eager and lazy relations
-- [ ] Uni-directional, bi-directional and self-referenced relations
 - [x] Supports multiple inheritance patterns
 - [ ] Cascades
 - [ ] Indices

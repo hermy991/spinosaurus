@@ -237,7 +237,13 @@ export async function generateScript(
       /**
        * Altering column tables'
        */
-      const acols: Array<[string, ParamColumnAjust, ParamColumnAjust]> = lt
+      const acols: Array<
+        [
+          string,
+          ParamColumnAjust & { type?: string },
+          ParamColumnAjust & { type?: string },
+        ]
+      > = lt
         .columns
         .filter((x) => dt.columns.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) =>
@@ -250,21 +256,22 @@ export async function generateScript(
         );
       const qsa = conn.alter({ ...lt.mixeds, entity: lt.mixeds.name });
       acols.forEach((col) => {
-        if (lt.mixeds.name === "person") {
-          console.log(
-            `alter`,
-            lt.mixeds.name,
-            `local`,
-            col[1],
-            `destiny`,
-            col[2],
-          );
-        }
+        col[1].type = conn.getDriver().getDbColumnType(col[1]);
+        let type = col[1].type === "serial" ? "integer" : col[1].type;
+        type = type.replace(/ \([0-9]*\)/ig, "");
+        // if (lt.mixeds.name === "tab") {
+        //   console.log(
+        //     `alter`,
+        //     lt.mixeds.name,
+        //     `local`,
+        //     col[1],
+        //     `destiny`,
+        //     col[2],
+        //   );
+        // }
         const tcol: [string, ParamColumnAjust] = [col[0], {}];
         // spitype
-        (col[1].spitype !== col[2].spitype)
-          ? tcol[1].spitype = col[1].spitype
-          : 0;
+        (type !== col[2].type) ? tcol[1].spitype = col[1].spitype : 0;
         // length
         (col[1].length !== col[2].length) ? tcol[1].length = col[1].length : 0;
         // precision
@@ -290,18 +297,18 @@ export async function generateScript(
           qsa.addColumn(tcol);
         }
       });
-      const sqls = qsa.getSqls();
-      if (lt.mixeds.name === "person") {
-        console.log(
-          "alter ",
-          lt.mixeds.name,
-          "sqls.length",
-          sqls.length,
-          "sqls",
-          sqls.join(";\n"),
-        );
-      }
-      script.push(...sqls);
+      const sqlArr = qsa.getSqls();
+      // if (lt.mixeds.name === "tab" && sqlArr.length) {
+      // console.log(
+      //   "alter ",
+      //   lt.mixeds.name,
+      //   "sqls.length",
+      //   sqlArr.length,
+      //   "sqls",
+      //   sqlArr.join(";\n"),
+      // );
+      // }
+      script.push(...sqlArr);
       /**
        * Adding column tables'
        */
@@ -405,6 +412,7 @@ export async function generateScript(
       );
     }
   }
+  console.log("script", script);
   window.close();
   return script;
 }

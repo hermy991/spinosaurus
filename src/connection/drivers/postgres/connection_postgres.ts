@@ -517,63 +517,17 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
     return this.#currentSchema;
   }
 
-  getDbColumnType = (
-    req: {
-      spitype?: ColumnType;
-      length?: number;
-      precision?: number;
-      scale?: number;
-      autoIncrement?: "increment" | "uuid";
-    },
-  ): string => {
-    const { spitype, length, precision, scale, autoIncrement } = req;
-    if (
-      (!spitype ||
-        ["numeric", "bigint", "integer", "smallint"].includes(spitype)) &&
-      autoIncrement === "increment"
-    ) {
-      return "serial";
-    } else if (!spitype && autoIncrement === "uuid") {
-      return "uuid";
-    }
-
-    let columnType: string;
-    if (["bytearray"].includes(spitype || "")) {
-      columnType = "bytea";
-    } else if (["varchar"].includes(spitype || "") && length) {
-      columnType = `character varying (${length})`;
-    } else if (["numeric"].includes(spitype || "") && precision && scale) {
-      columnType = `numeric (${precision},${scale})`;
-    } else if (["numeric"].includes(spitype || "") && precision) {
-      columnType = `numeric (${precision})`;
-    } else if (
-      ["numeric"].includes(spitype || "") && !precision && length == 8
-    ) {
-      columnType = `bigint`;
-    } else if (
-      ["numeric"].includes(spitype || "") && !precision && length == 4
-    ) {
-      columnType = `integer`;
-    } else if (
-      ["numeric"].includes(spitype || "") && !precision && length == 2
-    ) {
-      columnType = `smallint`;
-    } else {
-      columnType = spitype || "";
-    }
-
-    return columnType;
-  };
-
   async getMetadata(): Promise<MetadataStore> {
     const metadata: MetadataStore = new MetadataStore();
-    const query = `SELECT c.table_catalog
+    const query = `
+SELECT c.table_catalog
   ,c.table_schema
   ,c.table_name
   ,c.column_name
   ,c.ordinal_position
   ,c.column_default
-  ,c.is_nullable,data_type
+  ,c.is_nullable
+  ,c.data_type
   ,c.character_maximum_length
   ,c.character_octet_length
   ,c.numeric_precision
@@ -620,7 +574,7 @@ FROM  information_schema.columns c
                                                                       AND ccu.column_name = c.column_name
 WHERE c.table_schema NOT IN('pg_catalog','information_schema','pg_toast')
 ORDER BY c.table_schema ASC, c.table_name ASC, c.ordinal_position ASC
-    `;
+`;
     const pgr = await this.execute(query);
     let rows: any[] = pgr.rows || [];
     rows = rows.sort((a, b) =>
@@ -726,6 +680,58 @@ ORDER BY c.table_schema ASC, c.table_name ASC, c.ordinal_position ASC
     return metadata;
   }
 
+  getDbColumnType = (
+    req: {
+      spitype?: ColumnType;
+      length?: number;
+      precision?: number;
+      scale?: number;
+      autoIncrement?: "increment" | "uuid";
+    },
+  ): string => {
+    const { spitype, length, precision, scale, autoIncrement } = req;
+    if (
+      (!spitype ||
+        ["numeric", "bigint", "integer", "smallint"].includes(spitype)) &&
+      autoIncrement === "increment"
+    ) {
+      return "serial";
+    } else if (!spitype && autoIncrement === "uuid") {
+      return "uuid";
+    }
+
+    let columnType: string;
+    if (["bytearray"].includes(spitype || "")) {
+      columnType = "bytea";
+    } else if (["varchar"].includes(spitype || "") && length) {
+      columnType = `character varying (${length})`;
+    } else if (["numeric"].includes(spitype || "") && precision && scale) {
+      columnType = `numeric (${precision},${scale})`;
+    } else if (["numeric"].includes(spitype || "") && precision) {
+      columnType = `numeric (${precision})`;
+    } else if (
+      ["numeric"].includes(spitype || "") && !precision && length == 8
+    ) {
+      columnType = `bigint`;
+    } else if (
+      ["numeric"].includes(spitype || "") && !precision && length == 4
+    ) {
+      columnType = `integer`;
+    } else if (
+      ["numeric"].includes(spitype || "") && !precision && length == 2
+    ) {
+      columnType = `smallint`;
+    } else if (
+      ["timestamp"].includes(spitype || "")
+    ) {
+      columnType = `timestamp without time zone`;
+    } else {
+      columnType = spitype || "";
+    }
+
+    return columnType;
+  };
+
   getColumnTypeReverse(
     req: {
       columnType: string;
@@ -760,8 +766,8 @@ ORDER BY c.table_schema ASC, c.table_name ASC, c.ordinal_position ASC
       r = "numeric";
     } else if (["timestamp without time zone"].includes(columnType)) {
       r = "timestamp";
-    } else if (!precision && !scale && ["integer"].includes(columnType)) {
-      r = "numeric";
+      // } else if (!precision && !scale && ["integer"].includes(columnType)) {
+      //   r = "numeric";
     } else {
       r = <ColumnType> columnType;
     }
