@@ -123,3 +123,4 @@ deno run -qA https://code.velociraptor.run test:exec
 - change param `orderBy` and `addOrderBy` strategic from ... to array
 - using path in Next and After in decorators and query builder
 - updating database with createConnection
+- check constraint ending with `*_not_null` should throw a error

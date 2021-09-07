@@ -1,3 +1,4 @@
+import * as sql from "./connection_postgres_sql.ts";
 import { ConnectionOptionsPostgres } from "../../connection_options.ts";
 import { interpolate, stringify } from "../../builders/base/sql.ts";
 import { IConnectionOperations } from "../../iconnection_operations.ts";
@@ -519,113 +520,31 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
 
   async getMetadata(): Promise<MetadataStore> {
     const metadata: MetadataStore = new MetadataStore();
-    const query = `
-SELECT c.table_catalog
-  ,c.table_schema
-  ,c.table_name
-  ,c.column_name
-  ,c.ordinal_position
-  ,c.column_default
-  ,c.is_nullable
-  ,c.data_type
-  ,c.character_maximum_length
-  ,c.character_octet_length
-  ,c.numeric_precision
-  ,c.numeric_precision_radix
-  ,c.numeric_scale
-  ,c.datetime_precision
-  ,c.interval_type
-  ,c.interval_precision
-  ,c.character_set_catalog
-  ,c.character_set_schema
-  ,c.character_set_name
-  ,c.collation_catalog
-  ,c.collation_schema
-  ,c.collation_name
-  ,c.domain_catalog
-  ,c.domain_schema
-  ,c.domain_name
-  ,c.udt_catalog
-  ,c.udt_schema
-  ,c.udt_name
-  ,c.scope_catalog
-  ,c.scope_schema
-  ,c.scope_name
-  ,c.maximum_cardinality
-  ,c.dtd_identifier
-  ,c.is_self_referencing
-  ,c.is_identity
-  ,c.identity_generation
-  ,c.identity_start
-  ,c.identity_increment
-  ,c.identity_maximum
-  ,c.identity_minimum
-  ,c.identity_cycle
-  ,c.is_generated
-  ,c.generation_expression
-  ,c.is_updatable
-  , ccu.constraint_name constraint_primary_key_name
-FROM  information_schema.columns c
-    LEFT JOIN information_schema.table_constraints tc ON tc.constraint_schema = c.table_schema
-                                                      AND tc.table_name = c.table_name
-                                                      AND tc.constraint_type = 'PRIMARY KEY'
-        LEFT JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_schema = tc.constraint_schema
-                                                                      AND ccu.constraint_name = tc.constraint_name
-                                                                      AND ccu.column_name = c.column_name
-WHERE c.table_schema NOT IN('pg_catalog','information_schema','pg_toast')
-ORDER BY c.table_schema ASC, c.table_name ASC, c.ordinal_position ASC
-`;
-    const pgr = await this.execute(query);
-    let rows: any[] = pgr.rows || [];
-    rows = rows.sort((a, b) =>
-      <number> a.ordinal_position < <number> b.ordinal_position
-        ? -1
-        : <number> a.ordinal_position > <number> b.ordinal_position
-        ? 1
-        : 0
-    )
-      .sort((a, b) =>
-        <string> a.table_name < <string> b.table_name
-          ? -1
-          : <string> a.table_name > <string> b.table_name
-          ? 1
-          : 0
-      )
-      .sort((a, b) =>
-        <string> a.table_schema < <string> b.table_schema
-          ? -1
-          : <string> a.table_schema > <string> b.table_schema
-          ? 1
-          : 0
-      )
-      .sort((a, b) =>
-        <string> a.table_catalog < <string> b.table_catalog
-          ? -1
-          : <string> a.table_catalog > <string> b.table_catalog
-          ? 1
-          : 0
-      );
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
+    const colsQuery = sql.findColumns();
+    const pgr1 = await this.execute(colsQuery);
+    const rcols: any[] = pgr1.rows || [];
+    for (const rcol of rcols) {
       /**
        * Find schemas
        */
-      const schema = metadata.schemas.find((x) => x.name === row.table_schema);
+      const schema = metadata.schemas.find((x) => x.name === rcol.table_schema);
       if (!schema) {
-        metadata.schemas.push({ name: row.table_schema });
+        metadata.schemas.push({ name: rcol.table_schema });
       }
 
       /**
        * Find tables
        */
       let table = metadata.tables.find((x) =>
-        x.mixeds!.name === row.table_name
+        x.mixeds!.database === rcol.table_catalog &&
+        x.mixeds!.schema === rcol.table_schema &&
+        x.mixeds!.name === rcol.table_name
       );
       if (!table) {
         const mixeds: EntityOptions = {
-          database: <string> row.table_catalog,
-          schema: <string> row.table_schema,
-          name: <string> row.table_name,
+          database: <string> rcol.table_catalog,
+          schema: <string> rcol.table_schema,
+          name: <string> rcol.table_name,
         };
         metadata.tables.push({
           // target: {},
@@ -642,32 +561,32 @@ ORDER BY c.table_schema ASC, c.table_name ASC, c.ordinal_position ASC
         table = metadata.tables[metadata.tables.length - 1];
       }
       const type = {
-        columnType: <string> row.data_type,
-        length: <number> row.character_maximum_length,
-        precision: [32, 0].includes(row.numeric_precision)
+        columnType: <string> rcol.data_type,
+        length: <number> rcol.character_maximum_length,
+        precision: [32, 0].includes(rcol.numeric_precision)
           ? undefined
-          : row.numeric_precision,
-        scale: row.numeric_scale === 0 ? undefined : row.numeric_scale,
+          : rcol.numeric_precision,
+        scale: rcol.numeric_scale === 0 ? undefined : rcol.numeric_scale,
       };
       const mixeds: any = {};
-      mixeds.name = row.column_name;
+      mixeds.name = rcol.column_name;
       mixeds.spitype = this.getColumnTypeReverse(type);
-      mixeds.type = row.data_type;
-      mixeds.nullable = row.is_nullable == "YES";
-      row.character_maximum_length
-        ? mixeds.length = row.character_maximum_length
+      mixeds.type = rcol.data_type;
+      mixeds.nullable = rcol.is_nullable == "YES";
+      rcol.character_maximum_length
+        ? mixeds.length = rcol.character_maximum_length
         : 0;
-      row.column_default ? mixeds.default = row.column_default : 0;
-      row.column_default && row.column_default.startsWith("nextval(")
+      rcol.column_default ? mixeds.default = rcol.column_default : 0;
+      rcol.column_default && rcol.column_default.startsWith("nextval(")
         ? mixeds.autoIncrement = true
         : 0;
-      row.constraint_primary_key_name ? mixeds.primary = true : 0;
+      rcol.constraint_primary_key_name ? mixeds.primary = true : 0;
       type.precision ? mixeds.precision = type.precision : 0;
       type.scale ? mixeds.scale = type.scale : 0;
 
       const column = {
         target: {},
-        entity: { name: row.table_name },
+        entity: { name: rcol.table_name },
         descriptor: {},
         property: {},
         options: {},
@@ -676,7 +595,32 @@ ORDER BY c.table_schema ASC, c.table_name ASC, c.ordinal_position ASC
       table.columns.push(column);
       metadata.columns.push(column);
     }
-
+    const consQuery = sql.findConstraints();
+    const pgr2 = await this.execute(consQuery);
+    const rcons: any[] = pgr2.rows || [];
+    for (const rcon of rcons) {
+      const table = metadata.tables.find((x) =>
+        x.mixeds!.database === rcon.table_catalog &&
+        x.mixeds!.schema === rcon.table_schema &&
+        x.mixeds!.name === rcon.table_name
+      );
+      if (table) {
+        if (rcon.constraint_type === "CHECK") {
+          const mixeds = {
+            name: rcon.constraint_name,
+            expression: rcon.check_clause,
+          };
+          table.checks.push({ options: mixeds, mixeds });
+        }
+        if (rcon.constraint_type === "UNIQUE") {
+          const mixeds = {
+            name: rcon.constraint_name,
+            columns: rcon.column_names.split(","),
+          };
+          table.uniques.push({ options: mixeds, mixeds });
+        }
+      }
+    }
     return metadata;
   }
 

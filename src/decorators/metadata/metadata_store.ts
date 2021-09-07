@@ -18,7 +18,7 @@ export type StoreCheckOptions = {
 };
 
 export type StoreCheck = {
-  target: Function;
+  target?: Function;
   options: StoreCheckOptions;
   mixeds: StoreCheckOptions;
 };
@@ -29,7 +29,7 @@ export type StoreUniqueOptions = {
 };
 
 export type StoreUnique = {
-  target: Function;
+  target?: Function;
   options: StoreUniqueOptions;
   mixeds: StoreUniqueOptions;
 };

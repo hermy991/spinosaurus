@@ -233,6 +233,18 @@ export async function generateScript(
       (x.mixeds.schema || dschema) === (topts.schema || dschema) &&
       x.mixeds.name === topts.name
     );
+    // if (topts.name === "user" && dt) {
+    //   console.log(
+    //     "topts.schema",
+    //     topts.schema,
+    //     "topts.name",
+    //     topts.name,
+    //     "x.mixeds.schema",
+    //     dt.mixeds.schema,
+    //     "dt.mixeds.name",
+    //     dt.mixeds.name,
+    //   );
+    // }
     if (dt && lt.mixeds.name) {
       /**
        * Altering column tables'
@@ -335,7 +347,9 @@ export async function generateScript(
       /**
        * New tables
        */
-      // Columns
+      /**
+       * Columns
+       */
       const columns: Array<ParamColumnCreate> = lt.columns
         .map((x) => ({ ...x.property, ...x.mixeds }));
       /**
