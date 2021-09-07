@@ -2,11 +2,12 @@ import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderDrop extends BuilderBase {
-  private nameData:
+  #nameData:
     | { entity: string; schema?: string }
     | { schema: string; check?: boolean }
     | null = null;
-  private columnsData: Array<string> = [];
+  #columnsData: string[] = [];
+  #constraintsData: string[] = [];
 
   constructor(public conn: ConnectionAll) {
     super(conn);
@@ -18,43 +19,47 @@ export class BuilderDrop extends BuilderBase {
       check?: boolean;
     },
   ): void {
-    this.nameData = req;
+    this.#nameData = req;
   }
 
-  columns(columns: Array<string> | string): void {
-    columns = typeof columns == "string" ? [columns] : columns;
-    this.columnsData = [];
-    columns.forEach((x) => {
-      this.addColumn(x);
-    });
+  columns(columns: string | string[]): void {
+    this.#columnsData = [];
+    this.addColumn(columns);
   }
 
-  addColumn(column: string): void {
-    column = `${column}`;
-    this.columnsData.push(column);
+  addColumn(columns: string | string[]): void {
+    columns = Array.isArray(columns) ? columns : [columns];
+    this.#columnsData.push(...columns);
+  }
+
+  constraints(names: string | string[]): void {
+    this.#constraintsData = [];
+    this.addConstraint(names);
+  }
+
+  addConstraint(names: string | string[]): void {
+    names = Array.isArray(names) ? names : [names];
+    this.#constraintsData.push(...names);
   }
 
   getDropSchemaQuery(): string[] {
-    if (!this.nameData) {
+    if (!this.#nameData) {
       return [];
     }
-    const nameData = self.structuredClone(this.nameData);
+    const nameData = self.structuredClone(this.#nameData);
     nameData.schema = this.clearNames(nameData.schema);
     return [this.conn.dropSchema(nameData)];
   }
 
   getEntityQuery(type: "drop" | "alter"): string {
-    if (!this.nameData) {
+    if (!this.#nameData) {
       return ``;
     }
-    if (!("entity" in this.nameData)) {
+    if (!("entity" in this.#nameData)) {
       return ``;
     }
-    const { entity, schema } = this.nameData;
-    let query = this.clearNames(entity);
-    if (schema) {
-      query = this.clearNames([schema, entity]);
-    }
+    const { entity, schema } = this.#nameData;
+    const query = this.clearNames([schema, entity]);
     if (type == "drop") {
       return `DROP TABLE ${query}`;
     } else if (type == "alter") {
@@ -63,32 +68,42 @@ export class BuilderDrop extends BuilderBase {
     return ``;
   }
 
-  getColumnsQuery(): string {
-    if (!this.columnsData.length) {
-      return ``;
+  getColumnsQuery(names: string[]): string[] {
+    if (!names.length) {
+      return [];
     }
-    let query = "";
-    for (let i = 0; i < this.columnsData.length; i++) {
-      const name = this.clearNames(this.columnsData[i]);
-      query += `DROP COLUMN ${name}`;
-      if (i + 1 !== this.columnsData.length) {
-        query += ", ";
-      }
+    const sqle = `${this.getEntityQuery("alter")}`;
+    const sqls: string[] = [];
+    sqls.push(
+      `${sqle} DROP COLUMN ${names.map((x) => this.clearNames(x)).join(", ")}`,
+    );
+    return sqls;
+  }
+
+  getConstraintsQuery(names: string[]): string[] {
+    const sqls: string[] = [];
+    for (const name of names) {
+      const sql = `${this.getEntityQuery("alter")} DROP CONSTRAINT ${
+        this.clearNames(name)
+      }`;
+      sqls.push(sql);
     }
-    return `${query}`;
+    return sqls;
   }
 
   getSqls(): string[] {
-    if (this.nameData === null) {
+    if (this.#nameData === null) {
       return [];
     }
-    if (!("entity" in this.nameData)) {
+    if (!("entity" in this.#nameData)) {
       return this.getDropSchemaQuery();
     }
-    if (this.columnsData.length) {
-      return [this.getEntityQuery("alter") + " " + this.getColumnsQuery()];
-    } else {
-      return [this.getEntityQuery("drop")];
+    const sqls: string[] = [];
+    sqls.push(...this.getColumnsQuery(this.#columnsData));
+    sqls.push(...this.getConstraintsQuery(this.#constraintsData));
+    if (sqls.length) {
+      return sqls;
     }
+    return [this.getEntityQuery("drop")];
   }
 }

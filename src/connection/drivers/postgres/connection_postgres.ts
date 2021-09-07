@@ -710,8 +710,6 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
       r = "numeric";
     } else if (["timestamp without time zone"].includes(columnType)) {
       r = "timestamp";
-      // } else if (!precision && !scale && ["integer"].includes(columnType)) {
-      //   r = "numeric";
     } else {
       r = <ColumnType> columnType;
     }

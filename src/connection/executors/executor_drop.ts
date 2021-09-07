@@ -17,20 +17,23 @@ export class ExecutorDrop {
     return this;
   }
 
-  columns(columns: Array<string> | string): ExecutorDrop {
-    columns = typeof columns == "string" ? [columns] : columns;
+  columns(columns: string | string[]): ExecutorDrop {
     this.db.columns(columns);
     return this;
   }
 
-  addColumn(columns: string | Array<string>): ExecutorDrop {
-    if (Array.isArray(columns)) {
-      for (let column of columns) {
-        this.db.addColumn(column);
-      }
-    } else if (typeof columns == "string") {
-      this.db.addColumn(columns);
-    }
+  addColumn(columns: string | string[]): ExecutorDrop {
+    this.db.addColumn(columns);
+    return this;
+  }
+
+  constraints(names: string | string[]): ExecutorDrop {
+    this.db.constraints(names);
+    return this;
+  } 
+
+  addConstraint(names: string | string[]): ExecutorDrop {
+    this.db.addConstraint(names);
     return this;
   }
 

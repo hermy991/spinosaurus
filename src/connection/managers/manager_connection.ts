@@ -246,17 +246,16 @@ export async function generateScript(
     //   );
     // }
     if (dt && lt.mixeds.name) {
-      /**
-       * Altering column tables'
-       */
+      /******************************
+       * Alter column tables
+       ******************************/
       const acols: Array<
         [
           string,
           ParamColumnAjust & { type?: string },
           ParamColumnAjust & { type?: string },
         ]
-      > = lt
-        .columns
+      > = lt.columns
         .filter((x) => dt.columns.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) =>
           <any> [
@@ -309,44 +308,58 @@ export async function generateScript(
           qsa.addColumn(tcol);
         }
       });
-      const sqlArr = qsa.getSqls();
-      // if (lt.mixeds.name === "tab" && sqlArr.length) {
-      // console.log(
-      //   "alter ",
-      //   lt.mixeds.name,
-      //   "sqls.length",
-      //   sqlArr.length,
-      //   "sqls",
-      //   sqlArr.join(";\n"),
-      // );
-      // }
-      script.push(...sqlArr);
-      /**
-       * Adding column tables'
-       */
-      const colsm: Array<ParamColumnCreate> = lt.columns
+      script.push(...qsa.getSqls());
+      /******************************
+       * Adding column tables on tables
+       ******************************/
+      const mcols: Array<ParamColumnCreate> = lt.columns
         .filter((x) => !dt.columns.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => <any> ({ ...x.mixeds }));
-      if (colsm.length) {
-        const qsm = conn.alter({ ...lt.mixeds, entity: lt.mixeds.name })
-          .columns(colsm);
-        script.push(...qsm.getSqls());
-      }
-      /**
-       * Dropping column tables'
-       */
-      const colsd: Array<string> = dt.columns
+      script.push(
+        ...conn.alter({ ...lt.mixeds, entity: lt.mixeds.name })
+          .columns(mcols).getSqls(),
+      );
+      /******************************
+       * Dropping column tables from tables
+       ******************************/
+      const dcols: Array<string> = dt.columns
         .filter((x) => !lt.columns.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => x.mixeds.name || "");
-      if (colsd.length && lt.mixeds.name) {
-        const qsd = conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
-          .columns(colsd);
-        script.push(...qsd.getSqls());
-      }
+      script.push(
+        ...conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
+          .columns(dcols).getSqls(),
+      );
+      /******************************
+       * Adding checks and uniques on tables
+       ******************************/
+      const achks = lt.checks.filter((x) =>
+        !dt.checks.some((y) => y.mixeds.name === x.mixeds.name)
+      ).map((x) => x.mixeds);
+      const auniqs = lt.uniques.filter((x) =>
+        !dt.uniques.some((y) => y.mixeds.name === x.mixeds.name)
+      ).map((x) => x.mixeds);
+      script.push(
+        ...conn.create({ ...lt.mixeds, entity: lt.mixeds.name })
+          .checks(achks).uniques(auniqs).getSqls(),
+      );
+      /******************************
+       * Dropping checks and uniques on tables
+       ******************************/
+      const dchks: Array<string> = dt.checks
+        .filter((x) => !lt.checks.some((y) => y.mixeds.name === x.mixeds.name))
+        .map((x) => x.mixeds.name || "");
+      const duniqs: Array<string> = dt.checks
+        .filter((x) => !lt.checks.some((y) => y.mixeds.name === x.mixeds.name))
+        .map((x) => x.mixeds.name || "");
+      script.push(
+        ...conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
+          .constraints([...dchks, ...duniqs]).getSqls(),
+      );
+      // script.push(...qbchks.getSqls());
     } else if (topts.name) {
-      /**
+      /******************************
        * New tables
-       */
+       ******************************/
       /**
        * Columns
        */
