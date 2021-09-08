@@ -1,3 +1,16 @@
+export const findSchema = (req: { name: string }) => `
+SELECT catalog_name "database"
+    , schema_name "schema"
+    , schema_owner "owner"
+    , default_character_set_catalog
+    , default_character_set_schema
+    , default_character_set_name
+    , sql_path
+FROM information_schema.schemata
+WHERE schema_name NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
+  AND schema_name = '${req.name}'
+`;
+
 export const findColumns = () => `
 SELECT c.table_catalog
   ,c.table_schema

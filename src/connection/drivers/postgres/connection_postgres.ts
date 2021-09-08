@@ -307,18 +307,7 @@ class ConnectionPostgres implements IConnectionOperations {
       name: req.name,
       exists: false,
     };
-    const query = `
-SELECT catalog_name "database"
-    , schema_name "schema"
-    , schema_owner "owner"
-    , default_character_set_catalog
-    , default_character_set_schema
-    , default_character_set_name
-    , sql_path
-FROM information_schema.schemata
-WHERE schema_name NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
-  AND schema_name = '${req.name}' 
-    `;
+    const query = sql.findSchema(req);
     const result = await this.execute(query);
     const rows = result.rows || [];
     if (rows.length) {
@@ -520,6 +509,7 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
 
   async getMetadata(): Promise<MetadataStore> {
     const metadata: MetadataStore = new MetadataStore();
+    const { schemas, tables, columns, checks, uniques, relations } = metadata;
     const colsQuery = sql.findColumns();
     const pgr1 = await this.execute(colsQuery);
     const rcols: any[] = pgr1.rows || [];
@@ -527,15 +517,15 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
       /**
        * Find schemas
        */
-      const schema = metadata.schemas.find((x) => x.name === rcol.table_schema);
+      const schema = schemas.find((x) => x.name === rcol.table_schema);
       if (!schema) {
-        metadata.schemas.push({ name: rcol.table_schema });
+        schemas.push({ name: rcol.table_schema });
       }
 
       /**
        * Find tables
        */
-      let table = metadata.tables.find((x) =>
+      let table = tables.find((x) =>
         x.mixeds!.database === rcol.table_catalog &&
         x.mixeds!.schema === rcol.table_schema &&
         x.mixeds!.name === rcol.table_name
@@ -546,7 +536,7 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
           schema: <string> rcol.table_schema,
           name: <string> rcol.table_name,
         };
-        metadata.tables.push({
+        tables.push({
           // target: {},
           options: {},
           mixeds,
@@ -558,7 +548,7 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
           nexts: [],
           afters: [],
         });
-        table = metadata.tables[metadata.tables.length - 1];
+        table = tables[tables.length - 1];
       }
       const type = {
         columnType: <string> rcol.data_type,
@@ -593,13 +583,13 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
         mixeds,
       };
       table.columns.push(column);
-      metadata.columns.push(column);
+      columns.push(column);
     }
     const consQuery = sql.findConstraints();
     const pgr2 = await this.execute(consQuery);
     const rcons: any[] = pgr2.rows || [];
     for (const rcon of rcons) {
-      const table = metadata.tables.find((x) =>
+      const table = tables.find((x) =>
         x.mixeds!.database === rcon.table_catalog &&
         x.mixeds!.schema === rcon.table_schema &&
         x.mixeds!.name === rcon.table_name
@@ -611,6 +601,7 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
             expression: rcon.check_clause,
           };
           table.checks.push({ options: mixeds, mixeds });
+          checks.push(table.checks[table.checks.length - 1]);
         }
         if (rcon.constraint_type === "UNIQUE") {
           const mixeds = {
@@ -618,6 +609,21 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
             columns: rcon.column_names.split(","),
           };
           table.uniques.push({ options: mixeds, mixeds });
+          uniques.push(table.uniques[table.uniques.length - 1]);
+        }
+        if (rcon.constraint_type === "FOREIGN KEY") {
+          const mixeds = {
+            name: rcon.rcon.column_names + "",
+          };
+          table.relations.push({
+            entity: { name: rcon.table_name + "" },
+            descriptor: null,
+            property: { propertyKey: rcon.column_names },
+            relation: { name: rcon.constraint_name },
+            options: {},
+            mixeds,
+          });
+          relations.push(table.relations[table.relations.length - 1]);
         }
       }
     }

@@ -148,7 +148,7 @@ export type StoreColumn = {
 };
 
 export type StoreRelationColumn = {
-  target: StoreColumnOptions;
+  target?: StoreColumnOptions;
   entity: any;
   descriptor: any;
   property: any;

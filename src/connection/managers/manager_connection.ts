@@ -406,6 +406,7 @@ export async function generateScript(
         entity: table.mixeds.name,
         schema: table.mixeds.schema,
       });
+
       if (table.relations.length) {
         const relations = table.relations.map((x: any) => ({
           name: x.relation.name,
