@@ -122,7 +122,11 @@ export type StoreRelation = {
   /**
    * Entity function o type
    */
-  entity?: Function;
+  schema?: string;
+  /**
+   * Entity function o type
+   */
+  entity?: string | Function;
   /**
      * Foreign key's name
      */
@@ -135,6 +139,11 @@ export type StoreRelation = {
      * Database cascade action on update.
      */
   onUpdate?: OnUpdateType;
+
+  columns?: string[];
+  parentSchema?: string;
+  parentEntity?: string;
+  parentColumns?: string[];
 };
 
 export type StoreColumn = {

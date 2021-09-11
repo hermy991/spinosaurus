@@ -44,10 +44,10 @@ export type ParamRelationCreate = {
   name?: string;
   onDelete?: OnDeleteType;
   onUpdate?: OnUpdateType;
-  columns: Array<string>;
+  columns: string[];
   parentSchema?: string;
   parentEntity: string;
-  parentColumns?: Array<string>;
+  parentColumns?: string[];
 };
 
 export type ParamRelationDefinition =
@@ -55,8 +55,8 @@ export type ParamRelationDefinition =
     name?: string;
     onDelete?: OnDeleteType;
     onUpdate?: OnUpdateType;
-    columns: Array<string>;
+    columns: string;
     parentEntity: Function;
-    parentColumns?: Array<string>;
+    parentColumns?: string[];
   }
   | ParamRelationCreate;

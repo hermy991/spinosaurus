@@ -355,7 +355,6 @@ export async function generateScript(
         ...conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
           .constraints([...dchks, ...duniqs]).getSqls(),
       );
-      // script.push(...qbchks.getSqls());
     } else if (topts.name) {
       /******************************
        * New tables
