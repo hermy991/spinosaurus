@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "spinosaurus/mod.ts";
 
 @Entity({ schema: "decorator" })
-export class ForeinghEntity {
+export class ForeignEntity {
   @PrimaryGeneratedColumn()
   column21!: number;
 

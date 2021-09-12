@@ -566,7 +566,9 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
       rcol.character_maximum_length
         ? mixeds.length = rcol.character_maximum_length
         : 0;
-      rcol.column_default ? mixeds.default = rcol.column_default : 0;
+      rcol.column_default && !rcol.column_default.startsWith("nextval(")
+        ? mixeds.default = rcol.column_default
+        : 0;
       rcol.column_default && rcol.column_default.startsWith("nextval(")
         ? mixeds.autoIncrement = true
         : 0;
@@ -613,13 +615,21 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
         }
         if (rcon.constraint_type === "FOREIGN KEY") {
           const mixeds = {
-            name: rcon.rcon.column_names + "",
+            name: rcon.column_names + "",
           };
           table.relations.push({
             entity: { name: rcon.table_name + "" },
             descriptor: null,
             property: { propertyKey: rcon.column_names },
-            relation: { name: rcon.constraint_name },
+            relation: {
+              schema: rcon.table_schema,
+              entity: rcon.table_name,
+              name: rcon.constraint_name,
+              columns: rcon.column_names.split(","),
+              parentSchema: rcon.foreign_table_schema,
+              parentEntity: rcon.foreign_table_name,
+              parentColumns: rcon.foreign_column_names.split(","),
+            },
             options: {},
             mixeds,
           });

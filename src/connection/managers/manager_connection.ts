@@ -270,16 +270,6 @@ export async function generateScript(
         col[1].type = conn.getDriver().getDbColumnType(col[1]);
         let type = col[1].type === "serial" ? "integer" : col[1].type;
         type = type.replace(/ \([0-9]*\)/ig, "");
-        // if (lt.mixeds.name === "tab") {
-        //   console.log(
-        //     `alter`,
-        //     lt.mixeds.name,
-        //     `local`,
-        //     col[1],
-        //     `destiny`,
-        //     col[2],
-        //   );
-        // }
         const tcol: [string, ParamColumnAjust] = [col[0], {}];
         // spitype
         (type !== col[2].type) ? tcol[1].spitype = col[1].spitype : 0;
@@ -294,6 +284,10 @@ export async function generateScript(
         // nullable
         (col[1].nullable !== col[2].nullable)
           ? tcol[1].nullable = col[1].nullable
+          : 0;
+        // default
+        (col[1].default !== col[2].default)
+          ? tcol[1].default = col[1].default
           : 0;
         // primary
         (col[1].primary !== col[2].primary)
@@ -325,10 +319,12 @@ export async function generateScript(
       const dcols: Array<string> = dt.columns
         .filter((x) => !lt.columns.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => x.mixeds.name || "");
-      script.push(
-        ...conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
-          .columns(dcols).getSqls(),
-      );
+      if (dcols.length) {
+        script.push(
+          ...conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
+            .columns(dcols).getSqls(),
+        );
+      }
       /******************************
        * Adding checks and uniques on tables
        ******************************/
@@ -338,10 +334,12 @@ export async function generateScript(
       const auniqs = lt.uniques.filter((x) =>
         !dt.uniques.some((y) => y.mixeds.name === x.mixeds.name)
       ).map((x) => x.mixeds);
-      script.push(
-        ...conn.create({ ...lt.mixeds, entity: lt.mixeds.name })
-          .checks(achks).uniques(auniqs).getSqls(),
-      );
+      if ([...achks, ...auniqs].length) {
+        script.push(
+          ...conn.create({ ...lt.mixeds, entity: lt.mixeds.name })
+            .checks(achks).uniques(auniqs).getSqls(),
+        );
+      }
       /******************************
        * Dropping checks and uniques on tables
        ******************************/
@@ -351,27 +349,26 @@ export async function generateScript(
       const duniqs: Array<string> = dt.checks
         .filter((x) => !lt.checks.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => x.mixeds.name || "");
-      script.push(
-        ...conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
-          .constraints([...dchks, ...duniqs]).getSqls(),
-      );
+      if ([...dchks, ...duniqs].length) {
+        script.push(
+          ...conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
+            .constraints([...dchks, ...duniqs]).getSqls(),
+        );
+      }
     } else if (topts.name) {
       /******************************
-       * New tables
+       * Adding columns to a new tables
        ******************************/
-      /**
-       * Columns
-       */
       const columns: Array<ParamColumnCreate> = lt.columns
         .map((x) => ({ ...x.property, ...x.mixeds }));
-      /**
-       * Checks constraints
-       */
+      /******************************
+       * Adding checks constraints to a new tables
+       ******************************/
       const checks: Array<ParamCheck> = lt.checks
         .map((x) => x.mixeds);
-      /**
-       * Uniques constraints
-       */
+      /******************************
+       * Adding uniques constraints to a new tables
+       ******************************/
       const uniques: Array<ParamUnique> = lt.uniques
         .map(
           (x) => ({ ...x.mixeds, columns: (<any> x.mixeds).columnNames }),
@@ -379,9 +376,9 @@ export async function generateScript(
       const data: Array<ParamData> = lt.data
         .map((x) => x.entries).flatMap((x) => x);
       const nexts = lt.nexts.flatMap((x) => x.steps);
-      /**
-       * Create entity
-       */
+      /******************************
+       * Create entity and adding previews constraints
+       ******************************/
       const qs = conn.create({
         entity: topts.name,
         schema: topts.schema,
@@ -395,31 +392,66 @@ export async function generateScript(
       script.push(...qs.getSqls());
     }
   }
-  /**
-   * Relations
-   */
-  for (let i = 0; i < localMetadata.tables.length; i++) {
-    const table = localMetadata.tables[i];
-    if (table.mixeds.name) {
-      const qa = conn.alter({
-        entity: table.mixeds.name,
-        schema: table.mixeds.schema,
-      });
-
-      if (table.relations.length) {
-        const relations = table.relations.map((x: any) => ({
-          name: x.relation.name,
-          columns: [x.mixeds.name].filter((x) => x),
-          parentEntity: x.relation.entity,
-          parentColumns: x.relation.columns && x.relation.columns.length
-            ? x.relation.columns
-            : undefined,
-        }));
-        const sqls = qa.relations(relations).getSqls();
-        script.push(...sqls);
+  for (const lt of localMetadata.tables) {
+    const qa = conn.alter({
+      entity: lt.mixeds.name || "",
+      schema: lt.mixeds.schema,
+    });
+    for (const lrc of lt.relations) {
+      const dr = destinyMetadata.relations.find((x) =>
+        x.relation.name === lrc.relation.name
+      );
+      if (!dr) {
+        /******************************
+       * Adding new relation globaly
+       ******************************/
+        const lr = lrc.relation;
+        qa.addRelations([
+          {
+            name: lr.name,
+            columns: [lrc.mixeds.name || ""],
+            parentEntity: <Function> lr.entity,
+            parentColumns: ((<any> lr).columns || []),
+          },
+        ]);
+      } else {
+        /******************************
+       * Modifying a relation globaly
+       ******************************/
+        const lr = lrc.relation;
+        qa.addRelations([[lr.name + "", {
+          name: lr.name,
+          columns: [lrc.mixeds.name || ""],
+          parentEntity: <Function> lr.entity,
+          parentColumns: ((<any> lr).columns || []),
+        }]]);
       }
     }
+    script.push(...qa.getSqls());
   }
+
+  // for (let i = 0; i < localMetadata.tables.length; i++) {
+  //   const table = localMetadata.tables[i];
+  //   if (table.mixeds.name) {
+  //     const qa = conn.alter({
+  //       entity: table.mixeds.name,
+  //       schema: table.mixeds.schema,
+  //     });
+
+  //     if (table.relations.length) {
+  //       const relations = table.relations.map((x: any) => ({
+  //         name: x.relation.name,
+  //         columns: [x.mixeds.name].filter((x) => x),
+  //         parentEntity: x.relation.entity,
+  //         parentColumns: x.relation.columns && x.relation.columns.length
+  //           ? x.relation.columns
+  //           : undefined,
+  //       }));
+  //       const sqls = qa.relations(relations).getSqls();
+  //       script.push(...sqls);
+  //     }
+  //   }
+  // }
   /**
    * Afters
    */
@@ -439,7 +471,7 @@ export async function generateScript(
       );
     }
   }
-  console.log("script", script);
-  window.close();
+  // console.log("script", script);
+  // window.close();
   return script;
 }

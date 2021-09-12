@@ -1,7 +1,7 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { Connection } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
-// import { ForeinghEntity } from "./playground/decorators/AlterEntity.ts";
+// import { ForeignEntity } from "./playground/decorators/AlterEntity.ts";
 
 const con1 = getTestConnection();
 /*********************
@@ -37,23 +37,23 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_Cust
   const qe2 =
     `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "anotherSchema"."AnotherEntity1" ("AnotherEntity1Column_ID")`;
   assertEquals(q2, qe2);
-  const { ForeinghEntity } = await import(
+  const { ForeignEntity } = await import(
     "./playground/decorators/AlterEntity.ts"
   );
   const q3 = db.alter({ schema: "publicX", entity: "User" })
     .relations([{
       columns: ["Column_ID"],
-      parentEntity: ForeinghEntity,
+      parentEntity: ForeignEntity,
     }])
     .addRelation({
       columns: ["Column_ID"],
-      parentEntity: ForeinghEntity,
-      parentColumns: ["ForeinghEntityColumn_ID"],
+      parentEntity: ForeignEntity,
+      parentColumns: ["ForeignEntityColumn_ID"],
     })
     .getSql();
   const qe3 =
-    `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeinghEntity" ("column21");
-ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeinghEntity_0b7e7d" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeinghEntity" ("ForeinghEntityColumn_ID")`;
+    `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeignEntity_cdd96d" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeignEntity" ("column21");
+ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeignEntity_0b7e7d" FOREIGN KEY ("Column_ID") REFERENCES "decorator"."ForeignEntity" ("ForeignEntityColumn_ID")`;
   assertEquals(q3, qe3);
   const q4 = db.alter({ entity: "User" })
     .relations([["FK_publicX_User_AnotherEntity1", {

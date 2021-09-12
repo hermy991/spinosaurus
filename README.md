@@ -124,3 +124,5 @@ deno run -qA https://code.velociraptor.run test:exec
 - using path in Next and After in decorators and query builder
 - updating database with createConnection
 - check constraint ending with `*_not_null` should throw a error
+- make a test by diferences in column quantity and position on reference
+  decorators

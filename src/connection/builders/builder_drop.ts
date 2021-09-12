@@ -75,7 +75,9 @@ export class BuilderDrop extends BuilderBase {
     const sqle = `${this.getEntityQuery("alter")}`;
     const sqls: string[] = [];
     sqls.push(
-      `${sqle} DROP COLUMN ${names.map((x) => this.clearNames(x)).join(", ")}`,
+      `${sqle} DROP COLUMN ${
+        names.map((x) => this.clearNames(x)).join(", DROP COLUMN ")
+      }`,
     );
     return sqls;
   }

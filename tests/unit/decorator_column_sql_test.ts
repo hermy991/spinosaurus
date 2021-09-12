@@ -11,7 +11,7 @@ async function clearPlayground(
   /**
    * Dropping tables
    */
-  for (const table of tables) {
+  for (const table of tables.reverse()) {
     const co = await db.checkObject(table.mixeds);
     if (co.exists) {
       const t = { entity: co.name, schema: co.schema };
@@ -39,7 +39,7 @@ Deno.test("decorator [column] sql", async () => {
   const sql = (await sqlConnection(conOptsX)).join(";\n");
   const sqlSpected =
     `CREATE TABLE "public"."ColumnOptions1" ( "varchar1" CHARACTER VARYING (100) DEFAULT '' NOT NULL, "text1" CHARACTER VARYING (100) DEFAULT '' NOT NULL, "numeric1" NUMERIC (15,4) DEFAULT 0 NOT NULL, "numeric2" NUMERIC (15) DEFAULT 0 NOT NULL, "numeric3" BIGINT DEFAULT 0 NOT NULL, "numeric4" INTEGER DEFAULT 0 NOT NULL, "numeric5" SMALLINT DEFAULT 0 NOT NULL, "integer1" NUMERIC DEFAULT 0 NOT NULL, "integer2" NUMERIC DEFAULT 0 NOT NULL, "boolean2" BOOLEAN DEFAULT '0' NOT NULL, "bigint1" BIGINT DEFAULT NULL NOT NULL );
-CREATE TABLE "public"."ColumnTypes1" ( "string1" TEXT DEFAULT '' NOT NULL, "string2" TEXT NOT NULL, "string3" TEXT DEFAULT '' NOT NULL, "number1" NUMERIC DEFAULT 100 NOT NULL, "number2" NUMERIC NOT NULL, "number3" NUMERIC DEFAULT 100 NOT NULL, "bigint1" BIGINT DEFAULT NULL NOT NULL, "bigint2" BIGINT NOT NULL, "bigint3" BIGINT DEFAULT NULL NOT NULL, "boolean1" BOOLEAN DEFAULT '1' NOT NULL, "boolean2" BOOLEAN NOT NULL, "boolean3" BOOLEAN DEFAULT '1' NOT NULL, "timestamp1" TIMESTAMP DEFAULT now() NOT NULL, "timestamp2" TIMESTAMP NOT NULL, "timestamp3" TIMESTAMP DEFAULT now() NOT NULL, "arraybuffer1" BYTEA DEFAULT NULL NOT NULL, "arraybuffer2" BYTEA NOT NULL, "arraybuffer3" BYTEA DEFAULT NULL NOT NULL, "blob1" BYTEA DEFAULT NULL NOT NULL, "blob2" BYTEA NOT NULL, "blob3" BYTEA DEFAULT NULL NOT NULL )`;
+CREATE TABLE "public"."ColumnTypes1" ( "string1" TEXT DEFAULT '' NOT NULL, "string2" TEXT NOT NULL, "string3" TEXT DEFAULT '' NOT NULL, "number1" NUMERIC DEFAULT 100 NOT NULL, "number2" NUMERIC NOT NULL, "number3" NUMERIC DEFAULT 100 NOT NULL, "bigint1" BIGINT DEFAULT NULL NOT NULL, "bigint2" BIGINT NOT NULL, "bigint3" BIGINT DEFAULT NULL NOT NULL, "boolean1" BOOLEAN DEFAULT '1' NOT NULL, "boolean2" BOOLEAN NOT NULL, "boolean3" BOOLEAN DEFAULT '1' NOT NULL, "timestamp1" TIMESTAMP WITHOUT TIME ZONE DEFAULT now() NOT NULL, "timestamp2" TIMESTAMP WITHOUT TIME ZONE NOT NULL, "timestamp3" TIMESTAMP WITHOUT TIME ZONE DEFAULT now() NOT NULL, "arraybuffer1" BYTEA DEFAULT NULL NOT NULL, "arraybuffer2" BYTEA NOT NULL, "arraybuffer3" BYTEA DEFAULT NULL NOT NULL, "blob1" BYTEA DEFAULT NULL NOT NULL, "blob2" BYTEA NOT NULL, "blob3" BYTEA DEFAULT NULL NOT NULL )`;
   assertEquals(sql, sqlSpected);
 });
 
@@ -76,9 +76,9 @@ ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "bigint3" BIGINT NOT NULL D
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "boolean1" BOOLEAN NOT NULL DEFAULT '1';
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "boolean2" BOOLEAN NOT NULL;
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "boolean3" BOOLEAN NOT NULL DEFAULT '1';
-ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "timestamp1" TIMESTAMP NOT NULL DEFAULT now();
-ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "timestamp2" TIMESTAMP NOT NULL;
-ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "timestamp3" TIMESTAMP NOT NULL DEFAULT now();
+ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "timestamp1" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now();
+ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "timestamp2" TIMESTAMP WITHOUT TIME ZONE NOT NULL;
+ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "timestamp3" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now();
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "arraybuffer1" BYTEA NOT NULL DEFAULT NULL;
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "arraybuffer2" BYTEA NOT NULL;
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "arraybuffer3" BYTEA NOT NULL DEFAULT NULL;
@@ -165,12 +165,12 @@ ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "boolean2" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "boolean3" TYPE BOOLEAN USING ("boolean3")::int::boolean;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "boolean3" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "boolean3" SET DEFAULT '1';
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp1" TYPE TIMESTAMP USING ("timestamp1")::timestamp without time zone;
+ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp1" TYPE TIMESTAMP WITHOUT TIME ZONE USING ("timestamp1")::timestamp without time zone;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp1" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp1" SET DEFAULT now();
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp2" TYPE TIMESTAMP USING ("timestamp2")::timestamp without time zone;
+ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp2" TYPE TIMESTAMP WITHOUT TIME ZONE USING ("timestamp2")::timestamp without time zone;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp2" SET NOT NULL;
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp3" TYPE TIMESTAMP USING ("timestamp3")::timestamp without time zone;
+ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp3" TYPE TIMESTAMP WITHOUT TIME ZONE USING ("timestamp3")::timestamp without time zone;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp3" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp3" SET DEFAULT now();
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "arraybuffer1" TYPE BYTEA USING ("arraybuffer1")::bytea;
@@ -241,4 +241,147 @@ ALTER TABLE "decorator"."DroColumnTypes1" ALTER COLUMN "string1" SET NOT NULL;
 ALTER TABLE "decorator"."DroColumnTypes1" ALTER COLUMN "string1" DROP DEFAULT;
 ALTER TABLE "decorator"."DroColumnTypes1" DROP COLUMN "string2", DROP COLUMN "string3", DROP COLUMN "number1", DROP COLUMN "number2", DROP COLUMN "number3", DROP COLUMN "bigint1", DROP COLUMN "bigint2", DROP COLUMN "bigint3", DROP COLUMN "boolean1", DROP COLUMN "boolean2", DROP COLUMN "boolean3", DROP COLUMN "timestamp1", DROP COLUMN "timestamp2", DROP COLUMN "timestamp3", DROP COLUMN "arraybuffer1", DROP COLUMN "arraybuffer2", DROP COLUMN "arraybuffer3", DROP COLUMN "blob1", DROP COLUMN "blob2", DROP COLUMN "blob3"`;
   assertEquals(sql, sqlSpected);
+});
+
+Deno.test("decorator [column many-to-one] sql", async () => {
+  const conOptsX = self.structuredClone(conOpts);
+  const db = new Connection(conOptsX);
+  const dirname = path.dirname(path.fromFileUrl(import.meta.url));
+  conOptsX.entities = [
+    `${dirname}/playground/decorators/**/ManyToOneEntity.ts`,
+  ];
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
+  const _metadata = getMetadata(conOptsX.name);
+  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  const se1 = `CREATE SCHEMA "decorator";
+CREATE TABLE "decorator"."ManyToOneEntity1" ( "column21" SERIAL PRIMARY KEY, "column22" CHARACTER VARYING (100) NOT NULL );
+CREATE TABLE "decorator"."ManyToOneEntity3" ( "column11" SERIAL PRIMARY KEY, "column12" CHARACTER VARYING (100) NOT NULL );
+CREATE TABLE "decorator"."ManyToOneEntity2" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "ManyToOneEntity3_column11_1" INTEGER NOT NULL, "ManyToOneEntity3_column11_2" INTEGER, "column11" INTEGER NOT NULL, "ManyToOneEntity3_column11_3" INTEGER NOT NULL, "ManyToOneEntity1_column21" INTEGER NOT NULL );
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_cdd96d" FOREIGN KEY ("ManyToOneEntity3_column11_1") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b7e7d" FOREIGN KEY ("ManyToOneEntity3_column11_2") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b24df" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_ManyToOneEntity2_primary_ID" FOREIGN KEY ("ManyToOneEntity3_column11_3") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_8b9af1" FOREIGN KEY ("ManyToOneEntity1_column21") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`;
+  assertEquals(s1, se1);
+});
+
+Deno.test("decorator [column many-to-one add, alter, drop] sql", async () => {
+  const conOptsX = self.structuredClone(conOpts);
+  const entity1 = "ManyToOneSync1";
+  const entity2 = "ManyToOneSync3";
+  const entity3 = "ManyToOneSync4";
+  const schema = "decorator";
+  const db = new Connection(conOptsX);
+  const chk1 = await db.checkObject({ name: entity1, schema });
+  const chk2 = await db.checkObject({ name: entity2, schema });
+  const chk3 = await db.checkObject({ name: entity3, schema });
+  if (chk3.exists) {
+    await db.drop({ entity: entity3, schema, check: true }).execute();
+  }
+  if (chk2.exists) {
+    await db.drop({ entity: entity2, schema, check: true }).execute();
+  }
+  if (chk1.exists) {
+    await db.drop({ entity: entity1, schema, check: true }).execute();
+  }
+  await db.create({ schema, check: true }).execute();
+  const e1 = db.create({ entity: entity1, schema })
+    .columns([
+      {
+        name: "column11",
+        spitype: "numeric",
+        primary: true,
+        autoIncrement: "increment",
+      },
+      { name: "column12", spitype: "varchar", length: 100, nullable: false },
+    ]);
+  const e2 = db.create({ entity: entity2, schema })
+    .columns([
+      {
+        name: "column31",
+        spitype: "numeric",
+        primary: true,
+        autoIncrement: "increment",
+      },
+      { name: "column32", spitype: "varchar", length: 100, nullable: false },
+    ]);
+  const e3 = db.create({ entity: entity3, schema })
+    .columns([
+      {
+        name: "column1",
+        spitype: "numeric",
+        primary: true,
+        autoIncrement: "increment",
+      },
+      { name: "column2", spitype: "varchar", length: 100, nullable: false },
+      {
+        name: "ManyToOneSync1_column11",
+        spitype: "integer",
+        nullable: false,
+      },
+      {
+        name: "column11",
+        spitype: "integer",
+        nullable: false,
+      },
+      {
+        name: "ManyToOneSync4_column31",
+        spitype: "integer",
+        nullable: false,
+      },
+    ])
+    .relations([{
+      columns: ["ManyToOneSync1_column11"],
+      parentSchema: "decorator",
+      parentEntity: "ManyToOneSync1",
+      parentColumns: ["column11"],
+    }, {
+      columns: ["ManyToOneSync4_column31"],
+      parentSchema: "decorator",
+      parentEntity: "ManyToOneSync3",
+      parentColumns: ["column31"],
+    }]);
+  await e1.execute();
+  await e2.execute();
+  await e3.execute();
+
+  const dirname = path.dirname(path.fromFileUrl(import.meta.url));
+  conOptsX.entities = [`${dirname}/playground/decorators/**/ManyToOneSync*.ts`];
+  const sql = (await sqlConnection(conOptsX)).join(";\n");
+  const _metadata = getMetadata(conOptsX.name);
+  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  const sqlSpected =
+    `ALTER TABLE "decorator"."ManyToOneSync4" DROP COLUMN "ManyToOneSync4_column31";
+ALTER TABLE "decorator"."ManyToOneSync4" ADD CONSTRAINT "FK_decorator_ManyToOneSync4_ManyToOneSync1_cdd96d" FOREIGN KEY ("ManyToOneSync1_column11") REFERENCES "decorator"."ManyToOneSync1" ("column11");
+ALTER TABLE "decorator"."ManyToOneSync4" ADD CONSTRAINT "FK_decorator_ManyToOneSync4_ManyToOneSync3_0b7e7d" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneSync3" ("column31")`;
+  assertEquals(sql, sqlSpected);
+});
+
+Deno.test("decorator [column one-to-one] sql", async () => {
+  const conOptsX = self.structuredClone(conOpts);
+  const db = new Connection(conOptsX);
+  const dirname = path.dirname(path.fromFileUrl(import.meta.url));
+  conOptsX.entities = [
+    `${dirname}/playground/decorators/**/OneToOneEntity.ts`,
+  ];
+  const s1 = (await sqlConnection(conOptsX)).join(";\n");
+  const _metadata = getMetadata(conOptsX.name);
+  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  const se1 = `CREATE SCHEMA "decorator";
+CREATE TABLE "decorator"."OneToOneEntity1" ( "column21" SERIAL PRIMARY KEY, "column22" CHARACTER VARYING (100) NOT NULL );
+CREATE TABLE "decorator"."OneToOneEntity3" ( "column11" SERIAL PRIMARY KEY, "column12" CHARACTER VARYING (100) NOT NULL );
+CREATE TABLE "decorator"."OneToOneEntity2" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "OneToOneEntity3_column11_1" INTEGER NOT NULL, "OneToOneEntity3_column11_2" INTEGER, "column11" INTEGER NOT NULL, "OneToOneEntity3_column11_3" INTEGER NOT NULL, "OneToOneEntity1_column21_1" INTEGER NOT NULL, "OneToOneEntity1_column21_2" INTEGER NOT NULL );
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_cdd96d" UNIQUE ("OneToOneEntity3_column11_1");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_0b7e7d" UNIQUE ("OneToOneEntity3_column11_2");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_0b24df" UNIQUE ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_f7947d" UNIQUE ("OneToOneEntity3_column11_3");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_8b9af1" UNIQUE ("OneToOneEntity1_column21_1");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_006d12" UNIQUE ("OneToOneEntity1_column21_2");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_cdd96d" FOREIGN KEY ("OneToOneEntity3_column11_1") REFERENCES "decorator"."OneToOneEntity3" ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_0b7e7d" FOREIGN KEY ("OneToOneEntity3_column11_2") REFERENCES "decorator"."OneToOneEntity3" ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_0b24df" FOREIGN KEY ("column11") REFERENCES "decorator"."OneToOneEntity3" ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_OneToOneEntity2_primary_ID" FOREIGN KEY ("OneToOneEntity3_column11_3") REFERENCES "decorator"."OneToOneEntity3" ("column11");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_8b9af1" FOREIGN KEY ("OneToOneEntity1_column21_1") REFERENCES "decorator"."OneToOneEntity1" ("column21");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_006d12" FOREIGN KEY ("OneToOneEntity1_column21_2") REFERENCES "decorator"."OneToOneEntity1" ("column21")`;
+  assertEquals(s1, se1);
 });

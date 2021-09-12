@@ -76,57 +76,6 @@ ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_3" UNIQ
 ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_4" UNIQUE ("custom4", "custom5")`;
   assertEquals(s1, se1);
 });
-
-Deno.test("decorator [many-to-one] sql", async () => {
-  const conOptsX = self.structuredClone(conOpts);
-  const db = new Connection(conOptsX);
-  const dirname = path.dirname(path.fromFileUrl(import.meta.url));
-  conOptsX.entities = [
-    `${dirname}/playground/decorators/**/ManyToOneEntity.ts`,
-  ];
-  const s1 = (await sqlConnection(conOptsX)).join(";\n");
-  const _metadata = getMetadata(conOptsX.name);
-  await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  const se1 = `CREATE SCHEMA "decorator";
-CREATE TABLE "decorator"."ManyToOneEntity1" ( "column21" SERIAL PRIMARY KEY, "column22" CHARACTER VARYING (100) NOT NULL );
-CREATE TABLE "decorator"."ManyToOneEntity3" ( "column11" SERIAL PRIMARY KEY, "column12" CHARACTER VARYING (100) NOT NULL );
-CREATE TABLE "decorator"."ManyToOneEntity2" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "ManyToOneEntity3_column11_1" INTEGER NOT NULL, "ManyToOneEntity3_column11_2" INTEGER, "column11" INTEGER NOT NULL, "ManyToOneEntity3_column11_3" INTEGER NOT NULL, "ManyToOneEntity1_column21" INTEGER NOT NULL );
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_cdd96d" FOREIGN KEY ("ManyToOneEntity3_column11_1") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b7e7d" FOREIGN KEY ("ManyToOneEntity3_column11_2") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b24df" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_ManyToOneEntity2_primary_ID" FOREIGN KEY ("ManyToOneEntity3_column11_3") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_8b9af1" FOREIGN KEY ("ManyToOneEntity1_column21") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`;
-  assertEquals(s1, se1);
-});
-
-Deno.test("decorator [one-to-one] sql", async () => {
-  const conOptsX = self.structuredClone(conOpts);
-  const db = new Connection(conOptsX);
-  const dirname = path.dirname(path.fromFileUrl(import.meta.url));
-  conOptsX.entities = [
-    `${dirname}/playground/decorators/**/OneToOneEntity.ts`,
-  ];
-  const s1 = (await sqlConnection(conOptsX)).join(";\n");
-  const _metadata = getMetadata(conOptsX.name);
-  await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  const se1 = `CREATE SCHEMA "decorator";
-CREATE TABLE "decorator"."OneToOneEntity1" ( "column21" SERIAL PRIMARY KEY, "column22" CHARACTER VARYING (100) NOT NULL );
-CREATE TABLE "decorator"."OneToOneEntity3" ( "column11" SERIAL PRIMARY KEY, "column12" CHARACTER VARYING (100) NOT NULL );
-CREATE TABLE "decorator"."OneToOneEntity2" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "OneToOneEntity3_column11_1" INTEGER NOT NULL, "OneToOneEntity3_column11_2" INTEGER, "column11" INTEGER NOT NULL, "OneToOneEntity3_column11_3" INTEGER NOT NULL, "OneToOneEntity1_column21_1" INTEGER NOT NULL, "OneToOneEntity1_column21_2" INTEGER NOT NULL );
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_cdd96d" UNIQUE ("OneToOneEntity3_column11_1");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_0b7e7d" UNIQUE ("OneToOneEntity3_column11_2");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_0b24df" UNIQUE ("column11");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_f7947d" UNIQUE ("OneToOneEntity3_column11_3");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_8b9af1" UNIQUE ("OneToOneEntity1_column21_1");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "UQ_decorator_OneToOneEntity2_006d12" UNIQUE ("OneToOneEntity1_column21_2");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_cdd96d" FOREIGN KEY ("OneToOneEntity3_column11_1") REFERENCES "decorator"."OneToOneEntity3" ("column11");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_0b7e7d" FOREIGN KEY ("OneToOneEntity3_column11_2") REFERENCES "decorator"."OneToOneEntity3" ("column11");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_0b24df" FOREIGN KEY ("column11") REFERENCES "decorator"."OneToOneEntity3" ("column11");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_OneToOneEntity2_primary_ID" FOREIGN KEY ("OneToOneEntity3_column11_3") REFERENCES "decorator"."OneToOneEntity3" ("column11");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_8b9af1" FOREIGN KEY ("OneToOneEntity1_column21_1") REFERENCES "decorator"."OneToOneEntity1" ("column21");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_006d12" FOREIGN KEY ("OneToOneEntity1_column21_2") REFERENCES "decorator"."OneToOneEntity1" ("column21")`;
-  assertEquals(s1, se1);
-});
 Deno.test("decorator [inherit] sql", async () => {
   const conOptsX = self.structuredClone(conOpts);
   const db = new Connection(conOptsX);

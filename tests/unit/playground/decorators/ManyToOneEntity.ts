@@ -2,7 +2,6 @@ import {
   Column,
   Entity,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from "spinosaurus/mod.ts";
 

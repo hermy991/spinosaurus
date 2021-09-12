@@ -122,27 +122,57 @@ export type StoreRelation = {
   /**
    * Entity function o type
    */
-  schema?: string;
+  entity?: Function;
   /**
-   * Entity function o type
+   * The constraint name parameter is used to define the foreign key constraint
    */
-  entity?: string | Function;
-  /**
-     * Foreign key's name
-     */
   name?: string;
   /**
-     * Database cascade action on delete.
-     */
+   * Database cascade action on delete.
+   */
   onDelete?: OnDeleteType;
   /**
-     * Database cascade action on update.
-     */
+   * Database cascade action on update.
+   */
   onUpdate?: OnUpdateType;
+};
 
+export type StoreRelationForeign = {
+  /**
+   * The schema table's name where foreingh constraints is apply
+   */
+  schema?: string;
+  /**
+   * The table name where foreingh constraints is apply
+   */
+  entity?: string;
+  /**
+   * The constraint name parameter is used to define the foreign key constraint
+   */
+  name?: string;
+  /**
+   * Database cascade action on delete.
+   */
+  onDelete?: OnDeleteType;
+  /**
+   * Database cascade action on update.
+   */
+  onUpdate?: OnUpdateType;
+  /**
+   * It is used to specify the column name where we are going to create a foreign key.
+   */
   columns?: string[];
+  /**
+   * The schema parent table parameter defines a parent table's name.
+   */
   parentSchema?: string;
+  /**
+   * The parent table parameter defines a parent table's name.
+   */
   parentEntity?: string;
+  /**
+   * Column names, which references the foreign key columns.
+   */
   parentColumns?: string[];
 };
 
@@ -161,7 +191,7 @@ export type StoreRelationColumn = {
   entity: any;
   descriptor: any;
   property: any;
-  relation: StoreRelation;
+  relation: StoreRelation | StoreRelationForeign;
   options: StoreColumnOptions;
   mixeds: StoreColumnOptions;
 };

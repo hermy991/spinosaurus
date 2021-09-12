@@ -55,7 +55,7 @@ export type ParamRelationDefinition =
     name?: string;
     onDelete?: OnDeleteType;
     onUpdate?: OnUpdateType;
-    columns: string;
+    columns: string[];
     parentEntity: Function;
     parentColumns?: string[];
   }

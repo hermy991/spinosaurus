@@ -85,7 +85,7 @@ SELECT tc.constraint_catalog
   , ccu.table_catalog AS foreign_table_catalog
   , ccu.table_schema AS foreign_table_schema
   , ccu.table_name AS foreign_table_name
-  , STRING_AGG(ccu.column_name, ',') AS foreign_column_name 
+  , STRING_AGG(ccu.column_name, ',') AS foreign_column_names 
   , cc.check_clause
 FROM information_schema.table_constraints tc 
   LEFT JOIN information_schema.key_column_usage AS kcu ON kcu.constraint_name = tc.constraint_name
