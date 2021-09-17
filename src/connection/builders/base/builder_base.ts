@@ -1,6 +1,6 @@
 import { ConnectionAll } from "../../connection_type.ts";
 import { clearNames } from "./sql.ts";
-import { createHash } from "deno/hash/mod.ts";
+import { hash } from "../../../../deps.ts";
 import {
   getMetadataChecks,
   getMetadataColumns,
@@ -68,9 +68,9 @@ export class BuilderBase {
     }
     if (sequence) {
       // generated += `_${btoa(sequence + "").replaceAll("=", "").toLowerCase()}`;
-      const hash = createHash("md5");
-      hash.update(`${btoa(sequence + "")}`);
-      generated += `_${hash.toString().substr(0, 6)}`;
+      const hh = hash.createHash("md5");
+      hh.update(`${btoa(sequence + "")}`);
+      generated += `_${hh.toString().substr(0, 6)}`;
     }
     return generated;
   };

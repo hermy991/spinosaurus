@@ -566,9 +566,29 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
       rcol.character_maximum_length
         ? mixeds.length = rcol.character_maximum_length
         : 0;
-      rcol.column_default && !rcol.column_default.startsWith("nextval(")
-        ? mixeds.default = rcol.column_default
-        : 0;
+      if (
+        ["text", "character varying"].includes(rcol.data_type) &&
+        rcol.column_default
+      ) {
+        mixeds.default = rcol.column_default
+          .substring(0, rcol.column_default.lastIndexOf("::" + rcol.data_type))
+          .slice(1, -1);
+      } else if (["boolean"].includes(rcol.data_type) && rcol.column_default) {
+        mixeds.default = rcol.column_default == "true" ? "1" : "0";
+      } else if (
+        ["integer", "numeric"].includes(rcol.data_type) && rcol.column_default
+      ) {
+        mixeds.default = Number(rcol.column_default);
+      } else if (
+        ["timestamp without time zone"].includes(rcol.data_type) &&
+        rcol.column_default
+      ) {
+        mixeds.default = Date;
+      } else {
+        rcol.column_default && !rcol.column_default.startsWith("nextval(")
+          ? mixeds.default = rcol.column_default
+          : 0;
+      }
       rcol.column_default && rcol.column_default.startsWith("nextval(")
         ? mixeds.autoIncrement = true
         : 0;

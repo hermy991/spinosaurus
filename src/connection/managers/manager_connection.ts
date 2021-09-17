@@ -108,8 +108,7 @@ export async function getConnection(connectionName?: string) {
 export async function sqlConnection(): Promise<string[]>;
 
 /**
-* Creates a new connection from the env variables, config file with a given name.
-*/
+ * Creates a new connection from the env variables, config file with a given name. */
 export async function sqlConnection(
   name: string,
 ): Promise<string[]>;
@@ -246,9 +245,9 @@ export async function generateScript(
     //   );
     // }
     if (dt && lt.mixeds.name) {
-      /******************************
+      /** ****************************
        * Alter column tables
-       ******************************/
+       * **************************** */
       const acols: Array<
         [
           string,
@@ -285,8 +284,24 @@ export async function generateScript(
         (col[1].nullable !== col[2].nullable)
           ? tcol[1].nullable = col[1].nullable
           : 0;
+        if (
+          conn.getDriver().stringify(col[1].default) !==
+            conn.getDriver().stringify(col[2].default)
+        ) {
+          console.log(
+            "lt.mixeds.name",
+            lt.mixeds.name,
+            "col[1].name",
+            col[1].name,
+            "conn.getDriver().stringify(col[1].default)",
+            "{" + conn.getDriver().stringify(col[1].default) + "}",
+            "col[2].default",
+            "{" + conn.getDriver().stringify(col[2].default) + "}",
+          );
+        }
         // default
-        (col[1].default !== col[2].default)
+        (conn.getDriver().stringify(col[1].default) !==
+            conn.getDriver().stringify(col[2].default))
           ? tcol[1].default = col[1].default
           : 0;
         // primary
@@ -303,9 +318,9 @@ export async function generateScript(
         }
       });
       script.push(...qsa.getSqls());
-      /******************************
+      /** ****************************
        * Adding column tables on tables
-       ******************************/
+       * **************************** */
       const mcols: Array<ParamColumnCreate> = lt.columns
         .filter((x) => !dt.columns.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => <any> ({ ...x.mixeds }));
@@ -313,9 +328,9 @@ export async function generateScript(
         ...conn.alter({ ...lt.mixeds, entity: lt.mixeds.name })
           .columns(mcols).getSqls(),
       );
-      /******************************
+      /** ****************************
        * Dropping column tables from tables
-       ******************************/
+       * **************************** */
       const dcols: Array<string> = dt.columns
         .filter((x) => !lt.columns.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => x.mixeds.name || "");
@@ -325,9 +340,9 @@ export async function generateScript(
             .columns(dcols).getSqls(),
         );
       }
-      /******************************
+      /** ****************************
        * Adding checks and uniques on tables
-       ******************************/
+       * **************************** */
       const achks = lt.checks.filter((x) =>
         !dt.checks.some((y) => y.mixeds.name === x.mixeds.name)
       ).map((x) => x.mixeds);
@@ -340,9 +355,9 @@ export async function generateScript(
             .checks(achks).uniques(auniqs).getSqls(),
         );
       }
-      /******************************
+      /** ****************************
        * Dropping checks and uniques on tables
-       ******************************/
+       * **************************** */
       const dchks: Array<string> = dt.checks
         .filter((x) => !lt.checks.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => x.mixeds.name || "");
@@ -356,19 +371,19 @@ export async function generateScript(
         );
       }
     } else if (topts.name) {
-      /******************************
+      /** ****************************
        * Adding columns to a new tables
-       ******************************/
+       * **************************** */
       const columns: Array<ParamColumnCreate> = lt.columns
         .map((x) => ({ ...x.property, ...x.mixeds }));
-      /******************************
+      /** ****************************
        * Adding checks constraints to a new tables
-       ******************************/
+       * **************************** */
       const checks: Array<ParamCheck> = lt.checks
         .map((x) => x.mixeds);
-      /******************************
+      /** ****************************
        * Adding uniques constraints to a new tables
-       ******************************/
+       * **************************** */
       const uniques: Array<ParamUnique> = lt.uniques
         .map(
           (x) => ({ ...x.mixeds, columns: (<any> x.mixeds).columnNames }),
@@ -376,9 +391,9 @@ export async function generateScript(
       const data: Array<ParamData> = lt.data
         .map((x) => x.entries).flatMap((x) => x);
       const nexts = lt.nexts.flatMap((x) => x.steps);
-      /******************************
+      /** ****************************
        * Create entity and adding previews constraints
-       ******************************/
+       * **************************** */
       const qs = conn.create({
         entity: topts.name,
         schema: topts.schema,
@@ -402,9 +417,9 @@ export async function generateScript(
         x.relation.name === lrc.relation.name
       );
       if (!dr) {
-        /******************************
-       * Adding new relation globaly
-       ******************************/
+        /** ****************************
+         * Adding new relation globaly
+         * **************************** */
         const lr = lrc.relation;
         qa.addRelations([
           {
@@ -415,9 +430,9 @@ export async function generateScript(
           },
         ]);
       } else {
-        /******************************
-       * Modifying a relation globaly
-       ******************************/
+        /** ****************************
+         * Modifying a relation globaly
+         * **************************** */
         const lr = lrc.relation;
         qa.addRelations([[lr.name + "", {
           name: lr.name,
@@ -471,7 +486,7 @@ export async function generateScript(
       );
     }
   }
-  // console.log("script", script);
-  // window.close();
+  console.log("script", script);
+  self.close();
   return script;
 }

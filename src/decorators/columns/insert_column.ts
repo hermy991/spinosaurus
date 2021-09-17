@@ -3,7 +3,7 @@ import { AllColumnOptions } from "../options/all_column_options.ts";
 import { InsertColumnOptions } from "../options/insert_column_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
-import { reflect_metadata } from "../../../deps.ts";
+import { reflect } from "../../../deps.ts";
 
 export function InsertColumn(
   options: InsertColumnOptions,
@@ -22,11 +22,7 @@ export function InsertColumn(
     const entity = { target: funt, name: funt.name };
     const property = {
       propertyKey,
-      type: reflect_metadata.Reflect.getMetadata(
-        "design:type",
-        entityf,
-        propertyKey,
-      ),
+      type: reflect.getMetadata("design:type", entityf, propertyKey),
     };
     const target: ColumnOptions = {
       name: propertyKey,

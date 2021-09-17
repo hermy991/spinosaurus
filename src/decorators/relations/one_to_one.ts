@@ -2,7 +2,7 @@ import { ColumnOptions } from "../options/column_options.ts";
 import { ParamRelation } from "../../connection/builders/params/param_relation.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
-import { reflect_metadata } from "../../../deps.ts";
+import { reflect } from "../../../deps.ts";
 
 export function OneToOne(
   relation: ParamRelation,
@@ -18,11 +18,7 @@ export function OneToOne(
      */
     const fun =
       (entityf instanceof Function ? <Function> entityf : entityf.constructor);
-    const type = reflect_metadata.Reflect.getMetadata(
-      "design:type",
-      entityf,
-      propertyKey,
-    );
+    const type = reflect.getMetadata("design:type", entityf, propertyKey);
     const entity = { target: fun, name: fun.name };
     const property = {
       propertyKey,

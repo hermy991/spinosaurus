@@ -3,7 +3,7 @@ import { AllColumnOptions } from "../options/all_column_options.ts";
 import { UpdateColumnOptions } from "../options/update_column_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
-import { reflect_metadata } from "../../../deps.ts";
+import { reflect } from "../../../deps.ts";
 
 export function UpdateColumn(
   options: UpdateColumnOptions,
@@ -22,11 +22,7 @@ export function UpdateColumn(
     const entity = { target: funt, name: funt.name };
     const property = {
       propertyKey,
-      type: reflect_metadata.Reflect.getMetadata(
-        "design:type",
-        entityf,
-        propertyKey,
-      ),
+      type: reflect.getMetadata("design:type", entityf, propertyKey),
     };
     const target: ColumnOptions = {
       name: propertyKey,

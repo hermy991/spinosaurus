@@ -2,7 +2,7 @@ import { ColumnOptions } from "../options/column_options.ts";
 import { PrimaryColumnOptions } from "../options/primary_column_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 // deno-lint-ignore camelcase
-import { reflect_metadata } from "../../../deps.ts";
+import { reflect } from "../../../deps.ts";
 
 export function PrimaryColumn(options: PrimaryColumnOptions = {}): any {
   return (
@@ -18,11 +18,7 @@ export function PrimaryColumn(options: PrimaryColumnOptions = {}): any {
     const entity = { target: fun, name: fun.name };
     const property = {
       propertyKey,
-      type: reflect_metadata.Reflect.getMetadata(
-        "design:type",
-        entityf,
-        propertyKey,
-      ),
+      type: reflect.getMetadata("design:type", entityf, propertyKey),
     };
     const target: ColumnOptions = {
       name: propertyKey,
