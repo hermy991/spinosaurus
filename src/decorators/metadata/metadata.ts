@@ -441,10 +441,11 @@ function linkUniquesWithTables(metadata: MetadataStore) {
       if (!column.mixeds.uniqueOne) {
         continue;
       }
+      const mixeds = { columns: [column.property.propertyKey] };
       const cunique = {
         target: table.target,
-        options: { columns: [column.property.propertyKey] },
-        mixeds: { columns: [column.property.propertyKey] },
+        options: mixeds,
+        mixeds,
       };
       if (cunique.mixeds.columns.length) {
         uniques.unshift(<any> cunique);
@@ -454,9 +455,12 @@ function linkUniquesWithTables(metadata: MetadataStore) {
   // Changing property column to database column
   uniques.forEach((m) => {
     (<any> m.mixeds)["columnNames"] = m.mixeds.columns.map((x: any) => {
-      const column = columns.find((c) =>
-        c.entity.target === m.target && c.property.propertyKey === x
-      );
+      const column = columns.find((c) => {
+        if (c.relation) {
+          c.entity.target === m.target && c.mixeds.name === x;
+        }
+        return c.entity.target === m.target && c.property.propertyKey === x;
+      });
       if (column) {
         return column.mixeds.name;
       }

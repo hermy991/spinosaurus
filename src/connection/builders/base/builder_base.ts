@@ -72,7 +72,7 @@ export class BuilderBase {
       hh.update(`${btoa(sequence + "")}`);
       generated += `_${hh.toString().substr(0, 6)}`;
     }
-    return generated;
+    return generated.substring(0, 63);
   };
   getEntityData(connName: string, entity: Function) {
     return getMetadataEntityData({ connName, entity });
