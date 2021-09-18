@@ -576,7 +576,8 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
       } else if (["boolean"].includes(rcol.data_type) && rcol.column_default) {
         mixeds.default = rcol.column_default == "true" ? "1" : "0";
       } else if (
-        ["integer", "numeric"].includes(rcol.data_type) && rcol.column_default
+        ["integer", "numeric"].includes(rcol.data_type) &&
+        rcol.column_default && !rcol.column_default.startsWith("nextval(")
       ) {
         mixeds.default = Number(rcol.column_default);
       } else if (
