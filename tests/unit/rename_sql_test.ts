@@ -3,9 +3,9 @@ import { Connection } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 
 const con1 = getTestConnection();
-/*********************
+/** *******************
  * ENTITY DDL QUERY
- *********************/
+ * ******************* */
 Deno.test("rename [rename table] sql", () => {
   const db: Connection = new Connection(con1);
   const qs = db.rename({ entity: "User", schema: "public" }, {
@@ -21,8 +21,7 @@ Deno.test("rename [rename column table] sql", () => {
   const qs = db.rename({ entity: "User", schema: "public" })
     .columns(["column11", "column12"], ["column21", "column22"]);
   const query = qs.getSql();
-  const queryExpected =
-    `ALTER TABLE "public"."User" RENAME COLUMN "column11" TO "column12";
+  const queryExpected = `ALTER TABLE "public"."User" RENAME COLUMN "column11" TO "column12";
 ALTER TABLE "public"."User" RENAME COLUMN "column21" TO "column22"`;
   assertEquals(query, queryExpected);
 });

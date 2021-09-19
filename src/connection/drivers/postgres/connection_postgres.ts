@@ -3,11 +3,7 @@ import { ConnectionOptionsPostgres } from "../../connection_options.ts";
 import { interpolate, stringify } from "../../builders/base/sql.ts";
 import { IConnectionOperations } from "../../iconnection_operations.ts";
 import { ParamSchemaDefinition } from "../../builders/params/param_schema.ts";
-import {
-  ParamColumnAjust,
-  ParamColumnCreate,
-  ParamColumnDefinition,
-} from "../../builders/params/param_column.ts";
+import { ParamColumnAjust, ParamColumnCreate, ParamColumnDefinition } from "../../builders/params/param_column.ts";
 import { ParamCheckCreate } from "../../builders/params/param_check.ts";
 import { ParamUniqueCreate } from "../../builders/params/param_unique.ts";
 import { ParamRelationCreate } from "../../builders/params/param_relation.ts";
@@ -143,9 +139,9 @@ class ConnectionPostgres implements IConnectionOperations {
      * Creating Unique
      */
     const { schema, entity, name, columns } = sud;
-    const sql = `ALTER TABLE ${
-      [schema, entity].filter((x) => x).join(".")
-    } ADD CONSTRAINT ${name} UNIQUE (${columns.join(", ")})`;
+    const sql = `ALTER TABLE ${[schema, entity].filter((x) => x).join(".")} ADD CONSTRAINT ${name} UNIQUE (${
+      columns.join(", ")
+    })`;
     return sql;
   };
 
@@ -170,9 +166,7 @@ class ConnectionPostgres implements IConnectionOperations {
     const sql = (`ALTER TABLE ${[schema, entity].filter((x) => x).join(".")} ` +
       `ADD CONSTRAINT ${name} ` +
       `FOREIGN KEY (${columns.join(", ")}) ` +
-      `REFERENCES ${[parentSchema, parentEntity].filter((x) => x).join(".")} (${
-        (parentColumns || []).join(", ")
-      }) ` +
+      `REFERENCES ${[parentSchema, parentEntity].filter((x) => x).join(".")} (${(parentColumns || []).join(", ")}) ` +
       `${onDelete ? "ON DELETE " + onDelete.toUpperCase() + " " : ""}` +
       `${onUpdate ? "ON UPDATE " + onUpdate.toUpperCase() + " " : ""}`).trim();
     return sql;
@@ -207,9 +201,7 @@ class ConnectionPostgres implements IConnectionOperations {
       /**
        * New column
        */
-      let aquery = `ALTER TABLE ${efrom} ADD COLUMN ${changes.name} ${
-        this.getDbColumnType(changes).toUpperCase()
-      }`;
+      let aquery = `ALTER TABLE ${efrom} ADD COLUMN ${changes.name} ${this.getDbColumnType(changes).toUpperCase()}`;
       if ("nullable" in changes) {
         aquery += (changes.nullable ? "" : " NOT") + " NULL";
       }
@@ -238,9 +230,7 @@ class ConnectionPostgres implements IConnectionOperations {
       }
       if ("nullable" in changes) {
         querys.push(
-          `ALTER TABLE ${efrom} ALTER COLUMN ${fname} ${
-            changes.nullable ? "DROP" : "SET"
-          } NOT NULL`,
+          `ALTER TABLE ${efrom} ALTER COLUMN ${fname} ${changes.nullable ? "DROP" : "SET"} NOT NULL`,
         );
       }
       if ("default" in changes) {
@@ -570,13 +560,9 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
       ) {
         mixeds.default = Date;
       } else {
-        rcol.column_default && !rcol.column_default.startsWith("nextval(")
-          ? mixeds.default = rcol.column_default
-          : 0;
+        rcol.column_default && !rcol.column_default.startsWith("nextval(") ? mixeds.default = rcol.column_default : 0;
       }
-      rcol.column_default && rcol.column_default.startsWith("nextval(")
-        ? mixeds.autoIncrement = true
-        : 0;
+      rcol.column_default && rcol.column_default.startsWith("nextval(") ? mixeds.autoIncrement = true : 0;
       rcol.constraint_primary_key_name ? mixeds.primary = true : 0;
       type.precision ? mixeds.precision = type.precision : 0;
       type.scale ? mixeds.scale = type.scale : 0;

@@ -1,9 +1,4 @@
-import {
-  Check,
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-} from "spinosaurus/mod.ts";
+import { Check, Column, Entity, PrimaryGeneratedColumn } from "spinosaurus/mod.ts";
 
 @Entity({ schema: "decorator" })
 @Check({ expression: `LENGTH("column2") > 0` })

@@ -1,11 +1,4 @@
-import {
-  _NOW,
-  Check,
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  Unique,
-} from "spinosaurus/mod.ts";
+import { _NOW, Check, Column, Entity, PrimaryGeneratedColumn, Unique } from "spinosaurus/mod.ts";
 
 /**
  * Entity Names

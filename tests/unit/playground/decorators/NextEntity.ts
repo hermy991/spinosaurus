@@ -1,12 +1,6 @@
-import {
-  Column,
-  Entity,
-  Next,
-  PrimaryGeneratedColumn,
-} from "spinosaurus/mod.ts";
+import { Column, Entity, Next, PrimaryGeneratedColumn } from "spinosaurus/mod.ts";
 
-const data =
-  `INSERT INTO "decorator"."NextEntity1" ("column2") VALUES ( 'THIS A TEST' );
+const data = `INSERT INTO "decorator"."NextEntity1" ("column2") VALUES ( 'THIS A TEST' );
 INSERT INTO "decorator"."NextEntity1" ("column2") VALUES ( 'THIS A ANOTHER TEST' );`;
 
 @Entity({ schema: "decorator" })

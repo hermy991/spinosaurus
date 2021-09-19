@@ -1,10 +1,4 @@
-import {
-  _NOW,
-  Column,
-  Entity,
-  InsertColumn,
-  PrimaryGeneratedColumn,
-} from "spinosaurus/mod.ts";
+import { _NOW, Column, Entity, InsertColumn, PrimaryGeneratedColumn } from "spinosaurus/mod.ts";
 
 /**
  * Entity Names

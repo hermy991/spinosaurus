@@ -12,10 +12,9 @@ Deno.test("function [anonymous function] sql", () => {
       default: () => "NOW() - interval '12 hour'",
     }]);
   const q1 = qs1.getSql();
-  const qe1 =
-    `CREATE TABLE "User" ( "column1" DATE DEFAULT NOW() - interval '12 hour' )`
-      .replace(/[ \n\t]+/ig, " ")
-      .trim();
+  const qe1 = `CREATE TABLE "User" ( "column1" DATE DEFAULT NOW() - interval '12 hour' )`
+    .replace(/[ \n\t]+/ig, " ")
+    .trim();
   assertEquals(q1, qe1);
   // const qs2 = db.select().from({ entity: "User" });
   // let q2 = qs2.getSqls() || "";

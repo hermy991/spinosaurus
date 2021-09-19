@@ -14,16 +14,14 @@ Deno.test("insert [insert] sql", () => {
 });
 
 Deno.test("insert [insert 'Entity'] sql", async () => {
-  const { InsertEntity1, InsertEntity2, InsertEntity4, InsertEntity5 } =
-    await import(
-      "./playground/decorators/InsertEntity.ts"
-    );
+  const { InsertEntity1, InsertEntity2, InsertEntity4, InsertEntity5 } = await import(
+    "./playground/decorators/InsertEntity.ts"
+  );
   const db: Connection = new Connection(con1);
   const qs1 = db.insert(InsertEntity1)
     .values({ column2: "xx", column3: "xxx", column4: "xxxx" });
   const q1 = qs1.getSql();
-  const qe1 =
-    `INSERT INTO "InsertEntity1" ("column2", "column3") VALUES ('xx', 'xxx')`;
+  const qe1 = `INSERT INTO "InsertEntity1" ("column2", "column3") VALUES ('xx', 'xxx')`;
   assertEquals(q1, qe1);
 
   const qs2 = db.insert(InsertEntity2)
@@ -35,8 +33,7 @@ Deno.test("insert [insert 'Entity'] sql", async () => {
   const qs3 = db.insert(InsertEntity4)
     .values([{ column1: 50 }, { column2: "xx" }, { column3: "xxx" }]);
   const q3 = qs3.getSql();
-  const qe3 =
-    `INSERT INTO "InsertEntity3" ("column2", "column5", "column6") VALUES ('xx', now(), now());
+  const qe3 = `INSERT INTO "InsertEntity3" ("column2", "column5", "column6") VALUES ('xx', now(), now());
 INSERT INTO "InsertEntity3" ("column3", "column5", "column6") VALUES ('xxx', now(), now())`;
   assertEquals(q3, qe3);
 
@@ -56,8 +53,7 @@ INSERT INTO "hello"."InsertEntity5" ("column3") VALUES ('xxx')`;
   })
     .values({ test1: "xx", column1: 1, column2: "xx" });
   const q5 = qs5.getSql();
-  const qe5 =
-    `INSERT INTO "InsertEntity2" ("column1", "column2") VALUES (1, 'xx')`;
+  const qe5 = `INSERT INTO "InsertEntity2" ("column1", "column2") VALUES (1, 'xx')`;
   assertEquals(q5, qe5);
 });
 Deno.test("insert [multiple insert] sql", () => {

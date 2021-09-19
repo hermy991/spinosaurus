@@ -1,11 +1,9 @@
 # Spinosaurus
 
-Spinosaurus is a ORM that can run in deno platforms and can be use with
-TypeScript. Its goal is to always support the latest TypeScript features and
-provide additional features that help you to develop any kind of application
-that uses databases - from small applications with a few tables to large scale
-enterprise applications with multiple databases. (this project is inspired by
-typeORM)
+Spinosaurus is a ORM that can run in deno platforms and can be use with TypeScript. Its goal is to
+always support the latest TypeScript features and provide additional features that help you to
+develop any kind of application that uses databases - from small applications with a few tables to
+large scale enterprise applications with multiple databases. (this project is inspired by typeORM)
 
 ## Features
 
@@ -88,8 +86,8 @@ deno run -qA https://code.velociraptor.run test:exec
 
 - documentation
 - code coments
-- testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata
-  create(...).columns() functions
+- testing getMetadata, getTempMetadata, clearMetadata, clearTempMetadata create(...).columns()
+  functions
 - testing primary column executor testing
 - testing generated column executor testing
 - column, unique, check alter testing
@@ -97,34 +95,26 @@ deno run -qA https://code.velociraptor.run test:exec
 - testing for generate columns from entity in select using options
 - adding primary key column in each delete
 - throw a error when @UpdateColumn property is not a Number type
-- adding interpolation list
-  `( '"primaryKey" IN(:primaryKey)',  { primaryKey: [ 1, 2, 3, 4 ] })`
-- implement in @InsertColumn, @UpdateColumn (value) and ({options}, value)
-  params
-- does not update object without primary key in entity mode (updating a antity),
-  create testing too
+- adding interpolation list `( '"primaryKey" IN(:primaryKey)',  { primaryKey: [ 1, 2, 3, 4 ] })`
+- implement in @InsertColumn, @UpdateColumn (value) and ({options}, value) params
+- does not update object without primary key in entity mode (updating a antity), create testing too
 - create a option in update entity option witch can update without a primary key
-- adding joinAndWrap, leftAndWrap, rigthAndWrap and exec testing, remember
-  include in joinAndSelect, joinAndSelect, joinAndSelect as a option (wrap:
-  boolean)
+- adding joinAndWrap, leftAndWrap, rigthAndWrap and exec testing, remember include in joinAndSelect,
+  joinAndSelect, joinAndSelect as a option (wrap: boolean)
 - suport multiple connection
 - rename a column, using index in @Column({ columnIndex: 3 })
 - create a method getOneOrFail, it throw a exeption if it does not have one row
-- reverse interpolate transform this `user.name` to `"user"."name"` |
-  `[user].[name]` | `` `user`.`name` ``, this transformation depends on database
-  type
+- reverse interpolate transform this `user.name` to `"user"."name"` | `[user].[name]` |
+  `` `user`.`name` ``, this transformation depends on database type
 - create skip
 - create take
-- set maxExecutionTime as a option in select, insert, update, delete and
-  transaction
-- numeric param in `groupBy`, `addGroupBy`, `orderBy`, `addOrderBy` and set
-  select definition internally
+- set maxExecutionTime as a option in select, insert, update, delete and transaction
+- numeric param in `groupBy`, `addGroupBy`, `orderBy`, `addOrderBy` and set select definition
+  internally
 - change `from({ entity: Entity })` to `from(Entity)` on documentation
 - change param `orderBy` and `addOrderBy` strategic from ... to array
 - using path in Next and After in decorators and query builder
 - updating database with createConnection
 - check constraint ending with `*_not_null` should throw a error
-- make a test by diferences in column quantity and position on reference
-  decorators
-- @OneToOne create a unique with the propertyKey it should by with mixted
-  atribute
+- make a test by diferences in column quantity and position on reference decorators
+- adding tinyint in spitype

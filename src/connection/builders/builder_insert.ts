@@ -1,9 +1,5 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import {
-  ParamInsertEntity,
-  ParamInsertOptions,
-  ParamInsertValue,
-} from "./params/param_insert.ts";
+import { ParamInsertEntity, ParamInsertOptions, ParamInsertValue } from "./params/param_insert.ts";
 import { ConnectionAll } from "../connection_type.ts";
 
 export class BuilderInsert extends BuilderBase {

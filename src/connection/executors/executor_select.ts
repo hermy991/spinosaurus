@@ -1,9 +1,6 @@
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderSelect } from "../builders/builder_select.ts";
-import {
-  ParamClauseRelation,
-  ParamComplexOptions,
-} from "../builders/params/param_select.ts";
+import { ParamClauseRelation, ParamComplexOptions } from "../builders/params/param_select.ts";
 
 export class ExecutorSelect {
   sb: BuilderSelect = new BuilderSelect(<ConnectionAll> {});

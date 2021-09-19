@@ -17,7 +17,7 @@
         "--inspect",
         "--allow-all",
         "--import-map=./tests/importmap.json",
-        "--config=./tests/tsconfig.json",
+        "--config=./config.json",
         "./tests/unit/decorator_column_query_test.ts"
       ],
       "attachSimplePort": 9229

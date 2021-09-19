@@ -11,8 +11,7 @@ export function error(req: { name?: ErrorConnection; message?: string }) {
       };
     case "ErrorConnectionOptionsNotFound":
       return {
-        message:
-          `options connection not found env, js, ts, json, yml, yaml, xml"`,
+        message: `options connection not found env, js, ts, json, yml, yaml, xml"`,
         ...req,
       };
   }

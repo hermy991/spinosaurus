@@ -24,9 +24,7 @@ export function stringify(
   } else if (typeof (value) == "function" && value instanceof Function) {
     let str = value();
     for (const char of [`"`, `'`]) {
-      str = str.split(char).map((x: string, i: number) =>
-        (x && i % 2 === 0) ? x.replaceAll(`;`, ``) : x
-      ).join(char);
+      str = str.split(char).map((x: string, i: number) => (x && i % 2 === 0) ? x.replaceAll(`;`, ``) : x).join(char);
     }
     return str;
   }

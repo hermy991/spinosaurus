@@ -1,9 +1,6 @@
 import { getTestConnection } from "./tool/tool.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
-import {
-  /*Connection, */ createConnection,
-  getMetadata,
-} from "spinosaurus/mod.ts";
+import { /*Connection, */ createConnection, getMetadata } from "spinosaurus/mod.ts";
 import * as path from "deno/path/mod.ts";
 
 const conOpts = getTestConnection();
@@ -22,8 +19,8 @@ Deno.test("decorator entity should work", async () => {
     } = table;
     const co = await conn.checkObject(mixeds);
     /**
-       * Decorator Options
-       */
+     * Decorator Options
+     */
     if (options.name) {
       assertEquals(
         options.name,
@@ -39,8 +36,8 @@ Deno.test("decorator entity should work", async () => {
       );
     }
     /**
-       * TODO: create a table in a selected database testing
-       */
+     * TODO: create a table in a selected database testing
+     */
     if (options.database) {
       assertEquals(
         options.database,
@@ -57,8 +54,8 @@ Deno.test("decorator entity should work", async () => {
     }
   }
   /**
-     * DROPPING TABLES
-     */
+   * DROPPING TABLES
+   */
   for (const table of metadata.tables) {
     const co = await conn.checkObject(table.mixeds);
     if (co.exists) {
@@ -66,8 +63,8 @@ Deno.test("decorator entity should work", async () => {
     }
   }
   /**
-     * DROPPING SCHEMAS
-     */
+   * DROPPING SCHEMAS
+   */
   for (const schema of metadata.schemas) {
     await conn.drop({ schema: schema.name }).execute();
   }

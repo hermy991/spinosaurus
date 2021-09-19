@@ -1,11 +1,7 @@
 import { ConnectionAll } from "../connection_type.ts";
 // import { ConnectionPostgres } from "../drivers/postgres/connection_postgres.ts";
 import { BuilderUpdate } from "../builders/builder_update.ts";
-import {
-  ParamUpdateEntity,
-  ParamUpdateParams,
-  ParamUpdateSet,
-} from "../builders/params/param_update.ts";
+import { ParamUpdateEntity, ParamUpdateParams, ParamUpdateSet } from "../builders/params/param_update.ts";
 
 export class ExecutorUpdate {
   ub: BuilderUpdate = new BuilderUpdate(<ConnectionAll> {});

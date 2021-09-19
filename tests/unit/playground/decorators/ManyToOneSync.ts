@@ -1,9 +1,4 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "spinosaurus/mod.ts";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "spinosaurus/mod.ts";
 
 @Entity({ schema: "decorator" })
 export class ManyToOneSync1 {

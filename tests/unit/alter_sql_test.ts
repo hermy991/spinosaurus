@@ -4,9 +4,9 @@ import { assertEquals } from "deno/testing/asserts.ts";
 // import { ForeignEntity } from "./playground/decorators/AlterEntity.ts";
 
 const con1 = getTestConnection();
-/*********************
+/** *******************
  * ENTITY DDL QUERY
- *********************/
+ * ******************* */
 Deno.test("alter [alter relations] sql", async () => {
   const db: Connection = new Connection(con1);
   const q1 = db.alter({ schema: "publicX", entity: "User" })
@@ -20,8 +20,7 @@ Deno.test("alter [alter relations] sql", async () => {
       parentEntity: "AnotherEntity2",
     }])
     .getSql();
-  const qe1 =
-    `ALTER TABLE "publicX"."User" DROP CONSTRAINT "FK_publicX_User_AnotherEntity1";
+  const qe1 = `ALTER TABLE "publicX"."User" DROP CONSTRAINT "FK_publicX_User_AnotherEntity1";
 ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1" FOREIGN KEY ("AnotherEntity1Column_ID") REFERENCES "AnotherEntity1" ("AnotherEntity1Column_ID");
 ALTER TABLE "publicX"."User" DROP CONSTRAINT "FK_publicX_User_AnotherEntity2";
 ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity2_Custom" FOREIGN KEY ("AnotherEntity2Column_ID") REFERENCES "AnotherEntity2" ("AnotherEntity2Column_ID")`;
@@ -61,8 +60,7 @@ ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_ForeignEntity_0b7e7
       parentEntity: "AnotherEntity1",
     }]])
     .getSql();
-  const qe4 =
-    `ALTER TABLE "User" DROP CONSTRAINT "FK_publicX_User_AnotherEntity1";
+  const qe4 = `ALTER TABLE "User" DROP CONSTRAINT "FK_publicX_User_AnotherEntity1";
 ALTER TABLE "User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1" FOREIGN KEY ("AnotherEntity1Column_ID") REFERENCES "AnotherEntity1" ("AnotherEntity1Column_ID")`;
   assertEquals(q4, qe4);
 });

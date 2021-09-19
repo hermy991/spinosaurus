@@ -48,8 +48,7 @@ Deno.test("select [select * from 'Entity'] sql", async () => {
   const db: Connection = new Connection(con1);
   const qs1 = db.select().from({ entity: SelectEntity1, as: "u" });
   const q1 = qs1.getSql();
-  const qe1 =
-    `SELECT "u"."test1" "test1", "u"."test2" "test2", "u"."custom" "custom" FROM "SelectEntityCustom" AS "u"`;
+  const qe1 = `SELECT "u"."test1" "test1", "u"."test2" "test2", "u"."custom" "custom" FROM "SelectEntityCustom" AS "u"`;
   assertEquals(q1, qe1);
   const qs2 = db.select().from({ entity: SelectEntity2 });
   const q2 = qs2.getSql();
@@ -63,8 +62,7 @@ Deno.test("select [select * from 'Entity'] sql", async () => {
   assertEquals(q3, qe3);
   const qs4 = db.select().from({ entity: SelectEntity5, as: "u" });
   const q4 = qs4.getSql();
-  const qe4 =
-    `SELECT "u"."test1" "test1", "u"."test2" "test2" FROM "hello"."SelectEntity5" AS "u"`;
+  const qe4 = `SELECT "u"."test1" "test1", "u"."test2" "test2" FROM "hello"."SelectEntity5" AS "u"`;
   assertEquals(q4, qe4);
 });
 Deno.test("select [select columns] sql", () => {
@@ -80,11 +78,10 @@ Deno.test("select [select distinct columns] sql", () => {
   const qs = db.selectDistinct([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" });
   const query = qs.getSql();
-  const queryExpected =
-    `SELECT DISTINCT u."userName", u."firstName" FROM "User" AS "u"`.replace(
-      /[ \n\t]+/ig,
-      " ",
-    ).trim();
+  const queryExpected = `SELECT DISTINCT u."userName", u."firstName" FROM "User" AS "u"`.replace(
+    /[ \n\t]+/ig,
+    " ",
+  ).trim();
   assertEquals(query, queryExpected);
 });
 Deno.test("select [select column as] sql", () => {
@@ -92,8 +89,7 @@ Deno.test("select [select column as] sql", () => {
   const qs = db.select([`u."userName"`, "UserName"], [`u."firstName"`])
     .from({ entity: "User", as: "u" });
   const query = qs.getSql();
-  const queryExpected =
-    `SELECT u."userName" AS "UserName", u."firstName" FROM "User" AS "u"`;
+  const queryExpected = `SELECT u."userName" AS "UserName", u."firstName" FROM "User" AS "u"`;
   assertEquals(query, queryExpected);
 });
 Deno.test("select [where] sql", () => {
@@ -102,8 +98,7 @@ Deno.test("select [where] sql", () => {
     .from({ entity: "User", as: "u" })
     .where([`u."userName" = 'hermy991'`]);
   const q1 = qs1.getSql();
-  const qe1 =
-    `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" = 'hermy991'`;
+  const qe1 = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" = 'hermy991'`;
   assertEquals(q1, qe1);
   const qs2 = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
@@ -121,8 +116,7 @@ Deno.test("select [where like] sql", () => {
     .from({ entity: "User", as: "u" })
     .where([like(`u."userName"`, "%hermy%")]);
   const query = qs.getSql();
-  const queryExpected =
-    `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" LIKE '%hermy%'`;
+  const queryExpected = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" LIKE '%hermy%'`;
   assertEquals(query, queryExpected);
 });
 Deno.test("select [where not like] sql", () => {
@@ -131,8 +125,7 @@ Deno.test("select [where not like] sql", () => {
     .from({ entity: "User", as: "u" })
     .where([notLike(`u."userName"`, "%hermy%")]);
   const query = qs.getSql();
-  const queryExpected =
-    `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" NOT LIKE '%hermy%'`;
+  const queryExpected = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" NOT LIKE '%hermy%'`;
   assertEquals(query, queryExpected);
 });
 Deno.test("select [where between(string)] sql", () => {
@@ -141,8 +134,7 @@ Deno.test("select [where between(string)] sql", () => {
     .from({ entity: "User", as: "u" })
     .where([between(`u."userName"`, "0", "3")]);
   const query = qs.getSql();
-  const queryExpected =
-    `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" BETWEEN '0' AND '3'`;
+  const queryExpected = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" BETWEEN '0' AND '3'`;
   assertEquals(query, queryExpected);
 });
 Deno.test("select [where between(number)] sql", () => {
@@ -151,8 +143,7 @@ Deno.test("select [where between(number)] sql", () => {
     .from({ entity: "User", as: "u" })
     .where([between(`u."userName"`, 0, 3)]);
   const query = qs.getSql();
-  const queryExpected =
-    `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" BETWEEN 0 AND 3`;
+  const queryExpected = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" BETWEEN 0 AND 3`;
   assertEquals(query, queryExpected);
 });
 Deno.test("select [where with params] sql", () => {
@@ -161,8 +152,7 @@ Deno.test("select [where with params] sql", () => {
     .from({ entity: "User", as: "u" })
     .where([`u."userName" = :userName`], { userName: "hermy991" });
   const query = qs.getSql();
-  const queryExpected =
-    `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" = 'hermy991'`;
+  const queryExpected = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" = 'hermy991'`;
   assertEquals(query, queryExpected);
 });
 Deno.test("select [group by] sql", () => {
@@ -185,8 +175,7 @@ Deno.test("select [having] sql", () => {
     .from({ entity: "User", as: "u" })
     .having([`u."userName" = 'hermy991'`]);
   const q1 = qs1.getSql();
-  const qe1 =
-    `SELECT u."userName", u."firstName" FROM "User" AS "u" HAVING u."userName" = 'hermy991'`;
+  const qe1 = `SELECT u."userName", u."firstName" FROM "User" AS "u" HAVING u."userName" = 'hermy991'`;
   assertEquals(q1, qe1);
 
   const qs2 = db.select(
@@ -213,8 +202,7 @@ Deno.test("select [order by] sql", () => {
     .from({ entity: "User", as: "u" })
     .orderBy([`u."userName"`]);
   const query = qs.getSql();
-  const queryExpected =
-    `SELECT u."userName", u."firstName" FROM "User" AS "u" ORDER BY u."userName"`;
+  const queryExpected = `SELECT u."userName", u."firstName" FROM "User" AS "u" ORDER BY u."userName"`;
   assertEquals(query, queryExpected);
 });
 Deno.test("select [order by with direction] sql", () => {

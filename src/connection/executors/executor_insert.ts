@@ -1,9 +1,6 @@
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderInsert } from "../builders/builder_insert.ts";
-import {
-  ParamInsertEntity,
-  ParamInsertValue,
-} from "../builders/params/param_insert.ts";
+import { ParamInsertEntity, ParamInsertValue } from "../builders/params/param_insert.ts";
 
 export class ExecutorInsert {
   ib: BuilderInsert = new BuilderInsert(<ConnectionAll> {});

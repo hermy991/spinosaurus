@@ -1,7 +1,4 @@
-import {
-  ParamColumnAjust,
-  ParamColumnCreate,
-} from "../builders/params/param_column.ts";
+import { ParamColumnAjust, ParamColumnCreate } from "../builders/params/param_column.ts";
 import { ParamRelationDefinition } from "../builders/params/param_relation.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderAlter } from "../builders/builder_alter.ts";

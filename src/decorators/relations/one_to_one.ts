@@ -16,8 +16,7 @@ export function OneToOne(
     /**
      * For static member entity param will be a function constructor
      */
-    const fun =
-      (entityf instanceof Function ? <Function> entityf : entityf.constructor);
+    const fun = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
     const type = reflect.getMetadata("design:type", entityf, propertyKey);
     const entity = { target: fun, name: fun.name };
     const property = {

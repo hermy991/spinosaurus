@@ -13,8 +13,7 @@ Deno.test("params [joins] sql", async () => {
     .from({ entity: FromEntity1, as: "u1" })
     .join({
       entity: "FromEntity2",
-      on:
-        `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
+      on: `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
     }, simpleParams);
   const q1 = qs1.getSql();
   const qe1 = `SELECT "u1"."test1" "test1"
@@ -30,8 +29,7 @@ INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "
     .from({ entity: FromEntity1, as: "u1" })
     .join({
       entity: "FromEntity2",
-      on:
-        `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
+      on: `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
     })
     .params(simpleParams);
   const q2 = qs2.getSql();
@@ -48,8 +46,7 @@ INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "
     .from({ entity: FromEntity1, as: "u1" })
     .join({
       entity: "FromEntity2",
-      on:
-        `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
+      on: `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "FromEntity2"."active" = :_boolean`,
     })
     .addParams(simpleParams);
   const q3 = qs3.getSql();

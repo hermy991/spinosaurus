@@ -6,8 +6,8 @@ const con1 = getTestConnection();
 Deno.test("drop [drop table] execute() function", async () => {
   const db: Connection = new Connection(con1);
   /**
-     * DROPING TABLE
-     */
+   * DROPING TABLE
+   */
   const currEntity = `DropTable_${window.OBJECT_SEQUENCE++}`;
   const chk1 = await db.checkObject({ name: currEntity });
   if (chk1.exists) {
@@ -24,8 +24,8 @@ Deno.test("drop [drop table] execute() function", async () => {
 Deno.test("drop [drop schema] execute() function", async () => {
   const db: Connection = new Connection(con1);
   /**
-     * DROPING SCHEMA
-     */
+   * DROPING SCHEMA
+   */
   const currSchema = `DropSchema_${window.OBJECT_SEQUENCE++}`;
   const chk1 = await db.checkSchema({ name: currSchema });
   if (chk1.exists) {

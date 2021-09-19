@@ -1,9 +1,4 @@
-import {
-  Column,
-  Data,
-  Entity,
-  PrimaryGeneratedColumn,
-} from "spinosaurus/mod.ts";
+import { Column, Data, Entity, PrimaryGeneratedColumn } from "spinosaurus/mod.ts";
 
 @Entity({ schema: "decorator" })
 @Data({ column2: "hola como estas" })

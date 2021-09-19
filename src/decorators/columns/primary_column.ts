@@ -13,8 +13,7 @@ export function PrimaryColumn(options: PrimaryColumnOptions = {}): any {
     /**
      * For static member entity param will be a function constructor
      */
-    const fun =
-      (entityf instanceof Function ? <Function> entityf : entityf.constructor);
+    const fun = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
     const entity = { target: fun, name: fun.name };
     const property = {
       propertyKey,

@@ -3,9 +3,9 @@ import { Connection } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 
 const con1 = getTestConnection();
-/*********************
+/** *******************
  * ENTITY DDL QUERY
- *********************/
+ * ******************* */
 Deno.test("create [create table] sql", () => {
   const db: Connection = new Connection(con1);
   const qs1 = db.create({ entity: "User", schema: "public" })
@@ -143,8 +143,7 @@ Deno.test("create [create table with primary key] sql", () => {
     .columns([{ name: "column1", spitype: "integer", primary: true }])
     .addColumn({ name: "column2", spitype: "varchar" });
   const query = qs.getSql();
-  const queryExpected =
-    `CREATE TABLE "public"."User" ( "column1" INTEGER PRIMARY KEY, "column2" VARCHAR )`;
+  const queryExpected = `CREATE TABLE "public"."User" ( "column1" INTEGER PRIMARY KEY, "column2" VARCHAR )`;
   assertEquals(query, queryExpected);
 });
 Deno.test("create [create table with auto-increment] sql", () => {
@@ -156,8 +155,7 @@ Deno.test("create [create table with auto-increment] sql", () => {
       ])
       .addColumn({ name: "column2", spitype: "varchar" });
     const query = qs.getSql();
-    const queryExpected =
-      `CREATE TABLE "public"."User" ( "column1" SERIAL, "column2" VARCHAR )`;
+    const queryExpected = `CREATE TABLE "public"."User" ( "column1" SERIAL, "column2" VARCHAR )`;
     assertEquals(query, queryExpected);
   }
   {
@@ -165,8 +163,7 @@ Deno.test("create [create table with auto-increment] sql", () => {
       .columns([{ name: "column1", autoIncrement: "increment" }])
       .addColumn({ name: "column2", spitype: "varchar" });
     const query = qs.getSql();
-    const queryExpected =
-      `CREATE TABLE "public"."User" ( "column1" SERIAL, "column2" VARCHAR )`;
+    const queryExpected = `CREATE TABLE "public"."User" ( "column1" SERIAL, "column2" VARCHAR )`;
     assertEquals(query, queryExpected);
   }
   {
@@ -211,8 +208,7 @@ Deno.test("create [create table with auto-increment and primary key] sql", () =>
       .columns([{ name: "column1", autoIncrement: "increment", primary: true }])
       .addColumn({ name: "column2", spitype: "varchar" });
     const query = qs.getSql();
-    const queryExpected =
-      `CREATE TABLE "public"."User" ( "column1" SERIAL PRIMARY KEY, "column2" VARCHAR )`;
+    const queryExpected = `CREATE TABLE "public"."User" ( "column1" SERIAL PRIMARY KEY, "column2" VARCHAR )`;
     assertEquals(query, queryExpected);
   }
   {

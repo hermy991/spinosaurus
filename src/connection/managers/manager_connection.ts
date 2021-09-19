@@ -47,9 +47,7 @@ export async function createConnection(
 export async function createConnection(
   nameOrOptions?: any,
 ): Promise<Connection> {
-  const options = typeof nameOrOptions === "object"
-    ? nameOrOptions
-    : await getConnectionOptions(nameOrOptions);
+  const options = typeof nameOrOptions === "object" ? nameOrOptions : await getConnectionOptions(nameOrOptions);
   const tconn = new Connection(options);
   const sql = await synchronize(tconn);
   if (sql && sql.length) {
@@ -121,9 +119,7 @@ export async function sqlConnection(
 export async function sqlConnection(
   nameOrOptions?: string | ConnectionOptions,
 ): Promise<string[]> {
-  const options = typeof nameOrOptions === "string"
-    ? await getConnectionOptions(nameOrOptions)
-    : nameOrOptions;
+  const options = typeof nameOrOptions === "string" ? await getConnectionOptions(nameOrOptions) : nameOrOptions;
   const tconn = new Connection(<ConnectionOptions> options);
   const sqls = await synchronize(tconn) || [];
   return sqls;
@@ -268,9 +264,7 @@ export async function generateScript(
         // primary
         (col[1].primary !== col[2].primary) ? tcol[1].primary = col[1].primary : 0;
         // autoIncrement
-        (col[1].autoIncrement !== col[2].autoIncrement)
-          ? tcol[1].autoIncrement = col[1].autoIncrement
-          : 0;
+        (col[1].autoIncrement !== col[2].autoIncrement) ? tcol[1].autoIncrement = col[1].autoIncrement : 0;
         if (Object.keys(tcol[1]).length) {
           qsa.addColumn(tcol);
         }
@@ -318,9 +312,10 @@ export async function generateScript(
        * **************************** */
       const achks = lt.checks.filter((x) => !dt.checks.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => x.mixeds);
-      const auniqs = lt.uniques.filter((x) =>
-        !dt.uniques.some((y) => y.mixeds.name === x.mixeds.name)
-      ).map((x) => ({ ...x.mixeds, columns: (<any> x.mixeds).columnNames }));
+      const auniqs = lt.uniques.filter((x) => !dt.uniques.some((y) => y.mixeds.name === x.mixeds.name)).map((x) => ({
+        ...x.mixeds,
+        columns: (<any> x.mixeds).columnNames,
+      }));
       if ([...achks, ...auniqs].length) {
         script.push(
           ...conn.create({ ...lt.mixeds, entity: lt.mixeds.name })

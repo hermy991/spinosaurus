@@ -1,5 +1,5 @@
 const imap = `./tests/importmap.json`;
-const tsconfig = `./tests/tsconfig.json`;
+const tsconfig = `./config.json`;
 const folder = "tests/unit/";
 const envs = [
   `SPINOSAURUS_TEST_CONN_HOST`,
@@ -48,9 +48,7 @@ export default {
         write: "./",
         env: envs.join(","),
       },
-      cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${
-        [...sqls, ...execs].join(`" "`)
-      }" `,
+      cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${[...sqls, ...execs].join(`" "`)}" `,
     },
     "test:one": {
       desc: "Run one test",
@@ -76,9 +74,7 @@ export default {
         write: "./",
         env: envs.join(","),
       },
-      cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${
-        sqls.join(`" "`)
-      }" `,
+      cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${sqls.join(`" "`)}" `,
     },
     "test:exec": {
       desc: "Run executors test",
@@ -91,9 +87,7 @@ export default {
         write: "./",
         env: envs.join(","),
       },
-      cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${
-        execs.join(`" "`)
-      }" `,
+      cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${execs.join(`" "`)}" `,
     },
   },
 };

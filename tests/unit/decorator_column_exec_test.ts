@@ -39,33 +39,25 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
       );
       if (nullable === true) {
         assert(
-          (cds.rows || []).some((x) =>
-            x.column_name === name && x.is_nullable === "YES"
-          ),
+          (cds.rows || []).some((x) => x.column_name === name && x.is_nullable === "YES"),
           `column '${name}' must to be null`,
         );
       }
       if (nullable === false) {
         assert(
-          (cds.rows || []).some((x) =>
-            x.column_name === name && x.is_nullable === "NO"
-          ),
+          (cds.rows || []).some((x) => x.column_name === name && x.is_nullable === "NO"),
           `column '${name}' must be not null`,
         );
       }
       if (precision) {
         assert(
-          (cds.rows || []).some((x) =>
-            x.column_name === name && x.numeric_precision === precision
-          ),
+          (cds.rows || []).some((x) => x.column_name === name && x.numeric_precision === precision),
           `column '${name}' must has precision of '${precision}'`,
         );
       }
       if (scale) {
         assert(
-          (cds.rows || []).some((x) =>
-            x.column_name === name && x.numeric_scale === scale
-          ),
+          (cds.rows || []).some((x) => x.column_name === name && x.numeric_scale === scale),
           `column '${name}' must has scale of '${scale}'`,
         );
       }
@@ -87,8 +79,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     } = table;
     const co = await conn.checkObject(mixeds);
     /**
-       * Decorator Options
-       */
+     * Decorator Options
+     */
     if (options.name) {
       assertEquals(
         options.name,
@@ -104,8 +96,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
       );
     }
     /**
-       * TODO: create a table in a selected database testing
-       */
+     * TODO: create a table in a selected database testing
+     */
     if (options.database) {
       assertEquals(
         options.database,
@@ -122,8 +114,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
   }
   /**
-     * Dropping tables
-     */
+   * Dropping tables
+   */
   for (const table of _metadata.tables) {
     const co = await conn.checkObject(table.mixeds);
     if (co.exists) {
@@ -131,8 +123,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
   }
   /**
-     * Dropping schemas
-     */
+   * Dropping schemas
+   */
   for (const schema of _metadata.schemas) {
     const cs = await conn.checkSchema({ name: schema.name });
     if (cs.exists) {
@@ -266,8 +258,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
   }
   /**
-     * Dropping tables
-     */
+   * Dropping tables
+   */
   for (const table of _metadata.tables) {
     const co = await conn.checkObject(table.mixeds);
     if (co.exists) {
@@ -275,8 +267,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
   }
   /**
-     * Dropping schemas
-     */
+   * Dropping schemas
+   */
   for (const schema of _metadata.schemas) {
     const cs = await conn.checkSchema({ name: schema.name });
     if (cs.exists) {
@@ -433,8 +425,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
   }
   /**
-     * Dropping tables
-     */
+   * Dropping tables
+   */
   for (const table of _metadata.tables) {
     const co = await conn.checkObject(table.mixeds);
     if (co.exists) {
@@ -442,8 +434,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
   }
   /**
-     * Dropping schemas
-     */
+   * Dropping schemas
+   */
   for (const schema of _metadata.schemas) {
     const cs = await conn.checkSchema({ name: schema.name });
     if (cs.exists) {
@@ -515,8 +507,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     );
   }
   /**
-     * Dropping tables
-     */
+   * Dropping tables
+   */
   for (const table of _metadata.tables) {
     const co = await conn.checkObject(table.mixeds);
     if (co.exists) {
@@ -524,8 +516,8 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
   }
   /**
-     * Dropping schemas
-     */
+   * Dropping schemas
+   */
   for (const schema of _metadata.schemas) {
     const cs = await conn.checkSchema({ name: schema.name });
     if (cs.exists) {

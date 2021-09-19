@@ -1,12 +1,10 @@
 function filterConnectionProps(keyConf: any, values: any, changes?: any) {
   /**
- *  { keyFrom1: "keyTo1", keyFrom2: "keyTo2", ...}
- *  return { keyTo1: "value1", keyTo2: "value2", ... }
- */
+   *  { keyFrom1: "keyTo1", keyFrom2: "keyTo2", ...}
+   *  return { keyTo1: "value1", keyTo2: "value2", ... }
+   */
   const currValue: { [x: string]: string | number | boolean | any } = {};
-  Object.keys(keyConf).forEach((key) =>
-    values[key] ? currValue[keyConf[key]] = values[key] : ""
-  );
+  Object.keys(keyConf).forEach((key) => values[key] ? currValue[keyConf[key]] = values[key] : "");
   if (!changes) {
     return currValue;
   }

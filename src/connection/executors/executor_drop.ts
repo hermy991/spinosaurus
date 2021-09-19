@@ -30,7 +30,7 @@ export class ExecutorDrop {
   constraints(names: string | string[]): ExecutorDrop {
     this.db.constraints(names);
     return this;
-  } 
+  }
 
   addConstraint(names: string | string[]): ExecutorDrop {
     this.db.addConstraint(names);

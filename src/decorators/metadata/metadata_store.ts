@@ -1,9 +1,6 @@
 import { ColumnType } from "../options/column_type.ts";
 import { DefaultType } from "../options/default_type.ts";
-import {
-  OnDeleteType,
-  OnUpdateType,
-} from "../../connection/builders/params/param_relation.ts";
+import { OnDeleteType, OnUpdateType } from "../../connection/builders/params/param_relation.ts";
 import { ParamData } from "../../connection/builders/params/param_data.ts";
 import { ParamNext } from "../../connection/builders/params/param_next.ts";
 import { ParamAfter } from "../../connection/builders/params/param_after.ts";
@@ -57,52 +54,52 @@ export type StoreColumnOptions = {
    */
   spitype?: ColumnType; //ColumnType -
   /**
-    * Column name in the database table. By default the column name is generated from the name of the property. You can change it by specifying your own name.
-    */
+   * Column name in the database table. By default the column name is generated from the name of the property. You can change it by specifying your own name.
+   */
   name?: string;
   /**
-    * Column type's length. For example, if you want to create varchar(150) type you specify column type and length options.
-    */
+   * Column type's length. For example, if you want to create varchar(150) type you specify column type and length options.
+   */
   length?: string | number;
   /**
-    * Makes column NULL or NOT NULL in the database. By default column is nullable: false.
-    */
+   * Makes column NULL or NOT NULL in the database. By default column is nullable: false.
+   */
   nullable?: boolean;
   /**
-    * Defines whether or not to hide this column by default when making queries. When set to false, the column data will not show with a standard query. By default column is select: true
-    */
+   * Defines whether or not to hide this column by default when making queries. When set to false, the column data will not show with a standard query. By default column is select: true
+   */
   select?: boolean;
   /**
-    * Indicates if column value is set the first time you insert the object. Default value is true.
-    */
+   * Indicates if column value is set the first time you insert the object. Default value is true.
+   */
   insert?: boolean;
   /**
-    * Indicates if column value is updated by "execute" operation. If false, you'll be able to write this value only when you first time insert the object. Default value is true.
-    */
+   * Indicates if column value is updated by "execute" operation. If false, you'll be able to write this value only when you first time insert the object. Default value is true.
+   */
   update?: boolean;
   /**
-    * Adds database-level column's DEFAULT value.
-    */
+   * Adds database-level column's DEFAULT value.
+   */
   default?: DefaultType | Function; // DefaultType
   /**
-    * Database's column comment. Not supported by all database types.
-    */
+   * Database's column comment. Not supported by all database types.
+   */
   comment?: string;
   /**
-    * The precision for a decimal (exact numeric) column (applies only for decimal column), which is the maximum number of digits that are stored for the values. Used in some column types.
-    */
+   * The precision for a decimal (exact numeric) column (applies only for decimal column), which is the maximum number of digits that are stored for the values. Used in some column types.
+   */
   precision?: number;
   /**
-    * The scale for a decimal (exact numeric) column (applies only for decimal column), which represents the number of digits to the right of the decimal point and must not be greater than precision. Used in some column types.
-    */
+   * The scale for a decimal (exact numeric) column (applies only for decimal column), which represents the number of digits to the right of the decimal point and must not be greater than precision. Used in some column types.
+   */
   scale?: number;
   /**
-    * Indicates if the column will have individual unique key.
-    */
+   * Indicates if the column will have individual unique key.
+   */
   uniqueOne?: boolean;
   /**
-    * Indicates if the column will add a column to a table unique key.
-    */
+   * Indicates if the column will add a column to a table unique key.
+   */
   unique?: boolean;
   /**
    * Option to specify when the column would by in auto auto increment
@@ -198,28 +195,28 @@ export type StoreRelationColumn = {
 
 export type StoreTableOptions = {
   /**
-  * Table name.
-  * If not specified then naming strategy will generate table name from entity name.
-  */
+   * Table name.
+   * If not specified then naming strategy will generate table name from entity name.
+   */
   name?: string;
 
   /**
-  * Indicates if schema synchronization is enabled or disabled for this entity.
-  * If it will be set to false then schema sync will and migrations ignore this entity.
-  * By default schema synchronization is enabled for all entities.
-  */
+   * Indicates if schema synchronization is enabled or disabled for this entity.
+   * If it will be set to false then schema sync will and migrations ignore this entity.
+   * By default schema synchronization is enabled for all entities.
+   */
   database?: string;
 
   /**
-  * Schema name. Used in Postgres and Sql Server.
-  */
+   * Schema name. Used in Postgres and Sql Server.
+   */
   schema?: string;
 
   /**
-  * Indicates if schema synchronization is enabled or disabled for this entity.
-  * If it will be set to false then schema sync will and migrations ignore this entity.
-  * By default schema synchronization is enabled for all entities.
-  */
+   * Indicates if schema synchronization is enabled or disabled for this entity.
+   * If it will be set to false then schema sync will and migrations ignore this entity.
+   * By default schema synchronization is enabled for all entities.
+   */
   synchronize?: false;
 };
 

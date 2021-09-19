@@ -3,9 +3,9 @@ import { Connection } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 
 const con1 = getTestConnection();
-/*********************
+/** *******************
  * ENTITY DDL QUERY
- *********************/
+ * ******************* */
 Deno.test("drop [drop table] sql", () => {
   const db: Connection = new Connection(con1);
   const query = db.drop({ entity: "User", schema: "public" }).getSqls().join(

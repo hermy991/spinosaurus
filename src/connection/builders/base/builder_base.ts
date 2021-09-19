@@ -1,10 +1,6 @@
 import { ConnectionAll } from "../../connection_type.ts";
 import { clearNames, generateName1 } from "./sql.ts";
-import {
-  getMetadataChecks,
-  getMetadataColumns,
-  getMetadataEntityData,
-} from "../../../decorators/metadata/metadata.ts";
+import { getMetadataChecks, getMetadataColumns, getMetadataEntityData } from "../../../decorators/metadata/metadata.ts";
 
 export class BuilderBase {
   #printSql = false;

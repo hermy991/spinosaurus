@@ -1,9 +1,6 @@
 import { ConnectionAll } from "../connection_type.ts";
 import { BuilderUpsert } from "../builders/builder_upsert.ts";
-import {
-  ParamUpsertEntity,
-  ParamUpsertValue,
-} from "../builders/params/param_upsert.ts";
+import { ParamUpsertEntity, ParamUpsertValue } from "../builders/params/param_upsert.ts";
 
 export class ExecutorUpsert {
   ub: BuilderUpsert = new BuilderUpsert(<ConnectionAll> {});

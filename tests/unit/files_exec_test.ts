@@ -1,8 +1,5 @@
 import { Connection } from "spinosaurus/mod.ts";
-import {
-  getConnectionEnvOptions,
-  getConnectionFileOptions,
-} from "../../src/connection/connection_utils.ts";
+import { getConnectionEnvOptions, getConnectionFileOptions } from "../../src/connection/connection_utils.ts";
 import { copy } from "deno/fs/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 

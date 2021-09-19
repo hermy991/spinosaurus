@@ -63,8 +63,7 @@ Deno.test("decorator [column adding columns] sql", async () => {
   const sql = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  const sqlSpected =
-    `ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "string2" TEXT NOT NULL DEFAULT '';
+  const sqlSpected = `ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "string2" TEXT NOT NULL DEFAULT '';
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "string3" TEXT NOT NULL;
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "string4" TEXT NOT NULL DEFAULT '';
 ALTER TABLE "decorator"."AddColumnTypes1" ADD COLUMN "number1" NUMERIC NOT NULL DEFAULT 100;
@@ -342,8 +341,7 @@ Deno.test("decorator [column many-to-one add, alter, drop] sql", async () => {
   const sql = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  const sqlSpected =
-    `ALTER TABLE "decorator"."ManyToOneSync4" DROP COLUMN "ManyToOneSync4_column31";
+  const sqlSpected = `ALTER TABLE "decorator"."ManyToOneSync4" DROP COLUMN "ManyToOneSync4_column31";
 ALTER TABLE "decorator"."ManyToOneSync4" ADD CONSTRAINT "FK_decorator_ManyToOneSync4_ManyToOneSync1_cdd96d" FOREIGN KEY ("ManyToOneSync1_column11") REFERENCES "decorator"."ManyToOneSync1" ("column11");
 ALTER TABLE "decorator"."ManyToOneSync4" ADD CONSTRAINT "FK_decorator_ManyToOneSync4_ManyToOneSync3_0b7e7d" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneSync3" ("column31")`;
   assertEquals(sql, sqlSpected);

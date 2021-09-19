@@ -341,9 +341,7 @@ function linkRelationsWithColumns(metadata: MetadataStore) {
     if (relation) {
       const ftable = tables.find((x: any) => x.target === (relation.entity || property.type));
       if (ftable) {
-        const fcolumn = columns.find((x) =>
-          x.entity.target === ftable.target && (<any> x.mixeds).primary
-        );
+        const fcolumn = columns.find((x) => x.entity.target === ftable.target && (<any> x.mixeds).primary);
         if (fcolumn) {
           if (!options.name) {
             target.name = `${ftable.mixeds.name}_${fcolumn.mixeds.name}`;
@@ -413,9 +411,7 @@ function linkUniquesWithTables(metadata: MetadataStore) {
     const tcolumns = tunique.mixeds.columns;
     const tcolumnNames: string[] = [];
     for (const tcolumn of tcolumns) {
-      const column = columns.find((c) =>
-        c.entity.target === tunique.target && c.property.propertyKey === tcolumn
-      );
+      const column = columns.find((c) => c.entity.target === tunique.target && c.property.propertyKey === tcolumn);
       let currentPropertyKey = tcolumn;
       if (column) {
         currentPropertyKey = column.mixeds.name + "";
@@ -590,9 +586,7 @@ function linkDataWithTables(metadata: MetadataStore) {
     if (!table) {
       continue;
     }
-    const primaryColumn = columns.find((c) =>
-      c.entity.target === row.target && (<any> c.mixeds).primary === true
-    );
+    const primaryColumn = columns.find((c) => c.entity.target === row.target && (<any> c.mixeds).primary === true);
     if (primaryColumn) {
       table.data.indexOf(row) === -1 ? table.data.push(row) : undefined;
     }

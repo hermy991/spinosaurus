@@ -1,10 +1,6 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { ConnectionAll } from "../connection_type.ts";
-import {
-  ParamClauseRelation,
-  ParamComplexClauseRelation,
-  ParamComplexOptions,
-} from "./params/param_select.ts";
+import { ParamClauseRelation, ParamComplexClauseRelation, ParamComplexOptions } from "./params/param_select.ts";
 
 export class BuilderSelect extends BuilderBase {
   #selectData: Array<{ column: string; as?: string }> = [];
@@ -227,9 +223,7 @@ export class BuilderSelect extends BuilderBase {
           t = this.clearNames(as);
         }
         const cols = this.getColumns(this.conn.options.name, entity);
-        sql += cols.filter((x) => x.select).map((x) =>
-          `${t}."${x.name}" "${x.name}"`
-        )
+        sql += cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${x.name}"`)
           .join(", ");
       } else {
         let t = this.clearNames([schema, entity]);
@@ -254,9 +248,7 @@ export class BuilderSelect extends BuilderBase {
             // column list
             const cols = this.getColumns(this.conn.options.name, entity);
             sql += ", " +
-              cols.filter((x) => x.select).map((x) =>
-                `${t}."${x.name}" "${t.replaceAll(`"`, "")}.${x.name}"`
-              )
+              cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${t.replaceAll(`"`, "")}.${x.name}"`)
                 .join(", ");
           } else {
             let t = this.clearNames([schema, entity]);
@@ -313,9 +305,7 @@ export class BuilderSelect extends BuilderBase {
       const t = `${this.clearNames([te.schema, te.entity])}`;
       const ton = this.conn.interpolate(on, this.#paramsData);
       sqls.push(
-        `${join.toUpperCase()} JOIN ${t}${
-          as ? " AS " + this.clearNames(as) : ""
-        } ON ${ton.join(" ")}`,
+        `${join.toUpperCase()} JOIN ${t}${as ? " AS " + this.clearNames(as) : ""} ON ${ton.join(" ")}`,
       );
     }
     return sqls.join(" ");

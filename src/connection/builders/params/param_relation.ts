@@ -27,16 +27,16 @@ export type ParamRelation = {
    */
   entity?: Function;
   /**
-    * Foreign key's name
-    */
+   * Foreign key's name
+   */
   name?: string;
   /**
-    * Database cascade action on delete.
-    */
+   * Database cascade action on delete.
+   */
   onDelete?: OnDeleteType;
   /**
-    * Database cascade action on update.
-    */
+   * Database cascade action on update.
+   */
   onUpdate?: OnUpdateType;
 };
 

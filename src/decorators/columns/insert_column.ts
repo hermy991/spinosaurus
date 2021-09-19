@@ -17,8 +17,7 @@ export function InsertColumn(
     /**
      * For static member entity param will be a function constructor
      */
-    const funt =
-      (entityf instanceof Function ? <Function> entityf : entityf.constructor);
+    const funt = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
     const entity = { target: funt, name: funt.name };
     const property = {
       propertyKey,
