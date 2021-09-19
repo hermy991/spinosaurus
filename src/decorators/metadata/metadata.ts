@@ -3,6 +3,8 @@ import { ColumnType } from "../options/column_type.ts";
 import { ConnectionOptions } from "../../connection/connection_options.ts";
 import { PrimaryGeneratedColumnOptions } from "../options/primary_generated_column_options.ts";
 import { ColumnOptions } from "../options/column_options.ts";
+import { generateName1, getForeingEntity } from "../../connection/builders/base/sql.ts";
+// import { StoreColumn, StoreRelation } from "./metadata_store.ts";
 
 const DEFAULT_CONN_NAME = "default";
 
@@ -73,23 +75,22 @@ export function linkMetadata(req: { connName: string }): MetadataStore {
 export function getMetadata(): MetadataStore;
 
 /**
-  * Name key will be return from registry
-  */
+ * Name key will be return from registry
+ */
 export function getMetadata(name: string): MetadataStore;
 
 /**
-  * Option name atribute will be return from registry
-  */
+ * Option name atribute will be return from registry
+ */
 export function getMetadata(options: ConnectionOptions): MetadataStore;
 
 /**
-  * Option name atribute or name param will be return from registry
-  */
+ * Option name atribute or name param will be return from registry
+ */
 export function getMetadata(
   nameOrOptions?: string | ConnectionOptions,
 ): MetadataStore {
-  const name =
-    (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) ||
+  const name = (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) ||
     DEFAULT_CONN_NAME;
   if (!window[GLOBAL_METADATA_KEY]) {
     window[GLOBAL_METADATA_KEY] = {};
@@ -98,10 +99,9 @@ export function getMetadata(
     window[GLOBAL_TEMP_METADATA_KEY] = {};
   }
   if (!window[GLOBAL_METADATA_KEY][name]) {
-    window[GLOBAL_METADATA_KEY][name] =
-      window[GLOBAL_TEMP_METADATA_KEY][DEFAULT_CONN_NAME]
-        ? getTempMetadata()
-        : new MetadataStore();
+    window[GLOBAL_METADATA_KEY][name] = window[GLOBAL_TEMP_METADATA_KEY][DEFAULT_CONN_NAME]
+      ? getTempMetadata()
+      : new MetadataStore();
     clearTempMetadata();
   }
   const ms = window[GLOBAL_METADATA_KEY][name];
@@ -144,8 +144,7 @@ export function clearMetadata(options: ConnectionOptions): void;
 export function clearMetadata(
   nameOrOptions?: string | ConnectionOptions,
 ): void {
-  const name =
-    (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) ||
+  const name = (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) ||
     DEFAULT_CONN_NAME;
   if (window[GLOBAL_METADATA_KEY]) {
     delete window[GLOBAL_METADATA_KEY][name];
@@ -220,14 +219,14 @@ export function getColumnType(
   let { type, options, value } = params;
   let spitype: ColumnType | undefined = undefined;
   /**
- * Type by value
- */
+   * Type by value
+   */
   if (value != undefined && value != null) {
     type = value.constructor;
   }
   /**
- * Type by explicit type
- */
+   * Type by explicit type
+   */
   if (type.name === "ArrayBuffer" || type.name === "Blob") {
     spitype = "bytearray";
   } else if (type.name === "String") {
@@ -248,8 +247,8 @@ export function getColumnType(
     // Custom function like _NOW, etc.
   }
   /**
- * Type by options
- */
+   * Type by options
+   */
   if (options) {
     if (type.name === "String" && options.length) {
       spitype = `varchar`;
@@ -307,8 +306,7 @@ function linkColumnsProperties(metadata: MetadataStore) {
       (<PrimaryGeneratedColumnOptions> options).autoIncrement &&
       !options.spitype
     ) {
-      const autoIncrement =
-        (<PrimaryGeneratedColumnOptions> options).autoIncrement;
+      const autoIncrement = (<PrimaryGeneratedColumnOptions> options).autoIncrement;
       if (autoIncrement === "increment" && !options.spitype) {
         options.spitype = "integer";
       } else if (autoIncrement === "uuid" && !options.spitype) {
@@ -341,9 +339,7 @@ function linkRelationsWithColumns(metadata: MetadataStore) {
     const { target, property, relation, options } = <any> column;
     // Relations
     if (relation) {
-      const ftable = tables.find((x: any) =>
-        x.target === (relation.entity || property.type)
-      );
+      const ftable = tables.find((x: any) => x.target === (relation.entity || property.type));
       if (ftable) {
         const fcolumn = columns.find((x) =>
           x.entity.target === ftable.target && (<any> x.mixeds).primary
@@ -413,22 +409,49 @@ function linkChecksWithTables(metadata: MetadataStore) {
 function linkUniquesWithTables(metadata: MetadataStore) {
   const { columns, tables, uniques } = metadata;
   tables.forEach((x) => x.uniques = x.uniques || []);
+  for (const tunique of uniques) {
+    const tcolumns = tunique.mixeds.columns;
+    const tcolumnNames: string[] = [];
+    for (const tcolumn of tcolumns) {
+      const column = columns.find((c) =>
+        c.entity.target === tunique.target && c.property.propertyKey === tcolumn
+      );
+      let currentPropertyKey = tcolumn;
+      if (column) {
+        currentPropertyKey = column.mixeds.name + "";
+        // currentPropertyKey = getForeingProperty(
+        //   columns,
+        //   column.relation,
+        //   tcolumn,
+        // ) || "";
+      }
+      tcolumnNames.push(currentPropertyKey);
+    }
+    (<any> tunique.mixeds).columnNames = tcolumnNames;
+  }
   // Global uniques constraints
   for (let i = tables.length - 1; i >= 0; i--) {
     const table = tables[i];
     const gcolumns = [];
+    const columnNames = [];
     for (let y = 0; y < table.columns.length; y++) {
       const column = table.columns[y];
       if (!column.mixeds.unique) {
         continue;
       }
+      // Entity columns
       gcolumns.push(column.property.propertyKey);
+      const currentPropertyKey = column.mixeds.name;
+      // const currentPropertyKey = getForeingProperty(
+      //   columns,
+      //   column.relation,
+      //   column.property.propertyKey,
+      // );
+      // Database columns
+      columnNames.push(currentPropertyKey);
     }
-    const gunique = {
-      target: table.target,
-      options: { columns: gcolumns },
-      mixeds: { columns: gcolumns },
-    };
+    const mixeds = { columns: gcolumns, columnNames };
+    const gunique = { target: table.target, options: mixeds, mixeds };
     if (gunique.mixeds.columns.length) {
       uniques.unshift(<any> gunique);
     }
@@ -441,31 +464,17 @@ function linkUniquesWithTables(metadata: MetadataStore) {
       if (!column.mixeds.uniqueOne) {
         continue;
       }
-      const mixeds = { columns: [column.property.propertyKey] };
-      const cunique = {
-        target: table.target,
-        options: mixeds,
-        mixeds,
+      const currentPropertyKey = column.mixeds.name;
+      const mixeds = {
+        columns: [column.property.propertyKey],
+        columnNames: [currentPropertyKey],
       };
+      const cunique = { target: table.target, options: mixeds, mixeds };
       if (cunique.mixeds.columns.length) {
         uniques.unshift(<any> cunique);
       }
     }
   }
-  // Changing property column to database column
-  uniques.forEach((m) => {
-    (<any> m.mixeds)["columnNames"] = m.mixeds.columns.map((x: any) => {
-      const column = columns.find((c) => {
-        if (c.relation) {
-          c.entity.target === m.target && c.mixeds.name === x;
-        }
-        return c.entity.target === m.target && c.property.propertyKey === x;
-      });
-      if (column) {
-        return column.mixeds.name;
-      }
-    }).filter((x: any) => x);
-  });
   // Link uniques to tables
   for (let i = 0; i < uniques.length; i++) {
     const unique = uniques[i];
@@ -482,6 +491,19 @@ function linkUniquesWithTables(metadata: MetadataStore) {
       )
     ) {
       table.uniques.push(unique);
+    }
+  }
+  //Set new unique name
+  for (const table of tables) {
+    const tuniques = table.uniques.filter((x) => !x.mixeds.name);
+    for (let i = 0; i < tuniques.length; i++) {
+      const tmixeds = tuniques[i].mixeds;
+      tmixeds.name ||= generateName1({
+        prefix: "UQ",
+        schema: table.mixeds.schema,
+        entity: table.mixeds.name,
+        sequence: i + 1,
+      });
     }
   }
   return { tables, uniques };
@@ -520,6 +542,21 @@ function linkRelationsWithTables(metadata: MetadataStore) {
       }
     }
   }
+  //Set new relation name
+  for (const table of tables) {
+    const fcolumns = table.relations.filter((x) => !x.relation.name);
+    for (let i = 0; i < fcolumns.length; i++) {
+      const fcolumn = fcolumns[i];
+      const fentity = getForeingEntity(tables, <Function> fcolumn.relation.entity);
+      fcolumn.relation.name ||= generateName1({
+        prefix: "FK",
+        schema: table.mixeds.schema,
+        entity: table.mixeds.name,
+        name: fentity.mixeds.name,
+        sequence: i + 1,
+      });
+    }
+  }
   return { columns, tables, relations };
 }
 function linkColumnsWithTables(metadata: MetadataStore) {
@@ -535,9 +572,7 @@ function linkColumnsWithTables(metadata: MetadataStore) {
       }
     }
   };
-  columns.forEach((column) =>
-    addColumn(column, (x: any) => x.target === column.entity.target)
-  );
+  columns.forEach((column) => addColumn(column, (x: any) => x.target === column.entity.target));
   columns.forEach((column) =>
     addColumn(
       column,

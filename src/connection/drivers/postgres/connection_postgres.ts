@@ -12,10 +12,7 @@ import { ParamCheckCreate } from "../../builders/params/param_check.ts";
 import { ParamUniqueCreate } from "../../builders/params/param_unique.ts";
 import { ParamRelationCreate } from "../../builders/params/param_relation.ts";
 import { ParamCommentColumnDerinition } from "../../builders/params/param_comment.ts";
-import {
-  ParamComplexOptions,
-  ParamSimpleOptions,
-} from "../../builders/params/param_select.ts";
+import { ParamComplexOptions, ParamSimpleOptions } from "../../builders/params/param_select.ts";
 import { initConnection } from "./connection_postgres_pool.ts";
 import { filterConnectionProps } from "../../connection_operations.ts";
 import { MetadataStore } from "../../../decorators/metadata/metadata_store.ts";
@@ -227,8 +224,7 @@ class ConnectionPostgres implements IConnectionOperations {
        */
       if (changes.spitype) {
         const ntype = this.getDbColumnType(changes);
-        let tquery =
-          `ALTER TABLE ${efrom} ALTER COLUMN ${fname} TYPE ${ntype.toUpperCase()}`;
+        let tquery = `ALTER TABLE ${efrom} ALTER COLUMN ${fname} TYPE ${ntype.toUpperCase()}`;
         if (["numeric"].includes(changes.spitype)) {
           tquery += ` USING (${fname})::${ntype}`;
         } else if (["boolean"].includes(changes.spitype)) {
@@ -250,9 +246,7 @@ class ConnectionPostgres implements IConnectionOperations {
       if ("default" in changes) {
         querys.push(
           `ALTER TABLE ${efrom} ALTER COLUMN ${fname} ${
-            changes.default
-              ? "SET DEFAULT " + this.stringify(changes.default)
-              : "DROP DEFAULT"
+            changes.default ? "SET DEFAULT " + this.stringify(changes.default) : "DROP DEFAULT"
           }`,
         );
       }
@@ -262,14 +256,8 @@ class ConnectionPostgres implements IConnectionOperations {
 
   columnComment = (scc: ParamCommentColumnDerinition): string => {
     const { schema, entity, name, comment } = scc;
-    let sql = `COMMENT ON COLUMN ${
-      schema ? schema + "." : ""
-    }${entity}.${name} IS `;
-    sql += `${
-      comment === null || comment === undefined
-        ? "NULL"
-        : this.stringify(comment)
-    }`;
+    let sql = `COMMENT ON COLUMN ${schema ? schema + "." : ""}${entity}.${name} IS `;
+    sql += `${comment === null || comment === undefined ? "NULL" : this.stringify(comment)}`;
     return sql;
   };
 
@@ -553,9 +541,7 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
       const type = {
         columnType: <string> rcol.data_type,
         length: <number> rcol.character_maximum_length,
-        precision: [32, 0].includes(rcol.numeric_precision)
-          ? undefined
-          : rcol.numeric_precision,
+        precision: [32, 0].includes(rcol.numeric_precision) ? undefined : rcol.numeric_precision,
         scale: rcol.numeric_scale === 0 ? undefined : rcol.numeric_scale,
       };
       const mixeds: any = {};
@@ -563,9 +549,7 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
       mixeds.spitype = this.getColumnTypeReverse(type);
       mixeds.type = rcol.data_type;
       mixeds.nullable = rcol.is_nullable == "YES";
-      rcol.character_maximum_length
-        ? mixeds.length = rcol.character_maximum_length
-        : 0;
+      rcol.character_maximum_length ? mixeds.length = rcol.character_maximum_length : 0;
       if (
         ["text", "character varying"].includes(rcol.data_type) &&
         rcol.column_default

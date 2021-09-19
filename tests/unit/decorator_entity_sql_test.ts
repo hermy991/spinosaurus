@@ -73,7 +73,14 @@ ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntit
 ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_1" UNIQUE ("column2");
 ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_2" UNIQUE ("column2", "column3");
 ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_3" UNIQUE ("column2", "column3", "custom4");
-ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_4" UNIQUE ("custom4", "custom5")`;
+ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_4" UNIQUE ("custom4", "custom5");
+CREATE TABLE "decorator"."UniqueEntity2" ( "column1" SERIAL PRIMARY KEY, "UniqueEntity1_column1_1" INTEGER NOT NULL, "column3" TEXT NOT NULL, "xx" INTEGER NOT NULL, "UniqueEntity1_column1_2" INTEGER NOT NULL );
+ALTER TABLE "decorator"."UniqueEntity2" ADD CONSTRAINT "UQ_decorator_UniqueEntity2_cdd96d" UNIQUE ("UniqueEntity1_column1_1", "column3");
+ALTER TABLE "decorator"."UniqueEntity2" ADD CONSTRAINT "UQ_decorator_UniqueEntity2_0b7e7d" UNIQUE ("xx", "UniqueEntity1_column1_2");
+ALTER TABLE "decorator"."UniqueEntity2" ADD CONSTRAINT "FK_decorator_UniqueEntity2_UniqueEntity1_cdd96d" FOREIGN KEY ("UniqueEntity1_column1_1") REFERENCES "decorator"."UniqueEntity1" ("column1");
+ALTER TABLE "decorator"."UniqueEntity2" ADD CONSTRAINT "FK_decorator_UniqueEntity2_UniqueEntity1_0b7e7d" FOREIGN KEY ("xx") REFERENCES "decorator"."UniqueEntity1" ("column1");
+ALTER TABLE "decorator"."UniqueEntity2" ADD CONSTRAINT "FK_decorator_UniqueEntity2_UniqueEntity1_0b24df" FOREIGN KEY ("UniqueEntity1_column1_2") REFERENCES "decorator"."UniqueEntity1" ("column1")`;
+  console.log("s1", s1);
   assertEquals(s1, se1);
 });
 Deno.test("decorator [inherit] sql", async () => {

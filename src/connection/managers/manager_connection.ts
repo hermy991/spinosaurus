@@ -1,8 +1,6 @@
 import { fs } from "../../../deps.ts";
-import {
-  ParamColumnAjust,
-  ParamColumnCreate,
-} from "../builders/params/param_column.ts";
+import { getForeingEntity, getForeingPropertyKey } from "../builders/base/sql.ts";
+import { ParamColumnAjust, ParamColumnCreate } from "../builders/params/param_column.ts";
 import { StoreColumnOptions } from "../../decorators/metadata/metadata_store.ts";
 import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
@@ -19,10 +17,7 @@ import {
 } from "../../decorators/metadata/metadata.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
-import {
-  getConnectionOptions,
-  getConnectionsOptions,
-} from "../connection_utils.ts";
+import { getConnectionOptions, getConnectionsOptions } from "../connection_utils.ts";
 
 /**
  * Creates a new connection and registers it in the manager.
@@ -139,12 +134,9 @@ export async function synchronize(
 ): Promise<string[] | undefined> {
   const options = conn.getDriver().options;
   if (options.synchronize === true) {
-    const entities = typeof options.entities == "string"
-      ? [options.entities]
-      : options.entities;
+    const entities = typeof options.entities == "string" ? [options.entities] : options.entities;
     clearMetadata(options);
-    await updateStore(conn.getDriver(), entities);
-    const localMetadata = getMetadata(options);
+    const localMetadata = await updateStore(conn.getDriver(), entities);
     const destinyMetadata = await getDestinyMetadata(conn.getDriver());
     const script = await generateScript({
       conn,
@@ -178,6 +170,7 @@ export async function updateStore(
       throw (`Entity '${table.mixeds.name}' needs column(property) definition, use @Column, @PrimaryColumn, @PrimaryGeneratedColumn, etc.`);
     }
   }
+  return metadata;
 }
 
 export async function getDestinyMetadata(
@@ -232,18 +225,6 @@ export async function generateScript(
       (x.mixeds.schema || dschema) === (topts.schema || dschema) &&
       x.mixeds.name === topts.name
     );
-    // if (topts.name === "user" && dt) {
-    //   console.log(
-    //     "topts.schema",
-    //     topts.schema,
-    //     "topts.name",
-    //     topts.name,
-    //     "x.mixeds.schema",
-    //     dt.mixeds.schema,
-    //     "dt.mixeds.name",
-    //     dt.mixeds.name,
-    //   );
-    // }
     if (dt && lt.mixeds.name) {
       /** ****************************
        * Alter column tables
@@ -275,44 +256,21 @@ export async function generateScript(
         // length
         (col[1].length !== col[2].length) ? tcol[1].length = col[1].length : 0;
         // precision
-        (col[1].precision !== col[2].precision)
-          ? tcol[1].precision = col[1].precision
-          : 0;
+        (col[1].precision !== col[2].precision) ? tcol[1].precision = col[1].precision : 0;
         // scale
         (col[1].scale !== col[2].scale) ? tcol[1].scale = col[1].scale : 0;
         // nullable
-        (col[1].nullable !== col[2].nullable)
-          ? tcol[1].nullable = col[1].nullable
-          : 0;
-        if (
-          conn.getDriver().stringify(col[1].default) !==
-            conn.getDriver().stringify(col[2].default)
-        ) {
-          console.log(
-            "lt.mixeds.name",
-            lt.mixeds.name,
-            "col[1].name",
-            col[1].name,
-            "conn.getDriver().stringify(col[1].default)",
-            "{" + conn.getDriver().stringify(col[1].default) + "}",
-            "col[2].default",
-            "{" + conn.getDriver().stringify(col[2].default) + "}",
-          );
-        }
+        (col[1].nullable !== col[2].nullable) ? tcol[1].nullable = col[1].nullable : 0;
         // default
-        (conn.getDriver().stringify(col[1].default) !==
-            conn.getDriver().stringify(col[2].default))
+        (conn.getDriver().stringify(col[1].default) !== conn.getDriver().stringify(col[2].default))
           ? tcol[1].default = col[1].default
           : 0;
         // primary
-        (col[1].primary !== col[2].primary)
-          ? tcol[1].primary = col[1].primary
-          : 0;
+        (col[1].primary !== col[2].primary) ? tcol[1].primary = col[1].primary : 0;
         // autoIncrement
         (col[1].autoIncrement !== col[2].autoIncrement)
           ? tcol[1].autoIncrement = col[1].autoIncrement
           : 0;
-
         if (Object.keys(tcol[1]).length) {
           qsa.addColumn(tcol);
         }
@@ -341,33 +299,32 @@ export async function generateScript(
         );
       }
       /** ****************************
-       * Adding checks and uniques on tables
-       * **************************** */
-      const achks = lt.checks.filter((x) =>
-        !dt.checks.some((y) => y.mixeds.name === x.mixeds.name)
-      ).map((x) => x.mixeds);
-      const auniqs = lt.uniques.filter((x) =>
-        !dt.uniques.some((y) => y.mixeds.name === x.mixeds.name)
-      ).map((x) => x.mixeds);
-      if ([...achks, ...auniqs].length) {
-        script.push(
-          ...conn.create({ ...lt.mixeds, entity: lt.mixeds.name })
-            .checks(achks).uniques(auniqs).getSqls(),
-        );
-      }
-      /** ****************************
        * Dropping checks and uniques on tables
        * **************************** */
       const dchks: Array<string> = dt.checks
         .filter((x) => !lt.checks.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => x.mixeds.name || "");
-      const duniqs: Array<string> = dt.checks
-        .filter((x) => !lt.checks.some((y) => y.mixeds.name === x.mixeds.name))
+      const duniqs: Array<string> = dt.uniques
+        .filter((x) => !lt.uniques.some((y) => y.mixeds.name === x.mixeds.name))
         .map((x) => x.mixeds.name || "");
       if ([...dchks, ...duniqs].length) {
         script.push(
           ...conn.drop({ ...lt.mixeds, entity: lt.mixeds.name })
             .constraints([...dchks, ...duniqs]).getSqls(),
+        );
+      }
+      /** ****************************
+       * Adding checks and uniques on tables
+       * **************************** */
+      const achks = lt.checks.filter((x) => !dt.checks.some((y) => y.mixeds.name === x.mixeds.name))
+        .map((x) => x.mixeds);
+      const auniqs = lt.uniques.filter((x) =>
+        !dt.uniques.some((y) => y.mixeds.name === x.mixeds.name)
+      ).map((x) => ({ ...x.mixeds, columns: (<any> x.mixeds).columnNames }));
+      if ([...achks, ...auniqs].length) {
+        script.push(
+          ...conn.create({ ...lt.mixeds, entity: lt.mixeds.name })
+            .checks(achks).uniques(auniqs).getSqls(),
         );
       }
     } else if (topts.name) {
@@ -413,14 +370,15 @@ export async function generateScript(
       schema: lt.mixeds.schema,
     });
     for (const lrc of lt.relations) {
-      const dr = destinyMetadata.relations.find((x) =>
-        x.relation.name === lrc.relation.name
-      );
-      if (!dr) {
+      const drc = destinyMetadata.relations.find((x) => x.relation.name === lrc.relation.name);
+      if (!drc) {
         /** ****************************
          * Adding new relation globaly
          * **************************** */
         const lr = lrc.relation;
+        if (lt.mixeds.name === "person") {
+          console.log(lrc);
+        }
         qa.addRelations([
           {
             name: lr.name,
@@ -434,39 +392,32 @@ export async function generateScript(
          * Modifying a relation globaly
          * **************************** */
         const lr = lrc.relation;
-        qa.addRelations([[lr.name + "", {
-          name: lr.name,
-          columns: [lrc.mixeds.name || ""],
-          parentEntity: <Function> lr.entity,
-          parentColumns: ((<any> lr).columns || []),
-        }]]);
+        const dr = drc.relation;
+        const lfcolumn = getForeingEntity(localMetadata.tables, <Function> lr.entity);
+        const lfPropertyKey = lrc.mixeds.name;
+        const lfParentSchema = lfcolumn.mixeds.schema || (<any> dr).parentSchema;
+        const lfParentEntity = lfcolumn.mixeds.name;
+
+        const lfParentColumn = getForeingPropertyKey(localMetadata.columns, lr, "");
+        const dfPropertyKey = (<any> dr).columns[0];
+        const dfParentSchema = (<any> dr).parentSchema;
+        const dfParentEntity = (<any> dr).parentEntity;
+        const dfParentColumn = (<any> dr).parentColumns[0];
+        if (
+          lfPropertyKey !== dfPropertyKey || lfParentSchema !== dfParentSchema ||
+          lfParentEntity !== dfParentEntity || lfParentColumn !== dfParentColumn
+        ) {
+          qa.addRelations([[lr.name + "", {
+            name: lr.name,
+            columns: [lrc.mixeds.name || ""],
+            parentEntity: <Function> lr.entity,
+            parentColumns: ((<any> lr).columns || []),
+          }]]);
+        }
       }
     }
     script.push(...qa.getSqls());
   }
-
-  // for (let i = 0; i < localMetadata.tables.length; i++) {
-  //   const table = localMetadata.tables[i];
-  //   if (table.mixeds.name) {
-  //     const qa = conn.alter({
-  //       entity: table.mixeds.name,
-  //       schema: table.mixeds.schema,
-  //     });
-
-  //     if (table.relations.length) {
-  //       const relations = table.relations.map((x: any) => ({
-  //         name: x.relation.name,
-  //         columns: [x.mixeds.name].filter((x) => x),
-  //         parentEntity: x.relation.entity,
-  //         parentColumns: x.relation.columns && x.relation.columns.length
-  //           ? x.relation.columns
-  //           : undefined,
-  //       }));
-  //       const sqls = qa.relations(relations).getSqls();
-  //       script.push(...sqls);
-  //     }
-  //   }
-  // }
   /**
    * Afters
    */
@@ -477,16 +428,12 @@ export async function generateScript(
         ...table.afters.map((x: any) => x.steps)
           .flatMap((x: any) => x)
           .map((x: any) => x.trim())
-          .map((x: any) =>
-            x.lastIndexOf(";") === x.length - 1
-              ? x.substring(0, x.length - 1)
-              : x
-          )
+          .map((x: any) => x.lastIndexOf(";") === x.length - 1 ? x.substring(0, x.length - 1) : x)
           .filter((x: any) => x),
       );
     }
   }
-  console.log("script", script);
-  self.close();
+  // console.log("script", script);
+  // self.close();
   return script;
 }

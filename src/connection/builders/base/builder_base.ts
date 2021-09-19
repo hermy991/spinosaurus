@@ -1,6 +1,5 @@
 import { ConnectionAll } from "../../connection_type.ts";
-import { clearNames } from "./sql.ts";
-import { hash } from "../../../../deps.ts";
+import { clearNames, generateName1 } from "./sql.ts";
 import {
   getMetadataChecks,
   getMetadataColumns,
@@ -52,27 +51,7 @@ export class BuilderBase {
       sequence: number;
     },
   ) => {
-    const { prefix, schema, entity, column, name, sequence } = req;
-    let generated = `${prefix.toUpperCase().trim()}`;
-    if (schema) {
-      generated += `_${schema.trim()}`;
-    }
-    if (entity) {
-      generated += `_${entity.trim()}`;
-    }
-    if (column) {
-      generated += `_${column.trim()}`;
-    }
-    if (name) {
-      generated += `_${name.trim()}`;
-    }
-    if (sequence) {
-      // generated += `_${btoa(sequence + "").replaceAll("=", "").toLowerCase()}`;
-      const hh = hash.createHash("md5");
-      hh.update(`${btoa(sequence + "")}`);
-      generated += `_${hh.toString().substr(0, 6)}`;
-    }
-    return generated.substring(0, 63);
+    return generateName1(req);
   };
   getEntityData(connName: string, entity: Function) {
     return getMetadataEntityData({ connName, entity });

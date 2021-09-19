@@ -1,3 +1,5 @@
+import { hash } from "../../../../deps.ts";
+
 export function stringify(
   value: string | number | boolean | Date | Function | null | undefined,
 ): string {
@@ -69,10 +71,68 @@ export function clearNames(
   const tempIdentifiers: string[] = [];
   identifiers.filter((x) => x).forEach((x) =>
     tempIdentifiers.push(
-      `${left}${
-        (x || "").replace(new RegExp(`[\\${left}\\${right}]`, "ig"), ``)
-      }${right}`,
+      `${left}${(x || "").replace(new RegExp(`[\\${left}\\${right}]`, "ig"), ``)}${right}`,
     )
   );
   return tempIdentifiers.join(".");
+}
+
+export function generateName1(
+  req: {
+    prefix: string;
+    schema?: string;
+    entity?: string;
+    column?: string;
+    name?: string;
+    sequence: number;
+  },
+) {
+  const { prefix, schema, entity, column, name, sequence } = req;
+  let generated = `${prefix.toUpperCase().trim()}`;
+  if (schema) {
+    generated += `_${schema.trim()}`;
+  }
+  if (entity) {
+    generated += `_${entity.trim()}`;
+  }
+  if (column) {
+    generated += `_${column.trim()}`;
+  }
+  if (name) {
+    generated += `_${name.trim()}`;
+  }
+  if (sequence) {
+    // generated += `_${btoa(sequence + "").replaceAll("=", "").toLowerCase()}`;
+    const hh = hash.createHash("md5");
+    hh.update(`${btoa(sequence + "")}`);
+    generated += `_${hh.toString().substr(0, 6)}`;
+  }
+  return generated.substring(0, 63);
+}
+
+export function getForeingPropertyKey(
+  columns: any[],
+  relation: any | undefined,
+  currentPropertyKey: string,
+) {
+  if (relation) {
+    // Find foreing column
+    const fcolumn = columns.find((x) =>
+      x.entity.target === relation.entity &&
+      x.mixeds.primary === true
+    );
+    return fcolumn ? fcolumn.mixeds.name : currentPropertyKey;
+  }
+  return currentPropertyKey;
+}
+
+export function getForeingEntity(
+  entities: any[],
+  relation: Function | undefined,
+) {
+  if (relation) {
+    // Find foreing column
+    const fentity = entities.find((x) => x.target === relation);
+    return fentity;
+  }
 }

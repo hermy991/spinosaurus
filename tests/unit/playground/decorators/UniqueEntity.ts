@@ -1,9 +1,4 @@
-import {
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  Unique,
-} from "spinosaurus/mod.ts";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "spinosaurus/mod.ts";
 
 @Entity({ schema: "decorator" })
 @Unique({ columns: ["column2"] })
@@ -50,4 +45,24 @@ export class UniqueEntity1 {
 
   @Column({ name: "custom11", length: 100, uniqueOne: true })
   column11!: string;
+}
+
+@Entity({ schema: "decorator" })
+@Unique({ columns: ["another1", "column3"] })
+@Unique({ columns: ["another2", "another3"] })
+export class UniqueEntity2 {
+  @PrimaryGeneratedColumn()
+  column1!: number;
+
+  @ManyToOne({})
+  another1!: UniqueEntity1;
+
+  @Column()
+  column3!: string;
+
+  @ManyToOne({}, { name: "xx" })
+  another2!: UniqueEntity1;
+
+  @ManyToOne({})
+  another3!: UniqueEntity1;
 }

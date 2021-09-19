@@ -198,7 +198,8 @@ export class BuilderCreate extends BuilderBase {
       const unique = self.structuredClone(this.#uniquesData[i]);
       unique.name ||= this.generateName1({
         prefix: "UQ",
-        ...e,
+        schema,
+        entity,
         sequence: i + 1,
       });
       unique.name = this.clearNames(unique.name);
@@ -262,18 +263,14 @@ export class BuilderCreate extends BuilderBase {
   getNextQuery(): string[] {
     return this.#nextData.flatMap((x) => x)
       .map((x) => x.trim())
-      .map((x) =>
-        x.lastIndexOf(";") === x.length - 1 ? x.substring(0, x.length - 1) : x
-      )
+      .map((x) => x.lastIndexOf(";") === x.length - 1 ? x.substring(0, x.length - 1) : x)
       .filter((x) => x);
   }
 
   getAfterQuery(): string[] {
     return this.#afterData.flatMap((x) => x)
       .map((x) => x.trim())
-      .map((x) =>
-        x.lastIndexOf(";") === x.length - 1 ? x.substring(0, x.length - 1) : x
-      )
+      .map((x) => x.lastIndexOf(";") === x.length - 1 ? x.substring(0, x.length - 1) : x)
       .filter((x) => x);
   }
 
@@ -291,12 +288,8 @@ export class BuilderCreate extends BuilderBase {
     if (this.#entityData instanceof Function) {
       e = this.getEntityData(this.conn.options.name, this.#entityData);
       if (this.#options.createByEntity) {
-        cols = cols.length
-          ? cols
-          : this.getColumns(this.conn.options.name, this.#entityData);
-        chks = chks.length
-          ? chks
-          : this.getChecks(this.conn.options.name, this.#entityData);
+        cols = cols.length ? cols : this.getColumns(this.conn.options.name, this.#entityData);
+        chks = chks.length ? chks : this.getChecks(this.conn.options.name, this.#entityData);
       }
     } else {
       e = this.#entityData;

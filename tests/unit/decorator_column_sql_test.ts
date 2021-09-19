@@ -132,8 +132,7 @@ Deno.test("decorator [column modify columns] sql", async () => {
   const sql = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  const sqlSpected =
-    `ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "string1" TYPE TEXT;
+  const sqlSpected = `ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "string1" TYPE TEXT;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "string1" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "string1" DROP DEFAULT;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "string2" TYPE TEXT;
@@ -151,12 +150,10 @@ ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "number3" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "number3" SET DEFAULT 100;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "bigint1" TYPE BIGINT;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "bigint1" SET NOT NULL;
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "bigint1" SET DEFAULT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "bigint2" TYPE BIGINT;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "bigint2" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "bigint3" TYPE BIGINT;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "bigint3" SET NOT NULL;
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "bigint3" SET DEFAULT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "boolean1" TYPE BOOLEAN USING ("boolean1")::int::boolean;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "boolean1" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "boolean1" SET DEFAULT '1';
@@ -175,20 +172,16 @@ ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp3" SET NOT NULL
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "timestamp3" SET DEFAULT now();
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "arraybuffer1" TYPE BYTEA USING ("arraybuffer1")::bytea;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "arraybuffer1" SET NOT NULL;
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "arraybuffer1" SET DEFAULT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "arraybuffer2" TYPE BYTEA USING ("arraybuffer2")::bytea;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "arraybuffer2" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "arraybuffer3" TYPE BYTEA USING ("arraybuffer3")::bytea;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "arraybuffer3" SET NOT NULL;
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "arraybuffer3" SET DEFAULT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob1" TYPE BYTEA USING ("blob1")::bytea;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob1" SET NOT NULL;
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob1" SET DEFAULT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob2" TYPE BYTEA USING ("blob2")::bytea;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob2" SET NOT NULL;
 ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob3" TYPE BYTEA USING ("blob3")::bytea;
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob3" SET NOT NULL;
-ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob3" SET DEFAULT NULL`;
+ALTER TABLE "decorator"."ModColumnTypes1" ALTER COLUMN "blob3" SET NOT NULL`;
   assertEquals(sql, sqlSpected);
 });
 
@@ -235,8 +228,7 @@ Deno.test("decorator [column dropping columns] sql", async () => {
   const sql = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  const sqlSpected =
-    `ALTER TABLE "decorator"."DroColumnTypes1" ALTER COLUMN "string1" TYPE TEXT;
+  const sqlSpected = `ALTER TABLE "decorator"."DroColumnTypes1" ALTER COLUMN "string1" TYPE TEXT;
 ALTER TABLE "decorator"."DroColumnTypes1" ALTER COLUMN "string1" SET NOT NULL;
 ALTER TABLE "decorator"."DroColumnTypes1" ALTER COLUMN "string1" DROP DEFAULT;
 ALTER TABLE "decorator"."DroColumnTypes1" DROP COLUMN "string2", DROP COLUMN "string3", DROP COLUMN "number1", DROP COLUMN "number2", DROP COLUMN "number3", DROP COLUMN "bigint1", DROP COLUMN "bigint2", DROP COLUMN "bigint3", DROP COLUMN "boolean1", DROP COLUMN "boolean2", DROP COLUMN "boolean3", DROP COLUMN "timestamp1", DROP COLUMN "timestamp2", DROP COLUMN "timestamp3", DROP COLUMN "arraybuffer1", DROP COLUMN "arraybuffer2", DROP COLUMN "arraybuffer3", DROP COLUMN "blob1", DROP COLUMN "blob2", DROP COLUMN "blob3"`;

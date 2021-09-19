@@ -3,6 +3,7 @@ import { yaml } from "../../deps.ts";
 import { xml } from "../../deps.ts";
 import { ConnectionOptions } from "./connection_options.ts";
 import { error } from "../error/error_utills.ts";
+import { hash } from "../../deps.ts";
 
 const FILE_NAME = "spinosaurus";
 
@@ -140,9 +141,7 @@ export async function getConnectionFileOptions(
     let name = FILE_NAME;
     let extension = fileNameOrExtenxion;
     if (fileNameOrExtenxion.indexOf(".") >= 0) {
-      name = `${
-        fileNameOrExtenxion.substring(0, fileNameOrExtenxion.lastIndexOf("."))
-      }`;
+      name = `${fileNameOrExtenxion.substring(0, fileNameOrExtenxion.lastIndexOf("."))}`;
       extension = `${extension.substring(extension.lastIndexOf(".") + 1)}`;
     }
     const fileName = `${name}.${extension}`;
@@ -250,7 +249,7 @@ export async function getConnectionFileOptions(
   return;
 }
 
-function findConnection(options: any | Array<any>, name?: string) {
+export function findConnection(options: any | Array<any>, name?: string) {
   if (!options) {
     return;
   }

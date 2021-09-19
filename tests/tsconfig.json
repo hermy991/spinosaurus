@@ -2,5 +2,10 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
+  },
+  "fmt": {
+    "options": {
+      "lineWidth": 100
+    }
   }
 }
