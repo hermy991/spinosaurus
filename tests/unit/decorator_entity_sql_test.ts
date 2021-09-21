@@ -80,7 +80,6 @@ ALTER TABLE "decorator"."UniqueEntity2" ADD CONSTRAINT "UQ_decorator_UniqueEntit
 ALTER TABLE "decorator"."UniqueEntity2" ADD CONSTRAINT "FK_decorator_UniqueEntity2_UniqueEntity1_cdd96d" FOREIGN KEY ("UniqueEntity1_column1_1") REFERENCES "decorator"."UniqueEntity1" ("column1");
 ALTER TABLE "decorator"."UniqueEntity2" ADD CONSTRAINT "FK_decorator_UniqueEntity2_UniqueEntity1_0b7e7d" FOREIGN KEY ("xx") REFERENCES "decorator"."UniqueEntity1" ("column1");
 ALTER TABLE "decorator"."UniqueEntity2" ADD CONSTRAINT "FK_decorator_UniqueEntity2_UniqueEntity1_0b24df" FOREIGN KEY ("UniqueEntity1_column1_2") REFERENCES "decorator"."UniqueEntity1" ("column1")`;
-  console.log("s1", s1);
   assertEquals(s1, se1);
 });
 Deno.test("decorator [inherit] sql", async () => {

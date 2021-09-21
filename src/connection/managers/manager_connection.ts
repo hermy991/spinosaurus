@@ -371,9 +371,6 @@ export async function generateScript(
          * Adding new relation globaly
          * **************************** */
         const lr = lrc.relation;
-        if (lt.mixeds.name === "person") {
-          console.log(lrc);
-        }
         qa.addRelations([
           {
             name: lr.name,
@@ -429,6 +426,7 @@ export async function generateScript(
     }
   }
   // console.log("script", script);
+  // await Deno.writeTextFile("./script.sql", script.join(";\n"));
   // self.close();
   return script;
 }
