@@ -77,7 +77,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
       options, /*Decorator Options*/
       mixeds, /*Class And Decorator Union*/
     } = table;
-    const co = await conn.checkObject(mixeds);
+    const co = await conn.checkObject(<any> mixeds);
     /**
      * Decorator Options
      */
@@ -107,9 +107,9 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
     }
     if (!options.name) {
       assertEquals(
-        target.name,
+        (<any> target).name,
         co.name,
-        `Table name '${co.name}' should be created with class name '${target.name}', target.name to table name`,
+        `Table name '${co.name}' should be created with class name '${(<any> target).name}', target.name to table name`,
       );
     }
   }
@@ -117,7 +117,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
    * Dropping tables
    */
   for (const table of _metadata.tables) {
-    const co = await conn.checkObject(table.mixeds);
+    const co = await conn.checkObject((<any> table).mixeds);
     if (co.exists) {
       await conn.drop({ entity: co.name, schema: co.schema }).execute();
     }
@@ -189,7 +189,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         // precision,
         // scale,
       } = column.mixeds;
-      if (["string2", "string3", "string4"].includes(name)) {
+      if (["string2", "string3", "string4"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "text" &&
@@ -198,7 +198,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'text' type and spitype(${spitype}) must by 'text'`,
         );
       }
-      if (["number1", "number2", "number3"].includes(name)) {
+      if (["number1", "number2", "number3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "numeric" &&
@@ -207,7 +207,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'numeric' type and spitype(${spitype}) must by 'numeric'`,
         );
       }
-      if (["bigint1", "bigint2", "bigint3"].includes(name)) {
+      if (["bigint1", "bigint2", "bigint3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "bigint" &&
@@ -216,7 +216,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'bigint' type and spitype(${spitype}) must by 'bigint'`,
         );
       }
-      if (["boolean1", "boolean2", "boolean3"].includes(name)) {
+      if (["boolean1", "boolean2", "boolean3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "boolean" &&
@@ -225,7 +225,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'boolean' type and spitype(${spitype}) must by 'boolean'`,
         );
       }
-      if (["timestamp1", "timestamp2", "timestamp3"].includes(name)) {
+      if (["timestamp1", "timestamp2", "timestamp3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name &&
@@ -236,7 +236,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         );
       }
       if (
-        ["arraybuffer1", "arraybuffer3", "arraybuffer3"].includes(name)
+        ["arraybuffer1", "arraybuffer3", "arraybuffer3"].includes(name + "")
       ) {
         assert(
           (cds.rows || []).some((x) =>
@@ -246,7 +246,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
         );
       }
-      if (["blob1", "blob2", "blob3"].includes(name)) {
+      if (["blob1", "blob2", "blob3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "bytea" &&
@@ -261,7 +261,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
    * Dropping tables
    */
   for (const table of _metadata.tables) {
-    const co = await conn.checkObject(table.mixeds);
+    const co = await conn.checkObject((<any> table).mixeds);
     if (co.exists) {
       await conn.drop({ entity: co.name, schema: co.schema }).execute();
     }
@@ -356,7 +356,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         // scale,
         // default
       } = column.mixeds;
-      if (["string1", "string2", "string3"].includes(name)) {
+      if (["string1", "string2", "string3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "text" &&
@@ -365,7 +365,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'text' type and spitype(${spitype}) must by 'text'`,
         );
       }
-      if (["number1", "number2", "number3"].includes(name)) {
+      if (["number1", "number2", "number3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "numeric" &&
@@ -374,7 +374,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'numeric' type and spitype(${spitype}) must by 'numeric'`,
         );
       }
-      if (["bigint1", "bigint2", "bigint3"].includes(name)) {
+      if (["bigint1", "bigint2", "bigint3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "bigint" &&
@@ -383,7 +383,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'bigint' type and spitype(${spitype}) must by 'bigint'`,
         );
       }
-      if (["boolean1", "boolean2", "boolean3"].includes(name)) {
+      if (["boolean1", "boolean2", "boolean3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "boolean" &&
@@ -392,7 +392,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'boolean' type and spitype(${spitype}) must by 'boolean'`,
         );
       }
-      if (["timestamp1", "timestamp2", "timestamp3"].includes(name)) {
+      if (["timestamp1", "timestamp2", "timestamp3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name &&
@@ -403,7 +403,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
         );
       }
       if (
-        ["arraybuffer1", "arraybuffer3", "arraybuffer3"].includes(name)
+        ["arraybuffer1", "arraybuffer3", "arraybuffer3"].includes(name + "")
       ) {
         assert(
           (cds.rows || []).some((x) =>
@@ -413,7 +413,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
           `column '${name}' must be 'bytea' type and spitype(${spitype}) must by 'bytearray'`,
         );
       }
-      if (["blob1", "blob2", "blob3"].includes(name)) {
+      if (["blob1", "blob2", "blob3"].includes(name + "")) {
         assert(
           (cds.rows || []).some((x) =>
             x.column_name === name && x.data_type === "bytea" &&
@@ -428,7 +428,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
    * Dropping tables
    */
   for (const table of _metadata.tables) {
-    const co = await conn.checkObject(table.mixeds);
+    const co = await conn.checkObject((<any> table).mixeds);
     if (co.exists) {
       await conn.drop({ entity: co.name, schema: co.schema }).execute();
     }
@@ -510,7 +510,7 @@ WHERE c.table_schema NOT IN ('pg_catalog', 'information_schema', 'pg_toast')
    * Dropping tables
    */
   for (const table of _metadata.tables) {
-    const co = await conn.checkObject(table.mixeds);
+    const co = await conn.checkObject((<any> table).mixeds);
     if (co.exists) {
       await conn.drop({ entity: co.name, schema: co.schema }).execute();
     }

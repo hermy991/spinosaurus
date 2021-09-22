@@ -17,7 +17,7 @@ Deno.test("decorator entity should work", async () => {
       options, /*Decorator Options*/
       mixeds, /*Class And Decorator Union*/
     } = table;
-    const co = await conn.checkObject(mixeds);
+    const co = await conn.checkObject(<any> mixeds);
     /**
      * Decorator Options
      */
@@ -47,9 +47,9 @@ Deno.test("decorator entity should work", async () => {
     }
     if (!options.name) {
       assertEquals(
-        target.name,
+        (<any> target).name,
         co.name,
-        `Table name '${co.name}' should be created with class name '${target.name}', target.name to table name`,
+        `Table name '${co.name}' should be created with class name '${(<any> target).name}', target.name to table name`,
       );
     }
   }
@@ -57,7 +57,7 @@ Deno.test("decorator entity should work", async () => {
    * DROPPING TABLES
    */
   for (const table of metadata.tables) {
-    const co = await conn.checkObject(table.mixeds);
+    const co = await conn.checkObject(<any> table.mixeds);
     if (co.exists) {
       await conn.drop({ entity: co.name, schema: co.schema }).execute();
     }
