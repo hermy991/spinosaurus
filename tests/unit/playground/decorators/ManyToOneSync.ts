@@ -26,15 +26,19 @@ export class ManyToOneSync4 {
   @Column({ length: 100 })
   column2!: string;
 
-  // Adding a new relation
+  // No hace nada
   @ManyToOne({})
   manyToOneSync1!: ManyToOneSync1;
-
-  // Modifying relation
-  @ManyToOne({}, { name: "column11" })
-  manyToOneSync2!: ManyToOneSync3;
 
   // Dropping a relation
   // @ManyToOne({})
   // manyToOneSync3!: ManyToOneSync3;
+
+  // Adding a column relation
+  @ManyToOne({ name: "FK_MyNewContranint" }, {})
+  manyToOneSync3!: ManyToOneSync3;
+
+  // Modify a reference column
+  @ManyToOne({ name: "FK_ContraintToModify" }, { name: "columnReference_ID" })
+  manyToOneSyncX!: ManyToOneSync1;
 }

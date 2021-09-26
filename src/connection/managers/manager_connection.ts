@@ -359,6 +359,22 @@ export async function generateScript(
       script.push(...qs.getSqls());
     }
   }
+  for (const dt of destinyMetadata.tables) {
+    const qa = conn.drop({
+      entity: dt.mixeds.name || "",
+      schema: dt.mixeds.schema,
+    });
+    for (const drc of dt.relations) {
+      const lrc = localMetadata.relations.find((x) => x.relation.name === drc.relation.name);
+      if (!lrc) {
+        /** ****************************
+         * Dropping when a relation is not use
+         * **************************** */
+        qa.addConstraint(drc.relation.name + "");
+        script.push(...qa.getSqls());
+      }
+    }
+  }
   for (const lt of localMetadata.tables) {
     const qa = conn.alter({
       entity: lt.mixeds.name || "",

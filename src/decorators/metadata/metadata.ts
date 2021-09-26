@@ -541,15 +541,20 @@ function linkRelationsWithTables(metadata: MetadataStore) {
   //Set new relation name
   for (const table of tables) {
     const fcolumns = table.relations.filter((x) => !x.relation.name);
-    for (let i = 0; i < fcolumns.length; i++) {
-      const fcolumn = fcolumns[i];
+    let currentConstraintName = "";
+    let i = 0;
+    for (const fcolumn of fcolumns) {
       const fentity = getForeingEntity(tables, <Function> fcolumn.relation.entity);
+      if (currentConstraintName != `${table.mixeds.schema}_${table.mixeds.name}_${fentity.mixeds.name}`) {
+        currentConstraintName = `${table.mixeds.schema}_${table.mixeds.name}_${fentity.mixeds.name}`;
+        i = 0;
+      }
       fcolumn.relation.name ||= generateName1({
         prefix: "FK",
         schema: table.mixeds.schema,
         entity: table.mixeds.name,
         name: fentity.mixeds.name,
-        sequence: i + 1,
+        sequence: ++i,
       });
     }
   }

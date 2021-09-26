@@ -252,7 +252,7 @@ ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOn
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b7e7d" FOREIGN KEY ("ManyToOneEntity3_column11_2") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity3_0b24df" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
 ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_ManyToOneEntity2_primary_ID" FOREIGN KEY ("ManyToOneEntity3_column11_3") REFERENCES "decorator"."ManyToOneEntity3" ("column11");
-ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_8b9af1" FOREIGN KEY ("ManyToOneEntity1_column21") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`;
+ALTER TABLE "decorator"."ManyToOneEntity2" ADD CONSTRAINT "FK_decorator_ManyToOneEntity2_ManyToOneEntity1_cdd96d" FOREIGN KEY ("ManyToOneEntity1_column21") REFERENCES "decorator"."ManyToOneEntity1" ("column21")`;
   assertEquals(s1, se1);
 });
 
@@ -311,12 +311,12 @@ Deno.test("decorator [column many-to-one add, alter, drop] sql", async () => {
         nullable: false,
       },
       {
-        name: "column11",
+        name: "ManyToOneSync3_column31",
         spitype: "integer",
         nullable: false,
       },
       {
-        name: "ManyToOneSync4_column31",
+        name: "columnReference_ID",
         spitype: "integer",
         nullable: false,
       },
@@ -327,7 +327,13 @@ Deno.test("decorator [column many-to-one add, alter, drop] sql", async () => {
       parentEntity: "ManyToOneSync1",
       parentColumns: ["column11"],
     }, {
-      columns: ["ManyToOneSync4_column31"],
+      columns: ["ManyToOneSync3_column31"],
+      parentSchema: "decorator",
+      parentEntity: "ManyToOneSync3",
+      parentColumns: ["column31"],
+    }, {
+      name: "FK_ContraintToModify",
+      columns: ["columnReference_ID"],
       parentSchema: "decorator",
       parentEntity: "ManyToOneSync3",
       parentColumns: ["column31"],
@@ -341,9 +347,11 @@ Deno.test("decorator [column many-to-one add, alter, drop] sql", async () => {
   const sql = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
-  const sqlSpected = `ALTER TABLE "decorator"."ManyToOneSync4" DROP COLUMN "ManyToOneSync4_column31";
-ALTER TABLE "decorator"."ManyToOneSync4" ADD CONSTRAINT "FK_decorator_ManyToOneSync4_ManyToOneSync1_cdd96d" FOREIGN KEY ("ManyToOneSync1_column11") REFERENCES "decorator"."ManyToOneSync1" ("column11");
-ALTER TABLE "decorator"."ManyToOneSync4" ADD CONSTRAINT "FK_decorator_ManyToOneSync4_ManyToOneSync3_0b7e7d" FOREIGN KEY ("column11") REFERENCES "decorator"."ManyToOneSync3" ("column31")`;
+  const sqlSpected =
+    `ALTER TABLE "decorator"."ManyToOneSync4" DROP CONSTRAINT "FK_decorator_ManyToOneSync4_ManyToOneSync3_0b7e7d";
+ALTER TABLE "decorator"."ManyToOneSync4" ADD CONSTRAINT "FK_MyNewContranint" FOREIGN KEY ("ManyToOneSync3_column31") REFERENCES "decorator"."ManyToOneSync3" ("column31");
+ALTER TABLE "decorator"."ManyToOneSync4" DROP CONSTRAINT "FK_ContraintToModify";
+ALTER TABLE "decorator"."ManyToOneSync4" ADD CONSTRAINT "FK_ContraintToModify" FOREIGN KEY ("columnReference_ID") REFERENCES "decorator"."ManyToOneSync1" ("column11")`;
   assertEquals(sql, sqlSpected);
 });
 
@@ -371,7 +379,7 @@ ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneE
 ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_0b7e7d" FOREIGN KEY ("OneToOneEntity3_column11_2") REFERENCES "decorator"."OneToOneEntity3" ("column11");
 ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity3_0b24df" FOREIGN KEY ("column11") REFERENCES "decorator"."OneToOneEntity3" ("column11");
 ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_OneToOneEntity2_primary_ID" FOREIGN KEY ("OneToOneEntity3_column11_3") REFERENCES "decorator"."OneToOneEntity3" ("column11");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_8b9af1" FOREIGN KEY ("OneToOneEntity1_column21_1") REFERENCES "decorator"."OneToOneEntity1" ("column21");
-ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_006d12" FOREIGN KEY ("OneToOneEntity1_column21_2") REFERENCES "decorator"."OneToOneEntity1" ("column21")`;
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_cdd96d" FOREIGN KEY ("OneToOneEntity1_column21_1") REFERENCES "decorator"."OneToOneEntity1" ("column21");
+ALTER TABLE "decorator"."OneToOneEntity2" ADD CONSTRAINT "FK_decorator_OneToOneEntity2_OneToOneEntity1_0b7e7d" FOREIGN KEY ("OneToOneEntity1_column21_2") REFERENCES "decorator"."OneToOneEntity1" ("column21")`;
   assertEquals(s1, se1);
 });

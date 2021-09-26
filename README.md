@@ -117,3 +117,4 @@ deno run -qA https://code.velociraptor.run test:exec
 - make a test by diferences in column quantity and position on reference decorators
 - adding tinyint in spitype
 - allow entity object in insert example: `await conn?.insert(FileStore).values(<any> filesStores).execute();`
+- use IndexDb, very in the future
