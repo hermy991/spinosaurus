@@ -1,3 +1,5 @@
+import { ParamSimpleOptions } from "./param_select.ts";
+
 export type ParamInsertOptions = {
   autoInsert?: boolean;
   autoGeneratePrimaryKey?: boolean;
@@ -9,6 +11,4 @@ export type ParamInsertEntity =
   | [string, string?]
   | Function;
 
-export type ParamInsertValue = {
-  [x: string]: string | number | boolean | Date | Function | null | undefined;
-};
+export type ParamInsertValue = { [x: string]: ParamSimpleOptions | { [x: string]: ParamSimpleOptions } };

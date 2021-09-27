@@ -146,7 +146,7 @@ export class BuilderUpdate extends BuilderBase {
             if (p.primary) {
               primaryColumn = { name: p.name, value: set[name] };
               addings.push(
-                `${this.clearNames(p.name)} = ${this.conn.stringify(set[name])}`,
+                `${this.clearNames(p.name)} = ${this.conn.stringify(<any> set[name])}`,
               );
             }
           }
@@ -164,7 +164,7 @@ export class BuilderUpdate extends BuilderBase {
       }
     }
     for (const dbname in cloned) {
-      const tempStr = `${this.clearNames(dbname)} = ${this.conn.stringify(cloned[dbname])}`;
+      const tempStr = `${this.clearNames(dbname)} = ${this.conn.stringify(<any> cloned[dbname])}`;
       columns.push(tempStr);
     }
     if (!columns.length) {

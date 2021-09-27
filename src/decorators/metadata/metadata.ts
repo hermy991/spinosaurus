@@ -165,11 +165,14 @@ export function clearTempMetadata(
     window[GLOBAL_TEMP_METADATA_KEY] = {};
   }
 }
-export function getMetadataEntityData(
-  req: { connName: string; entity: Function },
-): any {
+export function getMetadataEntityData(req: { connName: string; entity: Function | Record<string, unknown> }): any {
   const metadata = getMetadata(req.connName);
-  const t = metadata.tables.find((x) => x.target === req.entity);
+  let t;
+  if (typeof req.entity === "object") {
+    t = metadata.tables.find((x) => req.entity instanceof <any> x.target);
+  } else {
+    t = metadata.tables.find((x) => x.target === req.entity);
+  }
   if (t) {
     return {
       entity: t.mixeds.name,
@@ -177,26 +180,33 @@ export function getMetadataEntityData(
     };
   }
 }
-export function getMetadataColumns(
-  req: { connName: string; entity: Function },
-): Array<any> {
+export function getMetadataColumns(req: { connName: string; entity: Function | Record<string, unknown> }): Array<any> {
   const metadata = getMetadata(req.connName);
   linkColumnsProperties(metadata);
-  const columns = metadata.columns.filter((x) =>
-    x.entity.target === req.entity ||
-    (new (<any> req).entity()) instanceof x.entity.target
-  )
-    .map((x: any) => ({
+  let columns = [];
+  if (typeof req.entity === "object") {
+    columns = metadata.columns.filter((x) => req.entity instanceof x.entity.target).map((x: any) => ({
       select: true,
       insert: true,
       update: true,
       ...x.property,
       ...x.mixeds,
     }));
+  } else {
+    columns = metadata.columns.filter((x) =>
+      x.entity.target === req.entity || (new (<any> req).entity()) instanceof x.entity.target
+    ).map((x: any) => ({
+      select: true,
+      insert: true,
+      update: true,
+      ...x.property,
+      ...x.mixeds,
+    }));
+  }
   return columns;
 }
 export function getMetadataChecks(
-  req: { connName: string; entity: Function },
+  req: { connName: string; entity: Function | Record<string, unknown> },
 ): Array<string> {
   const metadata = getMetadata(req.connName);
   const chks = metadata.checks.filter((x) => x.target === req.entity)

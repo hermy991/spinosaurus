@@ -51,19 +51,11 @@ export class BuilderInsert extends BuilderBase {
     keys.forEach((key) => columns.add(this.clearNames(key)));
     return `(${[...columns].join(", ")})`;
   }
-  getValuesQuery(
-    values: Array<
-      string | number | boolean | Date | Function | null | undefined
-    >,
-  ) {
-    return `VALUES (${values.map((v) => this.conn.stringify(v)).join(", ")})`;
+  getValuesQuery(values: Array<ParamInsertValue>) {
+    return `VALUES (${values.map((v) => this.conn.stringify(<any> v)).join(", ")})`;
   }
 
-  getEntityValueQuery(
-    e: { schema?: string; entity?: string },
-    value: ParamInsertValue,
-    ps: Array<any> = [],
-  ): string {
+  getEntityValueQuery(e: { schema?: string; entity?: string }, value: ParamInsertValue, ps: Array<any> = []): string {
     if (!value) {
       return ``;
     }
@@ -81,11 +73,19 @@ export class BuilderInsert extends BuilderBase {
       for (const name in value) {
         for (const p of ps) {
           if (p.propertyKey === name) {
-            if (p.insert) {
-              cloned[p.name] = value[name];
-            } else if (
-              p.primary && p.autoIncrement && !autoGeneratePrimaryKey
+            if (
+              p.insert && typeof value[name] === "object" && !(value[name] instanceof Date) &&
+              value[name] !== null && !Array.isArray(value[name])
             ) {
+              const xe = this.getEntityData(this.conn.options.name, p.type);
+              const xps = this.getColumns(this.conn.options.name, p.type);
+              const rprimaryColumn = xps.find((x) => x.primary);
+              if (rprimaryColumn) {
+                console.log("rprimaryColumn", rprimaryColumn, "p", p);
+                // if(){
+                // }
+              }
+            } else if (p.insert || (p.primary && p.autoIncrement && !autoGeneratePrimaryKey)) {
               cloned[p.name] = value[name];
             }
             if (p.primary && p.autoIncrement) {
@@ -101,9 +101,7 @@ export class BuilderInsert extends BuilderBase {
       if (primaryGeneratedColumn && autoGeneratePrimaryKey) {
         return ``;
       }
-      for (
-        const p of ps.filter((x) => x.autoInsert && autoInsert)
-      ) {
+      for (const p of ps.filter((x) => x.autoInsert && autoInsert)) {
         if (!(p.name in cloned)) {
           cloned[p.name] = p.autoInsert;
         }
@@ -114,7 +112,7 @@ export class BuilderInsert extends BuilderBase {
     }
     Object.values(cloned);
     sqls.push(this.getColumnsQuery(Object.keys(cloned)));
-    sqls.push(this.getValuesQuery(Object.values(cloned)));
+    sqls.push(this.getValuesQuery(<any> Object.values(cloned)));
     return sqls.join(" ");
   }
   getSqls(): string[] {

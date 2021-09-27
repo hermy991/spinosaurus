@@ -1,4 +1,5 @@
 import { ParamComplexOptions } from "./param_select.ts";
+import { ParamSimpleOptions } from "./param_select.ts";
 
 export type ParamUpdateOptions = {
   autoUpdate?: boolean;
@@ -11,8 +12,6 @@ export type ParamUpdateEntity =
   | [string, string?]
   | Function;
 
-export type ParamUpdateSet = {
-  [x: string]: string | number | boolean | Date | Function | null | undefined;
-};
+export type ParamUpdateSet = { [x: string]: ParamSimpleOptions | { [x: string]: ParamSimpleOptions } };
 
 export type ParamUpdateParams = ParamComplexOptions;

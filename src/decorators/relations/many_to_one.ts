@@ -2,11 +2,10 @@ import { ColumnOptions } from "../options/column_options.ts";
 import { AllColumnOptions } from "../options/all_column_options.ts";
 import { ParamRelation } from "../../connection/builders/params/param_relation.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
-// deno-lint-ignore camelcase
 import { reflect } from "../../../deps.ts";
 
 export function ManyToOne(
-  relation: ParamRelation,
+  relation: ParamRelation = {},
   options: ColumnOptions = {},
 ): any {
   return (

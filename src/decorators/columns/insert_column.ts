@@ -2,7 +2,6 @@ import { ColumnOptions } from "../options/column_options.ts";
 import { AllColumnOptions } from "../options/all_column_options.ts";
 import { InsertColumnOptions } from "../options/insert_column_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
-// deno-lint-ignore camelcase
 import { reflect } from "../../../deps.ts";
 
 export function InsertColumn(

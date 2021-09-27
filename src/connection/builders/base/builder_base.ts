@@ -49,10 +49,10 @@ export class BuilderBase {
   ) => {
     return generateName1(req);
   };
-  getEntityData(connName: string, entity: Function) {
+  getEntityData(connName: string, entity: Function | Record<string, unknown>) {
     return getMetadataEntityData({ connName, entity });
   }
-  getColumns(connName: string, entity: Function): Array<any> {
+  getColumns(connName: string, entity: Function | Record<string, unknown>): Array<any> {
     return getMetadataColumns({ connName, entity });
   }
   getChecks(connName: string, entity: Function): Array<any> {

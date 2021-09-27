@@ -1,7 +1,6 @@
 import { ColumnOptions } from "../options/column_options.ts";
 import { VersionColumnOptions } from "../options/version_column_options.ts";
 import { getTempMetadata } from "../metadata/metadata.ts";
-// deno-lint-ignore camelcase
 import { reflect } from "../../../deps.ts";
 
 export function VersionColumn(

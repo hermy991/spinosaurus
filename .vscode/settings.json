@@ -13,7 +13,8 @@
     "titleBar.activeBackground": "#dd0531",
     "titleBar.activeForeground": "#e7e7e7",
     "titleBar.inactiveBackground": "#dd053199",
-    "titleBar.inactiveForeground": "#e7e7e799"
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "editorRuler.foreground": "#ff4081"
   },
   "peacock.color": "#dd0531",
   "deno.enable": true,
@@ -25,5 +26,6 @@
   "editor.defaultFormatter": "denoland.vscode-deno",
   "deno.suggest.imports.hosts": {
     "https://deno.land": false
-  }
+  },
+  "editor.rulers": [120]
 }

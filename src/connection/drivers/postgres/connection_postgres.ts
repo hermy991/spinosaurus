@@ -30,7 +30,7 @@ class ConnectionPostgres implements IConnectionOperations {
 
   constructor(public options: ConnectionOptionsPostgres) {}
   /* Basic Connection Operations*/
-  stringify(value: ParamSimpleOptions | Array<ParamSimpleOptions>): string {
+  stringify(value: ParamSimpleOptions | ParamSimpleOptions[]): string {
     if (
       value === undefined || value === null || typeof (value) == "boolean" ||
       typeof (value) == "number" || typeof (value) == "string"

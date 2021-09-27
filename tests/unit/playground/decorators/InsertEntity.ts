@@ -1,11 +1,11 @@
-import { _NOW, Column, Entity, InsertColumn, PrimaryGeneratedColumn } from "spinosaurus/mod.ts";
+import { _NOW, Column, Entity, InsertColumn, ManyToOne, PrimaryGeneratedColumn } from "spinosaurus/mod.ts";
 
 /**
  * Entity Names
  */
 @Entity({ name: "InsertEntity1" })
 export class InsertEntity1 {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: "primaryColumn_ID" })
   column1!: number;
   @Column()
   column2!: string;
@@ -47,4 +47,25 @@ export class InsertEntity5 {
   column2!: string;
   @Column()
   column3!: string;
+}
+
+@Entity({ schema: "hello", name: "InsertEntityCustom" })
+export class InsertEntity6 {
+  @PrimaryGeneratedColumn()
+  primaryColumn_ID!: number;
+
+  @ManyToOne()
+  insertEntity1!: InsertEntity1;
+
+  @ManyToOne()
+  insertEntity2!: InsertEntity2;
+
+  @ManyToOne({}, { name: "columnPrimary_ID" })
+  insertEntity4!: InsertEntity4;
+
+  @ManyToOne()
+  insertEntityX1!: InsertEntity5;
+
+  @ManyToOne()
+  insertEntityX2!: InsertEntity5;
 }

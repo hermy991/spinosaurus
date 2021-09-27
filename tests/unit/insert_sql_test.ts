@@ -14,7 +14,7 @@ Deno.test("insert [insert] sql", () => {
 });
 
 Deno.test("insert [insert 'Entity'] sql", async () => {
-  const { InsertEntity1, InsertEntity2, InsertEntity4, InsertEntity5 } = await import(
+  const { InsertEntity1, InsertEntity2, InsertEntity4, InsertEntity5, InsertEntity6 } = await import(
     "./playground/decorators/InsertEntity.ts"
   );
   const db: Connection = new Connection(con1);
@@ -55,6 +55,32 @@ INSERT INTO "hello"."InsertEntity5" ("column3") VALUES ('xxx')`;
   const q5 = qs5.getSql();
   const qe5 = `INSERT INTO "InsertEntity2" ("column1", "column2") VALUES (1, 'xx')`;
   assertEquals(q5, qe5);
+
+  const tentities = [{
+    primaryColumn_ID: 1,
+    insertEntity1: { column1: 1 },
+    insertEntity2: { column1: 2 },
+    insertEntity4: { column1: 4 },
+    insertEntityX1: { column1: 101 },
+    insertEntityX2: { column1: 102 },
+  }, {
+    primaryColumn_ID: 2,
+    insertEntity1: { column1: 6 },
+    insertEntity2: { column1: 7 },
+    insertEntity4: { column1: 9 },
+    insertEntityX1: { column1: 101 },
+    insertEntityX2: { column1: 102 },
+  }];
+  const qs6 = db.insert({
+    entity: InsertEntity6,
+    options: { autoGeneratePrimaryKey: false },
+  })
+    .values(tentities);
+  const q6 = qs6.getSql();
+  const qe6 =
+    `INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_primaryColumn_ID", "InsertEntity2_column1", "columnPrimary_ID", "InsertEntity4_column1_1", "InsertEntity4_column1_2") VALUES (1, 1, 2, 5, 101, 102);
+INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_primaryColumn_ID", "InsertEntity2_column1", "columnPrimary_ID", "InsertEntity4_column1_1", "InsertEntity4_column1_2") VALUES (2, 6, 7, 9, 101, 102)`;
+  assertEquals(q6, qe6);
 });
 Deno.test("insert [multiple insert] sql", () => {
   const db: Connection = new Connection(con1);

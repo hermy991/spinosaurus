@@ -2,7 +2,6 @@ import { ColumnOptions } from "../options/column_options.ts";
 import { PrimaryColumnOptions } from "../options/primary_column_options.ts";
 import { PrimaryGeneratedColumnOptions } from "../options/primary_generated_column_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
-// deno-lint-ignore camelcase
 import { reflect } from "../../../deps.ts";
 
 export function PrimaryGeneratedColumn(
