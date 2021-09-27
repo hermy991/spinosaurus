@@ -87,11 +87,8 @@ export function getMetadata(options: ConnectionOptions): MetadataStore;
 /**
  * Option name atribute or name param will be return from registry
  */
-export function getMetadata(
-  nameOrOptions?: string | ConnectionOptions,
-): MetadataStore {
-  const name = (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) ||
-    DEFAULT_CONN_NAME;
+export function getMetadata(nameOrOptions?: string | ConnectionOptions): MetadataStore {
+  const name = (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) || DEFAULT_CONN_NAME;
   if (!window[GLOBAL_METADATA_KEY]) {
     window[GLOBAL_METADATA_KEY] = {};
   }

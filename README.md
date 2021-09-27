@@ -118,3 +118,4 @@ deno run -qA https://code.velociraptor.run test:exec
 - adding tinyint in spitype
 - allow entity object in insert example: `await conn?.insert(FileStore).values(<any> filesStores).execute();`
 - use IndexDb, very in the future
+- use a structure equals to indexDB to store entities
