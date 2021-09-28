@@ -1,7 +1,15 @@
+import { ConnectionOptions } from "../connection_options.ts";
 import { EntityOptions } from "./options/options.ts";
 
 const DEFAULT_CONN_NAME = "default";
 export const GLOBAL_METADATA_KEY = "spinosaurusMetadataStore2";
+
+declare global {
+  var [GLOBAL_METADATA_KEY]: any;
+  interface Window {
+    [k: string]: any;
+  }
+}
 
 export const generateIndex = (type: "entity", features: Record<string, unknown>) => {
   const database = features.database ? features.database : "{{DATABASE}}";
@@ -15,7 +23,7 @@ export const generateIndex = (type: "entity", features: Record<string, unknown>)
   return `${database}_${schema}_${name}`;
 };
 
-export function getMetadata(nameOrOptions?: string | ConnectionOptions): MetadataStore {
+export function getMetadata(nameOrOptions?: string | ConnectionOptions): Record<string, unknown>[] {
   const name = (typeof nameOrOptions == "object" ? nameOrOptions.name : nameOrOptions) || DEFAULT_CONN_NAME;
   if (!self[GLOBAL_METADATA_KEY]) {
     self[GLOBAL_METADATA_KEY] = {};
@@ -28,6 +36,6 @@ export function getMetadata(nameOrOptions?: string | ConnectionOptions): Metadat
 }
 
 export const saveEntity = async (entity: Function, options: EntityOptions) => {
-  let features = entity ? { name: entity.name } : {};
+  let features = entity ? { name: entity.name, ...options } : { ...options };
   features = { ...features, ...options };
 };
