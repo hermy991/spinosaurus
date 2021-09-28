@@ -12,13 +12,6 @@ export const GLOBAL_METADATA_KEY = "spinosaurusMetadataStore";
 
 export const GLOBAL_TEMP_METADATA_KEY = "spinosaurusTempMetadataStore";
 
-declare global {
-  var [GLOBAL_METADATA_KEY]: any;
-  interface Window {
-    [k: string]: any;
-  }
-}
-
 export function linkMetadata(req: { connName: string }): MetadataStore {
   const { connName } = req;
   const metadata = getMetadata(connName);

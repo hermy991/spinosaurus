@@ -125,9 +125,7 @@ export async function sqlConnection(
   return sqls;
 }
 
-export async function synchronize(
-  conn: Connection,
-): Promise<string[] | undefined> {
+export async function synchronize(conn: Connection): Promise<string[] | undefined> {
   const options = conn.getDriver().options;
   if (options.synchronize === true) {
     const entities = typeof options.entities == "string" ? [options.entities] : options.entities;

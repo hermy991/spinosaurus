@@ -1,3 +1,10 @@
+declare global {
+  var [GLOBAL_STORE_KEY]: any;
+  interface Window {
+    [k: string]: any;
+  }
+}
+
 /**
  * Decorators
  */
@@ -25,11 +32,7 @@ export * from "./src/connection/sql/functions/_now.ts";
 export * from "./src/connection/connection.ts";
 export * from "./src/connection/managers/manager_connection.ts";
 export * from "./src/connection/connection_utils.ts";
-export {
-  getMetadata,
-  GLOBAL_METADATA_KEY,
-  linkMetadata,
-} from "./src/decorators/metadata/metadata.ts";
+export { getMetadata, GLOBAL_METADATA_KEY, linkMetadata } from "./src/decorators/metadata/metadata.ts";
 /**
  * Operators
  */
