@@ -1,6 +1,13 @@
-import { ConnectionOptions } from "../connection_options.ts";
-import { getConnectionOptions, getConnectionsOptions } from "../connection_utils.ts";
-import { EntityOptions } from "./options/options.ts";
+import { ConnectionOptions } from "../connection/connection_options.ts";
+import { getConnectionOptions, getConnectionsOptions } from "../connection/connection_utils.ts";
+import { StoreColumnOptions, StoreEntityOptions } from "./store_options/store_options.ts";
+
+declare global {
+  var [GLOBAL_STORE_KEY]: any;
+  interface Window {
+    [k: string]: any;
+  }
+}
 
 type StoreRecordData = Record<string, any>;
 type StoreData = Record<string, StoreRecordData>;
@@ -8,19 +15,29 @@ type StoreData = Record<string, StoreRecordData>;
 const DEFAULT_CONN_NAME = "default";
 export const GLOBAL_STORE_KEY = "spinosaurusMetadataStore2";
 
+/**
+ * entity name must be the database' name, database and schema has to be register by a decorator
+ * property key must be the database' property keys
+ */
 export const generateIndex = (
-  type: "entity",
+  type: "entity" | "column",
   features: Record<string, unknown>,
   defaultDatabase?: string,
   defaultSchema?: string,
 ) => {
-  const database = (features.database ? features.database : defaultDatabase) || "{{DATABASE}}";
-  const schema = (features.schema ? features.schema : defaultSchema) || "{{SCHEMA}}";
-  let name = undefined;
+  const database = (features.database || defaultDatabase || "{{DATABASE}}");
+  const schema = (features.schema || defaultSchema || "{{SCHEMA}}");
+  let entityName = undefined;
+  let columnName = undefined;
   switch (type) {
     case "entity": {
-      name = features.name;
-      return `${type}_${database}_${schema}_${name}`;
+      entityName = features.entityName;
+      return `${type}_${database}_${schema}_${entityName}`;
+    }
+    case "column": {
+      entityName = features.entityName;
+      columnName = features.name;
+      return `${type}_${database}_${schema}_${entityName}_${columnName}`;
     }
   }
 };
@@ -79,21 +96,28 @@ function getStore(nameOrOptions?: string | ConnectionOptions): StoreData {
   return ms;
 }
 
-export const saveEntity = async (entity: Function, options: EntityOptions) => {
+export const saveEntity = async (classFunction: Function, options: StoreEntityOptions) => {
   await (async () => {})();
   const features: Record<string, any> = {};
-  features.local = { entity: entity ? { class: entity, name: entity.name } : undefined, options };
+
+  const entity = classFunction ? { class: classFunction, name: classFunction.name } : undefined;
+  features.local = { entity, options };
+  const localIndex = generateIndex("entity", features.local.entity);
+  features.localIndex = localIndex;
+
   features.generated = { entity: features.local.entity, options: entity ? { name: entity.name, ...options } : options };
-  const index = generateIndex("entity", features.generated.options);
+  const generatedIndex = generateIndex("entity", features.generated.options);
+  features.generatedIndex = generatedIndex;
+
   let store = getStore(options.connectionName);
-  store = setStoreData(store, index, features);
+  store = setStoreData(store, generatedIndex, features);
   addStore(store, options.connectionName);
 };
 
 export async function findEntity(
   req: {
-    defaultDatabase: string;
-    defaultSchema: string;
+    defaultDatabase?: string;
+    defaultSchema?: string;
     entityOrClass: string | Function;
     nameOrOptions?: string | ConnectionOptions;
   },
@@ -109,3 +133,30 @@ export async function findEntity(
     }
   }
 }
+
+export const saveColumn = async (classObject: Object, columnName: string, options: StoreColumnOptions) => {
+  await (async () => {})();
+  const features: Record<string, any> = {};
+  const classFunction = (classObject instanceof Function ? <Function> classObject : classObject.constructor);
+  const entity = classFunction ? { class: classFunction, entityName: classFunction.name, columnName } : { columnName };
+
+  const classParent = await findEntity({ entityOrClass: classFunction });
+  if (!classParent) {
+    return;
+  }
+
+  features.local = { entity, options };
+  const localIndex = generateIndex("column", { ...features.local.entity });
+  features.localIndex = localIndex;
+
+  features.generated = {
+    entity: features.local.entity,
+    options: entity ? { entityName: entity.entityName, columnName, ...options } : options,
+  };
+  const generatedIndex = generateIndex("column", { ...features.generated.options });
+  features.generatedIndex = generatedIndex;
+
+  let store = getStore(options.connectionName);
+  store = setStoreData(store, generatedIndex, features);
+  addStore(store, options.connectionName);
+};

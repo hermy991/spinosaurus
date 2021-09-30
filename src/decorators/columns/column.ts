@@ -1,3 +1,4 @@
+import { saveColumn } from "../../stores/store.ts";
 import { ColumnOptions } from "../options/column_options.ts";
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 import { reflect } from "../../../deps.ts";
@@ -11,6 +12,7 @@ export function Column(options: ColumnOptions = {}): any {
     /**
      * For static member entity param will be a function constructor
      */
+    saveColumn(entityf, propertyKey, options);
     const fun = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
     const entity = { target: fun, name: fun.name };
     const property = {

@@ -1,7 +1,7 @@
 /**
  * Describes all entity's options.
  */
-export type EntityOptions = {
+export type StoreEntityOptions = {
   /**
    * Table name.
    * If not specified then naming strategy will generate table name from entity name.

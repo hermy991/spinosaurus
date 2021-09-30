@@ -1,6 +1,6 @@
 import { EntityOptions } from "../options/entity_options.ts";
 import { getTempMetadata } from "../metadata/metadata.ts";
-import { saveEntity } from "../../connection/stores/store.ts";
+import { saveEntity } from "../../stores/store.ts";
 
 export function Entity(options: EntityOptions = {}): any {
   return function (target: Function) {
