@@ -1,1 +1,1 @@
-export * from "./store-window.ts";
+export * from "./store_window.ts";
