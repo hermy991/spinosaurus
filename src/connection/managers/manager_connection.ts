@@ -1,4 +1,5 @@
 import { fs } from "../../../deps.ts";
+import { transferTemp } from "../../stores/store.ts";
 import { getForeingEntity, getForeingPropertyKey } from "../builders/base/sql.ts";
 import { ParamColumnAjust, ParamColumnCreate } from "../builders/params/param_column.ts";
 import { StoreColumnOptions } from "../../decorators/metadata/metadata_store.ts";
@@ -8,13 +9,7 @@ import { ParamData } from "../builders/params/param_data.ts";
 import { ParamNext } from "../builders/params/param_next.ts";
 import { ConnectionOptions } from "../connection_options.ts";
 import { Connection } from "../connection.ts";
-import {
-  clearMetadata,
-  getMetadata,
-  // getMetadataColumns,
-  // getMetadataEntityData,
-  linkMetadata,
-} from "../../decorators/metadata/metadata.ts";
+import { clearMetadata, getMetadata, linkMetadata } from "../../decorators/metadata/metadata.ts";
 import { ConnectionAll } from "../connection_type.ts";
 import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
 import { getConnectionOptions, getConnectionsOptions } from "../connection_utils.ts";
@@ -44,9 +39,7 @@ export async function createConnection(
  * based on content of spinosaurus (env/js/ts/json/yml/xml) file or environment variables.
  * Only one connection from ormconfig will be created (name "default" or connection without name).
  */
-export async function createConnection(
-  nameOrOptions?: any,
-): Promise<Connection> {
+export async function createConnection(nameOrOptions?: any): Promise<Connection> {
   const options = typeof nameOrOptions === "object" ? nameOrOptions : await getConnectionOptions(nameOrOptions);
   const tconn = new Connection(options);
   const sql = await synchronize(tconn);

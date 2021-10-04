@@ -1,5 +1,6 @@
 import { ConnectionAll } from "./connection_type.ts";
 import { ConnectionOptions } from "./connection_options.ts";
+import { transferTemp } from "../stores/store.ts";
 import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
 import { ParamCreateEntity } from "./builders/params/param_create.ts";
 import { ParamUpdateEntity } from "./builders/params/param_update.ts";
@@ -27,6 +28,7 @@ class Connection {
     // }
     if (options && options.type === "postgres") {
       this.#connection = new ConnectionPostgres(options);
+      transferTemp(this.getDriver().options.name);
     }
   }
 

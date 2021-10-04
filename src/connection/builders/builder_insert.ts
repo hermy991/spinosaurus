@@ -81,7 +81,7 @@ export class BuilderInsert extends BuilderBase {
               const xps = this.getColumns(this.conn.options.name, p.type);
               const rprimaryColumn = xps.find((x) => x.primary);
               if (rprimaryColumn) {
-                console.log("rprimaryColumn", rprimaryColumn, "p", p);
+                // console.log("rprimaryColumn", rprimaryColumn, "p", p);
                 // if(){
                 // }
               }

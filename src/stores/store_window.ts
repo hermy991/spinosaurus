@@ -1,26 +1,40 @@
 import { ConnectionOptions } from "../connection/connection_options.ts";
-import { getConnectionOptions, getConnectionsOptions } from "../connection/connection_utils.ts";
-import { StoreColumnOptions, StoreEntityOptions } from "./store_options/store_options.ts";
+// import { getConnectionOptions, getConnectionsOptions } from "../connection/connection_utils.ts";
+import { StoreCheckOptions, StoreColumnOptions, StoreEntityOptions } from "./store_options/store_options.ts";
+import { StoreFindColumnOptions, StoreFindEntityOptions } from "./store_options/store_options.ts";
 
-declare global {
-  var [GLOBAL_STORE_KEY]: any;
-  interface Window {
-    [k: string]: any;
-  }
-}
+// declare global {
+//   var [GLOBAL_STORE_KEY]: any;
+//   interface Window {
+//     [k: string]: any;
+//   }
+// }
 
 type StoreRecordData = Record<string, any>;
 type StoreData = Record<string, StoreRecordData>;
 
-const DEFAULT_CONN_NAME = "default";
+export const DEFAULT_CONN_NAME = "default";
 export const GLOBAL_STORE_KEY = "spinosaurusMetadataStore2";
+const tempStore: any[] = [];
+
+export const transferTemp = (connectionName: string) => {
+  for (const t of tempStore.filter((x) => x.storeType === "entity")) {
+    saveEntity(t.params.classFunction, { connectionName, ...t.params.options });
+  }
+  for (const t of tempStore.filter((x) => x.storeType === "column")) {
+    saveColumn(t.params.classFunction, t.params.propertyKey, { connectionName, ...t.params.options });
+  }
+  for (let i = 0; i < tempStore.length; i++) {
+    delete tempStore[i];
+  }
+};
 
 /**
  * entity name must be the database' name, database and schema has to be register by a decorator
  * property key must be the database' property keys
  */
 export const generateIndex = (
-  type: "entity" | "column",
+  storeType: "entity" | "column" | "check",
   features: Record<string, unknown>,
   defaultDatabase?: string,
   defaultSchema?: string,
@@ -29,20 +43,32 @@ export const generateIndex = (
   const schema = (features.schema || defaultSchema || "{{SCHEMA}}");
   let entityName = undefined;
   let columnName = undefined;
-  switch (type) {
+  let checkName = undefined;
+  switch (storeType) {
     case "entity": {
       entityName = features.entityName;
-      return `${type}_${database}_${schema}_${entityName}`;
+      return `${storeType}_${database}_${schema}_${entityName}`;
     }
     case "column": {
       entityName = features.entityName;
-      columnName = features.name;
-      return `${type}_${database}_${schema}_${entityName}_${columnName}`;
+      columnName = features.columnName;
+      return `${storeType}_${database}_${schema}_${entityName}_${columnName}`;
+    }
+    case "check": {
+      entityName = features.entityName;
+      checkName = features.name;
+      return `${storeType}_${database}_${schema}_${entityName}_${checkName}`;
     }
   }
 };
 function findRecord(
-  req: { store: StoreData; indexOrEntity: string | Function; defaultDatabase?: string; defaultSchema?: string },
+  req: {
+    store: StoreData;
+    indexOrEntity: string | Function;
+    storeType?: "entity" | "column";
+    defaultDatabase?: string;
+    defaultSchema?: string;
+  },
 ): [string, StoreRecordData] | undefined {
   if (typeof req.indexOrEntity === "string") {
     for (const key in req.store) {
@@ -56,17 +82,62 @@ function findRecord(
         index = index.replaceAll("{{SCHEMA}}", req.defaultSchema);
       }
       if (tkey === index) {
-        return [key, req.store[key]];
+        if (req.storeType && req.storeType === req.store[key].storeType) {
+          return [key, req.store[key]];
+        } else {
+          return [key, req.store[key]];
+        }
       }
     }
   } else if (typeof req.indexOrEntity === "function") {
     for (const key in req.store) {
       const r = req.store[key];
+      if (req.indexOrEntity.name === "InsertEntity6") {
+        console.log("key", key);
+        console.log(
+          "req.indexOrEntity",
+          req.indexOrEntity,
+          "r.classFunction",
+          r.classFunction,
+          "r.classFunction === req.indexOrEntity",
+          r.classFunction === req.indexOrEntity,
+        );
+      }
       if (r.classFunction === req.indexOrEntity) {
-        return [key, r];
+        if (req.storeType && req.storeType === r.storeType) {
+          return [key, r];
+        } else return [key, r];
       }
     }
   }
+}
+
+function findRecords(
+  req: {
+    store: StoreData;
+    indexOrEntity: string | Function;
+    storeType?: "entity" | "column";
+    defaultDatabase?: string;
+    defaultSchema?: string;
+  },
+): [string, StoreRecordData][] {
+  const rs: [string, StoreRecordData][] = [];
+  if (typeof req.indexOrEntity === "string") {
+    const r = findRecord(req);
+    if (r) {
+      rs.push(r);
+    }
+  } else if (typeof req.indexOrEntity === "function") {
+    for (const key in req.store) {
+      const r = req.store[key];
+      if (r.classFunction === req.indexOrEntity) {
+        if (req.storeType && req.storeType === r.storeType) {
+          rs.push([key, r]);
+        } else rs.push([key, r]);
+      }
+    }
+  }
+  return rs;
 }
 
 function setStoreData(store: StoreData, indexOrEntity: string | Function, data: Record<string, unknown>): StoreData {
@@ -96,12 +167,26 @@ function getStore(nameOrOptions?: string | ConnectionOptions): StoreData {
   return ms;
 }
 
+export const tsaveObject = (req: { storeType: "entity" | "column"; params: any }) => {
+  let t;
+  for (let i = 0; i < tempStore.length; i++) {
+    if (tempStore[i].storeType === req.storeType && tempStore[i].params === req.params) {
+      tempStore[i] = req;
+      t = tempStore[i];
+    }
+  }
+  if (!t) {
+    tempStore.push(req);
+  }
+};
+
 //#region Entity
-export const saveEntity = async (classFunction: Function, options: StoreEntityOptions) => {
-  await (async () => {})();
+export const saveEntity = (classFunction: Function, options: StoreEntityOptions) => {
+  const storeType = "entity";
   const features = {
     localIndex: "",
     foreingIndex: "",
+    storeType,
     classFunction,
     options,
     foreing: {
@@ -109,32 +194,33 @@ export const saveEntity = async (classFunction: Function, options: StoreEntityOp
       ...options,
     },
   };
-  features.localIndex = generateIndex("entity", { entityName: classFunction.name, ...options });
-  features.foreingIndex = generateIndex("entity", features.foreing);
+  features.localIndex = generateIndex(storeType, { entityName: classFunction.name, ...options });
+  features.foreingIndex = generateIndex(storeType, features.foreing);
   let store = getStore(options.connectionName);
   store = setStoreData(store, features.foreingIndex, features);
   addStore(store, options.connectionName);
 };
 
-export async function findEntity(
+export function findEntity(
   req: {
+    entityOrClass: string | Function;
     defaultDatabase?: string;
     defaultSchema?: string;
-    entityOrClass: string | Function;
     nameOrOptions?: string | ConnectionOptions;
   },
-): Promise<[string, StoreRecordData] | undefined> {
+): [string, StoreRecordData] | undefined {
+  const storeType = "entity";
   const name = (typeof req.nameOrOptions == "object" ? req.nameOrOptions.name : req.nameOrOptions) || DEFAULT_CONN_NAME;
   const store = getStore(name);
   if (typeof req.entityOrClass === "string") {
     const features = { database: req.defaultDatabase, schema: req.defaultSchema, entityName: req.entityOrClass };
-    const index = generateIndex("entity", features);
-    const r = await findRecord({ store, indexOrEntity: index });
+    const index = generateIndex(storeType, features);
+    const r = findRecord({ store, indexOrEntity: index, storeType });
     if (r) {
       return r;
     }
   } else if (typeof req.entityOrClass === "function") {
-    const r = await findRecord({ store, indexOrEntity: req.entityOrClass });
+    const r = findRecord({ store, indexOrEntity: req.entityOrClass, storeType });
     if (r) {
       return r;
     }
@@ -143,18 +229,19 @@ export async function findEntity(
 //#endregion
 
 //#region Column
-export const saveColumn = async (classObject: Object, propertyKey: string, options: StoreColumnOptions) => {
-  await (async () => {})();
+export const saveColumn = (classObject: Object, propertyKey: string, options: StoreColumnOptions) => {
+  const storeType = "column";
   const classFunction = (classObject instanceof Function ? <Function> classObject : classObject.constructor);
-
-  const entityStoreRecord = await findEntity({ entityOrClass: classFunction });
+  const entityStoreRecord = findEntity({ entityOrClass: classFunction, nameOrOptions: options.connectionName });
   if (!entityStoreRecord) {
     return;
   }
   const features = {
     localIndex: "",
     foreingIndex: "",
+    storeType,
     classFunction,
+    propertyKey,
     options,
     foreing: {
       entityName: entityStoreRecord[1].foreing.entityName,
@@ -163,8 +250,69 @@ export const saveColumn = async (classObject: Object, propertyKey: string, optio
       ...options,
     },
   };
-  features.localIndex = generateIndex("column", { entityName: classFunction.name, columName: propertyKey, ...options });
-  features.foreingIndex = generateIndex("column", features.foreing);
+  features.localIndex = generateIndex(storeType, {
+    ...entityStoreRecord[1].options,
+    entityName: classFunction.name,
+    columnName: propertyKey,
+    ...options,
+  });
+  features.foreingIndex = generateIndex(storeType, features.foreing);
+  let store = getStore(options.connectionName);
+  store = setStoreData(store, features.foreingIndex, features);
+  addStore(store, options.connectionName);
+};
+
+export function findColumns(req: StoreFindEntityOptions): [string, StoreRecordData][] {
+  const name = (typeof req.nameOrOptions == "object" ? req.nameOrOptions.name : req.nameOrOptions) || DEFAULT_CONN_NAME;
+  const store = getStore(name);
+  let r: [string, StoreRecordData] | undefined;
+  if (typeof req.entityOrClass === "string") {
+    const features = { database: req.defaultDatabase, schema: req.defaultSchema, entityName: req.entityOrClass };
+    const index = generateIndex("entity", features);
+    r = findRecord({ store, indexOrEntity: index });
+  } else if (typeof req.entityOrClass === "function") {
+    r = findRecord({ store, indexOrEntity: req.entityOrClass, storeType: "entity" });
+  }
+  const rcols: [string, StoreRecordData][] = [];
+  if (r) {
+    const cols = findRecords({ ...req, store, indexOrEntity: r[1].classFunction, storeType: "column" });
+    rcols.push(...cols);
+  }
+  return rcols;
+}
+
+export function findColumn(req: StoreFindColumnOptions): [string, StoreRecordData] | undefined {
+  const cols = findColumns(req);
+  if (req.propertyKey && req.columnName) {
+    return cols.find((x) => x[1].propertyKey === req.propertyKey && x[1].foreing.columnName === req.columnName);
+  } else if (req.propertyKey) {
+    return cols.find((x) => x[1].propertyKey === req.propertyKey);
+  } else if (req.columnName) {
+    return cols.find((x) => x[1].foreing.columnName === req.columnName);
+  }
+}
+//#endregion
+
+//#region Check
+export const saveCheck = (classFunction: Function, options: StoreCheckOptions) => {
+  const storeType = "check";
+  const entityStoreRecord = findEntity({ entityOrClass: classFunction });
+  if (!entityStoreRecord) {
+    return;
+  }
+  const features = {
+    localIndex: "",
+    foreingIndex: "",
+    storeType,
+    classFunction,
+    options,
+    foreing: {
+      entityName: entityStoreRecord[1].foreing.entityName,
+      ...options,
+    },
+  };
+  features.localIndex = generateIndex(storeType, { entityName: classFunction.name, ...options });
+  features.foreingIndex = generateIndex(storeType, features.foreing);
   let store = getStore(options.connectionName);
   store = setStoreData(store, features.foreingIndex, features);
   addStore(store, options.connectionName);

@@ -51,10 +51,7 @@ class ConnectionPostgres implements IConnectionOperations {
     }
     return `NULL`;
   }
-  interpolate(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
-  ): Array<string> {
+  interpolate(conditions: [string, ...string[]] | string, params?: ParamComplexOptions): Array<string> {
     const cloned = self.structuredClone(params || {});
     const keys = Object.keys(cloned);
     for (let i = 0; i < keys.length; i++) {
