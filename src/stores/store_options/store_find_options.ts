@@ -15,3 +15,19 @@ export type StoreFindColumnOptions = {
   defaultSchema?: string;
   nameOrOptions?: string | ConnectionOptions;
 };
+
+export type StoreFindCheckOptions = {
+  entityOrClass: string | Function;
+  checkName: string;
+  defaultDatabase?: string;
+  defaultSchema?: string;
+  nameOrOptions?: string | ConnectionOptions;
+};
+
+export type StoreFindUniqueOptions = {
+  entityOrClass: string | Function;
+  uniqueName: string;
+  defaultDatabase?: string;
+  defaultSchema?: string;
+  nameOrOptions?: string | ConnectionOptions;
+};
