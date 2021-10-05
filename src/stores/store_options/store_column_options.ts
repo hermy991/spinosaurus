@@ -103,3 +103,7 @@ export type StoreColumnOptions = {
    */
   connectionName?: string;
 };
+
+export type StoreReferenceOptions = {};
+
+export type StoreColumnReferenceOptions = StoreColumnOptions & { reference: StoreReferenceOptions };

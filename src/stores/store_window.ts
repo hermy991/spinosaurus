@@ -3,6 +3,7 @@ import { ConnectionOptions } from "../connection/connection_options.ts";
 import {
   StoreCheckOptions,
   StoreColumnOptions,
+  StoreColumnReferenceOptions,
   StoreEntityOptions,
   StoreFindUniqueOptions,
   StoreUniqueOptions,
@@ -11,6 +12,7 @@ import {
   StoreFindCheckOptions,
   StoreFindColumnOptions,
   StoreFindEntityOptions,
+  StoreFindReferenceOptions,
 } from "./store_options/store_options.ts";
 
 // declare global {
@@ -50,17 +52,19 @@ export const transferTemp = (connectionName: string) => {
  * property key must be the database' property keys
  */
 export const generateIndex = (
-  storeType: "entity" | "column" | "check" | "unique",
+  storeType: "entity" | "column" | "reference" | "check" | "unique",
   features: Record<string, unknown>,
   defaultDatabase?: string,
   defaultSchema?: string,
-) => {
+): string => {
   const database = (features.database || defaultDatabase || "{{DATABASE}}");
   const schema = (features.schema || defaultSchema || "{{SCHEMA}}");
   let entityName = undefined;
   let columnName = undefined;
+  let referenceName = undefined;
   let checkName = undefined;
   let uniqueName = undefined;
+  let sequence = 0;
   switch (storeType) {
     case "entity": {
       entityName = features.entityName;
@@ -70,6 +74,11 @@ export const generateIndex = (
       entityName = features.entityName;
       columnName = features.columnName;
       return `${storeType}_${database}_${schema}_${entityName}_${columnName}`;
+    }
+    case "reference": {
+      entityName = features.entityName;
+      referenceName = features.name;
+      return `${storeType}_${database}_${schema}_${entityName}_${referenceName}`;
     }
     case "check": {
       entityName = features.entityName;
@@ -82,12 +91,13 @@ export const generateIndex = (
       return `${storeType}_${database}_${schema}_${entityName}_${uniqueName}`;
     }
   }
+  return "";
 };
 function findRecord(
   req: {
     store: StoreData;
     indexOrEntity: string | Function;
-    storeType?: "entity" | "column" | "check" | "unique";
+    storeType?: "entity" | "column" | "reference" | "check" | "unique";
     defaultDatabase?: string;
     defaultSchema?: string;
   },
@@ -138,7 +148,7 @@ function findRecords(
   req: {
     store: StoreData;
     indexOrEntity: string | Function;
-    storeType?: "entity" | "column" | "check" | "unique";
+    storeType?: "entity" | "column" | "reference" | "check" | "unique";
     defaultDatabase?: string;
     defaultSchema?: string;
   },
@@ -320,6 +330,110 @@ export function findPrimaryColumns(req: StoreFindEntityOptions): [string, StoreR
 }
 //#endregion
 
+//#region ColumnReference
+export const saveColumnReference = (classObject: Object, propertyKey: string, options: StoreColumnReferenceOptions) => {
+  const classFunction = (classObject instanceof Function ? <Function> classObject : classObject.constructor);
+  const entityStoreRecord = findEntity({ entityOrClass: classFunction, nameOrOptions: options.connectionName });
+  if (!entityStoreRecord) {
+    return;
+  }
+  /**
+   * Insert reference first
+   */
+
+  const storeType = "reference";
+  const nameRefs = findReferences({ entityOrClass: classFunction });
+  const emptyNameRefs = nameRefs.filter((x) => !x[1].options.name);
+  const referenceFeatures = {
+    localIndex: "",
+    foreingIndex: "",
+    storeType,
+    classFunction,
+    propertyKey,
+    options: options.reference,
+    foreing: {
+      entityName: entityStoreRecord[1].foreing.entityName,
+      columnName: options.name || propertyKey,
+      referenceName: options.name ||
+        generateName1({
+          prefix: "FK",
+          schema: entityStoreRecord[1].foreing.schema,
+          entity: entityStoreRecord[1].foreing.entityName,
+          sequence: emptyNameRefs.length + 1,
+        }),
+      position: nameRefs.length + 1,
+      sequence: options.name ? undefined : emptyNameRefs.length + 1,
+      ...entityStoreRecord[1].options,
+      ...options.reference,
+    },
+  };
+  referenceFeatures.localIndex = generateIndex(storeType, { entityName: classFunction.name, ...options });
+  referenceFeatures.foreingIndex = generateIndex(storeType, referenceFeatures.foreing);
+  let store = getStore(options.connectionName);
+  store = setStoreData(store, referenceFeatures.foreingIndex, referenceFeatures);
+  addStore(store, options.connectionName);
+
+  /**
+   * Insert column next
+   */
+  {
+    const storeType = "column";
+    const columnFeatures = {
+      localIndex: "",
+      foreingIndex: "",
+      storeType,
+      classFunction,
+      propertyKey,
+      options,
+      reference: referenceFeatures,
+      foreing: {
+        entityName: entityStoreRecord[1].foreing.entityName,
+        columnName: options.name || propertyKey,
+        ...entityStoreRecord[1].options,
+        ...options,
+      },
+    };
+    columnFeatures.localIndex = generateIndex(storeType, {
+      ...entityStoreRecord[1].options,
+      entityName: classFunction.name,
+      columnName: propertyKey,
+      ...options,
+    });
+    columnFeatures.foreingIndex = generateIndex(storeType, columnFeatures.foreing);
+    let store = getStore(options.connectionName);
+    store = setStoreData(store, columnFeatures.foreingIndex, columnFeatures);
+    addStore(store, options.connectionName);
+  }
+};
+
+export function findReferences(req: StoreFindEntityOptions): [string, StoreRecordData][] {
+  const name = (typeof req.nameOrOptions == "object" ? req.nameOrOptions.name : req.nameOrOptions) || DEFAULT_CONN_NAME;
+  const store = getStore(name);
+  let r: [string, StoreRecordData] | undefined;
+  if (typeof req.entityOrClass === "string") {
+    const features = { database: req.defaultDatabase, schema: req.defaultSchema, entityName: req.entityOrClass };
+    const index = generateIndex("entity", features);
+    r = findRecord({ store, indexOrEntity: index, storeType: "entity" });
+  } else if (typeof req.entityOrClass === "function") {
+    r = findRecord({ store, indexOrEntity: req.entityOrClass, storeType: "entity" });
+  }
+  const rcols: [string, StoreRecordData][] = [];
+  if (r) {
+    const cols = findRecords({ ...req, store, indexOrEntity: r[1].classFunction, storeType: "reference" });
+    rcols.push(...cols);
+  }
+  return rcols;
+}
+
+export function findReference(req: StoreFindReferenceOptions): [string, StoreRecordData] | undefined {
+  const cols = findReferences(req);
+  if (req.referenceName) {
+    return cols.find((x) => x[1].foreing.referenceName === req.referenceName);
+  }
+}
+
+//#endregion
+
 //#region Check
 export const saveCheck = (classFunction: Function, options: StoreCheckOptions) => {
   const storeType = "check";
@@ -327,7 +441,8 @@ export const saveCheck = (classFunction: Function, options: StoreCheckOptions) =
   if (!entityStoreRecord) {
     return;
   }
-  const emptyNameChks = findChecks({ entityOrClass: classFunction }).filter((x) => !x[1].options.name);
+  const nameChks = findChecks({ entityOrClass: classFunction });
+  const emptyNameChks = nameChks.filter((x) => !x[1].options.name);
 
   const features = {
     localIndex: "",
@@ -345,6 +460,8 @@ export const saveCheck = (classFunction: Function, options: StoreCheckOptions) =
           entity: entityStoreRecord[1].foreing.entityName,
           sequence: emptyNameChks.length + 1,
         }),
+      position: nameChks.length + 1,
+      sequence: options.name ? undefined : emptyNameChks.length + 1,
       ...options,
     },
   };
@@ -388,7 +505,8 @@ export const saveUnique = (classFunction: Function, options: StoreUniqueOptions)
   if (!entityStoreRecord) {
     return;
   }
-  const emptyNameChks = findUniques({ entityOrClass: classFunction }).filter((x) => !x[1].options.name);
+  const nameUnqs = findUniques({ entityOrClass: classFunction });
+  const emptyNameUnqs = nameUnqs.filter((x) => !x[1].options.name);
   const columnNames = findColumns({ entityOrClass: classFunction })
     .filter((x) => options.columns.includes(x[1].primaryKey))
     .map((x) => x[1].foreing.columnName);
@@ -407,8 +525,10 @@ export const saveUnique = (classFunction: Function, options: StoreUniqueOptions)
           prefix: "UQ",
           schema: entityStoreRecord[1].foreing.schema,
           entity: entityStoreRecord[1].foreing.entityName,
-          sequence: emptyNameChks.length + 1,
+          sequence: emptyNameUnqs.length + 1,
         }),
+      position: nameUnqs.length + 1,
+      sequence: options.name ? undefined : emptyNameUnqs.length + 1,
       columnNames,
       ...options,
     },

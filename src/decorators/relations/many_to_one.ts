@@ -4,15 +4,8 @@ import { ParamRelation } from "../../connection/builders/params/param_relation.t
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 import { reflect } from "../../../deps.ts";
 
-export function ManyToOne(
-  relation: ParamRelation = {},
-  options: ColumnOptions = {},
-): any {
-  return (
-    entityf: Object,
-    propertyKey: string,
-    descriptor: PropertyDescriptor,
-  ) => {
+export function ManyToOne(relation: ParamRelation = {}, options: ColumnOptions = {}): any {
+  return (entityf: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     /**
      * For static member entity param will be a function constructor
      */

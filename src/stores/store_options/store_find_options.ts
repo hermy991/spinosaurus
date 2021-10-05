@@ -16,6 +16,14 @@ export type StoreFindColumnOptions = {
   nameOrOptions?: string | ConnectionOptions;
 };
 
+export type StoreFindReferenceOptions = {
+  entityOrClass: string | Function;
+  referenceName: string;
+  defaultDatabase?: string;
+  defaultSchema?: string;
+  nameOrOptions?: string | ConnectionOptions;
+};
+
 export type StoreFindCheckOptions = {
   entityOrClass: string | Function;
   checkName: string;
