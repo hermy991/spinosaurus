@@ -3,7 +3,7 @@ import { ConnectionOptions } from "../connection/connection_options.ts";
 import {
   StoreCheckOptions,
   StoreColumnOptions,
-  StoreColumnReferenceOptions,
+  StoreColumnRelationOptions,
   StoreEntityOptions,
   StoreFindUniqueOptions,
   StoreUniqueOptions,
@@ -12,15 +12,8 @@ import {
   StoreFindCheckOptions,
   StoreFindColumnOptions,
   StoreFindEntityOptions,
-  StoreFindReferenceOptions,
+  StoreFindRelationOptions,
 } from "./store_options/store_options.ts";
-
-// declare global {
-//   var [GLOBAL_STORE_KEY]: any;
-//   interface Window {
-//     [k: string]: any;
-//   }
-// }
 
 type StoreRecordData = Record<string, any>;
 type StoreData = Record<string, StoreRecordData>;
@@ -52,7 +45,7 @@ export const transferTemp = (connectionName: string) => {
  * property key must be the database' property keys
  */
 export const generateIndex = (
-  storeType: "entity" | "column" | "reference" | "check" | "unique",
+  storeType: "entity" | "column" | "relation" | "check" | "unique",
   features: Record<string, unknown>,
   defaultDatabase?: string,
   defaultSchema?: string,
@@ -61,10 +54,9 @@ export const generateIndex = (
   const schema = (features.schema || defaultSchema || "{{SCHEMA}}");
   let entityName = undefined;
   let columnName = undefined;
-  let referenceName = undefined;
+  let relationName = undefined;
   let checkName = undefined;
   let uniqueName = undefined;
-  let sequence = 0;
   switch (storeType) {
     case "entity": {
       entityName = features.entityName;
@@ -75,29 +67,28 @@ export const generateIndex = (
       columnName = features.columnName;
       return `${storeType}_${database}_${schema}_${entityName}_${columnName}`;
     }
-    case "reference": {
+    case "relation": {
       entityName = features.entityName;
-      referenceName = features.name;
-      return `${storeType}_${database}_${schema}_${entityName}_${referenceName}`;
+      relationName = features.name;
+      return `${storeType}_${relationName}`;
     }
     case "check": {
       entityName = features.entityName;
       checkName = features.name;
-      return `${storeType}_${database}_${schema}_${entityName}_${checkName}`;
+      return `${storeType}_${checkName}`;
     }
     case "unique": {
       entityName = features.entityName;
       uniqueName = features.name;
-      return `${storeType}_${database}_${schema}_${entityName}_${uniqueName}`;
+      return `${storeType}_${uniqueName}`;
     }
   }
-  return "";
 };
 function findRecord(
   req: {
     store: StoreData;
     indexOrEntity: string | Function;
-    storeType?: "entity" | "column" | "reference" | "check" | "unique";
+    storeType?: "entity" | "column" | "relation" | "check" | "unique";
     defaultDatabase?: string;
     defaultSchema?: string;
   },
@@ -148,7 +139,7 @@ function findRecords(
   req: {
     store: StoreData;
     indexOrEntity: string | Function;
-    storeType?: "entity" | "column" | "reference" | "check" | "unique";
+    storeType?: "entity" | "column" | "relation" | "check" | "unique";
     defaultDatabase?: string;
     defaultSchema?: string;
   },
@@ -199,7 +190,7 @@ function getStore(nameOrOptions?: string | ConnectionOptions): StoreData {
   return ms;
 }
 
-export const tsaveObject = (req: { storeType: "entity" | "column"; params: any }) => {
+export const tsaveObject = (req: { storeType: "entity" | "column" | "column_relation"; params: any }) => {
   let t;
   for (let i = 0; i < tempStore.length; i++) {
     if (tempStore[i].storeType === req.storeType && tempStore[i].params === req.params) {
@@ -330,31 +321,31 @@ export function findPrimaryColumns(req: StoreFindEntityOptions): [string, StoreR
 }
 //#endregion
 
-//#region ColumnReference
-export const saveColumnReference = (classObject: Object, propertyKey: string, options: StoreColumnReferenceOptions) => {
+//#region ColumnRelation
+export const saveColumnRelation = (classObject: Object, propertyKey: string, options: StoreColumnRelationOptions) => {
   const classFunction = (classObject instanceof Function ? <Function> classObject : classObject.constructor);
   const entityStoreRecord = findEntity({ entityOrClass: classFunction, nameOrOptions: options.connectionName });
   if (!entityStoreRecord) {
     return;
   }
   /**
-   * Insert reference first
+   * Insert relation first
    */
 
-  const storeType = "reference";
-  const nameRefs = findReferences({ entityOrClass: classFunction });
+  const storeType = "relation";
+  const nameRefs = findRelations({ entityOrClass: classFunction });
   const emptyNameRefs = nameRefs.filter((x) => !x[1].options.name);
-  const referenceFeatures = {
+  const relationFeatures = {
     localIndex: "",
     foreingIndex: "",
     storeType,
     classFunction,
     propertyKey,
-    options: options.reference,
+    options: options.relation,
     foreing: {
       entityName: entityStoreRecord[1].foreing.entityName,
       columnName: options.name || propertyKey,
-      referenceName: options.name ||
+      relationName: options.name ||
         generateName1({
           prefix: "FK",
           schema: entityStoreRecord[1].foreing.schema,
@@ -364,13 +355,13 @@ export const saveColumnReference = (classObject: Object, propertyKey: string, op
       position: nameRefs.length + 1,
       sequence: options.name ? undefined : emptyNameRefs.length + 1,
       ...entityStoreRecord[1].options,
-      ...options.reference,
+      ...options.relation,
     },
   };
-  referenceFeatures.localIndex = generateIndex(storeType, { entityName: classFunction.name, ...options });
-  referenceFeatures.foreingIndex = generateIndex(storeType, referenceFeatures.foreing);
+  relationFeatures.localIndex = generateIndex(storeType, { entityName: classFunction.name, ...options });
+  relationFeatures.foreingIndex = generateIndex(storeType, relationFeatures.foreing);
   let store = getStore(options.connectionName);
-  store = setStoreData(store, referenceFeatures.foreingIndex, referenceFeatures);
+  store = setStoreData(store, relationFeatures.foreingIndex, relationFeatures);
   addStore(store, options.connectionName);
 
   /**
@@ -385,7 +376,7 @@ export const saveColumnReference = (classObject: Object, propertyKey: string, op
       classFunction,
       propertyKey,
       options,
-      reference: referenceFeatures,
+      relation: relationFeatures,
       foreing: {
         entityName: entityStoreRecord[1].foreing.entityName,
         columnName: options.name || propertyKey,
@@ -406,7 +397,7 @@ export const saveColumnReference = (classObject: Object, propertyKey: string, op
   }
 };
 
-export function findReferences(req: StoreFindEntityOptions): [string, StoreRecordData][] {
+export function findRelations(req: StoreFindEntityOptions): [string, StoreRecordData][] {
   const name = (typeof req.nameOrOptions == "object" ? req.nameOrOptions.name : req.nameOrOptions) || DEFAULT_CONN_NAME;
   const store = getStore(name);
   let r: [string, StoreRecordData] | undefined;
@@ -419,16 +410,16 @@ export function findReferences(req: StoreFindEntityOptions): [string, StoreRecor
   }
   const rcols: [string, StoreRecordData][] = [];
   if (r) {
-    const cols = findRecords({ ...req, store, indexOrEntity: r[1].classFunction, storeType: "reference" });
+    const cols = findRecords({ ...req, store, indexOrEntity: r[1].classFunction, storeType: "relation" });
     rcols.push(...cols);
   }
   return rcols;
 }
 
-export function findReference(req: StoreFindReferenceOptions): [string, StoreRecordData] | undefined {
-  const cols = findReferences(req);
-  if (req.referenceName) {
-    return cols.find((x) => x[1].foreing.referenceName === req.referenceName);
+export function findRelation(req: StoreFindRelationOptions): [string, StoreRecordData] | undefined {
+  const cols = findRelations(req);
+  if (req.relationName) {
+    return cols.find((x) => x[1].foreing.relationName === req.relationName);
   }
 }
 
@@ -498,6 +489,7 @@ export function findCheck(req: StoreFindCheckOptions): [string, StoreRecordData]
   }
 }
 //#endregion
+
 //#region Check
 export const saveUnique = (classFunction: Function, options: StoreUniqueOptions) => {
   const storeType = "unique";

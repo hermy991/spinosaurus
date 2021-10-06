@@ -104,6 +104,6 @@ export type StoreColumnOptions = {
   connectionName?: string;
 };
 
-export type StoreReferenceOptions = {};
+export type StoreRelationOptions = {};
 
-export type StoreColumnReferenceOptions = StoreColumnOptions & { reference: StoreReferenceOptions };
+export type StoreColumnRelationOptions = StoreColumnOptions & { relation: StoreRelationOptions };

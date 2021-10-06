@@ -1,3 +1,4 @@
+import { tsaveObject } from "../../stores/store.ts";
 import { ColumnOptions } from "../options/column_options.ts";
 import { AllColumnOptions } from "../options/all_column_options.ts";
 import { ParamRelation } from "../../connection/builders/params/param_relation.ts";
@@ -6,18 +7,13 @@ import { reflect } from "../../../deps.ts";
 
 export function ManyToOne(relation: ParamRelation = {}, options: ColumnOptions = {}): any {
   return (entityf: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
-    /**
-     * For static member entity param will be a function constructor
-     */
     const fun = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
+    tsaveObject({ storeType: "column_relation", params: { classFunction: fun, propertyKey, options, relation } });
     const type = reflect.getMetadata("design:type", entityf, propertyKey);
     const entity = { target: fun, name: fun.name };
     const property = { propertyKey, type };
     relation.entity ||= property.type;
-    const target: ColumnOptions = {
-      name: propertyKey,
-      spitype: getColumnType({ type: property.type }),
-    };
+    const target: ColumnOptions = { name: propertyKey, spitype: getColumnType({ type: property.type }) };
     const mixeds: AllColumnOptions = Object.assign(target, options);
     const column = {
       target,

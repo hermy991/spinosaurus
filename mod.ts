@@ -1,10 +1,3 @@
-declare global {
-  var [GLOBAL_STORE_KEY]: any;
-  interface Window {
-    [k: string]: any;
-  }
-}
-
 /**
  * Decorators
  */
