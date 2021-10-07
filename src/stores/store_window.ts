@@ -29,6 +29,9 @@ export const transferTemp = (connectionName: string) => {
   for (const t of tempStore.filter((x) => x.storeType === "column")) {
     saveColumn(t.params.classFunction, t.params.propertyKey, { connectionName, ...t.params.options });
   }
+  for (const t of tempStore.filter((x) => x.storeType === "column_relation")) {
+    saveColumnRelation(t.params.classFunction, t.params.propertyKey, { connectionName, ...t.params.options });
+  }
   for (const t of tempStore.filter((x) => x.storeType === "check")) {
     saveCheck(t.params.classFunction, { connectionName, ...t.params.options });
   }
@@ -363,7 +366,6 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
   let store = getStore(options.connectionName);
   store = setStoreData(store, relationFeatures.foreingIndex, relationFeatures);
   addStore(store, options.connectionName);
-
   /**
    * Insert column next
    */

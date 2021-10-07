@@ -18,7 +18,7 @@ export type StoreFindColumnOptions = {
 
 export type StoreFindRelationOptions = {
   entityOrClass: string | Function;
-  referenceName: string;
+  relationName: string;
   defaultDatabase?: string;
   defaultSchema?: string;
   nameOrOptions?: string | ConnectionOptions;
