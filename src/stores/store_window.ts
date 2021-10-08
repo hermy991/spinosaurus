@@ -193,7 +193,9 @@ function getStore(nameOrOptions?: string | ConnectionOptions): StoreData {
   return ms;
 }
 
-export const tsaveObject = (req: { storeType: "entity" | "column" | "column_relation"; params: any }) => {
+export const tsaveObject = (
+  req: { storeType: "entity" | "column" | "column_relation" | "check" | "unique"; params: any },
+) => {
   let t;
   for (let i = 0; i < tempStore.length; i++) {
     if (tempStore[i].storeType === req.storeType && tempStore[i].params === req.params) {
