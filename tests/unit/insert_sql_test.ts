@@ -80,7 +80,7 @@ INSERT INTO "hello"."InsertEntity5" ("column3") VALUES ('xxx')`;
   const qe6 =
     `INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_primaryColumn_ID", "InsertEntity2_column1", "columnPrimary_ID", "InsertEntity4_column1_1", "InsertEntity4_column1_2") VALUES (1, 1, 2, 5, 101, 102);
 INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_primaryColumn_ID", "InsertEntity2_column1", "columnPrimary_ID", "InsertEntity4_column1_1", "InsertEntity4_column1_2") VALUES (2, 6, 7, 9, 101, 102)`;
-  console.log(`window["spinosaurusMetadataStore2"]["default"]`, window["spinosaurusMetadataStore2"]);
+  // console.log(`window["spinosaurusMetadataStore2"]["default"]`, window["spinosaurusMetadataStore2"]);
   assertEquals(q6, qe6);
 });
 Deno.test("insert [multiple insert] sql", () => {
