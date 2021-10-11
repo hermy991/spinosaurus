@@ -15,7 +15,6 @@ export const generateIndex = (
   const schema = (features.schema || defaultSchema || "{{SCHEMA}}");
   let entityName = undefined;
   let columnName = undefined;
-  let relationName = undefined;
   let checkName = undefined;
   let uniqueName = undefined;
   switch (storeType) {
@@ -30,8 +29,8 @@ export const generateIndex = (
     }
     case "relation": {
       entityName = features.entityName;
-      relationName = features.name;
-      return `${storeType}_${relationName}`;
+      columnName = features.columnName;
+      return `${storeType}_${database}_${schema}_${entityName}_${columnName}`;
     }
     case "check": {
       entityName = features.entityName;

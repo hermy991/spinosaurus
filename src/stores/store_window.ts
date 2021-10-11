@@ -151,14 +151,12 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
       ...options.relation,
     },
   };
-  relationFeatures.localIndex = generateIndex(storeType, { entityName: classFunction.name, ...options });
+  relationFeatures.localIndex = generateIndex(storeType, {
+    schema: relationFeatures.foreing.schema,
+    entityName: classFunction.name,
+    columnName: propertyKey,
+  });
   relationFeatures.foreingIndex = generateIndex(storeType, relationFeatures.foreing);
-  console.log(
-    "relationFeatures.localIndex",
-    relationFeatures.localIndex,
-    "relationFeatures.foreingIndex",
-    relationFeatures.foreingIndex,
-  );
   let store = getStore(options.connectionName);
   store = setStoreData(store, relationFeatures.foreingIndex, relationFeatures);
   addStore(store, options.connectionName);
