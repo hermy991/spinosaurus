@@ -1,6 +1,7 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { ParamInsertEntity, ParamInsertOptions, ParamInsertValue } from "./params/param_insert.ts";
 import { ConnectionAll } from "../connection_type.ts";
+import { findPrimaryColumn } from "../../stores/store.ts";
 
 export class BuilderInsert extends BuilderBase {
   #options: ParamInsertOptions = {
@@ -74,17 +75,25 @@ export class BuilderInsert extends BuilderBase {
         for (const p of ps) {
           if (p.propertyKey === name) {
             if (
-              p.insert && typeof value[name] === "object" && !(value[name] instanceof Date) &&
-              value[name] !== null && !Array.isArray(value[name])
+              p.insert && typeof value[name] === "object" && !(value[name] instanceof Date) && value[name] !== null &&
+              !Array.isArray(value[name])
             ) {
-              const xe = this.getEntityData(this.conn.options.name, p.type);
-              const xps = this.getColumns(this.conn.options.name, p.type);
-              const rprimaryColumn = xps.find((x) => x.primary);
-              if (rprimaryColumn) {
-                // console.log("rprimaryColumn", rprimaryColumn, "p", p);
-                // if(){
-                // }
+              let ac = findPrimaryColumn({
+                entityOrClass: p.type,
+                nameOrOptions: this.conn.options,
+              });
+              if (ac && ac.length === 2) {
+                let c = ac[1];
+                console.log("p.propertyKey", p.propertyKey, "c", c);
               }
+              // const xe = this.getEntityData(this.conn.options.name, p.type);
+              // const xps = this.getColumns(this.conn.options.name, p.type);
+              // const rprimaryColumn = xps.find((x) => x.primary);
+              // if (rprimaryColumn) {
+              //   // console.log("rprimaryColumn", rprimaryColumn, "p", p);
+              //   // if(){
+              //   // }
+              // }
             } else if (p.insert || (p.primary && p.autoIncrement && !autoGeneratePrimaryKey)) {
               cloned[p.name] = value[name];
             }

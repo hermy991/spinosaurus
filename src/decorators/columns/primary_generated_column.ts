@@ -8,39 +8,24 @@ import { reflect } from "../../../deps.ts";
 export function PrimaryGeneratedColumn(options: PrimaryGeneratedColumnOptions = {}): any {
   return (entityf: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const fun = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
-    tsaveObject({ storeType: "column", params: { classFunction: fun, propertyKey, options } });
-    const entity = { target: fun, name: fun.name };
-    const property = {
-      propertyKey,
-      type: reflect.getMetadata("design:type", entityf, propertyKey),
-    };
-    const target: ColumnOptions = {
-      name: propertyKey,
-      spitype: getColumnType({ type: property.type }),
-    };
-    const special: PrimaryColumnOptions | PrimaryGeneratedColumnOptions | {
-      primary: boolean;
-    } = {
+    const special: PrimaryColumnOptions | PrimaryGeneratedColumnOptions | { primary: boolean } = {
       primary: true,
       insert: false,
       update: false,
       autoIncrement: "increment",
     };
-    const mixeds: PrimaryColumnOptions | PrimaryGeneratedColumnOptions = Object
-      .assign(
-        target,
-        special,
-        options,
-      );
-
-    const column = {
-      target,
-      entity,
-      descriptor,
-      property,
-      options,
-      mixeds,
+    tsaveObject({
+      storeType: "column",
+      params: { classFunction: fun, propertyKey, options: { ...options, ...special } },
+    });
+    const entity = { target: fun, name: fun.name };
+    const property = {
+      propertyKey,
+      type: reflect.getMetadata("design:type", entityf, propertyKey),
     };
+    const target: ColumnOptions = { name: propertyKey, spitype: getColumnType({ type: property.type }) };
+    const mixeds: PrimaryColumnOptions | PrimaryGeneratedColumnOptions = Object.assign(target, special, options);
+    const column = { target, entity, descriptor, property, options, mixeds };
     getTempMetadata().columns.push(column);
   };
 }

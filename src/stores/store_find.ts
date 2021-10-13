@@ -150,6 +150,12 @@ export function findPrimaryColumns(req: StoreFindEntityOptions): [string, StoreR
   return cols.filter((x) => x[1].foreing.primary === true);
 }
 
+export function findPrimaryColumn(req: StoreFindEntityOptions): [string, StoreRecordData] {
+  const cols = findColumns(req);
+  // console.log("cols", cols);
+  return <any> cols.find((x) => x[1].foreing.primary === true);
+}
+
 export function findRelations(req: StoreFindEntityOptions): [string, StoreRecordData][] {
   const name = (typeof req.nameOrOptions == "object" ? req.nameOrOptions.name : req.nameOrOptions) || DEFAULT_CONN_NAME;
   const store = getStore(name);
