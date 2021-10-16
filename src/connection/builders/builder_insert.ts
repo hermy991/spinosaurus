@@ -78,13 +78,10 @@ export class BuilderInsert extends BuilderBase {
               p.insert && typeof value[name] === "object" && !(value[name] instanceof Date) && value[name] !== null &&
               !Array.isArray(value[name])
             ) {
-              let ac = findPrimaryColumn({
-                entityOrClass: p.type,
-                nameOrOptions: this.conn.options,
-              });
-              if (ac && ac.length === 2) {
+              let ac = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.conn.options });
+              if (ac && ac.length === 2 && ac[1].propertyKey in <any> value[name]) {
                 let c = ac[1];
-                console.log("p.propertyKey", p.propertyKey, "c", c);
+                console.log("name", name, "value[name]", value[name], "c.propertyKey", c.propertyKey, "c", c);
               }
               // const xe = this.getEntityData(this.conn.options.name, p.type);
               // const xps = this.getColumns(this.conn.options.name, p.type);
