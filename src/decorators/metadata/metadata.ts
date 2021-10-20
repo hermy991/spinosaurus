@@ -511,12 +511,12 @@ function linkRelationsWithTables(metadata: MetadataStore) {
     const column = columns[i];
     if (column.relation) {
       const relation = column.relation;
-      // Find foreing column
+      // Find foreign column
       const fcolumn = columns.find((x) =>
         x.entity.target === relation.entity &&
         x.mixeds.primary === true
       );
-      // Find foreing entity
+      // Find foreign entity
       const ftable = tables.find((x) => x.target === relation.entity);
       if (!fcolumn || !ftable) {
         continue;

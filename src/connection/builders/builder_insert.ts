@@ -1,7 +1,7 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { ParamInsertEntity, ParamInsertOptions, ParamInsertValue } from "./params/param_insert.ts";
 import { ConnectionAll } from "../connection_type.ts";
-import { findPrimaryColumn } from "../../stores/store.ts";
+import { findColumn, findPrimaryColumn } from "../../stores/store.ts";
 
 export class BuilderInsert extends BuilderBase {
   #options: ParamInsertOptions = {
@@ -56,15 +56,15 @@ export class BuilderInsert extends BuilderBase {
     return `VALUES (${values.map((v) => this.conn.stringify(<any> v)).join(", ")})`;
   }
 
-  getEntityValueQuery(e: { schema?: string; entity?: string }, value: ParamInsertValue, ps: Array<any> = []): string {
+  getEntityValueQuery(
+    e: { schema?: string; entity?: string; classFunction?: Function },
+    value: ParamInsertValue,
+    ps: Array<any> = [],
+  ): string {
     if (!value) {
       return ``;
     }
-    let primaryGeneratedColumn: {
-      name: string;
-      value: any;
-      autoIncrement: string;
-    } | undefined;
+    let primaryGeneratedColumn: { name: string; value: any; autoIncrement: string } | undefined;
     const sqls: string[] = [this.getEntityQuery(e)];
     let cloned: ParamInsertValue = {};
     const { autoInsert, autoGeneratePrimaryKey } = this.#options;
@@ -78,19 +78,15 @@ export class BuilderInsert extends BuilderBase {
               p.insert && typeof value[name] === "object" && !(value[name] instanceof Date) && value[name] !== null &&
               !Array.isArray(value[name])
             ) {
-              let ac = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.conn.options });
-              if (ac && ac.length === 2 && ac[1].propertyKey in <any> value[name]) {
-                let c = ac[1];
-                console.log("name", name, "value[name]", value[name], "c.propertyKey", c.propertyKey, "c", c);
+              let xc = findColumn({
+                entityOrClass: <Function> e.classFunction,
+                propertyKey: p.propertyKey,
+                nameOrOptions: this.conn.options,
+              });
+              let fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.conn.options });
+              if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in <any> value[name]) {
+                cloned[xc[1].foreign.columnName] = (<any> value[name])[fc[1].propertyKey];
               }
-              // const xe = this.getEntityData(this.conn.options.name, p.type);
-              // const xps = this.getColumns(this.conn.options.name, p.type);
-              // const rprimaryColumn = xps.find((x) => x.primary);
-              // if (rprimaryColumn) {
-              //   // console.log("rprimaryColumn", rprimaryColumn, "p", p);
-              //   // if(){
-              //   // }
-              // }
             } else if (p.insert || (p.primary && p.autoIncrement && !autoGeneratePrimaryKey)) {
               cloned[p.name] = value[name];
             }
@@ -117,6 +113,7 @@ export class BuilderInsert extends BuilderBase {
       return ``;
     }
     Object.values(cloned);
+    // console.log("cloned", cloned);
     sqls.push(this.getColumnsQuery(Object.keys(cloned)));
     sqls.push(this.getValuesQuery(<any> Object.values(cloned)));
     return sqls.join(" ");
@@ -126,10 +123,11 @@ export class BuilderInsert extends BuilderBase {
       return [];
     }
     const sqls: string[] = [];
-    let e: { schema?: string; entity?: string } = {};
+    let e: { schema?: string; entity?: string; classFunction?: Function } = {};
     let ps = [];
     if (this.#entityData instanceof Function) {
       e = this.getEntityData(this.conn.options.name, this.#entityData);
+      e.classFunction = this.#entityData;
       ps = this.getColumns(this.conn.options.name, this.#entityData);
     } else {
       e = this.#entityData;

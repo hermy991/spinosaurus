@@ -80,8 +80,10 @@ export function findRecords(
     for (const key in req.store) {
       const r = req.store[key];
       if (r.classFunction === req.indexOrEntity) {
-        if (req.storeType && req.storeType === r.storeType) {
-          rs.push([key, r]);
+        if (req.storeType) {
+          if (req.storeType === r.storeType) {
+            rs.push([key, r]);
+          }
         } else rs.push([key, r]);
       }
     }
@@ -137,23 +139,23 @@ export function findColumns(req: StoreFindEntityOptions): [string, StoreRecordDa
 export function findColumn(req: StoreFindColumnOptions): [string, StoreRecordData] | undefined {
   const cols = findColumns(req);
   if (req.propertyKey && req.columnName) {
-    return cols.find((x) => x[1].propertyKey === req.propertyKey && x[1].foreing.columnName === req.columnName);
+    return cols.find((x) => x[1].propertyKey === req.propertyKey && x[1].foreign.columnName === req.columnName);
   } else if (req.propertyKey) {
     return cols.find((x) => x[1].propertyKey === req.propertyKey);
   } else if (req.columnName) {
-    return cols.find((x) => x[1].foreing.columnName === req.columnName);
+    return cols.find((x) => x[1].foreign.columnName === req.columnName);
   }
 }
 
 export function findPrimaryColumns(req: StoreFindEntityOptions): [string, StoreRecordData][] {
   const cols = findColumns(req);
-  return cols.filter((x) => x[1].foreing.primary === true);
+  return cols.filter((x) => x[1].foreign.primary === true);
 }
 
 export function findPrimaryColumn(req: StoreFindEntityOptions): [string, StoreRecordData] {
   const cols = findColumns(req);
   // console.log("cols", cols);
-  return <any> cols.find((x) => x[1].foreing.primary === true);
+  return <any> cols.find((x) => x[1].foreign.primary === true);
 }
 
 export function findRelations(req: StoreFindEntityOptions): [string, StoreRecordData][] {
@@ -178,7 +180,7 @@ export function findRelations(req: StoreFindEntityOptions): [string, StoreRecord
 export function findRelation(req: StoreFindRelationOptions): [string, StoreRecordData] | undefined {
   const cols = findRelations(req);
   if (req.relationName) {
-    return cols.find((x) => x[1].foreing.relationName === req.relationName);
+    return cols.find((x) => x[1].foreign.relationName === req.relationName);
   }
 }
 
@@ -204,7 +206,7 @@ export function findChecks(req: StoreFindEntityOptions): [string, StoreRecordDat
 export function findCheck(req: StoreFindCheckOptions): [string, StoreRecordData] | undefined {
   const chks = findChecks(req);
   if (req.checkName) {
-    return chks.find((x) => x[1].foreing.checkName === req.checkName);
+    return chks.find((x) => x[1].foreign.checkName === req.checkName);
   }
 }
 
@@ -230,6 +232,6 @@ export function findUniques(req: StoreFindEntityOptions): [string, StoreRecordDa
 export function findUnique(req: StoreFindUniqueOptions): [string, StoreRecordData] | undefined {
   const chks = findUniques(req);
   if (req.uniqueName) {
-    return chks.find((x) => x[1].foreing.uniqueName === req.uniqueName);
+    return chks.find((x) => x[1].foreign.uniqueName === req.uniqueName);
   }
 }

@@ -136,11 +136,11 @@ export type StoreRelation = {
 
 export type StoreRelationForeign = {
   /**
-   * The schema table's name where foreingh constraints is apply
+   * The schema table's name where foreignh constraints is apply
    */
   schema?: string;
   /**
-   * The table name where foreingh constraints is apply
+   * The table name where foreignh constraints is apply
    */
   entity?: string;
   /**

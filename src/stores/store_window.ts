@@ -1,3 +1,4 @@
+import { reflect } from "../../deps.ts";
 import { generateName1 } from "../connection/builders/base/sql.ts";
 import {
   StoreCheckOptions,
@@ -62,19 +63,19 @@ export const saveEntity = (classFunction: Function, options: StoreEntityOptions)
   const storeType = "entity";
   const features = {
     localIndex: "",
-    foreingIndex: "",
+    foreignIndex: "",
     storeType,
     classFunction,
     options,
-    foreing: {
+    foreign: {
       entityName: options.name || classFunction.name,
       ...options,
     },
   };
   features.localIndex = generateIndex(storeType, { entityName: classFunction.name, ...options });
-  features.foreingIndex = generateIndex(storeType, features.foreing);
+  features.foreignIndex = generateIndex(storeType, features.foreign);
   let store = getStore(options.connectionName);
-  store = setStoreData(store, features.foreingIndex, features);
+  store = setStoreData(store, features.foreignIndex, features);
   addStore(store, options.connectionName);
 };
 //#endregion
@@ -87,18 +88,20 @@ export const saveColumn = (classObject: Object, propertyKey: string, options: St
   if (!entityStoreRecord) {
     return;
   }
+  const columnName = options.name || propertyKey;
   const features = {
     localIndex: "",
-    foreingIndex: "",
+    foreignIndex: "",
     storeType,
     classFunction,
     propertyKey,
     options,
-    foreing: {
-      entityName: entityStoreRecord[1].foreing.entityName,
-      columnName: options.name || propertyKey,
+    foreign: {
+      entityName: entityStoreRecord[1].foreign.entityName,
+      columnName,
       ...entityStoreRecord[1].options,
       ...options,
+      name: columnName,
     },
   };
   features.localIndex = generateIndex(storeType, {
@@ -107,9 +110,9 @@ export const saveColumn = (classObject: Object, propertyKey: string, options: St
     columnName: propertyKey,
     ...options,
   });
-  features.foreingIndex = generateIndex(storeType, features.foreing);
+  features.foreignIndex = generateIndex(storeType, features.foreign);
   let store = getStore(options.connectionName);
-  store = setStoreData(store, features.foreingIndex, features);
+  store = setStoreData(store, features.foreignIndex, features);
   addStore(store, options.connectionName);
 };
 //#endregion
@@ -130,19 +133,19 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
   const emptyNameRefs = nameRefs.filter((x) => !x[1].options.name);
   const relationFeatures = {
     localIndex: "",
-    foreingIndex: "",
+    foreignIndex: "",
     storeType,
     classFunction,
     propertyKey,
     options: options.relation,
-    foreing: {
-      entityName: entityStoreRecord[1].foreing.entityName,
+    foreign: {
+      entityName: entityStoreRecord[1].foreign.entityName,
       columnName: options.name || propertyKey,
       relationName: options.name ||
         generateName1({
           prefix: "FK",
-          schema: entityStoreRecord[1].foreing.schema,
-          entity: entityStoreRecord[1].foreing.entityName,
+          schema: entityStoreRecord[1].foreign.schema,
+          entity: entityStoreRecord[1].foreign.entityName,
           sequence: emptyNameRefs.length + 1,
         }),
       position: nameRefs.length + 1,
@@ -152,32 +155,40 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
     },
   };
   relationFeatures.localIndex = generateIndex(storeType, {
-    schema: relationFeatures.foreing.schema,
+    schema: relationFeatures.foreign.schema,
     entityName: classFunction.name,
     columnName: propertyKey,
   });
-  relationFeatures.foreingIndex = generateIndex(storeType, relationFeatures.foreing);
+  relationFeatures.foreignIndex = generateIndex(storeType, relationFeatures.foreign);
   let store = getStore(options.connectionName);
-  store = setStoreData(store, relationFeatures.foreingIndex, relationFeatures);
+  store = setStoreData(store, relationFeatures.foreignIndex, relationFeatures);
   addStore(store, options.connectionName);
   /**
    * Insert column next
    */
   {
+    let fentityName = entityStoreRecord[1].foreign.entityName;
+    const type = reflect.getMetadata("design:type", classFunction, propertyKey);
+    let fentityStoreRecord = findEntity({ entityOrClass: type, nameOrOptions: options.connectionName });
+    if (!fentityStoreRecord && typeof type === "function" && type.constructor) {
+      fentityStoreRecord = findEntity({ entityOrClass: type(), nameOrOptions: options.connectionName });
+    }
+    const columnName = options.name || `${fentityName}_${propertyKey}`;
     const storeType = "column";
     const columnFeatures = {
       localIndex: "",
-      foreingIndex: "",
+      foreignIndex: "",
       storeType,
       classFunction,
       propertyKey,
       options,
       relation: relationFeatures,
-      foreing: {
-        entityName: entityStoreRecord[1].foreing.entityName,
-        columnName: options.name || propertyKey,
+      foreign: {
+        entityName: entityStoreRecord[1].foreign.entityName,
+        columnName,
         ...entityStoreRecord[1].options,
         ...options,
+        name: columnName,
       },
     };
     columnFeatures.localIndex = generateIndex(storeType, {
@@ -186,9 +197,9 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
       columnName: propertyKey,
       ...options,
     });
-    columnFeatures.foreingIndex = generateIndex(storeType, columnFeatures.foreing);
+    columnFeatures.foreignIndex = generateIndex(storeType, columnFeatures.foreign);
     let store = getStore(options.connectionName);
-    store = setStoreData(store, columnFeatures.foreingIndex, columnFeatures);
+    store = setStoreData(store, columnFeatures.foreignIndex, columnFeatures);
     addStore(store, options.connectionName);
   }
 };
@@ -207,18 +218,18 @@ export const saveCheck = (classFunction: Function, options: StoreCheckOptions) =
 
   const features = {
     localIndex: "",
-    foreingIndex: "",
+    foreignIndex: "",
     storeType,
     classFunction,
     options,
-    foreing: {
-      schema: entityStoreRecord[1].foreing.schema,
-      entityName: entityStoreRecord[1].foreing.entityName,
+    foreign: {
+      schema: entityStoreRecord[1].foreign.schema,
+      entityName: entityStoreRecord[1].foreign.entityName,
       checkName: options.name ||
         generateName1({
           prefix: "CHK",
-          schema: entityStoreRecord[1].foreing.schema,
-          entity: entityStoreRecord[1].foreing.entityName,
+          schema: entityStoreRecord[1].foreign.schema,
+          entity: entityStoreRecord[1].foreign.entityName,
           sequence: emptyNameChks.length + 1,
         }),
       position: nameChks.length + 1,
@@ -227,9 +238,9 @@ export const saveCheck = (classFunction: Function, options: StoreCheckOptions) =
     },
   };
   features.localIndex = generateIndex(storeType, { entityName: classFunction.name, ...options });
-  features.foreingIndex = generateIndex(storeType, features.foreing);
+  features.foreignIndex = generateIndex(storeType, features.foreign);
   let store = getStore(options.connectionName);
-  store = setStoreData(store, features.foreingIndex, features);
+  store = setStoreData(store, features.foreignIndex, features);
   addStore(store, options.connectionName);
 };
 //#endregion
@@ -245,22 +256,22 @@ export const saveUnique = (classFunction: Function, options: StoreUniqueOptions)
   const emptyNameUnqs = nameUnqs.filter((x) => !x[1].options.name);
   const columnNames = findColumns({ entityOrClass: classFunction })
     .filter((x) => options.columns.includes(x[1].primaryKey))
-    .map((x) => x[1].foreing.columnName);
+    .map((x) => x[1].foreign.columnName);
 
   const features = {
     localIndex: "",
-    foreingIndex: "",
+    foreignIndex: "",
     storeType,
     classFunction,
     options,
-    foreing: {
-      schema: entityStoreRecord[1].foreing.schema,
-      entityName: entityStoreRecord[1].foreing.entityName,
+    foreign: {
+      schema: entityStoreRecord[1].foreign.schema,
+      entityName: entityStoreRecord[1].foreign.entityName,
       uniqueName: options.name ||
         generateName1({
           prefix: "UQ",
-          schema: entityStoreRecord[1].foreing.schema,
-          entity: entityStoreRecord[1].foreing.entityName,
+          schema: entityStoreRecord[1].foreign.schema,
+          entity: entityStoreRecord[1].foreign.entityName,
           sequence: emptyNameUnqs.length + 1,
         }),
       position: nameUnqs.length + 1,
@@ -270,9 +281,9 @@ export const saveUnique = (classFunction: Function, options: StoreUniqueOptions)
     },
   };
   features.localIndex = generateIndex(storeType, { entityName: classFunction.name, ...options });
-  features.foreingIndex = generateIndex(storeType, features.foreing);
+  features.foreignIndex = generateIndex(storeType, features.foreign);
   let store = getStore(options.connectionName);
-  store = setStoreData(store, features.foreingIndex, features);
+  store = setStoreData(store, features.foreignIndex, features);
   addStore(store, options.connectionName);
 };
 

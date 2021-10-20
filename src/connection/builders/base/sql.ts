@@ -114,7 +114,7 @@ export function getForeingPropertyKey(
   currentPropertyKey: string,
 ) {
   if (relation) {
-    // Find foreing column
+    // Find foreign column
     const fcolumn = columns.find((x) =>
       x.entity.target === relation.entity &&
       x.mixeds.primary === true
@@ -129,7 +129,7 @@ export function getForeingEntity(
   relation: Function | undefined,
 ) {
   if (relation) {
-    // Find foreing column
+    // Find foreign column
     const fentity = entities.find((x) => x.target === relation);
     return fentity;
   }
