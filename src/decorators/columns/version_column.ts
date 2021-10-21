@@ -7,9 +7,11 @@ import { reflect } from "../../../deps.ts";
 export function VersionColumn(options: VersionColumnOptions = {}): any {
   return (entityf: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const fun = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
-    tsaveObject({ storeType: "column", params: { classFunction: fun, propertyKey, options } });
+    const type = reflect.getMetadata("design:type", entityf, propertyKey);
+    const special = { spitype: "integer", ...options, autoUpdate: () => `"${options.name || propertyKey}" + 1` };
+    tsaveObject({ storeType: "column", params: { classFunction: fun, propertyKey, type, options: special } });
     const entity = { target: fun, name: fun.name };
-    const property = { propertyKey, type: reflect.getMetadata("design:type", entityf, propertyKey) };
+    const property = { propertyKey, type };
     const target: ColumnOptions = { name: propertyKey, spitype: "integer" };
     const mixeds: ColumnOptions = Object.assign(target, options, {
       autoUpdate: () => `"${options.name || propertyKey}" + 1`,

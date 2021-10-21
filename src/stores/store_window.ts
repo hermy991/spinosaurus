@@ -3,31 +3,44 @@ import { generateName1 } from "../connection/builders/base/sql.ts";
 import {
   StoreCheckOptions,
   StoreColumnOptions,
-  StoreColumnRelationOptions,
   StoreEntityOptions,
+  StoreRelationOptions,
   StoreUniqueOptions,
 } from "./store_options/store_options.ts";
 import { StoreData } from "./store_options/store_options.ts";
-import { findChecks, findColumns, findEntity, findRecord, findRelations, findUniques } from "./store_find.ts";
+import {
+  findChecks,
+  findColumns,
+  findEntity,
+  findPrimaryColumn,
+  findRecord,
+  findRelations,
+  findUniques,
+} from "./store_find.ts";
 import { addStore, generateIndex, getStore } from "./store_util.ts";
 
 const tempStore: any[] = [];
 
 export const transferTemp = (connectionName: string) => {
   for (const t of tempStore.filter((x) => x.storeType === "entity")) {
-    saveEntity(t.params.classFunction, { connectionName, ...t.params.options });
+    t.params.options = { connectionName, ...t.params.options };
+    saveEntity(t.params);
   }
   for (const t of tempStore.filter((x) => x.storeType === "column")) {
-    saveColumn(t.params.classFunction, t.params.propertyKey, { connectionName, ...t.params.options });
+    t.params.options = { connectionName, ...t.params.options };
+    saveColumn(t.params);
   }
   for (const t of tempStore.filter((x) => x.storeType === "column_relation")) {
-    saveColumnRelation(t.params.classFunction, t.params.propertyKey, { connectionName, ...t.params.options });
+    t.params.options = { connectionName, ...t.params.options };
+    saveColumnRelation(t.params);
   }
   for (const t of tempStore.filter((x) => x.storeType === "check")) {
-    saveCheck(t.params.classFunction, { connectionName, ...t.params.options });
+    t.params.options = { connectionName, ...t.params.options };
+    saveCheck(t.params);
   }
   for (const t of tempStore.filter((x) => x.storeType === "unique")) {
-    saveUnique(t.params.classFunction, { connectionName, ...t.params.options });
+    t.params.options = { connectionName, ...t.params.options };
+    saveUnique(t.params);
   }
   for (let i = 0; i < tempStore.length; i++) {
     delete tempStore[i];
@@ -59,7 +72,8 @@ export const tsaveObject = (
 };
 
 //#region Entity
-export const saveEntity = (classFunction: Function, options: StoreEntityOptions) => {
+export const saveEntity = (req: { classFunction: Function; options: StoreEntityOptions }) => {
+  const { classFunction, options } = req;
   const storeType = "entity";
   const features = {
     localIndex: "",
@@ -81,9 +95,11 @@ export const saveEntity = (classFunction: Function, options: StoreEntityOptions)
 //#endregion
 
 //#region Column
-export const saveColumn = (classObject: Object, propertyKey: string, options: StoreColumnOptions) => {
+export const saveColumn = (
+  req: { classFunction: Function; propertyKey: string; type: Function; options: StoreColumnOptions },
+) => {
+  const { classFunction, type, propertyKey, options } = req;
   const storeType = "column";
-  const classFunction = (classObject instanceof Function ? <Function> classObject : classObject.constructor);
   const entityStoreRecord = findEntity({ entityOrClass: classFunction, nameOrOptions: options.connectionName });
   if (!entityStoreRecord) {
     return;
@@ -94,6 +110,7 @@ export const saveColumn = (classObject: Object, propertyKey: string, options: St
     foreignIndex: "",
     storeType,
     classFunction,
+    type,
     propertyKey,
     options,
     foreign: {
@@ -118,8 +135,16 @@ export const saveColumn = (classObject: Object, propertyKey: string, options: St
 //#endregion
 
 //#region ColumnRelation
-export const saveColumnRelation = (classObject: Object, propertyKey: string, options: StoreColumnRelationOptions) => {
-  const classFunction = (classObject instanceof Function ? <Function> classObject : classObject.constructor);
+export const saveColumnRelation = (
+  req: {
+    classFunction: Function;
+    type: Function;
+    propertyKey: string;
+    options: StoreColumnOptions;
+    relation: StoreRelationOptions;
+  },
+) => {
+  const { classFunction, type, propertyKey, options, relation } = req;
   const entityStoreRecord = findEntity({ entityOrClass: classFunction, nameOrOptions: options.connectionName });
   if (!entityStoreRecord) {
     return;
@@ -127,7 +152,6 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
   /**
    * Insert relation first
    */
-
   const storeType = "relation";
   const nameRefs = findRelations({ entityOrClass: classFunction });
   const emptyNameRefs = nameRefs.filter((x) => !x[1].options.name);
@@ -137,7 +161,7 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
     storeType,
     classFunction,
     propertyKey,
-    options: options.relation,
+    options: relation,
     foreign: {
       entityName: entityStoreRecord[1].foreign.entityName,
       columnName: options.name || propertyKey,
@@ -151,7 +175,7 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
       position: nameRefs.length + 1,
       sequence: options.name ? undefined : emptyNameRefs.length + 1,
       ...entityStoreRecord[1].options,
-      ...options.relation,
+      ...relation,
     },
   };
   relationFeatures.localIndex = generateIndex(storeType, {
@@ -168,7 +192,6 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
    */
   {
     let fentityName = entityStoreRecord[1].foreign.entityName;
-    const type = reflect.getMetadata("design:type", classFunction, propertyKey);
     let fentityStoreRecord = findEntity({ entityOrClass: type, nameOrOptions: options.connectionName });
     if (!fentityStoreRecord && typeof type === "function" && type.constructor) {
       fentityStoreRecord = findEntity({ entityOrClass: type(), nameOrOptions: options.connectionName });
@@ -176,13 +199,20 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
     if (fentityStoreRecord) {
       fentityName = fentityStoreRecord[1].foreign.entityName;
     }
-    const columnName = options.name || `${fentityName}_${propertyKey}`;
+    let fprimaryColumnName = propertyKey;
+    let fprimaryColumnStoreRecord = findPrimaryColumn({ entityOrClass: type, nameOrOptions: options.connectionName });
+    if (fprimaryColumnStoreRecord) {
+      fprimaryColumnName = fprimaryColumnStoreRecord[1].foreign.columnName;
+    }
+
+    const columnName = options.name || `${fentityName}_${fprimaryColumnName}`;
     const storeType = "column";
     const columnFeatures = {
       localIndex: "",
       foreignIndex: "",
       storeType,
       classFunction,
+      type,
       propertyKey,
       options,
       relation: relationFeatures,
@@ -210,7 +240,8 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
 //#endregion
 
 //#region Check
-export const saveCheck = (classFunction: Function, options: StoreCheckOptions) => {
+export const saveCheck = (req: { classFunction: Function; options: StoreCheckOptions }) => {
+  const { classFunction, options } = req;
   const storeType = "check";
   const entityStoreRecord = findEntity({ entityOrClass: classFunction });
   if (!entityStoreRecord) {
@@ -249,7 +280,8 @@ export const saveCheck = (classFunction: Function, options: StoreCheckOptions) =
 //#endregion
 
 //#region Check
-export const saveUnique = (classFunction: Function, options: StoreUniqueOptions) => {
+export const saveUnique = (req: { classFunction: Function; options: StoreUniqueOptions }) => {
+  const { classFunction, options } = req;
   const storeType = "unique";
   const entityStoreRecord = findEntity({ entityOrClass: classFunction });
   if (!entityStoreRecord) {

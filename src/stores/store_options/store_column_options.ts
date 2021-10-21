@@ -105,5 +105,3 @@ export type StoreColumnOptions = {
 };
 
 export type StoreRelationOptions = {};
-
-export type StoreColumnRelationOptions = StoreColumnOptions & { relation: StoreRelationOptions };

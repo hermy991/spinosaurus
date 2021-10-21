@@ -8,8 +8,8 @@ import { reflect } from "../../../deps.ts";
 export function ManyToOne(relation: ParamRelation = {}, options: ColumnOptions = {}): any {
   return (entityf: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const fun = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
-    tsaveObject({ storeType: "column_relation", params: { classFunction: fun, propertyKey, options, relation } });
     const type = reflect.getMetadata("design:type", entityf, propertyKey);
+    tsaveObject({ storeType: "column_relation", params: { classFunction: fun, propertyKey, type, options, relation } });
     const entity = { target: fun, name: fun.name };
     const property = { propertyKey, type };
     relation.entity ||= property.type;

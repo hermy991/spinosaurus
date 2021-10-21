@@ -8,9 +8,11 @@ import { reflect } from "../../../deps.ts";
 export function UpdateColumn(options: UpdateColumnOptions, autoUpdate: Function): any {
   return (entityf: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const funt = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
-    tsaveObject({ storeType: "column", params: { classFunction: funt, propertyKey, options, autoUpdate } });
+    const type = reflect.getMetadata("design:type", entityf, propertyKey);
+    const special = { ...options, autoUpdate };
+    tsaveObject({ storeType: "column", params: { classFunction: funt, propertyKey, type, options: special } });
     const entity = { target: funt, name: funt.name };
-    const property = { propertyKey, type: reflect.getMetadata("design:type", entityf, propertyKey) };
+    const property = { propertyKey, type };
     const target: ColumnOptions = { name: propertyKey, spitype: getColumnType({ type: property.type }) };
     const mixeds: AllColumnOptions = Object.assign(target, options, { autoUpdate });
     const column = {

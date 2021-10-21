@@ -14,15 +14,13 @@ export function PrimaryGeneratedColumn(options: PrimaryGeneratedColumnOptions = 
       update: false,
       autoIncrement: "increment",
     };
+    const type = reflect.getMetadata("design:type", entityf, propertyKey);
     tsaveObject({
       storeType: "column",
-      params: { classFunction: fun, propertyKey, options: { ...options, ...special } },
+      params: { classFunction: fun, propertyKey, type, options: { ...options, ...special } },
     });
     const entity = { target: fun, name: fun.name };
-    const property = {
-      propertyKey,
-      type: reflect.getMetadata("design:type", entityf, propertyKey),
-    };
+    const property = { propertyKey, type };
     const target: ColumnOptions = { name: propertyKey, spitype: getColumnType({ type: property.type }) };
     const mixeds: PrimaryColumnOptions | PrimaryGeneratedColumnOptions = Object.assign(target, special, options);
     const column = { target, entity, descriptor, property, options, mixeds };
