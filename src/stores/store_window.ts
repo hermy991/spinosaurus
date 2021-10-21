@@ -173,6 +173,9 @@ export const saveColumnRelation = (classObject: Object, propertyKey: string, opt
     if (!fentityStoreRecord && typeof type === "function" && type.constructor) {
       fentityStoreRecord = findEntity({ entityOrClass: type(), nameOrOptions: options.connectionName });
     }
+    if (fentityStoreRecord) {
+      fentityName = fentityStoreRecord[1].foreign.entityName;
+    }
     const columnName = options.name || `${fentityName}_${propertyKey}`;
     const storeType = "column";
     const columnFeatures = {
