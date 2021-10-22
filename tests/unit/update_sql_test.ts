@@ -60,10 +60,8 @@ Deno.test("update [update 'Entity'] sql", async () => {
   const qe3 =
     `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1 AND ( "column2" = '' OR "column2" IS NULL )`;
   assertEquals(q3, qe3);
-  const qs4 = db.update({
-    entity: UpdateEntity2,
-    options: { autoUpdate: false },
-  })
+
+  const qs4 = db.update({ entity: UpdateEntity2, options: { autoUpdate: false } })
     .set({
       primaryGeneratedColumn: 1,
       column2: "ss",

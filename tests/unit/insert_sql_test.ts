@@ -37,10 +37,7 @@ Deno.test("insert [insert 'Entity'] sql", async () => {
 INSERT INTO "InsertEntity3" ("column3", "column5", "column6") VALUES ('xxx', now(), now())`;
   assertEquals(q3, qe3);
 
-  const qs4 = db.insert({
-    entity: InsertEntity5,
-    options: { autoInsert: false },
-  })
+  const qs4 = db.insert({ entity: InsertEntity5, options: { autoInsert: false } })
     .values([{ column1: 50 }, { column2: "xx" }, { column3: "xxx" }]);
   const q4 = qs4.getSql();
   const qe4 = `INSERT INTO "hello"."InsertEntity5" ("column2") VALUES ('xx');
@@ -71,16 +68,11 @@ INSERT INTO "hello"."InsertEntity5" ("column3") VALUES ('xxx')`;
     insertEntityX1: { column1: 101 },
     insertEntityX2: { column1: 102 },
   }];
-  const qs6 = db.insert({
-    entity: InsertEntity6,
-    options: { autoGeneratePrimaryKey: false },
-  })
-    .values(tentities);
+  const qs6 = db.insert({ entity: InsertEntity6, options: { autoGeneratePrimaryKey: false } }).values(tentities);
   const q6 = qs6.getSql();
   const qe6 =
     `INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_primaryColumn_ID", "InsertEntity2_column1", "columnPrimary_ID", "InsertEntity5_column1", "InsertEntity5_column1_2") VALUES (1, 1, 2, 4, 101, 102);
 INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_primaryColumn_ID", "InsertEntity2_column1", "columnPrimary_ID", "InsertEntity5_column1", "InsertEntity5_column1_2") VALUES (2, 6, 7, 9, 101, 102)`;
-  // console.log(`window["spinosaurusMetadataStore2"]["default"]`, window["spinosaurusMetadataStore2"]);
   assertEquals(q6, qe6);
 });
 Deno.test("insert [multiple insert] sql", () => {
