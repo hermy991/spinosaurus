@@ -376,9 +376,9 @@ function linkRelationsWithColumns(metadata: MetadataStore) {
           columns[y].mixeds.name = `${columns[i].mixeds.name}_${++index}`;
         }
       }
-      if (index > 1) {
-        columns[i].mixeds.name = `${columns[i].mixeds.name}_1`;
-      }
+      // if (index > 1) {
+      //   columns[i].mixeds.name = `${columns[i].mixeds.name}_1`;
+      // }
     }
   }
   return { columns, tables };

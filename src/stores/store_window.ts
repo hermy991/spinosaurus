@@ -19,7 +19,7 @@ import {
 } from "./store_find.ts";
 import { addStore, generateIndex, getStore } from "./store_util.ts";
 
-const tempStore: any[] = [];
+export const tempStore: any[] = [];
 
 export const transferTemp = (connectionName: string) => {
   for (const t of tempStore.filter((x) => x.storeType === "entity")) {
@@ -61,6 +61,9 @@ export const tsaveObject = (
 ) => {
   let t;
   for (let i = 0; i < tempStore.length; i++) {
+    if (!tempStore[i]) {
+      continue;
+    }
     if (tempStore[i].storeType === req.storeType && tempStore[i].params === req.params) {
       tempStore[i] = req;
       t = tempStore[i];
@@ -200,12 +203,18 @@ export const saveColumnRelation = (
       fentityName = fentityStoreRecord[1].foreign.entityName;
     }
     let fprimaryColumnName = propertyKey;
-    let fprimaryColumnStoreRecord = findPrimaryColumn({ entityOrClass: type, nameOrOptions: options.connectionName });
+    const fprimaryColumnStoreRecord = findPrimaryColumn({ entityOrClass: type, nameOrOptions: options.connectionName });
     if (fprimaryColumnStoreRecord) {
       fprimaryColumnName = fprimaryColumnStoreRecord[1].foreign.columnName;
     }
-
-    const columnName = options.name || `${fentityName}_${fprimaryColumnName}`;
+    let columnName = options.name || `${fentityName}_${fprimaryColumnName}`;
+    if (!options.name) {
+      let ecolumns = findColumns({ entityOrClass: classFunction, nameOrOptions: options.connectionName });
+      ecolumns = ecolumns.filter((col) => col[1].type === type);
+      if (ecolumns.length) {
+        columnName = `${columnName}_${ecolumns.length + 1}`;
+      }
+    }
     const storeType = "column";
     const columnFeatures = {
       localIndex: "",
