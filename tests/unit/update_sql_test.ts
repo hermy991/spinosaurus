@@ -15,9 +15,7 @@ Deno.test("update [update] sql", () => {
 });
 
 Deno.test("update [update 'Entity'] sql", async () => {
-  const { UpdateEntity1, UpdateEntity2 } = await import(
-    "./playground/decorators/UpdateEntity.ts"
-  );
+  const { UpdateEntity1, UpdateEntity2, UpdateEntity6 } = await import("./playground/decorators/UpdateEntity.ts");
   const db: Connection = new Connection(con1);
 
   const updateColumn = new Date();
@@ -73,6 +71,28 @@ Deno.test("update [update 'Entity'] sql", async () => {
   const qe4 =
     `UPDATE "schema"."UpdateEntity2" SET "column2" = 'ss', "columnCustom" = 'sss' WHERE "primaryGeneratedColumn" = 1 AND ( "column2" = '' OR "column2" IS NULL )`;
   assertEquals(q4, qe4);
+
+  const tentities = [{
+    primaryColumn_ID: 1,
+    updateEntity1: { primaryColumn: 1 },
+    updateEntity2: { primaryGeneratedColumn: 2 },
+    updateEntity4: { column1: 4 },
+    updateEntityX1: { column1: 101 },
+    updateEntityX2: { column1: 102 },
+  }, {
+    primaryColumn_ID: 2,
+    updateEntity1: { primaryColumn: 6 },
+    updateEntity2: { primaryGeneratedColumn: 7 },
+    updateEntity4: { column1: 9 },
+    updateEntityX1: { column1: 101 },
+    updateEntityX2: { column1: 102 },
+  }];
+  const qs6 = db.update(UpdateEntity6).set(tentities);
+  const q6 = qs6.getSql();
+  const qe6 =
+    `UPDATE "hello"."UpdateEntityCustom" SET "UpdateEntityCustom_primaryColumn" = 1, "UpdateEntity2_primaryGeneratedColumn" = 2, "columnPrimary_ID" = 4, "UpdateEntity5_column1" = 101, "UpdateEntity5_column1_2" = 102 WHERE "primaryColumn_ID" = 1;
+UPDATE "hello"."UpdateEntityCustom" SET "UpdateEntityCustom_primaryColumn" = 6, "UpdateEntity2_primaryGeneratedColumn" = 7, "columnPrimary_ID" = 9, "UpdateEntity5_column1" = 101, "UpdateEntity5_column1_2" = 102 WHERE "primaryColumn_ID" = 2`;
+  assertEquals(q6, qe6);
 });
 Deno.test("update [update with where] sql", () => {
   const db: Connection = new Connection(con1);

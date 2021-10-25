@@ -1,6 +1,7 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { ParamUpdateEntity, ParamUpdateOptions, ParamUpdateParams, ParamUpdateSet } from "./params/param_update.ts";
 import { ConnectionAll } from "../connection_type.ts";
+import { findColumn, findPrimaryColumn } from "../../stores/store.ts";
 
 export class BuilderUpdate extends BuilderBase {
   #options: ParamUpdateOptions = {
@@ -115,14 +116,13 @@ export class BuilderUpdate extends BuilderBase {
     if (addings.length && conditions.length) {
       sql.push(`${addings.join(" ")} AND ( ${conditions.join(" ")} )`);
     } else {
-      sql = [...sql, `${addings.join(" ")}`, `${conditions.join(" ")}`]
-        .filter((x) => x);
+      sql = [...sql, `${addings.join(" ")}`, `${conditions.join(" ")}`].filter((x) => x);
     }
     return sql.join(" ");
   }
 
   getEntitySetQuery(
-    e: { schema?: string; entity?: string },
+    e: { schema?: string; entity?: string; classFunction?: Function },
     set: ParamUpdateSet,
     ps: Array<any> = [],
   ) {
@@ -140,14 +140,25 @@ export class BuilderUpdate extends BuilderBase {
       for (const name in set) {
         for (const p of ps) {
           if (p.propertyKey === name) {
-            if (p.update) {
+            if (
+              p.update && typeof set[name] === "object" && !(set[name] instanceof Date) && set[name] !== null &&
+              !Array.isArray(set[name])
+            ) {
+              let xc = findColumn({
+                entityOrClass: <Function> e.classFunction,
+                propertyKey: p.propertyKey,
+                nameOrOptions: this.conn.options,
+              });
+              let fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.conn.options });
+              if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in <any> set[name]) {
+                cloned[xc[1].foreign.columnName] = (<any> set[name])[fc[1].propertyKey];
+              }
+            } else if (p.update) {
               cloned[p.name] = set[name];
             }
             if (p.primary) {
               primaryColumn = { name: p.name, value: set[name] };
-              addings.push(
-                `${this.clearNames(p.name)} = ${this.conn.stringify(<any> set[name])}`,
-              );
+              addings.push(`${this.clearNames(p.name)} = ${this.conn.stringify(<any> set[name])}`);
             }
           }
         }
@@ -183,13 +194,14 @@ export class BuilderUpdate extends BuilderBase {
       return [];
     }
     const sqls: string[] = [];
-    let e: { schema?: string; entity?: string } = {};
+    let e: { schema?: string; entity?: string; classFunction?: Function } = {};
     let ps = [];
     if (this.#entityData instanceof Function) {
       e = this.getEntityData(this.conn.options.name, this.#entityData);
+      e.classFunction = this.#entityData;
       ps = this.getColumns(this.conn.options.name, this.#entityData);
     } else {
-      e = <any> this.#entityData;
+      e = this.#entityData;
     }
     for (const set of this.#setData) {
       const sql = this.getEntitySetQuery(e, set, ps);

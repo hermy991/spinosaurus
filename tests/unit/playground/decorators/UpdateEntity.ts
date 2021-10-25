@@ -81,17 +81,17 @@ export class UpdateEntity6 {
   primaryColumn_ID!: number;
 
   @ManyToOne()
-  insertEntity1!: UpdateEntity1;
+  updateEntity1!: UpdateEntity1;
 
   @ManyToOne()
-  insertEntity2!: UpdateEntity2;
+  updateEntity2!: UpdateEntity2;
 
   @ManyToOne({}, { name: "columnPrimary_ID" })
-  insertEntity4!: UpdateEntity4;
+  updateEntity4!: UpdateEntity4;
 
   @ManyToOne()
-  insertEntityX1!: UpdateEntity5;
+  updateEntityX1!: UpdateEntity5;
 
   @ManyToOne()
-  insertEntityX2!: UpdateEntity5;
+  updateEntityX2!: UpdateEntity5;
 }

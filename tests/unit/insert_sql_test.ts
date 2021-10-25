@@ -44,10 +44,7 @@ INSERT INTO "InsertEntity3" ("column3", "column5", "column6") VALUES ('xxx', now
 INSERT INTO "hello"."InsertEntity5" ("column3") VALUES ('xxx')`;
   assertEquals(q4, qe4);
 
-  const qs5 = db.insert({
-    entity: InsertEntity2,
-    options: { autoGeneratePrimaryKey: false },
-  })
+  const qs5 = db.insert({ entity: InsertEntity2, options: { autoGeneratePrimaryKey: false } })
     .values({ test1: "xx", column1: 1, column2: "xx" });
   const q5 = qs5.getSql();
   const qe5 = `INSERT INTO "InsertEntity2" ("column1", "column2") VALUES (1, 'xx')`;
