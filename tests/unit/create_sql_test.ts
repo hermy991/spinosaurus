@@ -223,13 +223,11 @@ Deno.test("create [create table with auto-increment and primary key] sql", () =>
 });
 Deno.test("create [create schema] sql", () => {
   const db: Connection = new Connection(con1);
-  const q1 = db.create({ schema: "publicX" })
-    .getSql();
+  const q1 = db.create({ schema: "publicX" }).getSql();
   const qe1 = `CREATE SCHEMA "publicX"`;
   assertEquals(q1, qe1);
 
-  const q2 = db.create({ schema: "publicX", check: true })
-    .getSql();
+  const q2 = db.create({ schema: "publicX", check: true }).getSql();
   const qe2 = `CREATE SCHEMA IF NOT EXISTS "publicX"`;
   assertEquals(q2, qe2);
 });

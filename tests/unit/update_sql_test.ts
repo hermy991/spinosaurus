@@ -96,18 +96,14 @@ UPDATE "hello"."UpdateEntityCustom" SET "UpdateEntityCustom_primaryColumn" = 6, 
 });
 Deno.test("update [update with where] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.update(["User"])
-    .set({ column1: "xx", column2: "ss" })
-    .where([`"user_ID" = 5`]);
+  const qs = db.update(["User"]).set({ column1: "xx", column2: "ss" }).where([`"user_ID" = 5`]);
   const query = qs.getSql();
   const queryExpected = `UPDATE "User" SET "column1" = 'xx', "column2" = 'ss' WHERE "user_ID" = 5`;
   assertEquals(query, queryExpected);
 });
 Deno.test("update [update with schema] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.update(["User", "bill"])
-    .set({ column1: "xx", column2: "ss" })
-    .where([`"user_ID" = 5`]);
+  const qs = db.update(["User", "bill"]).set({ column1: "xx", column2: "ss" }).where([`"user_ID" = 5`]);
   const sql = qs.getSql();
   const queryExpected = `UPDATE "bill"."User" SET "column1" = 'xx', "column2" = 'ss' WHERE "user_ID" = 5`;
   assertEquals(sql, queryExpected);

@@ -6,8 +6,7 @@ const con1 = getTestConnection();
 
 Deno.test("insert [insert] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.insert(["User"])
-    .values({ column1: "xx" });
+  const qs = db.insert(["User"]).values({ column1: "xx" });
   const query = qs.getSql();
   const queryExpected = `INSERT INTO "User" ("column1") VALUES ('xx')`;
   assertEquals(query, queryExpected);
@@ -18,20 +17,17 @@ Deno.test("insert [insert 'Entity'] sql", async () => {
     "./playground/decorators/InsertEntity.ts"
   );
   const db: Connection = new Connection(con1);
-  const qs1 = db.insert(InsertEntity1)
-    .values({ column2: "xx", column3: "xxx", column4: "xxxx" });
+  const qs1 = db.insert(InsertEntity1).values({ column2: "xx", column3: "xxx", column4: "xxxx" });
   const q1 = qs1.getSql();
   const qe1 = `INSERT INTO "InsertEntity1" ("column2", "column3") VALUES ('xx', 'xxx')`;
   assertEquals(q1, qe1);
 
-  const qs2 = db.insert(InsertEntity2)
-    .values({ test1: "xx", column1: 1, column2: "xx" });
+  const qs2 = db.insert(InsertEntity2).values({ test1: "xx", column1: 1, column2: "xx" });
   const q2 = qs2.getSql();
   const qe2 = ``;
   assertEquals(q2, qe2);
 
-  const qs3 = db.insert(InsertEntity4)
-    .values([{ column1: 50 }, { column2: "xx" }, { column3: "xxx" }]);
+  const qs3 = db.insert(InsertEntity4).values([{ column1: 50 }, { column2: "xx" }, { column3: "xxx" }]);
   const q3 = qs3.getSql();
   const qe3 = `INSERT INTO "InsertEntity3" ("column2", "column5", "column6") VALUES ('xx', now(), now());
 INSERT INTO "InsertEntity3" ("column3", "column5", "column6") VALUES ('xxx', now(), now())`;
@@ -74,8 +70,7 @@ INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_pri
 });
 Deno.test("insert [multiple insert] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.insert(["User"])
-    .values([{ column1: "x1" }, { column1: "x2" }]);
+  const qs = db.insert(["User"]).values([{ column1: "x1" }, { column1: "x2" }]);
   const query = qs.getSql();
   const queryExpected = `INSERT INTO "User" ("column1") VALUES ('x1');
 INSERT INTO "User" ("column1") VALUES ('x2')`;
@@ -83,8 +78,7 @@ INSERT INTO "User" ("column1") VALUES ('x2')`;
 });
 Deno.test("insert [multiple insert with schema] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.insert(["User", "public"])
-    .values([{ column1: "x1" }, { column1: "x2" }]);
+  const qs = db.insert(["User", "public"]).values([{ column1: "x1" }, { column1: "x2" }]);
   const query = qs.getSql();
   const queryExpected = `INSERT INTO "public"."User" ("column1") VALUES ('x1');
 INSERT INTO "public"."User" ("column1") VALUES ('x2')`;

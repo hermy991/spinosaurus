@@ -203,7 +203,7 @@ class ConnectionPostgres implements IConnectionOperations {
         aquery += (changes.nullable ? "" : " NOT") + " NULL";
       }
       if ("default" in changes) {
-        aquery += (" DEFAULT " + this.stringify(changes.default));
+        aquery += " DEFAULT " + this.stringify(changes.default);
       }
       querys.push(aquery);
       fname = changes.name;
@@ -374,7 +374,7 @@ WHERE ( x.type = '${req.type || ""}' OR '${req.type || ""}' = '') -- type filter
     `;
     const result = await this.execute(
       query,
-      req.database ? { database: req.database } : undefined,
+      req.database ? { changes: { database: req.database } } : undefined,
     );
     const rows = result.rows || [];
     if (rows.length) {
@@ -454,7 +454,7 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
     }
     this.#currentDatabase = "";
     const query = "SELECT current_database() current_database";
-    const result = await this.execute(query, changes);
+    const result = await this.execute(query, { changes });
     const rows = result.rows || [];
     if (rows.length) {
       this.#currentDatabase = rows[0].current_database;
@@ -724,7 +724,7 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
     return r;
   }
 
-  async execute(query: string, changes?: any): Promise<ExecuteResult> {
+  async execute(query: string, options?: { changes?: any; transaction?: string }): Promise<ExecuteResult> {
     // const driverConf = filterConnectionProps(KEY_CONFIG, this.options, changes);
     // const pool = (initConnection(driverConf) as postgres.Pool);
     // const client = await pool.connect();
@@ -738,7 +738,7 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
     // const rs = new ExecuteResult(rquery, rrowCount, rrowDescription, rrows);
     // return rs;
 
-    const driverConf = filterConnectionProps(KEY_CONFIG, this.options, changes);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this.options, options?.changes);
     const client = new postgres.Client(driverConf);
     await client.connect();
     const pgr = await client.queryObject(query);
@@ -751,11 +751,11 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
     return rs;
   }
 
-  async getOne(query: string): Promise<any> {
-    const rows = await this.getMany(query);
+  async getOne(query: string, options?: { changes?: any; transaction?: string }): Promise<any> {
+    const rows = await this.getMany(query, options);
     return rows.length ? rows[0] : null;
   }
-  async getMany(query: string): Promise<Array<any>> {
+  async getMany(query: string, options?: { changes?: any; transaction?: string }): Promise<Array<any>> {
     // const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
     // const pool = (initConnection(driverConf) as postgres.Pool);
     // const client = await pool.connect();
@@ -764,14 +764,14 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
     // await pool.end();
     // return result.rows;
 
-    const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
+    const driverConf = filterConnectionProps(KEY_CONFIG, this.options, options?.changes);
     const client = new postgres.Client(driverConf);
     await client.connect();
     const pgr = await client.queryObject(query);
     client.end();
     return pgr.rows;
   }
-  getMultiple(query: string): Promise<Array<any>> {
+  getMultiple(query: string, options?: { changes?: any; transaction?: string }): Promise<Array<any>> {
     throw "not implemented";
   }
 }

@@ -20,38 +20,35 @@ import { ExecutorUpsert } from "./executors/executor_upsert.ts";
 import { ExecuteResult } from "./execute_result.ts";
 
 class Connection {
-  #connection?: ConnectionAll;
+  #driver?: ConnectionAll;
 
   constructor(options?: ConnectionOptions) {
-    // if (!options) {
-    //   options = "";
-    // }
     if (options && options.type === "postgres") {
-      this.#connection = new ConnectionPostgres(options);
+      this.#driver = new ConnectionPostgres(options);
       transferTemp(this.getDriver().options.name);
     }
   }
 
   getConnectionOptions() {
-    if (this.#connection) {
-      return this.#connection.options;
+    if (this.#driver) {
+      return this.#driver.options;
     }
   }
 
   getDriver(): ConnectionAll {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    return this.#connection;
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    return this.#driver;
   }
 
   async test(): Promise<boolean> {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const res = await this.#connection.test();
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const res = await this.#driver.test();
     return res;
   }
 
   async checkSchema(req: { name: string }) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const res = await this.#connection.checkSchema(req);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const res = await this.#driver.checkSchema(req);
     return res;
   }
 
@@ -68,33 +65,33 @@ class Connection {
       type?: string;
     }
   > {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const res = await this.#connection.checkObject(req);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const res = await this.#driver.checkObject(req);
     return res;
   }
 
   async getCurrentDatabase() {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const res = await this.#connection.getCurrentDatabase();
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const res = await this.#driver.getCurrentDatabase();
     return res;
   }
 
   async getCurrentSchema() {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const res = await this.#connection.getCurrentSchema();
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const res = await this.#driver.getCurrentSchema();
     return res;
   }
 
   create(req: ParamCreateEntity) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor = new ExecutorCreate(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor = new ExecutorCreate(this.#driver);
     executor.create(req);
     return executor;
   }
 
   alter(req: { entity: string; schema?: string }) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor = new ExecutorAlter(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor = new ExecutorAlter(this.#driver);
     executor.alter(req);
     return executor;
   }
@@ -105,8 +102,8 @@ class Connection {
       check?: boolean;
     },
   ) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorDrop = new ExecutorDrop(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorDrop = new ExecutorDrop(this.#driver);
     executor.drop(req);
     return executor;
   }
@@ -115,8 +112,8 @@ class Connection {
     from: { entity: string; schema?: string },
     to?: { entity: string; schema?: string },
   ) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorRename = new ExecutorRename(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorRename = new ExecutorRename(this.#driver);
     executor.rename(from, to);
     return executor;
   }
@@ -124,8 +121,8 @@ class Connection {
   select(
     ...columns: Array<{ column: string; as?: string } | [string, string?]>
   ) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorSelect = new ExecutorSelect(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorSelect = new ExecutorSelect(this.#driver);
     executor.select(...columns);
     return executor;
   }
@@ -133,22 +130,22 @@ class Connection {
   selectDistinct(
     ...columns: Array<{ column: string; as?: string } | [string, string?]>
   ) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorSelect = new ExecutorSelect(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorSelect = new ExecutorSelect(this.#driver);
     executor.selectDistinct(...columns);
     return executor;
   }
 
   update(req: ParamUpdateEntity) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorUpdate = new ExecutorUpdate(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorUpdate = new ExecutorUpdate(this.#driver);
     executor.update(req);
     return executor;
   }
 
   insert(req: ParamInsertEntity) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorInsert = new ExecutorInsert(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorInsert = new ExecutorInsert(this.#driver);
     executor.insert(req);
     return executor;
   }
@@ -156,22 +153,31 @@ class Connection {
   delete(
     req: { entity: string; schema?: string } | [string, string?] | Function,
   ) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorDelete = new ExecutorDelete(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorDelete = new ExecutorDelete(this.#driver);
     executor.delete(req);
     return executor;
   }
 
   upsert(req: ParamUpsertEntity) {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorUpsert = new ExecutorUpsert(this.#connection);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorUpsert = new ExecutorUpsert(this.#driver);
     executor.upsert(req);
     return executor;
   }
 
+  async transaction(f: any): Promise<any | undefined> {
+    let err = undefined;
+    try {
+      await f();
+    } catch (ex) {
+      return err;
+    }
+  }
+
   async execute(query: string, changes?: any): Promise<ExecuteResult> {
-    if (!this.#connection) throw error({ name: "ErrorConnectionNull" });
-    const data = await this.#connection.execute(query, changes);
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const data = await this.#driver.execute(query, changes);
     return data;
   }
 }

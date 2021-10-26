@@ -1,4 +1,4 @@
-function filterConnectionProps(keyConf: any, values: any, changes?: any) {
+function filterConnectionProps(keyConf: any, values: any, changes?: Record<string, any>) {
   /**
    *  { keyFrom1: "keyTo1", keyFrom2: "keyTo2", ...}
    *  return { keyTo1: "value1", keyTo2: "value2", ... }

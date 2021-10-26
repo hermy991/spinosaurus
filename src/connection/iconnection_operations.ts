@@ -9,13 +9,8 @@ import { ParamComplexOptions, ParamSimpleOptions } from "./builders/params/param
 
 export interface IConnectionOperations {
   /* Internal Sql Operations*/
-  stringify(
-    value: ParamSimpleOptions | Array<ParamSimpleOptions>,
-  ): string;
-  interpolate(
-    conditions: [string, ...string[]],
-    params?: ParamComplexOptions,
-  ): Array<string>;
+  stringify(value: ParamSimpleOptions | Array<ParamSimpleOptions>): string;
+  interpolate(conditions: [string, ...string[]], params?: ParamComplexOptions): Array<string>;
   getSqlFunction(fun: Function): string;
   createSchema(scs: ParamSchemaDefinition): string;
   dropSchema(sds: ParamSchemaDefinition): string;
@@ -25,60 +20,27 @@ export interface IConnectionOperations {
   createUnique(sud: ParamUniqueCreate): string;
   createRelation(srd: ParamRelationCreate): string;
   dropConstraint(sdr: { entity: string; name: string }): string;
-  columnAlter(
-    from: { schema?: string; entity: string; name: string },
-    changes: ParamColumnAjust,
-  ): string[];
+  columnAlter(from: { schema?: string; entity: string; name: string }, changes: ParamColumnAjust): string[];
   /* Basic Connection Operations*/
   test(): Promise<boolean>;
   checkSchema(req: { name: string }): Promise<
-    {
-      name: string;
-      database?: string;
-      exists: boolean;
-      oid?: number;
-      dbdata?: any;
-      type?: string;
-    }
+    { name: string; database?: string; exists: boolean; oid?: number; dbdata?: any; type?: string }
   >;
   checkObject(
     req: { name: string; schema?: string; database?: string },
   ): Promise<
-    {
-      name: string;
-      schema?: string;
-      database?: string;
-      exists: boolean;
-      oid?: number;
-      dbdata?: any;
-      type?: string;
-    }
+    { name: string; schema?: string; database?: string; exists: boolean; oid?: number; dbdata?: any; type?: string }
   >;
-  getConstraints(
-    sdac: {
-      entity: string;
-      schema?: string;
-      types: Array<"p" | "u" | "c" | "f">;
-    },
-  ): Promise<
-    Array<
-      {
-        oid: number;
-        table_schema: string;
-        table_name: string;
-        constraint_name: string;
-        constraint_type: string;
-      }
-    >
+  getConstraints(sdac: { entity: string; schema?: string; types: Array<"p" | "u" | "c" | "f"> }): Promise<
+    Array<{ oid: number; table_schema: string; table_name: string; constraint_name: string; constraint_type: string }>
   >;
   getCurrentDatabaseLocal(): string;
   getCurrentDatabase(): Promise<string>;
   getCurrentSchemaLocal(): string;
   getCurrentSchema(): Promise<string>;
   getMetadata(): Promise<MetadataStore>;
-  /* Returns entities or row sql data*/
   getOne(query: string): Promise<any>;
   getMany(query: string): Promise<Array<any>>;
   getMultiple(query: string): Promise<Array<any>>;
-  execute(query: string): Promise<any>;
+  execute(query: string, options?: { changes?: any; transaction?: string }): Promise<any>;
 }
