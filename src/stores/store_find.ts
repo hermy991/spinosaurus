@@ -41,17 +41,6 @@ export function findRecord(
   } else if (typeof req.indexOrEntity === "function") {
     for (const key in req.store) {
       const r = req.store[key];
-      // if (req.indexOrEntity.name === "InsertEntity6") {
-      //   console.log("key", key);
-      //   console.log(
-      //     "req.indexOrEntity",
-      //     req.indexOrEntity,
-      //     "r.classFunction",
-      //     r.classFunction,
-      //     "r.classFunction === req.indexOrEntity",
-      //     r.classFunction === req.indexOrEntity,
-      //   );
-      // }
       if (r.classFunction === req.indexOrEntity) {
         if (req.storeType && req.storeType === r.storeType) {
           return [key, r];
@@ -154,7 +143,6 @@ export function findPrimaryColumns(req: StoreFindEntityOptions): [string, StoreR
 
 export function findPrimaryColumn(req: StoreFindEntityOptions): [string, StoreRecordData] {
   const cols = findColumns(req);
-  // console.log("cols", cols);
   return <any> cols.find((x) => x[1].foreign.primary === true);
 }
 

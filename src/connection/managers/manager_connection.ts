@@ -10,7 +10,7 @@ import { ParamNext } from "../builders/params/param_next.ts";
 import { ConnectionOptions } from "../connection_options.ts";
 import { Connection } from "../connection.ts";
 import { clearMetadata, getMetadata, linkMetadata } from "../../decorators/metadata/metadata.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
 import { getConnectionOptions, getConnectionsOptions } from "../connection_utils.ts";
 
@@ -135,7 +135,7 @@ export async function synchronize(conn: Connection): Promise<string[] | undefine
 }
 
 export async function updateStore(
-  conn: ConnectionAll,
+  conn: Driver,
   entities: string[],
 ) {
   const connName = conn.options.name;
@@ -161,7 +161,7 @@ export async function updateStore(
 }
 
 export async function getDestinyMetadata(
-  conn: ConnectionAll,
+  conn: Driver,
 ): Promise<MetadataStore> {
   const metadata: MetadataStore = await conn.getMetadata();
   return metadata;

@@ -1,7 +1,7 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { ParamColumnAjust, ParamColumnCreate } from "./params/param_column.ts";
 import { ParamRelationDefinition } from "./params/param_relation.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 
 export class BuilderAlter extends BuilderBase {
   #nameData: { entity: string; schema?: string } | undefined = undefined;
@@ -10,7 +10,7 @@ export class BuilderAlter extends BuilderBase {
     [string, ParamRelationDefinition] | ParamRelationDefinition
   > = [];
 
-  constructor(public conn: ConnectionAll) {
+  constructor(public conn: Driver) {
     super(conn);
   }
 

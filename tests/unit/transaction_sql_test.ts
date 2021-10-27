@@ -10,7 +10,6 @@ async function clearPlayground(db: Connection, schema: string, tables: Array<str
     const co = await db.checkObject({ name: table, schema });
     if (co.exists) {
       const t = { entity: co.name, schema: co.schema };
-      console.log("co.schema", co.schema, "table", co.name);
       await db.drop(t).execute();
     }
   }
@@ -20,7 +19,7 @@ async function clearPlayground(db: Connection, schema: string, tables: Array<str
   const cs = await db.checkSchema({ name: schema });
   if (cs.exists) {
     const t = { schema: cs.name, check: true };
-    console.log("cs.schema", cs.name);
+    // console.log("cs.schema", cs.name);
     await db.drop(t).execute();
   }
 }
@@ -51,13 +50,19 @@ Deno.test("transaction [rollback] sql", async () => {
   // assertEquals(data2.length, 0);
 
   // Function Transaction
+
+  console.log("Beginning");
   const te = await db.transaction(async () => {
+    console.log("inside arrow function 1");
     await db.insert([user1, schema]).values([{ column1: "xx" }]).execute();
     const data3 = await db.select().from({ entity: user1, schema }).getMany();
     assertEquals(data3.length, 1);
+    console.log("inside arrow function 2");
     await db.insert([user1, schema]).values([{ column1: "xx" }]).execute();
+    console.log("inside arrow function 3");
   });
   const data4 = await db.select().from({ entity: user1, schema }).getMany();
+  console.log("data4", data4);
   await clearPlayground(db, schema, [user1]);
   assertEquals(data4.length, 0);
 });

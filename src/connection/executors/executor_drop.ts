@@ -1,9 +1,9 @@
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { BuilderDrop } from "../builders/builder_drop.ts";
 
 export class ExecutorDrop {
-  db: BuilderDrop = new BuilderDrop(<ConnectionAll> {});
-  constructor(public conn: ConnectionAll) {
+  db: BuilderDrop = new BuilderDrop(<Driver> {});
+  constructor(public conn: Driver) {
     this.db = new BuilderDrop(conn);
   }
 

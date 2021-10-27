@@ -39,8 +39,9 @@ export interface IConnectionOperations {
   getCurrentSchemaLocal(): string;
   getCurrentSchema(): Promise<string>;
   getMetadata(): Promise<MetadataStore>;
+  createTransaction(options?: { transactionName: string; changes?: any }): Promise<any | undefined>;
+  execute(query: string, options?: { changes?: any; transaction?: any }): Promise<any>;
   getOne(query: string): Promise<any>;
   getMany(query: string): Promise<Array<any>>;
   getMultiple(query: string): Promise<Array<any>>;
-  execute(query: string, options?: { changes?: any; transaction?: string }): Promise<any>;
 }

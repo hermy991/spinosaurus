@@ -1,11 +1,11 @@
 import { ParamColumnAjust, ParamColumnCreate } from "../builders/params/param_column.ts";
 import { ParamRelationDefinition } from "../builders/params/param_relation.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { BuilderAlter } from "../builders/builder_alter.ts";
 
 export class ExecutorAlter {
-  ab: BuilderAlter = new BuilderAlter(<ConnectionAll> {});
-  constructor(public conn: ConnectionAll) {
+  ab: BuilderAlter = new BuilderAlter(<Driver> {});
+  constructor(public conn: Driver) {
     this.ab = new BuilderAlter(conn);
   }
 

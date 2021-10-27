@@ -2,7 +2,7 @@ import { BuilderBase } from "./base/builder_base.ts";
 import { BuilderUpdate } from "./builder_update.ts";
 import { BuilderInsert } from "./builder_insert.ts";
 import { ParamUpsertEntity, ParamUpsertValue } from "./params/param_upsert.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 
 export class BuilderUpsert extends BuilderBase {
   #entityData:
@@ -16,7 +16,7 @@ export class BuilderUpsert extends BuilderBase {
     | null = null;
   #valuesData: Array<ParamUpsertValue> = [];
 
-  constructor(public conn: ConnectionAll) {
+  constructor(public conn: Driver) {
     super(conn);
   }
 

@@ -1,12 +1,12 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 
 export class BuilderRename extends BuilderBase {
   #fromData: { entity: string; schema?: string } | undefined = undefined;
   #toData?: { entity: string };
   #columnsData: Array<[string, string]> = [];
 
-  constructor(public conn: ConnectionAll) {
+  constructor(public conn: Driver) {
     super(conn);
   }
 

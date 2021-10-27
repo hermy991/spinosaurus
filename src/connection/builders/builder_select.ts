@@ -1,5 +1,5 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { ParamClauseRelation, ParamComplexClauseRelation, ParamComplexOptions } from "./params/param_select.ts";
 
 export class BuilderSelect extends BuilderBase {
@@ -18,7 +18,7 @@ export class BuilderSelect extends BuilderBase {
   /*FLAGS*/
   #distinct = false;
 
-  constructor(public conn: ConnectionAll) {
+  constructor(public conn: Driver) {
     super(conn);
   }
 

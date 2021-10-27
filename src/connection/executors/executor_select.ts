@@ -1,17 +1,15 @@
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { BuilderSelect } from "../builders/builder_select.ts";
 import { ParamClauseRelation, ParamComplexOptions } from "../builders/params/param_select.ts";
 
 export class ExecutorSelect {
-  sb: BuilderSelect = new BuilderSelect(<ConnectionAll> {});
-  constructor(public conn: ConnectionAll) {
-    this.sb = new BuilderSelect(conn);
+  sb: BuilderSelect = new BuilderSelect(<Driver> {});
+  constructor(public driver: Driver, public transaction: any) {
+    this.sb = new BuilderSelect(driver);
   }
 
   /** DML SQL Operation*/
-  select(
-    ...columns: Array<{ column: string; as?: string } | [string, string?]>
-  ): ExecutorSelect {
+  select(...columns: Array<{ column: string; as?: string } | [string, string?]>): ExecutorSelect {
     const tempColumns: Array<{ column: string; as?: string }> = [];
     for (let i = 0; i < columns.length; i++) {
       if (Array.isArray(columns[i])) {
@@ -25,9 +23,7 @@ export class ExecutorSelect {
     return this;
   }
 
-  selectDistinct(
-    ...columns: Array<{ column: string; as?: string } | [string, string?]>
-  ): ExecutorSelect {
+  selectDistinct(...columns: Array<{ column: string; as?: string } | [string, string?]>): ExecutorSelect {
     const tempColumns: Array<{ column: string; as?: string }> = [];
     for (let i = 0; i < columns.length; i++) {
       if (Array.isArray(columns[i])) {
@@ -47,10 +43,7 @@ export class ExecutorSelect {
   }
 
   from(
-    req:
-      | { entity: string; schema?: string; as?: string }
-      | { entity: Function; as?: string }
-      | Function,
+    req: { entity: string; schema?: string; as?: string } | { entity: Function; as?: string } | Function,
   ): ExecutorSelect {
     this.sb.from(req);
     return this;
@@ -61,10 +54,7 @@ export class ExecutorSelect {
     return this;
   }
 
-  joinAndSelect(
-    req: ParamClauseRelation,
-    params?: ParamComplexOptions,
-  ): ExecutorSelect {
+  joinAndSelect(req: ParamClauseRelation, params?: ParamComplexOptions): ExecutorSelect {
     this.sb.joinAndSelect(req, params);
     return this;
   }
@@ -237,17 +227,19 @@ export class ExecutorSelect {
     return sqls.join(";\n");
   }
 
-  async getOne(): Promise<any> {
+  async getOne(changes?: any): Promise<any> {
     const query = this.getSqls();
     this.sb.usePrintSql(query);
-    const data = await this.conn.getOne(query.join(";\n"));
+    const options: Record<string, any> = { changes, transaction: this.transaction };
+    const data = await this.driver.getOne(query.join(";\n"), options);
     return data;
   }
 
-  async getMany(): Promise<Array<any>> {
+  async getMany(changes?: any): Promise<Array<any>> {
     const query = this.getSqls();
     this.sb.usePrintSql(query);
-    const data = await this.conn.getMany(query.join(";\n"));
+    const options: Record<string, any> = { changes, transaction: this.transaction };
+    const data = await this.driver.getMany(query.join(";\n"), options);
     return data;
   }
 

@@ -8,12 +8,12 @@ import {
   ParamCreateEntity,
   ParamCreateNext,
 } from "../builders/params/param_create.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { BuilderCreate } from "../builders/builder_create.ts";
 
 export class ExecutorCreate {
-  cb: BuilderCreate = new BuilderCreate(<ConnectionAll> {});
-  constructor(public conn: ConnectionAll) {
+  cb: BuilderCreate = new BuilderCreate(<Driver> {});
+  constructor(public conn: Driver) {
     this.cb = new BuilderCreate(conn);
   }
 

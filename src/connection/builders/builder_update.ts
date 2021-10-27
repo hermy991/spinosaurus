@@ -1,6 +1,6 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { ParamUpdateEntity, ParamUpdateOptions, ParamUpdateParams, ParamUpdateSet } from "./params/param_update.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { findColumn, findPrimaryColumn } from "../../stores/store.ts";
 
 export class BuilderUpdate extends BuilderBase {
@@ -13,7 +13,7 @@ export class BuilderUpdate extends BuilderBase {
   #whereData: Array<string> = [];
   #paramsData: ParamUpdateParams = {};
 
-  constructor(public conn: ConnectionAll) {
+  constructor(public conn: Driver) {
     super(conn);
   }
 

@@ -1,9 +1,9 @@
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { BuilderRename } from "../builders/builder_rename.ts";
 
 export class ExecutorRename {
-  rb: BuilderRename = new BuilderRename(<ConnectionAll> {});
-  constructor(public conn: ConnectionAll) {
+  rb: BuilderRename = new BuilderRename(<Driver> {});
+  constructor(public conn: Driver) {
     this.rb = new BuilderRename(conn);
   }
 

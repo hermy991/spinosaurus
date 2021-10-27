@@ -1,4 +1,4 @@
-import { ConnectionAll } from "../../connection_type.ts";
+import { Driver } from "../../connection_type.ts";
 import { clearNames, generateName1 } from "./sql.ts";
 import { getMetadataChecks, getMetadataColumns, getMetadataEntityData } from "../../../decorators/metadata/metadata.ts";
 
@@ -16,7 +16,7 @@ export class BuilderBase {
   get delimiters() {
     return <string[]> this.conn.delimiters;
   }
-  constructor(public conn: ConnectionAll) {
+  constructor(public conn: Driver) {
   }
   printSql = () => {
     this.#printSql = true;

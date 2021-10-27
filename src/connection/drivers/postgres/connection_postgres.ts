@@ -724,54 +724,59 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
     return r;
   }
 
-  async execute(query: string, options?: { changes?: any; transaction?: string }): Promise<ExecuteResult> {
-    // const driverConf = filterConnectionProps(KEY_CONFIG, this.options, changes);
-    // const pool = (initConnection(driverConf) as postgres.Pool);
-    // const client = await pool.connect();
-    // const pgr = await client.queryObject(query);
-    // client.release();
-    // await pool.end();
-    // const rquery = <Query> pgr.query;
-    // const rrowCount = pgr.rowCount;
-    // const rrowDescription = pgr.rowDescription;
-    // const rrows = pgr.rows;
-    // const rs = new ExecuteResult(rquery, rrowCount, rrowDescription, rrows);
-    // return rs;
-
+  async createTransaction(options?: { transactionName: string; changes?: any }) {
     const driverConf = filterConnectionProps(KEY_CONFIG, this.options, options?.changes);
     const client = new postgres.Client(driverConf);
     await client.connect();
-    const pgr = await client.queryObject(query);
-    client.end();
+    if (options?.transactionName) {
+      return {
+        client,
+        transaction: client.createTransaction(options?.transactionName, { isolation_level: "serializable" }),
+      };
+    } else {
+      await client.end();
+    }
+  }
+
+  async execute(query: string, options?: { changes?: any; transaction?: any }): Promise<ExecuteResult> {
+    let rs: ExecuteResult;
+    let pgr: any;
+    // console.log("options?.transaction", options?.transaction);
+    if (options?.transaction) {
+      pgr = await options?.transaction.queryObject(query);
+    } else {
+      const driverConf = filterConnectionProps(KEY_CONFIG, this.options, options?.changes);
+      const client = new postgres.Client(driverConf);
+      await client.connect();
+      pgr = await client.queryObject(query);
+      await client.end();
+    }
     const rquery = <Query> pgr.query;
     const rrowCount = pgr.rowCount;
     const rrowDescription = pgr.rowDescription;
     const rrows = pgr.rows;
-    const rs = new ExecuteResult(rquery, rrowCount, rrowDescription, rrows);
+    rs = new ExecuteResult(rquery, rrowCount, rrowDescription, rrows);
     return rs;
   }
 
-  async getOne(query: string, options?: { changes?: any; transaction?: string }): Promise<any> {
+  async getOne(query: string, options?: { changes?: any; transaction?: any }): Promise<any> {
     const rows = await this.getMany(query, options);
     return rows.length ? rows[0] : null;
   }
-  async getMany(query: string, options?: { changes?: any; transaction?: string }): Promise<Array<any>> {
-    // const driverConf = filterConnectionProps(KEY_CONFIG, this.options);
-    // const pool = (initConnection(driverConf) as postgres.Pool);
-    // const client = await pool.connect();
-    // const result = await client.queryObject(query);
-    // client.release();
-    // await pool.end();
-    // return result.rows;
-
-    const driverConf = filterConnectionProps(KEY_CONFIG, this.options, options?.changes);
-    const client = new postgres.Client(driverConf);
-    await client.connect();
-    const pgr = await client.queryObject(query);
-    client.end();
+  async getMany(query: string, options?: { changes?: any; transaction?: any }): Promise<Array<any>> {
+    let pgr: any;
+    if (options?.transaction) {
+      pgr = await options?.transaction.queryObject(query);
+    } else {
+      const driverConf = filterConnectionProps(KEY_CONFIG, this.options, options?.changes);
+      const client = new postgres.Client(driverConf);
+      await client.connect();
+      pgr = await client.queryObject(query);
+      await client.end();
+    }
     return pgr.rows;
   }
-  getMultiple(query: string, options?: { changes?: any; transaction?: string }): Promise<Array<any>> {
+  getMultiple(query: string, options?: { changes?: any; transaction?: any }): Promise<Array<any>> {
     throw "not implemented";
   }
 }

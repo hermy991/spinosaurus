@@ -1,5 +1,5 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { ParamComplexOptions } from "./params/param_select.ts";
 
 export class BuilderDelete extends BuilderBase {
@@ -7,7 +7,7 @@ export class BuilderDelete extends BuilderBase {
   #whereData: Array<string> = [];
   #paramsData: ParamComplexOptions = {};
 
-  constructor(public conn: ConnectionAll) {
+  constructor(public conn: Driver) {
     super(conn);
   }
 

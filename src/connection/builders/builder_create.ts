@@ -9,7 +9,7 @@ import {
   ParamCreateNext,
   ParamCreateOptions,
 } from "./params/param_create.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { BuilderAlter } from "./builder_alter.ts";
 import { BuilderInsert } from "./builder_insert.ts";
@@ -31,7 +31,7 @@ export class BuilderCreate extends BuilderBase {
   #initData: ParamCreateData[] = [];
   #nextData: ParamCreateNext[] = [];
   #afterData: ParamCreateAfter[] = [];
-  constructor(public conn: ConnectionAll) {
+  constructor(public conn: Driver) {
     super(conn);
   }
 

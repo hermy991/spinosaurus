@@ -1,11 +1,11 @@
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { BuilderUpsert } from "../builders/builder_upsert.ts";
 import { ParamUpsertEntity, ParamUpsertValue } from "../builders/params/param_upsert.ts";
 
 export class ExecutorUpsert {
-  ub: BuilderUpsert = new BuilderUpsert(<ConnectionAll> {});
-  constructor(public conn: ConnectionAll) {
-    this.ub = new BuilderUpsert(conn);
+  ub: BuilderUpsert = new BuilderUpsert(<Driver> {});
+  constructor(public driver: Driver, public transaction: any) {
+    this.ub = new BuilderUpsert(driver);
   }
 
   upsert(req: ParamUpsertEntity): ExecutorUpsert {
@@ -38,9 +38,10 @@ export class ExecutorUpsert {
     return sqls.join(";\n");
   }
 
-  async execute(): Promise<any> {
+  async execute(changes?: any): Promise<any> {
     const query = this.ub.getSqls();
     this.ub.usePrintSql(query);
-    return await this.conn.execute(query.join(";\n"));
+    const options: Record<string, any> = { changes, transaction: this.transaction };
+    return await this.driver.execute(query.join(";\n"), options);
   }
 }

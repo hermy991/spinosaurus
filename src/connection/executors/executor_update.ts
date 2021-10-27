@@ -1,12 +1,12 @@
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 // import { ConnectionPostgres } from "../drivers/postgres/connection_postgres.ts";
 import { BuilderUpdate } from "../builders/builder_update.ts";
 import { ParamUpdateEntity, ParamUpdateParams, ParamUpdateSet } from "../builders/params/param_update.ts";
 
 export class ExecutorUpdate {
-  ub: BuilderUpdate = new BuilderUpdate(<ConnectionAll> {});
-  constructor(public conn: ConnectionAll) {
-    this.ub = new BuilderUpdate(conn);
+  ub: BuilderUpdate = new BuilderUpdate(<Driver> {});
+  constructor(public driver: Driver, public transaction: any) {
+    this.ub = new BuilderUpdate(driver);
   }
 
   update(req: ParamUpdateEntity): ExecutorUpdate {
@@ -71,9 +71,10 @@ export class ExecutorUpdate {
     return sqls.join(";\n");
   }
 
-  async execute(): Promise<any> {
+  async execute(changes?: any): Promise<any> {
     const query = this.ub.getSqls();
     this.ub.usePrintSql(query);
-    return await this.conn.execute(query.join(";\n"));
+    const options: Record<string, any> = { changes, transaction: this.transaction };
+    return await this.driver.execute(query.join(";\n"), options);
   }
 }

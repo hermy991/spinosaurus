@@ -1,5 +1,5 @@
 import { BuilderBase } from "./base/builder_base.ts";
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 
 export class BuilderDrop extends BuilderBase {
   #nameData:
@@ -9,7 +9,7 @@ export class BuilderDrop extends BuilderBase {
   #columnsData: string[] = [];
   #constraintsData: string[] = [];
 
-  constructor(public conn: ConnectionAll) {
+  constructor(public conn: Driver) {
     super(conn);
   }
 

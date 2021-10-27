@@ -1,11 +1,11 @@
-import { ConnectionAll } from "../connection_type.ts";
+import { Driver } from "../connection_type.ts";
 import { BuilderInsert } from "../builders/builder_insert.ts";
 import { ParamInsertEntity, ParamInsertValue } from "../builders/params/param_insert.ts";
 
 export class ExecutorInsert {
-  ib: BuilderInsert = new BuilderInsert(<ConnectionAll> {});
-  constructor(public conn: ConnectionAll) {
-    this.ib = new BuilderInsert(conn);
+  ib: BuilderInsert = new BuilderInsert(<Driver> {});
+  constructor(public driver: Driver, public transaction: any) {
+    this.ib = new BuilderInsert(driver);
   }
 
   insert(req: ParamInsertEntity): ExecutorInsert {
@@ -38,9 +38,10 @@ export class ExecutorInsert {
     return sqls.join(";\n");
   }
 
-  async execute(): Promise<any> {
+  async execute(changes?: any): Promise<any> {
     const query = this.ib.getSqls();
     this.ib.usePrintSql(query);
-    return await this.conn.execute(query.join(";\n"));
+    const options: Record<string, any> = { changes, transaction: this.transaction };
+    return await this.driver.execute(query.join(";\n"), options);
   }
 }
