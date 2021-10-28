@@ -724,24 +724,69 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
     return r;
   }
 
-  async createTransaction(options?: { transactionName: string; changes?: any }) {
+  async createTransaction(
+    options?: { transactionName: string; changes?: any },
+  ): Promise<{ transaction: any; [x: string]: any } | undefined> {
     const driverConf = filterConnectionProps(KEY_CONFIG, this.options, options?.changes);
     const client = new postgres.Client(driverConf);
     await client.connect();
     if (options?.transactionName) {
-      return {
-        client,
-        transaction: client.createTransaction(options?.transactionName, { isolation_level: "serializable" }),
-      };
+      const transaction = await client.createTransaction(
+        options.transactionName, /*, { isolation_level: "serializable" }*/
+      );
+      return { client, transaction };
     } else {
       await client.end();
+    }
+  }
+
+  async createAndBeginTransaction(
+    options?: { transactionName: string; changes?: any },
+  ): Promise<{ transaction: any; [x: string]: any } | undefined> {
+    try {
+      const wrap = await this.createTransaction(options);
+      if (wrap) {
+        await wrap.transaction.begin();
+        return wrap;
+      }
+    } catch (er) {
+    }
+  }
+
+  async closeTransaction(r: any): Promise<boolean> {
+    try {
+      await r.client.end();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async commitAndCloseTransaction(r: any): Promise<boolean> {
+    try {
+      await r.transaction.commit();
+      await r.client.end();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async rollbackAndCloseTransaction(r: any): Promise<boolean> {
+    try {
+      try {
+        await r.transaction.rollback();
+      } catch {}
+      await r.client.end();
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 
   async execute(query: string, options?: { changes?: any; transaction?: any }): Promise<ExecuteResult> {
     let rs: ExecuteResult;
     let pgr: any;
-    // console.log("options?.transaction", options?.transaction);
     if (options?.transaction) {
       pgr = await options?.transaction.queryObject(query);
     } else {

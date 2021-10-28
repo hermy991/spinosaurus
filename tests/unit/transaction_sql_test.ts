@@ -19,7 +19,6 @@ async function clearPlayground(db: Connection, schema: string, tables: Array<str
   const cs = await db.checkSchema({ name: schema });
   if (cs.exists) {
     const t = { schema: cs.name, check: true };
-    // console.log("cs.schema", cs.name);
     await db.drop(t).execute();
   }
 }
@@ -39,30 +38,102 @@ Deno.test("transaction [rollback] sql", async () => {
   await xxq.execute();
   await db.create({ entity: user1, schema })
     .columns([{ name: "column1", spitype: "varchar", length: 100, primary: true }]).execute();
-  // // Batch Transaction
-  // db.transaction();
-  // const i1 = db.insert([user1, schema]).values({ column1: "xx" });
-  // await i1.execute();
-  // const data1 = await db.select().from({ entity: user1, schema }).getMany();
-  // assertEquals(data1.length, 1);
-  // db.rollback();
-  // const data2 = await db.select().from({ entity: user1, schema }).getMany();
-  // assertEquals(data2.length, 0);
+  // Batch Transaction
+  await db.transaction();
+  await db.insert([user1, schema]).values({ column1: "xx" }).execute();
+  const data1 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data1.length, 1);
+  await db.rollback();
+  const data2 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data2.length, 0);
+
+  // Batch Transaction With Transaction Name
+  await db.transaction("test_transaction_batch");
+  await db.insert([user1, schema]).values({ column1: "xx" }).execute();
+  const data3 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data3.length, 1);
+  await db.rollback("test_transaction_batch");
+  const data4 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data4.length, 0);
 
   // Function Transaction
+  let ck1 = "transaction execute not ok";
+  const f1 = async () => {
+    await db.insert([user1, schema]).values([{ column1: "xx" }]).execute();
+    const data = await db.select().from({ entity: user1, schema }).getMany();
+    assertEquals(data.length, 1);
+    ck1 = "transaction execute ok";
+    await db.insert([user1, schema]).values([{ column1: "xx" }]).execute();
+  };
+  const r1 = await db.transaction(f1);
+  assertEquals(ck1, "transaction execute ok");
+  const data5 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data5.length, 0);
 
-  console.log("Beginning");
-  const te = await db.transaction(async () => {
-    console.log("inside arrow function 1");
-    await db.insert([user1, schema]).values([{ column1: "xx" }]).execute();
-    const data3 = await db.select().from({ entity: user1, schema }).getMany();
-    assertEquals(data3.length, 1);
-    console.log("inside arrow function 2");
-    await db.insert([user1, schema]).values([{ column1: "xx" }]).execute();
-    console.log("inside arrow function 3");
-  });
-  const data4 = await db.select().from({ entity: user1, schema }).getMany();
-  console.log("data4", data4);
+  // Function Transaction With Transaction Name
+  ck1 = "transaction execute not ok";
+  const _r2 = await db.transaction("test_transaction_fun", f1);
+  assertEquals(ck1, "transaction execute ok");
+  const data6 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data6.length, 0);
+
   await clearPlayground(db, schema, [user1]);
-  assertEquals(data4.length, 0);
+});
+
+Deno.test("transaction [commit] sql", async () => {
+  const conOptsX = self.structuredClone(conOpts);
+  const schema = "transaction";
+  const user1 = "User1";
+  const db: Connection = new Connection(conOptsX);
+  const ch = await db.checkSchema({ name: schema });
+  if (ch.exists) {
+    await db.drop({ schema, check: true }).execute();
+  }
+  const xxq = db.create({ schema, check: true });
+  await xxq.execute();
+  await db.create({ entity: user1, schema })
+    .columns([{ name: "column1", spitype: "varchar", length: 100, primary: true }]).execute();
+  // Batch Transaction
+  await db.transaction();
+  await db.insert([user1, schema]).values({ column1: "x" }).execute();
+  const data1 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data1.length, 1);
+  await db.commit();
+  const data2 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data2.length, 1);
+
+  // Batch Transaction With Transaction Name
+  await db.transaction("test_transaction_batch");
+  await db.insert([user1, schema]).values({ column1: "xx" }).execute();
+  const data3 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data3.length, 2);
+  await db.commit("test_transaction_batch");
+  const data4 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data4.length, 2);
+
+  // Function Transaction
+  let ck1 = "transaction execute not ok";
+  const r1 = await db.transaction(async () => {
+    await db.insert([user1, schema]).values([{ column1: "xxx" }]).execute();
+    const data = await db.select().from({ entity: user1, schema }).getMany();
+    assertEquals(data.length, 3);
+    ck1 = "transaction execute ok";
+  });
+  assertEquals(ck1, "transaction execute ok");
+  const data5 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data5.length, 3);
+
+  // Function Transaction With Transaction Name
+  ck1 = "transaction execute not ok";
+  const _r2 = await db.transaction("test_transaction_fun", async () => {
+    await db.insert([user1, schema]).values([{ column1: "xxxx" }]).execute();
+    const data = await db.select().from({ entity: user1, schema }).getMany();
+    assertEquals(data.length, 4);
+    ck1 = "transaction execute ok";
+  });
+  assertEquals(ck1, "transaction execute ok");
+  const data6 = await db.select().from({ entity: user1, schema }).getMany();
+  assertEquals(data6.length, 4);
+
+  await clearPlayground(db, schema, [user1]);
 });

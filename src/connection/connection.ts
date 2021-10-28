@@ -37,7 +37,8 @@ class Connection {
   getTransaction(): any | undefined {
     const transactionsCount = Object.entries(this.getTransactions()).length;
     if (transactionsCount) {
-      return Object.entries(this.getTransactions())[transactionsCount - 1][1].transaction;
+      const transaction = Object.entries(this.getTransactions())[transactionsCount - 1][1].transaction;
+      return transaction;
     }
   }
 
@@ -181,6 +182,16 @@ class Connection {
   /**
    * Wraps given function execution (and all operations made there) in a transaction.
    */
+  async transaction<T>(): Promise<T>;
+
+  /**
+   * Wraps given function execution (and all operations made there) in a transaction.
+   */
+  async transaction<T>(transactionName: string): Promise<T>;
+
+  /**
+   * Wraps given function execution (and all operations made there) in a transaction.
+   */
   async transaction<T>(fun: () => Promise<T>): Promise<T>;
 
   /**
@@ -193,48 +204,84 @@ class Connection {
    * Wraps given function execution (and all operations made there) in a transaction.
    */
   async transaction<T>(
-    transactionNameOrFun: string | (() => Promise<T>),
+    transactionNameOrFun?: string | (() => Promise<T>),
     fun?: (() => Promise<T>),
-  ): Promise<any | undefined> {
-    let transactionName = transactionNameOrFun instanceof Function
-      ? `transaction_${Object.keys(this.#transactions).length + 1}`
-      : transactionNameOrFun;
+  ): Promise<T | any | undefined> {
+    let transactionName =
+      (transactionNameOrFun instanceof Function
+        ? `transaction_${Object.keys(this.#transactions).length + 1}`
+        : transactionNameOrFun) + "";
     let f = transactionNameOrFun instanceof Function ? transactionNameOrFun : fun;
-    if (!f) return error({ name: "ErrorParamIsRequired" });
     if (!this.#driver) return error({ name: "ErrorConnectionNull" });
+    // if (!f) return error({ name: "ErrorParamIsRequired" });
     let err = undefined;
     let r;
     try {
-      console.log("inside a transaction function");
-      r = await this.#driver.createTransaction({ transactionName });
+      r = await this.#driver.createAndBeginTransaction({ transactionName });
       if (!r?.transaction) return error({ name: "ErrorTransactionNull" });
       this.getTransactions()[transactionName] = r;
-      await r.transaction.begin();
-      await f();
-      console.log("inside a transaction before commit");
-      await r.transaction.commit();
-      await r.client.end();
-      delete this.getTransactions()[transactionName];
-    } catch (ex) {
-      console.log("inside a transaction function catch 1");
-      if (r?.transaction) {
+      if (f) {
+        const data = await f();
+        const _ = await this.#driver.commitAndCloseTransaction(r);
         delete this.getTransactions()[transactionName];
-        console.log("inside a transaction function catch 2");
-        await r.transaction.rollback();
-        await r.client.end();
+        return data;
+      }
+    } catch (ex) {
+      if (r?.transaction) {
+        const _ = await this.#driver.rollbackAndCloseTransaction(r);
+        delete this.getTransactions()[transactionName];
       }
       return err;
     }
   }
 
+  async rollback(transactionName?: string): Promise<boolean> {
+    if (!this.#driver) return false;
+    const transactionsCount = Object.entries(this.getTransactions()).length;
+    if (transactionsCount) {
+      if (transactionName) {
+        const x = Object.entries(this.getTransactions()).find((x) => x[0] === transactionName);
+        if (!x) {
+          return false;
+        }
+        const _ = await this.#driver.rollbackAndCloseTransaction(x[1]);
+        delete this.getTransactions()[x[0]];
+      } else {
+        const x = Object.entries(this.getTransactions())[transactionsCount - 1];
+        const _ = await this.#driver.rollbackAndCloseTransaction(x[1]);
+        delete this.getTransactions()[x[0]];
+      }
+      return true;
+    }
+    return false;
+  }
+
+  async commit(transactionName?: string): Promise<boolean> {
+    if (!this.#driver) return false;
+    const transactionsCount = Object.entries(this.getTransactions()).length;
+    if (transactionsCount) {
+      if (transactionName) {
+        const x = Object.entries(this.getTransactions()).find((x) => x[0] === transactionName);
+        if (!x) {
+          return false;
+        }
+        const _ = await this.#driver.commitAndCloseTransaction(x[1]);
+        delete this.getTransactions()[x[0]];
+      } else {
+        const x = Object.entries(this.getTransactions())[transactionsCount - 1];
+        const _ = await this.#driver.commitAndCloseTransaction(x[1]);
+        delete this.getTransactions()[x[0]];
+      }
+      return true;
+    }
+    return false;
+  }
+
   async execute(query: string, changes?: any): Promise<ExecuteResult> {
-    console.log("Object.values(this.getTransactions()).length", Object.values(this.getTransactions()).length);
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
     const options: Record<string, any> = { changes };
-    console.log("inside a execute function");
     if (this.getTransaction()) {
       options.transaction = this.getTransaction();
-      console.log("options.transaction", options.transaction);
     }
     const data = await this.#driver.execute(query, options);
     return data;

@@ -21,7 +21,7 @@ databases - from small applications with a few tables to large scale enterprise 
 - [x] Supports multiple inheritance patterns
 - [ ] Cascades
 - [ ] Indices
-- [ ] Transactions
+- [x] Transactions
 - [ ] Migrations and automatic migrations generation
 - [ ] Connection pooling
 - [ ] Replication

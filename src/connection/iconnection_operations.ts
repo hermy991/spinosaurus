@@ -26,9 +26,7 @@ export interface IConnectionOperations {
   checkSchema(req: { name: string }): Promise<
     { name: string; database?: string; exists: boolean; oid?: number; dbdata?: any; type?: string }
   >;
-  checkObject(
-    req: { name: string; schema?: string; database?: string },
-  ): Promise<
+  checkObject(req: { name: string; schema?: string; database?: string }): Promise<
     { name: string; schema?: string; database?: string; exists: boolean; oid?: number; dbdata?: any; type?: string }
   >;
   getConstraints(sdac: { entity: string; schema?: string; types: Array<"p" | "u" | "c" | "f"> }): Promise<
@@ -39,7 +37,14 @@ export interface IConnectionOperations {
   getCurrentSchemaLocal(): string;
   getCurrentSchema(): Promise<string>;
   getMetadata(): Promise<MetadataStore>;
-  createTransaction(options?: { transactionName: string; changes?: any }): Promise<any | undefined>;
+  createTransaction(
+    options?: { transactionName: string; changes?: any },
+  ): Promise<{ transaction: any; [x: string]: any } | undefined>;
+  createAndBeginTransaction(
+    options?: { transactionName: string; changes?: any },
+  ): Promise<{ transaction: any; [x: string]: any } | undefined>;
+  closeTransaction(r: any): Promise<boolean>;
+  rollbackAndCloseTransaction(r: any): Promise<boolean>;
   execute(query: string, options?: { changes?: any; transaction?: any }): Promise<any>;
   getOne(query: string): Promise<any>;
   getMany(query: string): Promise<Array<any>>;
