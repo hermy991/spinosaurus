@@ -182,28 +182,28 @@ class Connection {
   /**
    * Wraps given function execution (and all operations made there) in a transaction.
    */
-  async transaction<T>(): Promise<T>;
+  async startTransaction<T>(): Promise<T>;
 
   /**
    * Wraps given function execution (and all operations made there) in a transaction.
    */
-  async transaction<T>(transactionName: string): Promise<T>;
+  async startTransaction<T>(transactionName: string): Promise<T>;
 
   /**
    * Wraps given function execution (and all operations made there) in a transaction.
    */
-  async transaction<T>(fun: () => Promise<T>): Promise<T>;
+  async startTransaction<T>(fun: () => Promise<T>): Promise<T>;
 
   /**
    * Wraps given function execution (and all operations made there) in a transaction.
    * using a transaction name
    */
-  async transaction<T>(transactionName: string, fun: () => Promise<T>): Promise<T>;
+  async startTransaction<T>(transactionName: string, fun: () => Promise<T>): Promise<T>;
 
   /**
    * Wraps given function execution (and all operations made there) in a transaction.
    */
-  async transaction<T>(
+  async startTransaction<T>(
     transactionNameOrFun?: string | (() => Promise<T>),
     fun?: (() => Promise<T>),
   ): Promise<T | any | undefined> {

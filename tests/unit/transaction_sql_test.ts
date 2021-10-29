@@ -39,7 +39,7 @@ Deno.test("transaction [rollback] sql", async () => {
   await db.create({ entity: user1, schema })
     .columns([{ name: "column1", spitype: "varchar", length: 100, primary: true }]).execute();
   // Batch Transaction
-  await db.transaction();
+  await db.startTransaction();
   await db.insert([user1, schema]).values({ column1: "xx" }).execute();
   const data1 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data1.length, 1);
@@ -48,7 +48,7 @@ Deno.test("transaction [rollback] sql", async () => {
   assertEquals(data2.length, 0);
 
   // Batch Transaction With Transaction Name
-  await db.transaction("test_transaction_batch");
+  await db.startTransaction("test_transaction_batch");
   await db.insert([user1, schema]).values({ column1: "xx" }).execute();
   const data3 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data3.length, 1);
@@ -65,14 +65,14 @@ Deno.test("transaction [rollback] sql", async () => {
     ck1 = "transaction execute ok";
     await db.insert([user1, schema]).values([{ column1: "xx" }]).execute();
   };
-  const r1 = await db.transaction(f1);
+  const r1 = await db.startTransaction(f1);
   assertEquals(ck1, "transaction execute ok");
   const data5 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data5.length, 0);
 
   // Function Transaction With Transaction Name
   ck1 = "transaction execute not ok";
-  const _r2 = await db.transaction("test_transaction_fun", f1);
+  const _r2 = await db.startTransaction("test_transaction_fun", f1);
   assertEquals(ck1, "transaction execute ok");
   const data6 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data6.length, 0);
@@ -94,7 +94,7 @@ Deno.test("transaction [commit] sql", async () => {
   await db.create({ entity: user1, schema })
     .columns([{ name: "column1", spitype: "varchar", length: 100, primary: true }]).execute();
   // Batch Transaction
-  await db.transaction();
+  await db.startTransaction();
   await db.insert([user1, schema]).values({ column1: "x" }).execute();
   const data1 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data1.length, 1);
@@ -103,7 +103,7 @@ Deno.test("transaction [commit] sql", async () => {
   assertEquals(data2.length, 1);
 
   // Batch Transaction With Transaction Name
-  await db.transaction("test_transaction_batch");
+  await db.startTransaction("test_transaction_batch");
   await db.insert([user1, schema]).values({ column1: "xx" }).execute();
   const data3 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data3.length, 2);
@@ -113,7 +113,7 @@ Deno.test("transaction [commit] sql", async () => {
 
   // Function Transaction
   let ck1 = "transaction execute not ok";
-  const r1 = await db.transaction(async () => {
+  const r1 = await db.startTransaction(async () => {
     await db.insert([user1, schema]).values([{ column1: "xxx" }]).execute();
     const data = await db.select().from({ entity: user1, schema }).getMany();
     assertEquals(data.length, 3);
@@ -125,7 +125,7 @@ Deno.test("transaction [commit] sql", async () => {
 
   // Function Transaction With Transaction Name
   ck1 = "transaction execute not ok";
-  const _r2 = await db.transaction("test_transaction_fun", async () => {
+  const _r2 = await db.startTransaction("test_transaction_fun", async () => {
     await db.insert([user1, schema]).values([{ column1: "xxxx" }]).execute();
     const data = await db.select().from({ entity: user1, schema }).getMany();
     assertEquals(data.length, 4);
