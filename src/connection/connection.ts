@@ -235,7 +235,7 @@ class Connection {
     }
   }
 
-  async rollback(transactionName?: string): Promise<boolean> {
+  async rollbackTransaction(transactionName?: string): Promise<boolean> {
     if (!this.#driver) return false;
     const transactionsCount = Object.entries(this.getTransactions()).length;
     if (transactionsCount) {
@@ -256,7 +256,7 @@ class Connection {
     return false;
   }
 
-  async commit(transactionName?: string): Promise<boolean> {
+  async commitTransaction(transactionName?: string): Promise<boolean> {
     if (!this.#driver) return false;
     const transactionsCount = Object.entries(this.getTransactions()).length;
     if (transactionsCount) {
