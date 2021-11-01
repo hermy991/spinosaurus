@@ -24,10 +24,7 @@ export class ExecutorUpdate {
     return this;
   }
 
-  where(
-    conditions: [string, ...string[]] | string,
-    params?: ParamUpdateParams,
-  ): ExecutorUpdate {
+  where(conditions: [string, ...string[]] | string, params?: ParamUpdateParams): ExecutorUpdate {
     this.ub.where(conditions, params);
     return this;
   }
