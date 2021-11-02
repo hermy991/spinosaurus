@@ -10,4 +10,4 @@ export type ParamUpsertEntity =
   | [string, string?]
   | Function;
 
-export type ParamUpsertValue = ParamUpdateSet | ParamInsertValue;
+export type ParamUpsertValue<T> = ParamUpdateSet<T> | ParamInsertValue<T>;

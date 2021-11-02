@@ -43,7 +43,7 @@ Deno.test("transaction [rollback] sql", async () => {
   await db.insert([user1, schema]).values({ column1: "xx" }).execute();
   const data1 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data1.length, 1);
-  await db.rollback();
+  await db.rollbackTransaction();
   const data2 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data2.length, 0);
 
@@ -52,7 +52,7 @@ Deno.test("transaction [rollback] sql", async () => {
   await db.insert([user1, schema]).values({ column1: "xx" }).execute();
   const data3 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data3.length, 1);
-  await db.rollback("test_transaction_batch");
+  await db.rollbackTransaction("test_transaction_batch");
   const data4 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data4.length, 0);
 
@@ -98,7 +98,7 @@ Deno.test("transaction [commit] sql", async () => {
   await db.insert([user1, schema]).values({ column1: "x" }).execute();
   const data1 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data1.length, 1);
-  await db.commit();
+  await db.commitTransaction();
   const data2 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data2.length, 1);
 
@@ -107,7 +107,7 @@ Deno.test("transaction [commit] sql", async () => {
   await db.insert([user1, schema]).values({ column1: "xx" }).execute();
   const data3 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data3.length, 2);
-  await db.commit("test_transaction_batch");
+  await db.commitTransaction("test_transaction_batch");
   const data4 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data4.length, 2);
 

@@ -1,4 +1,5 @@
-import { ParamSimpleOptions } from "./param_select.ts";
+import { ParamSimpleValues } from "./param_select.ts";
+import { ParamPartialEntity } from "./param_partial_entity.ts";
 
 export type ParamInsertOptions = {
   autoInsert?: boolean;
@@ -11,4 +12,7 @@ export type ParamInsertEntity =
   | [string, string?]
   | Function;
 
-export type ParamInsertValue = { [x: string]: ParamSimpleOptions | { [x: string]: ParamSimpleOptions } };
+// export type ParamInsertValue = { [x: string]: ParamSimpleOptions | { [x: string]: ParamSimpleOptions } };
+export type ParamInsertValue<T> =
+  | ParamPartialEntity<T>
+  | Record<string, ParamSimpleValues | Record<string, ParamSimpleValues>>;

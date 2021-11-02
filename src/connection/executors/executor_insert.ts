@@ -13,12 +13,12 @@ export class ExecutorInsert {
     return this;
   }
 
-  values(data: ParamInsertValue[] | ParamInsertValue): ExecutorInsert {
+  values<T>(data: ParamInsertValue<T>[] | ParamInsertValue<T>): ExecutorInsert {
     this.ib.values(data);
     return this;
   }
 
-  addValues(data: ParamInsertValue | ParamInsertValue): ExecutorInsert {
+  addValues<T>(data: ParamInsertValue<T> | ParamInsertValue<T>): ExecutorInsert {
     this.ib.addValues(data);
     return this;
   }

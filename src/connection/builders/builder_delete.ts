@@ -1,11 +1,11 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { Driver } from "../connection_type.ts";
-import { ParamComplexOptions } from "./params/param_select.ts";
+import { ParamComplexValues } from "./params/param_select.ts";
 
 export class BuilderDelete extends BuilderBase {
   #entityData: { entity: string; schema?: string } | Function | null = null;
   #whereData: Array<string> = [];
-  #paramsData: ParamComplexOptions = {};
+  #paramsData: ParamComplexValues = {};
 
   constructor(public conn: Driver) {
     super(conn);
@@ -24,7 +24,7 @@ export class BuilderDelete extends BuilderBase {
 
   where(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     this.#whereData = [];
     this.addWhere(conditions, params);
@@ -32,7 +32,7 @@ export class BuilderDelete extends BuilderBase {
 
   andWhere(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -45,7 +45,7 @@ export class BuilderDelete extends BuilderBase {
 
   orWhere(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -58,7 +58,7 @@ export class BuilderDelete extends BuilderBase {
 
   addWhere(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     this.#whereData.push(
       ...(Array.isArray(conditions) ? conditions : [conditions]),
@@ -68,14 +68,14 @@ export class BuilderDelete extends BuilderBase {
     }
   }
 
-  params(options?: ParamComplexOptions): void {
+  params(options?: ParamComplexValues): void {
     this.#paramsData = {};
     if (options) {
       this.addParams(options);
     }
   }
 
-  addParams(options: ParamComplexOptions): void {
+  addParams(options: ParamComplexValues): void {
     this.#paramsData = { ...this.#paramsData, ...options };
   }
 

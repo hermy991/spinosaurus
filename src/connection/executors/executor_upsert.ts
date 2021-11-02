@@ -13,12 +13,12 @@ export class ExecutorUpsert {
     return this;
   }
 
-  values(data: ParamUpsertValue[] | ParamUpsertValue): ExecutorUpsert {
+  values<T>(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>): ExecutorUpsert {
     this.ub.values(data);
     return this;
   }
 
-  addValues(data: ParamUpsertValue[] | ParamUpsertValue): ExecutorUpsert {
+  addValues<T>(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>): ExecutorUpsert {
     this.ub.addValues(data);
     return this;
   }

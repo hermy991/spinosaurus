@@ -8,7 +8,7 @@ import { ParamCheckCreate } from "../../builders/params/param_check.ts";
 import { ParamUniqueCreate } from "../../builders/params/param_unique.ts";
 import { ParamRelationCreate } from "../../builders/params/param_relation.ts";
 import { ParamCommentColumnDerinition } from "../../builders/params/param_comment.ts";
-import { ParamComplexOptions, ParamSimpleOptions } from "../../builders/params/param_select.ts";
+import { ParamComplexValues, ParamSimpleValues } from "../../builders/params/param_select.ts";
 import { initConnection } from "./connection_postgres_pool.ts";
 import { filterConnectionProps } from "../../connection_operations.ts";
 import { MetadataStore } from "../../../decorators/metadata/metadata_store.ts";
@@ -30,7 +30,7 @@ class ConnectionPostgres implements IConnectionOperations {
 
   constructor(public options: ConnectionOptionsPostgres) {}
   /* Basic Connection Operations*/
-  stringify(value: ParamSimpleOptions | ParamSimpleOptions[]): string {
+  stringify(value: ParamSimpleValues | ParamSimpleValues[]): string {
     if (
       value === undefined || value === null || typeof (value) == "boolean" ||
       typeof (value) == "number" || typeof (value) == "string"
@@ -51,7 +51,7 @@ class ConnectionPostgres implements IConnectionOperations {
     }
     return `NULL`;
   }
-  interpolate(conditions: [string, ...string[]] | string, params?: ParamComplexOptions): Array<string> {
+  interpolate(conditions: [string, ...string[]] | string, params?: ParamComplexValues): Array<string> {
     const cloned = self.structuredClone(params || {});
     const keys = Object.keys(cloned);
     for (let i = 0; i < keys.length; i++) {

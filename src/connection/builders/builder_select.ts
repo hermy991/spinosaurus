@@ -1,6 +1,6 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { Driver } from "../connection_type.ts";
-import { ParamClauseRelation, ParamComplexClauseRelation, ParamComplexOptions } from "./params/param_select.ts";
+import { ParamClauseRelation, ParamComplexClauseRelation, ParamComplexValues } from "./params/param_select.ts";
 
 export class BuilderSelect extends BuilderBase {
   #selectData: Array<{ column: string; as?: string }> = [];
@@ -13,7 +13,7 @@ export class BuilderSelect extends BuilderBase {
   #groupByData: string[] = [];
   #havingData: string[] = [];
   #orderByData: { column: string; direction?: string }[] = [];
-  #paramsData: ParamComplexOptions = {};
+  #paramsData: ParamComplexValues = {};
 
   /*FLAGS*/
   #distinct = false;
@@ -49,42 +49,42 @@ export class BuilderSelect extends BuilderBase {
     }
   }
 
-  join(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+  join(req: ParamClauseRelation, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: false, join: "inner" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  joinAndSelect(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+  joinAndSelect(req: ParamClauseRelation, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: true, join: "inner" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  left(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+  left(req: ParamClauseRelation, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: false, join: "left" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  leftAndSelect(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+  leftAndSelect(req: ParamClauseRelation, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: true, join: "left" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  right(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+  right(req: ParamClauseRelation, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: false, join: "right" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  rightAndSelect(req: ParamClauseRelation, params?: ParamComplexOptions): void {
+  rightAndSelect(req: ParamClauseRelation, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: true, join: "right" });
     if (params) {
       this.addParams(params);
@@ -93,7 +93,7 @@ export class BuilderSelect extends BuilderBase {
 
   where(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     this.#whereData = [];
     this.addWhere(conditions, params);
@@ -101,7 +101,7 @@ export class BuilderSelect extends BuilderBase {
 
   andWhere(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -114,7 +114,7 @@ export class BuilderSelect extends BuilderBase {
 
   orWhere(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -127,7 +127,7 @@ export class BuilderSelect extends BuilderBase {
 
   addWhere(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     this.#whereData.push(
       ...(Array.isArray(conditions) ? conditions : [conditions]),
@@ -148,7 +148,7 @@ export class BuilderSelect extends BuilderBase {
 
   having(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     this.#havingData = [];
     this.addHaving(conditions, params);
@@ -156,7 +156,7 @@ export class BuilderSelect extends BuilderBase {
 
   andHaving(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -169,7 +169,7 @@ export class BuilderSelect extends BuilderBase {
 
   orHaving(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
@@ -182,7 +182,7 @@ export class BuilderSelect extends BuilderBase {
 
   addHaving(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ) {
     this.#havingData.push(
       ...(Array.isArray(conditions) ? conditions : [conditions]),
@@ -201,14 +201,14 @@ export class BuilderSelect extends BuilderBase {
     columns.forEach((x) => this.#orderByData.push(x));
   }
 
-  params(options?: ParamComplexOptions): void {
+  params(options?: ParamComplexValues): void {
     this.#paramsData = {};
     if (options) {
       this.addParams(options);
     }
   }
 
-  addParams(options: ParamComplexOptions): void {
+  addParams(options: ParamComplexValues): void {
     this.#paramsData = { ...this.#paramsData, ...options };
   }
 

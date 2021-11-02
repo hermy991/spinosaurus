@@ -94,7 +94,7 @@ deno run -qA https://code.velociraptor.run test:exec
 - testing for generate columns from entity in select using options
 - adding primary key column in each delete
 - throw a error when @UpdateColumn property is not a Number type
-- adding interpolation list `( '"primaryKey" IN(:primaryKey)',  { primaryKey: [ 1, 2, 3, 4 ] })`
+- adding interpolation list ``addWhere( ```"primaryKey" IN(:primaryKey)```,  { primaryKey: [ 1, 2, 3, 4 ] })``
 - implement in @InsertColumn, @UpdateColumn (value) and ({options}, value) params
 - does not update object without primary key in entity mode (updating a antity), create testing too
 - create a option in update entity option witch can update without a primary key
@@ -103,19 +103,20 @@ deno run -qA https://code.velociraptor.run test:exec
 - suport multiple connection
 - rename a column, using index in @Column({ columnIndex: 3 })
 - create a method getOneOrFail, it throw a exeption if it does not have one row
-- reverse interpolate transform this `user.name` to `"user"."name"` | `[user].[name]` | `` `user`.`name` ``, this
-  transformation depends on database type
+- reverse interpolate transform this `user.propertyKey` to `"user"."columnName"` | `[user].[columnName]` |
+  `` `user`.`columnName` ``, this transformation depends on database type
 - create skip
 - create take
 - set maxExecutionTime as a option in select, insert, update, delete and transaction
 - numeric param in `groupBy`, `addGroupBy`, `orderBy`, `addOrderBy` and set select definition internally
-- change `from({ entity: Entity })` to `from(Entity)` on documentation
+- change `from({ entity: Entity })` to `from(Entity, "e")` on documentation and code
 - change param `orderBy` and `addOrderBy` strategic from ... to array
 - using path in Next and After in decorators and query builder
 - updating database with createConnection
 - check constraint ending with `*_not_null` should throw a error
 - make a test by diferences in column quantity and position on reference decorators
 - adding tinyint in spitype
-- allow entity object in insert example: `await conn?.insert(FileStore).values(<any> filesStores).execute();`
 - use IndexDb, very in the future
 - use a structure equals to indexDB to store entities
+- `whereInIds([ 1, 2, 3, 4 ])` transform to
+  ``addWhere(```"primaryKey" IN(:primaryKey)```,  { primaryKey: [ 1, 2, 3, 4 ] })``

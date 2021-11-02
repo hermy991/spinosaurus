@@ -1,6 +1,6 @@
 import { Driver } from "../connection_type.ts";
 import { BuilderSelect } from "../builders/builder_select.ts";
-import { ParamClauseRelation, ParamComplexOptions } from "../builders/params/param_select.ts";
+import { ParamClauseRelation, ParamComplexValues } from "../builders/params/param_select.ts";
 
 export class ExecutorSelect {
   sb: BuilderSelect = new BuilderSelect(<Driver> {});
@@ -49,24 +49,24 @@ export class ExecutorSelect {
     return this;
   }
 
-  join(req: ParamClauseRelation, params?: ParamComplexOptions): ExecutorSelect {
+  join(req: ParamClauseRelation, params?: ParamComplexValues): ExecutorSelect {
     this.sb.join(req, params);
     return this;
   }
 
-  joinAndSelect(req: ParamClauseRelation, params?: ParamComplexOptions): ExecutorSelect {
+  joinAndSelect(req: ParamClauseRelation, params?: ParamComplexValues): ExecutorSelect {
     this.sb.joinAndSelect(req, params);
     return this;
   }
 
-  left(req: ParamClauseRelation, params?: ParamComplexOptions): ExecutorSelect {
+  left(req: ParamClauseRelation, params?: ParamComplexValues): ExecutorSelect {
     this.sb.left(req, params);
     return this;
   }
 
   leftAndSelect(
     req: ParamClauseRelation,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.leftAndSelect(req, params);
     return this;
@@ -74,7 +74,7 @@ export class ExecutorSelect {
 
   right(
     req: ParamClauseRelation,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.right(req, params);
     return this;
@@ -82,7 +82,7 @@ export class ExecutorSelect {
 
   rightAndSelect(
     req: ParamClauseRelation,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.rightAndSelect(req, params);
     return this;
@@ -90,7 +90,7 @@ export class ExecutorSelect {
 
   where(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.where(conditions, params);
     return this;
@@ -98,7 +98,7 @@ export class ExecutorSelect {
 
   andWhere(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.andWhere(conditions, params);
     return this;
@@ -106,7 +106,7 @@ export class ExecutorSelect {
 
   orWhere(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.orWhere(conditions, params);
     return this;
@@ -114,7 +114,7 @@ export class ExecutorSelect {
 
   addWhere(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.addWhere(conditions, params);
     return this;
@@ -132,7 +132,7 @@ export class ExecutorSelect {
 
   having(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.having(conditions, params);
     return this;
@@ -140,7 +140,7 @@ export class ExecutorSelect {
 
   andHaving(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.andHaving(conditions, params);
     return this;
@@ -148,7 +148,7 @@ export class ExecutorSelect {
 
   orHaving(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.orHaving(conditions, params);
     return this;
@@ -156,7 +156,7 @@ export class ExecutorSelect {
 
   addHaving(
     conditions: [string, ...string[]] | string,
-    params?: ParamComplexOptions,
+    params?: ParamComplexValues,
   ): ExecutorSelect {
     this.sb.addHaving(conditions, params);
     return this;
@@ -202,12 +202,12 @@ export class ExecutorSelect {
     return this;
   }
 
-  params(options?: ParamComplexOptions): ExecutorSelect {
+  params(options?: ParamComplexValues): ExecutorSelect {
     this.sb.params(options);
     return this;
   }
 
-  addParams(options: ParamComplexOptions): ExecutorSelect {
+  addParams(options: ParamComplexValues): ExecutorSelect {
     this.sb.addParams(options);
     return this;
   }

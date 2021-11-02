@@ -3,13 +3,13 @@ import { ParamUpdateEntity, ParamUpdateOptions, ParamUpdateParams, ParamUpdateSe
 import { Driver } from "../connection_type.ts";
 import { findColumn, findPrimaryColumn } from "../../stores/store.ts";
 
-export class BuilderUpdate extends BuilderBase {
+export class BuilderUpdate<T> extends BuilderBase {
   #options: ParamUpdateOptions = {
     autoUpdate: true,
     updateWithoutPrimaryKey: false,
   };
   #entityData: { entity: string; schema?: string } | Function | null = null;
-  #setData: ParamUpdateSet[] = [];
+  #setData: ParamUpdateSet<T>[] = [];
   #whereData: Array<string> = [];
   #paramsData: ParamUpdateParams = {};
 
@@ -31,14 +31,14 @@ export class BuilderUpdate extends BuilderBase {
     }
   }
 
-  set(data: ParamUpdateSet[] | ParamUpdateSet) {
+  set<T>(data: ParamUpdateSet<T>[] | ParamUpdateSet<T>) {
     this.#setData = [];
     this.addSet(data);
   }
 
-  addSet(data: ParamUpdateSet[] | ParamUpdateSet) {
+  addSet<T>(data: ParamUpdateSet<T>[] | ParamUpdateSet<T>) {
     data = Array.isArray(data) ? data : [data];
-    this.#setData.push(...data);
+    data.forEach((d) => this.#setData.push(<T> d));
   }
 
   where(
@@ -121,9 +121,9 @@ export class BuilderUpdate extends BuilderBase {
     return sql.join(" ");
   }
 
-  getEntitySetQuery(
+  getEntitySetQuery<T>(
     e: { schema?: string; entity?: string; classFunction?: Function },
-    set: ParamUpdateSet,
+    set: ParamUpdateSet<T>,
     ps: Array<any> = [],
   ) {
     if (!set) {
@@ -133,7 +133,7 @@ export class BuilderUpdate extends BuilderBase {
     const sqls: string[] = [this.getEntityQuery(e)];
     const columns: string[] = [];
     const addings: string[] = [];
-    let cloned: ParamUpdateSet = {};
+    let cloned: ParamUpdateSet<T> = {};
     if (!ps.length) {
       cloned = set;
     } else {
@@ -141,8 +141,9 @@ export class BuilderUpdate extends BuilderBase {
         for (const p of ps) {
           if (p.propertyKey === name) {
             if (
-              p.update && typeof set[name] === "object" && !(set[name] instanceof Date) && set[name] !== null &&
-              !Array.isArray(set[name])
+              p.update && typeof (<any> set)[name] === "object" && !((<any> set)[name] instanceof Date) &&
+              (<any> set)[name] !== null &&
+              !Array.isArray((<any> set)[name])
             ) {
               let xc = findColumn({
                 entityOrClass: <Function> e.classFunction,
@@ -150,15 +151,15 @@ export class BuilderUpdate extends BuilderBase {
                 nameOrOptions: this.conn.options,
               });
               let fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.conn.options });
-              if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in <any> set[name]) {
-                cloned[xc[1].foreign.columnName] = (<any> set[name])[fc[1].propertyKey];
+              if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in (<any> set)[name]) {
+                (<any> cloned)[xc[1].foreign.columnName] = (<any> set)[name][fc[1].propertyKey];
               }
             } else if (p.update) {
-              cloned[p.name] = set[name];
+              (<any> cloned)[p.name] = (<any> set)[name];
             }
             if (p.primary) {
-              primaryColumn = { name: p.name, value: set[name] };
-              addings.push(`${this.clearNames(p.name)} = ${this.conn.stringify(<any> set[name])}`);
+              primaryColumn = { name: p.name, value: (<any> set)[name] };
+              addings.push(`${this.clearNames(p.name)} = ${this.conn.stringify((<any> set)[name])}`);
             }
           }
         }
@@ -170,12 +171,12 @@ export class BuilderUpdate extends BuilderBase {
         const p of ps.filter((x) => x.autoUpdate && this.#options.autoUpdate)
       ) {
         if (!(p.name in cloned)) {
-          cloned[p.name] = p.autoUpdate;
+          (<any> cloned)[p.name] = p.autoUpdate;
         }
       }
     }
     for (const dbname in cloned) {
-      const tempStr = `${this.clearNames(dbname)} = ${this.conn.stringify(<any> cloned[dbname])}`;
+      const tempStr = `${this.clearNames(dbname)} = ${this.conn.stringify((<any> cloned)[dbname])}`;
       columns.push(tempStr);
     }
     if (!columns.length) {

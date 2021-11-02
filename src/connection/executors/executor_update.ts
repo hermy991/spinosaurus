@@ -14,12 +14,12 @@ export class ExecutorUpdate {
     return this;
   }
 
-  set(columns: ParamUpdateSet[] | ParamUpdateSet): ExecutorUpdate {
+  set<T>(columns: ParamUpdateSet<T>[] | ParamUpdateSet<T>): ExecutorUpdate {
     this.ub.set(columns);
     return this;
   }
 
-  addSet(columns: ParamUpdateSet[] | ParamUpdateSet): ExecutorUpdate {
+  addSet<T>(columns: ParamUpdateSet<T>[] | ParamUpdateSet<T>): ExecutorUpdate {
     this.ub.addSet(columns);
     return this;
   }

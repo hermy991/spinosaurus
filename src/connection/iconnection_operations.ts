@@ -5,12 +5,12 @@ import { ParamCheckCreate } from "./builders/params/param_check.ts";
 import { ParamUniqueCreate } from "./builders/params/param_unique.ts";
 import { ParamRelationCreate } from "./builders/params/param_relation.ts";
 import { ParamCommentColumnDerinition } from "./builders/params/param_comment.ts";
-import { ParamComplexOptions, ParamSimpleOptions } from "./builders/params/param_select.ts";
+import { ParamComplexValues, ParamSimpleValues } from "./builders/params/param_select.ts";
 
 export interface IConnectionOperations {
   /* Internal Sql Operations*/
-  stringify(value: ParamSimpleOptions | Array<ParamSimpleOptions>): string;
-  interpolate(conditions: [string, ...string[]], params?: ParamComplexOptions): Array<string>;
+  stringify(value: ParamSimpleValues | Array<ParamSimpleValues>): string;
+  interpolate(conditions: [string, ...string[]], params?: ParamComplexValues): Array<string>;
   getSqlFunction(fun: Function): string;
   createSchema(scs: ParamSchemaDefinition): string;
   dropSchema(sds: ParamSchemaDefinition): string;

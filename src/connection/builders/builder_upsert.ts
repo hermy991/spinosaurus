@@ -4,7 +4,7 @@ import { BuilderInsert } from "./builder_insert.ts";
 import { ParamUpsertEntity, ParamUpsertValue } from "./params/param_upsert.ts";
 import { Driver } from "../connection_type.ts";
 
-export class BuilderUpsert extends BuilderBase {
+export class BuilderUpsert<T> extends BuilderBase {
   #entityData:
     | { entity: string; schema?: string }
     | {
@@ -14,7 +14,7 @@ export class BuilderUpsert extends BuilderBase {
     | [string, string?]
     | Function
     | null = null;
-  #valuesData: Array<ParamUpsertValue> = [];
+  #valuesData: Array<ParamUpsertValue<T>> = [];
 
   constructor(public conn: Driver) {
     super(conn);
@@ -24,12 +24,12 @@ export class BuilderUpsert extends BuilderBase {
     this.#entityData = req;
   }
 
-  values(data: ParamUpsertValue[] | ParamUpsertValue) {
+  values<T>(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>) {
     this.#valuesData = [];
-    this.addValues(data);
+    this.addValues(<T> data);
   }
 
-  addValues(data: ParamUpsertValue[] | ParamUpsertValue) {
+  addValues(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>) {
     data = Array.isArray(data) ? data : [data];
     this.#valuesData.push(...data);
   }

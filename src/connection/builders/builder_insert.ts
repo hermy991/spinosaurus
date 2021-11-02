@@ -3,13 +3,13 @@ import { ParamInsertEntity, ParamInsertOptions, ParamInsertValue } from "./param
 import { Driver } from "../connection_type.ts";
 import { findColumn, findPrimaryColumn } from "../../stores/store.ts";
 
-export class BuilderInsert extends BuilderBase {
+export class BuilderInsert<T> extends BuilderBase {
   #options: ParamInsertOptions = {
     autoInsert: true,
     autoGeneratePrimaryKey: true,
   };
   #entityData: { entity: string; schema?: string } | Function | null = null;
-  #valuesData: ParamInsertValue[] = [];
+  #valuesData: ParamInsertValue<T>[] = [];
 
   constructor(public conn: Driver) {
     super(conn);
@@ -29,14 +29,14 @@ export class BuilderInsert extends BuilderBase {
     }
   }
 
-  values(data: ParamInsertValue[] | ParamInsertValue) {
+  values<T>(data: ParamInsertValue<T>[] | ParamInsertValue<T>) {
     this.#valuesData = [];
     this.addValues(data);
   }
 
-  addValues(data: ParamInsertValue[] | ParamInsertValue) {
+  addValues<T>(data: ParamInsertValue<T>[] | ParamInsertValue<T>) {
     data = Array.isArray(data) ? data : [data];
-    this.#valuesData.push(...data);
+    data.forEach((d) => this.#valuesData.push(<T> d));
   }
 
   getEntityQuery(e: { schema?: string; entity?: string }) {
@@ -52,13 +52,13 @@ export class BuilderInsert extends BuilderBase {
     keys.forEach((key) => columns.add(this.clearNames(key)));
     return `(${[...columns].join(", ")})`;
   }
-  getValuesQuery(values: Array<ParamInsertValue>) {
+  getValuesQuery<T>(values: Array<ParamInsertValue<T>>) {
     return `VALUES (${values.map((v) => this.conn.stringify(<any> v)).join(", ")})`;
   }
 
-  getEntityValueQuery(
+  getEntityValueQuery<T>(
     e: { schema?: string; entity?: string; classFunction?: Function },
-    value: ParamInsertValue,
+    value: ParamInsertValue<T>,
     ps: Array<any> = [],
   ): string {
     if (!value) {
@@ -66,7 +66,7 @@ export class BuilderInsert extends BuilderBase {
     }
     let primaryGeneratedColumn: { name: string; value: any; autoIncrement: string } | undefined;
     const sqls: string[] = [this.getEntityQuery(e)];
-    let cloned: ParamInsertValue = {};
+    let cloned: ParamInsertValue<T> = {};
     const { autoInsert, autoGeneratePrimaryKey } = this.#options;
     if (!ps.length) {
       cloned = value;
@@ -75,8 +75,9 @@ export class BuilderInsert extends BuilderBase {
         for (const p of ps) {
           if (p.propertyKey === name) {
             if (
-              p.insert && typeof value[name] === "object" && !(value[name] instanceof Date) && value[name] !== null &&
-              !Array.isArray(value[name])
+              p.insert && typeof (<any> value)[name] === "object" && !((<any> value)[name] instanceof Date) &&
+              (<any> value)[name] !== null &&
+              !Array.isArray((<any> value)[name])
             ) {
               let xc = findColumn({
                 entityOrClass: <Function> e.classFunction,
@@ -84,16 +85,16 @@ export class BuilderInsert extends BuilderBase {
                 nameOrOptions: this.conn.options,
               });
               let fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.conn.options });
-              if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in <any> value[name]) {
-                cloned[xc[1].foreign.columnName] = (<any> value[name])[fc[1].propertyKey];
+              if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in (<any> value)[name]) {
+                (<any> cloned)[xc[1].foreign.columnName] = (<any> (<any> value)[name])[fc[1].propertyKey];
               }
             } else if (p.insert || (p.primary && p.autoIncrement && !autoGeneratePrimaryKey)) {
-              cloned[p.name] = value[name];
+              (<any> cloned)[p.name] = (<any> value)[name];
             }
             if (p.primary && p.autoIncrement) {
               primaryGeneratedColumn = {
                 name: p.name,
-                value: value[name],
+                value: (<any> value)[name],
                 autoIncrement: p.autoIncrement,
               };
             }
@@ -105,7 +106,7 @@ export class BuilderInsert extends BuilderBase {
       }
       for (const p of ps.filter((x) => x.autoInsert && autoInsert)) {
         if (!(p.name in cloned)) {
-          cloned[p.name] = p.autoInsert;
+          (<any> cloned)[p.name] = p.autoInsert;
         }
       }
     }
