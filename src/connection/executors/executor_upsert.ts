@@ -2,28 +2,28 @@ import { Driver } from "../connection_type.ts";
 import { BuilderUpsert } from "../builders/builder_upsert.ts";
 import { ParamUpsertEntity, ParamUpsertValue } from "../builders/params/param_upsert.ts";
 
-export class ExecutorUpsert {
-  ub: BuilderUpsert = new BuilderUpsert(<Driver> {});
+export class ExecutorUpsert<T> {
+  ub: BuilderUpsert<T> = new BuilderUpsert(<Driver> {});
   constructor(public driver: Driver, public transaction: any) {
     this.ub = new BuilderUpsert(driver);
   }
 
-  upsert(req: ParamUpsertEntity): ExecutorUpsert {
+  upsert(req: ParamUpsertEntity): this {
     this.ub.upsert(req);
     return this;
   }
 
-  values<T>(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>): ExecutorUpsert {
+  values<T>(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>): this {
     this.ub.values(data);
     return this;
   }
 
-  addValues<T>(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>): ExecutorUpsert {
+  addValues<T>(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>): this {
     this.ub.addValues(data);
     return this;
   }
 
-  printSql(): ExecutorUpsert {
+  printSql(): this {
     this.ub.printSql();
     return this;
   }

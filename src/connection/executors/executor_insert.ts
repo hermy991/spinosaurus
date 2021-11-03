@@ -2,28 +2,28 @@ import { Driver } from "../connection_type.ts";
 import { BuilderInsert } from "../builders/builder_insert.ts";
 import { ParamInsertEntity, ParamInsertValue } from "../builders/params/param_insert.ts";
 
-export class ExecutorInsert {
-  ib: BuilderInsert = new BuilderInsert(<Driver> {});
+export class ExecutorInsert<T> {
+  ib: BuilderInsert<T> = new BuilderInsert(<Driver> {});
   constructor(public driver: Driver, public transaction: any) {
     this.ib = new BuilderInsert(driver);
   }
 
-  insert(req: ParamInsertEntity): ExecutorInsert {
+  insert(req: ParamInsertEntity): this {
     this.ib.insert(req);
     return this;
   }
 
-  values<T>(data: ParamInsertValue<T>[] | ParamInsertValue<T>): ExecutorInsert {
+  values<T>(data: ParamInsertValue<T>[] | ParamInsertValue<T>): this {
     this.ib.values(data);
     return this;
   }
 
-  addValues<T>(data: ParamInsertValue<T> | ParamInsertValue<T>): ExecutorInsert {
+  addValues<T>(data: ParamInsertValue<T> | ParamInsertValue<T>): this {
     this.ib.addValues(data);
     return this;
   }
 
-  printSql(): ExecutorInsert {
+  printSql(): this {
     this.ib.printSql();
     return this;
   }

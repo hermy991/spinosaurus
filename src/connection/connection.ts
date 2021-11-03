@@ -149,16 +149,16 @@ class Connection {
     return executor;
   }
 
-  update(req: ParamUpdateEntity) {
+  update<T>(req: ParamUpdateEntity) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorUpdate = new ExecutorUpdate(this.#driver, this.getTransaction());
+    const executor: ExecutorUpdate<T> = new ExecutorUpdate(this.#driver, this.getTransaction());
     executor.update(req);
     return executor;
   }
 
-  insert(req: ParamInsertEntity) {
+  insert<T>(req: ParamInsertEntity) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorInsert = new ExecutorInsert(this.#driver, this.getTransaction());
+    const executor: ExecutorInsert<T> = new ExecutorInsert(this.#driver, this.getTransaction());
     executor.insert(req);
     return executor;
   }
@@ -172,9 +172,9 @@ class Connection {
     return executor;
   }
 
-  upsert(req: ParamUpsertEntity) {
+  upsert<T>(req: ParamUpsertEntity) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorUpsert = new ExecutorUpsert(this.#driver, this.getTransaction());
+    const executor: ExecutorUpsert<T> = new ExecutorUpsert(this.#driver, this.getTransaction());
     executor.upsert(req);
     return executor;
   }

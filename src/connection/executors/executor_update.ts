@@ -3,57 +3,48 @@ import { Driver } from "../connection_type.ts";
 import { BuilderUpdate } from "../builders/builder_update.ts";
 import { ParamUpdateEntity, ParamUpdateParams, ParamUpdateSet } from "../builders/params/param_update.ts";
 
-export class ExecutorUpdate {
-  ub: BuilderUpdate = new BuilderUpdate(<Driver> {});
+export class ExecutorUpdate<T> {
+  ub: BuilderUpdate<T> = new BuilderUpdate(<Driver> {});
   constructor(public driver: Driver, public transaction: any) {
     this.ub = new BuilderUpdate(driver);
   }
 
-  update(req: ParamUpdateEntity): ExecutorUpdate {
+  update(req: ParamUpdateEntity): ExecutorUpdate<T> {
     this.ub.update(req);
     return this;
   }
 
-  set<T>(columns: ParamUpdateSet<T>[] | ParamUpdateSet<T>): ExecutorUpdate {
+  set<T>(columns: ParamUpdateSet<T>[] | ParamUpdateSet<T>): this {
     this.ub.set(columns);
     return this;
   }
 
-  addSet<T>(columns: ParamUpdateSet<T>[] | ParamUpdateSet<T>): ExecutorUpdate {
+  addSet<T>(columns: ParamUpdateSet<T>[] | ParamUpdateSet<T>): this {
     this.ub.addSet(columns);
     return this;
   }
 
-  where(conditions: [string, ...string[]] | string, params?: ParamUpdateParams): ExecutorUpdate {
+  where(conditions: [string, ...string[]] | string, params?: ParamUpdateParams): this {
     this.ub.where(conditions, params);
     return this;
   }
 
-  andWhere(
-    conditions: [string, ...string[]] | string,
-    params?: ParamUpdateParams,
-  ): ExecutorUpdate {
+  andWhere(conditions: [string, ...string[]] | string, params?: ParamUpdateParams): this {
     this.ub.andWhere(conditions, params);
     return this;
   }
 
-  orWhere(
-    conditions: [string, ...string[]] | string,
-    params?: ParamUpdateParams,
-  ): ExecutorUpdate {
+  orWhere(conditions: [string, ...string[]] | string, params?: ParamUpdateParams): this {
     this.ub.orWhere(conditions, params);
     return this;
   }
 
-  addWhere(
-    conditions: [string, ...string[]] | string,
-    params?: ParamUpdateParams,
-  ): ExecutorUpdate {
+  addWhere(conditions: [string, ...string[]] | string, params?: ParamUpdateParams): this {
     this.ub.addWhere(conditions, params);
     return this;
   }
 
-  printSql(): ExecutorUpdate {
+  printSql(): this {
     this.ub.printSql();
     return this;
   }

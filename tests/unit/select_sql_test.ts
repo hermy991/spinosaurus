@@ -148,19 +148,38 @@ Deno.test("select [where between(number)] sql", () => {
 });
 Deno.test("select [where with params] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.select([`u."userName"`], [`u."firstName"`])
+  const qs1 = db.select([`u."userName"`], [`u."firstName"`])
     .from({ entity: "User", as: "u" })
     .where([`u."userName" = :userName`], { userName: "hermy991" });
-  const query = qs.getSql();
-  const queryExpected = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" = 'hermy991'`;
-  assertEquals(query, queryExpected);
+  const q1 = qs1.getSql();
+  const qe1 = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" = 'hermy991'`;
+  assertEquals(q1, qe1);
+
+  const qs2 = db.select([`u."userName"`], [`u."firstName"`])
+    .from({ entity: "User", as: "u" })
+    .where([`u."userName" IN (:list)`], { list: ["hermy991", "master", "xxx"] });
+  const q2 = qs2.getSql();
+  const qe2 =
+    `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."userName" IN ('hermy991', 'master', 'xxx')`;
+  assertEquals(q2, qe2);
+
+  const qs3 = db.select([`u."userName"`], [`u."firstName"`])
+    .from({ entity: "User", as: "u" })
+    .where([`u."user_ID" IN (:list)`], { list: [1, 2, 3, 4, 5, 6, 7, 8, 9] });
+  const q3 = qs3.getSql();
+  const qe3 = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."user_ID" IN (1, 2, 3, 4, 5, 6, 7, 8, 9)`;
+  assertEquals(q3, qe3);
+
+  const qs4 = db.select([`u."userName"`], [`u."firstName"`])
+    .from({ entity: "User", as: "u" })
+    .where([`u."user_ID" IN (:list)`], { list: ["xxx", "hermy991", 7, 8, 9] });
+  const q4 = qs4.getSql();
+  const qe4 = `SELECT u."userName", u."firstName" FROM "User" AS "u" WHERE u."user_ID" IN ('xxx', 'hermy991', 7, 8, 9)`;
+  assertEquals(q4, qe4);
 });
 Deno.test("select [group by] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs = db.select([`u."userName"`], [`u."firstName"`], [
-    `COUNT(*)`,
-    "count",
-  ])
+  const qs = db.select([`u."userName"`], [`u."firstName"`], [`COUNT(*)`, "count"])
     .from({ entity: "User", as: "u" })
     .groupBy(`u."userName"`)
     .addGroupBy([`u."firstName"`]);

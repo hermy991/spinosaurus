@@ -29,9 +29,9 @@ export class BuilderUpsert<T> extends BuilderBase {
     this.addValues(<T> data);
   }
 
-  addValues(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>) {
+  addValues<T>(data: ParamUpsertValue<T>[] | ParamUpsertValue<T>) {
     data = Array.isArray(data) ? data : [data];
-    this.#valuesData.push(...data);
+    data.forEach((d) => this.#valuesData.push(<T> d));
   }
 
   getSqls(): string[] {
