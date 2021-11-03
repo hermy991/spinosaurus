@@ -22,26 +22,30 @@ export class BuilderSelect extends BuilderBase {
     super(driver);
   }
 
-  selectDistinct(...columns: Array<{ column: string; as?: string }>): void {
+  selectDistinct(...columns: Array<{ column: string; as?: string } | [string, string?]>): void {
     this.#distinct = true;
     this.select(...columns);
   }
 
-  select(...columns: Array<{ column: string; as?: string }>): void {
+  select(...columns: Array<{ column: string; as?: string } | [string, string?]>): void {
     this.#selectData = [];
     columns.forEach((x) => this.addSelect(x));
   }
 
-  addSelect(req: { column: string; as?: string }): void {
-    this.#selectData.push(req);
+  addSelect(...columns: Array<{ column: string; as?: string } | [string, string?]>): void {
+    const tempColumns: Array<{ column: string; as?: string }> = [];
+    for (let i = 0; i < columns.length; i++) {
+      if (Array.isArray(columns[i])) {
+        const [column, as] = (columns[i] as [string, string?]);
+        tempColumns.push({ column, as });
+      } else {
+        tempColumns.push(columns[i] as { column: string; as?: string });
+      }
+    }
+    this.#selectData.push(...tempColumns);
   }
 
-  from(
-    req:
-      | { entity: string; schema?: string; as?: string }
-      | { entity: Function; as?: string }
-      | Function,
-  ): void {
+  from(req: { entity: string; schema?: string; as?: string } | { entity: Function; as?: string } | Function): void {
     if (typeof req === "function") {
       this.#fromData = { entity: req };
     } else {

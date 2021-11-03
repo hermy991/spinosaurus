@@ -109,40 +109,28 @@ class Connection {
     return executor;
   }
 
-  drop(
-    req: { entity: string; schema?: string } | {
-      schema: string;
-      check?: boolean;
-    },
-  ) {
+  drop(req: { entity: string; schema?: string } | { schema: string; check?: boolean }) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorDrop = new ExecutorDrop(this.#driver);
     executor.drop(req);
     return executor;
   }
 
-  rename(
-    from: { entity: string; schema?: string },
-    to?: { entity: string; schema?: string },
-  ) {
+  rename(from: { entity: string; schema?: string }, to?: { entity: string; schema?: string }) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorRename = new ExecutorRename(this.#driver);
     executor.rename(from, to);
     return executor;
   }
 
-  select(
-    ...columns: Array<{ column: string; as?: string } | [string, string?]>
-  ) {
+  select(...columns: Array<{ column: string; as?: string } | [string, string?]>) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction());
     executor.select(...columns);
     return executor;
   }
 
-  selectDistinct(
-    ...columns: Array<{ column: string; as?: string } | [string, string?]>
-  ) {
+  selectDistinct(...columns: Array<{ column: string; as?: string } | [string, string?]>) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction());
     executor.selectDistinct(...columns);

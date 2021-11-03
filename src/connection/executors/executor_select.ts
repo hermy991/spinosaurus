@@ -24,21 +24,12 @@ export class ExecutorSelect {
   }
 
   selectDistinct(...columns: Array<{ column: string; as?: string } | [string, string?]>): ExecutorSelect {
-    const tempColumns: Array<{ column: string; as?: string }> = [];
-    for (let i = 0; i < columns.length; i++) {
-      if (Array.isArray(columns[i])) {
-        const [column, as] = (columns[i] as [string, string?]);
-        tempColumns.push({ column, as });
-      } else {
-        tempColumns.push(columns[i] as { column: string; as?: string });
-      }
-    }
-    this.sb.selectDistinct(...tempColumns);
+    this.sb.selectDistinct(...columns);
     return this;
   }
 
-  addSelect(req: { column: string; as?: string }): ExecutorSelect {
-    this.sb.addSelect(req);
+  addSelect(...columns: Array<{ column: string; as?: string } | [string, string?]>): ExecutorSelect {
+    this.sb.addSelect(...columns);
     return this;
   }
 
@@ -64,58 +55,37 @@ export class ExecutorSelect {
     return this;
   }
 
-  leftAndSelect(
-    req: ParamClauseRelation,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  leftAndSelect(req: ParamClauseRelation, params?: ParamComplexValues): ExecutorSelect {
     this.sb.leftAndSelect(req, params);
     return this;
   }
 
-  right(
-    req: ParamClauseRelation,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  right(req: ParamClauseRelation, params?: ParamComplexValues): ExecutorSelect {
     this.sb.right(req, params);
     return this;
   }
 
-  rightAndSelect(
-    req: ParamClauseRelation,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  rightAndSelect(req: ParamClauseRelation, params?: ParamComplexValues): ExecutorSelect {
     this.sb.rightAndSelect(req, params);
     return this;
   }
 
-  where(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  where(conditions: [string, ...string[]] | string, params?: ParamComplexValues): ExecutorSelect {
     this.sb.where(conditions, params);
     return this;
   }
 
-  andWhere(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  andWhere(conditions: [string, ...string[]] | string, params?: ParamComplexValues): ExecutorSelect {
     this.sb.andWhere(conditions, params);
     return this;
   }
 
-  orWhere(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  orWhere(conditions: [string, ...string[]] | string, params?: ParamComplexValues): ExecutorSelect {
     this.sb.orWhere(conditions, params);
     return this;
   }
 
-  addWhere(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  addWhere(conditions: [string, ...string[]] | string, params?: ParamComplexValues): ExecutorSelect {
     this.sb.addWhere(conditions, params);
     return this;
   }
@@ -130,34 +100,22 @@ export class ExecutorSelect {
     return this;
   }
 
-  having(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  having(conditions: [string, ...string[]] | string, params?: ParamComplexValues): ExecutorSelect {
     this.sb.having(conditions, params);
     return this;
   }
 
-  andHaving(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  andHaving(conditions: [string, ...string[]] | string, params?: ParamComplexValues): ExecutorSelect {
     this.sb.andHaving(conditions, params);
     return this;
   }
 
-  orHaving(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  orHaving(conditions: [string, ...string[]] | string, params?: ParamComplexValues): ExecutorSelect {
     this.sb.orHaving(conditions, params);
     return this;
   }
 
-  addHaving(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ): ExecutorSelect {
+  addHaving(conditions: [string, ...string[]] | string, params?: ParamComplexValues): ExecutorSelect {
     this.sb.addHaving(conditions, params);
     return this;
   }
