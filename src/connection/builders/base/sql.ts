@@ -1,8 +1,6 @@
 import { hash } from "../../../../deps.ts";
 
-export function stringify(
-  value: string | number | boolean | Date | Function | null | undefined,
-): string {
+export function stringify(value: string | number | boolean | Date | Function | null | undefined): string {
   if (value === undefined) {
     return "NULL";
   } else if (value === null) {
@@ -31,10 +29,7 @@ export function stringify(
   return `NULL`;
 }
 
-export function interpolate(
-  conditions: [string, ...string[]],
-  params?: { [x: string]: string },
-): Array<string> {
+export function interpolate(conditions: [string, ...string[]], params?: { [x: string]: string }): Array<string> {
   const data = [];
   for (let i = 0; i < conditions.length; i++) {
     const condition = conditions[i];
@@ -42,10 +37,9 @@ export function interpolate(
     for (let y = 0; y < condition.split(`"`).length; y++) {
       let chunk = condition.split(`"`)[y];
       if (y % 2 == 0) {
-        for (let x = 0; x < Object.keys(params || {}).length; x++) {
-          const key = Object.keys(params || {})[x];
+        for (const key in params || {}) {
           if (key.indexOf(";") >= 0) continue;
-          const reg = new RegExp(`(^|(?<=[\\s])):${key}((?=[\\s])|$)`, "ig");
+          const reg = new RegExp(`(^|(?<=[\\s(])):${key}((?=[\\s)])|$)`, "ig");
           const value = params ? params[key] : "";
           chunk = chunk.replace(reg, value);
         }

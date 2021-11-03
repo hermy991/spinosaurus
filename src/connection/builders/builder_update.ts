@@ -13,8 +13,8 @@ export class BuilderUpdate<T> extends BuilderBase {
   #whereData: Array<string> = [];
   #paramsData: ParamUpdateParams = {};
 
-  constructor(public conn: Driver) {
-    super(conn);
+  constructor(public driver: Driver) {
+    super(driver);
   }
 
   update(req: ParamUpdateEntity): void {
@@ -109,7 +109,7 @@ export class BuilderUpdate<T> extends BuilderBase {
     }
     let sql: string[] = [];
     sql.push(`WHERE`);
-    const conditions: string[] = this.conn.interpolate(
+    const conditions: string[] = this.driver.interpolate(
       <[string, ...string[]]> this.#whereData,
       this.#paramsData,
     );
@@ -148,9 +148,9 @@ export class BuilderUpdate<T> extends BuilderBase {
               let xc = findColumn({
                 entityOrClass: <Function> e.classFunction,
                 propertyKey: p.propertyKey,
-                nameOrOptions: this.conn.options,
+                nameOrOptions: this.driver.options,
               });
-              let fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.conn.options });
+              let fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.driver.options });
               if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in (<any> set)[name]) {
                 (<any> cloned)[xc[1].foreign.columnName] = (<any> set)[name][fc[1].propertyKey];
               }
@@ -159,7 +159,7 @@ export class BuilderUpdate<T> extends BuilderBase {
             }
             if (p.primary) {
               primaryColumn = { name: p.name, value: (<any> set)[name] };
-              addings.push(`${this.clearNames(p.name)} = ${this.conn.stringify((<any> set)[name])}`);
+              addings.push(`${this.clearNames(p.name)} = ${this.driver.stringify((<any> set)[name])}`);
             }
           }
         }
@@ -176,7 +176,7 @@ export class BuilderUpdate<T> extends BuilderBase {
       }
     }
     for (const dbname in cloned) {
-      const tempStr = `${this.clearNames(dbname)} = ${this.conn.stringify((<any> cloned)[dbname])}`;
+      const tempStr = `${this.clearNames(dbname)} = ${this.driver.stringify((<any> cloned)[dbname])}`;
       columns.push(tempStr);
     }
     if (!columns.length) {
@@ -198,9 +198,9 @@ export class BuilderUpdate<T> extends BuilderBase {
     let e: { schema?: string; entity?: string; classFunction?: Function } = {};
     let ps = [];
     if (this.#entityData instanceof Function) {
-      e = this.getEntityData(this.conn.options.name, this.#entityData);
+      e = this.getEntityData(this.driver.options.name, this.#entityData);
       e.classFunction = this.#entityData;
-      ps = this.getColumns(this.conn.options.name, this.#entityData);
+      ps = this.getColumns(this.driver.options.name, this.#entityData);
     } else {
       e = this.#entityData;
     }

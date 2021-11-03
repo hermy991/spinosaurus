@@ -18,8 +18,8 @@ export class BuilderSelect extends BuilderBase {
   /*FLAGS*/
   #distinct = false;
 
-  constructor(public conn: Driver) {
-    super(conn);
+  constructor(public driver: Driver) {
+    super(driver);
   }
 
   selectDistinct(...columns: Array<{ column: string; as?: string }>): void {
@@ -217,12 +217,12 @@ export class BuilderSelect extends BuilderBase {
     if (!this.#selectData.length && this.#fromData) {
       const { schema, entity, as } = <any> this.#fromData;
       if (entity instanceof Function) {
-        const te = this.getEntityData(this.conn.options.name, entity);
+        const te = this.getEntityData(this.driver.options.name, entity);
         let t = this.clearNames([te.schema, te.entity]);
         if (as) {
           t = this.clearNames(as);
         }
-        const cols = this.getColumns(this.conn.options.name, entity);
+        const cols = this.getColumns(this.driver.options.name, entity);
         sql += cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${x.name}"`)
           .join(", ");
       } else {
@@ -240,13 +240,13 @@ export class BuilderSelect extends BuilderBase {
             continue;
           }
           if (entity instanceof Function) {
-            const te = this.getEntityData(this.conn.options.name, entity);
+            const te = this.getEntityData(this.driver.options.name, entity);
             let t = this.clearNames([te.schema, te.entity]);
             if (as) {
               t = this.clearNames(as);
             }
             // column list
-            const cols = this.getColumns(this.conn.options.name, entity);
+            const cols = this.getColumns(this.driver.options.name, entity);
             sql += ", " +
               cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${t.replaceAll(`"`, "")}.${x.name}"`)
                 .join(", ");
@@ -279,7 +279,7 @@ export class BuilderSelect extends BuilderBase {
     const { as } = this.#fromData;
     let te: { schema?: string; entity?: string } = {};
     if (this.#fromData.entity instanceof Function) {
-      te = this.getEntityData(this.conn.options.name, this.#fromData.entity);
+      te = this.getEntityData(this.driver.options.name, this.#fromData.entity);
     } else {
       te = <any> this.#fromData;
     }
@@ -300,10 +300,10 @@ export class BuilderSelect extends BuilderBase {
       const { join, entity, as, on } = this.#clauseData[i];
       let te: { schema?: string; entity?: string } = <any> this.#clauseData[i];
       if (entity instanceof Function) {
-        te = this.getEntityData(this.conn.options.name, entity);
+        te = this.getEntityData(this.driver.options.name, entity);
       }
       const t = `${this.clearNames([te.schema, te.entity])}`;
-      const ton = this.conn.interpolate(on, this.#paramsData);
+      const ton = this.driver.interpolate(on, this.#paramsData);
       sqls.push(
         `${join.toUpperCase()} JOIN ${t}${as ? " AS " + this.clearNames(as) : ""} ON ${ton.join(" ")}`,
       );
@@ -315,10 +315,7 @@ export class BuilderSelect extends BuilderBase {
     if (!this.#whereData.length) {
       return ``;
     }
-    const conditions: string[] = this.conn.interpolate(
-      <[string, ...string[]]> this.#whereData,
-      this.#paramsData,
-    );
+    const conditions: string[] = this.driver.interpolate(<[string, ...string[]]> this.#whereData, this.#paramsData);
     return `WHERE ${conditions.join(" ")}`;
   }
 
@@ -338,7 +335,7 @@ export class BuilderSelect extends BuilderBase {
     if (!this.#havingData.length) {
       return ``;
     }
-    const conditions: string[] = this.conn.interpolate(
+    const conditions: string[] = this.driver.interpolate(
       <[string, ...string[]]> this.#havingData,
       this.#paramsData,
     );

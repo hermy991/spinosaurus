@@ -6,8 +6,8 @@ export class BuilderRename extends BuilderBase {
   #toData?: { entity: string };
   #columnsData: Array<[string, string]> = [];
 
-  constructor(public conn: Driver) {
-    super(conn);
+  constructor(public driver: Driver) {
+    super(driver);
   }
 
   rename(

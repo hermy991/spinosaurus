@@ -16,8 +16,8 @@ export class BuilderUpsert<T> extends BuilderBase {
     | null = null;
   #valuesData: Array<ParamUpsertValue<T>> = [];
 
-  constructor(public conn: Driver) {
-    super(conn);
+  constructor(public driver: Driver) {
+    super(driver);
   }
 
   upsert(req: ParamUpsertEntity): void {
@@ -39,11 +39,11 @@ export class BuilderUpsert<T> extends BuilderBase {
       return [];
     }
     const sqls: string[] = [];
-    const bu = new BuilderUpdate(this.conn);
+    const bu = new BuilderUpdate(this.driver);
     bu.update(this.#entityData);
     bu.set(this.#valuesData);
     const u = bu.getSqls();
-    const bi = new BuilderInsert(this.conn);
+    const bi = new BuilderInsert(this.driver);
     bi.insert(this.#entityData);
     bi.values(this.#valuesData);
     const i = bi.getSqls();

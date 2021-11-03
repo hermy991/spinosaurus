@@ -31,8 +31,8 @@ export class BuilderCreate extends BuilderBase {
   #initData: ParamCreateData[] = [];
   #nextData: ParamCreateNext[] = [];
   #afterData: ParamCreateAfter[] = [];
-  constructor(public conn: Driver) {
-    super(conn);
+  constructor(public driver: Driver) {
+    super(driver);
   }
 
   create(req: ParamCreateEntity): void {
@@ -128,7 +128,7 @@ export class BuilderCreate extends BuilderBase {
     }
     const nameData = self.structuredClone(this.#entityData);
     nameData.schema = this.clearNames(nameData.schema);
-    return [this.conn.createSchema(nameData)];
+    return [this.driver.createSchema(nameData)];
   }
 
   getCreateTableQuery(e: { schema?: string; entity?: string }): string {
@@ -154,7 +154,7 @@ export class BuilderCreate extends BuilderBase {
     const sqls: string[] = [];
     for (let i = 0; i < cols.length; i++) {
       const name = this.clearNames(cols[i].name);
-      const sql = this.conn.columnDefinition({ ...cols[i], name });
+      const sql = this.driver.columnDefinition({ ...cols[i], name });
       sqls.push(sql);
     }
     return `( ${sqls.join(", ")} )`;
@@ -177,7 +177,7 @@ export class BuilderCreate extends BuilderBase {
         sequence: i + 1,
       });
       tchks[i].name = this.clearNames(tchks[i].name);
-      const sql = this.conn.createCheck({
+      const sql = this.driver.createCheck({
         entity: entity && this.clearNames(entity),
         schema: schema && this.clearNames(schema),
         ...tchks[i],
@@ -204,7 +204,7 @@ export class BuilderCreate extends BuilderBase {
       });
       unique.name = this.clearNames(unique.name);
       unique.columns = unique.columns.map((x: string) => this.clearNames(x));
-      const sql = this.conn.createUnique({
+      const sql = this.driver.createUnique({
         entity: entity && this.clearNames(entity),
         schema: schema && this.clearNames(schema),
         ...unique,
@@ -218,7 +218,7 @@ export class BuilderCreate extends BuilderBase {
     if (!this.#relationsData.length) {
       return [];
     }
-    const ba = new BuilderAlter(this.conn);
+    const ba = new BuilderAlter(this.driver);
     ba.alter(<any> e);
     ba.relations(this.#relationsData);
     return ba.getSqls();
@@ -231,7 +231,7 @@ export class BuilderCreate extends BuilderBase {
     if (!e.entity) {
       return [];
     }
-    const ib = new BuilderInsert(this.conn);
+    const ib = new BuilderInsert(this.driver);
     if (this.#entityData instanceof Function) {
       ib.insert({
         entity: this.#entityData,
@@ -286,10 +286,10 @@ export class BuilderCreate extends BuilderBase {
     let cols: ParamColumnDefinition[] = this.#columnsData;
     let chks: ParamCheck[] = self.structuredClone(this.#checkData);
     if (this.#entityData instanceof Function) {
-      e = this.getEntityData(this.conn.options.name, this.#entityData);
+      e = this.getEntityData(this.driver.options.name, this.#entityData);
       if (this.#options.createByEntity) {
-        cols = cols.length ? cols : this.getColumns(this.conn.options.name, this.#entityData);
-        chks = chks.length ? chks : this.getChecks(this.conn.options.name, this.#entityData);
+        cols = cols.length ? cols : this.getColumns(this.driver.options.name, this.#entityData);
+        chks = chks.length ? chks : this.getChecks(this.driver.options.name, this.#entityData);
       }
     } else {
       e = this.#entityData;

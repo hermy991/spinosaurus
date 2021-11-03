@@ -32,8 +32,8 @@ class ConnectionPostgres implements IConnectionOperations {
   /* Basic Connection Operations*/
   stringify(value: ParamSimpleValues | ParamSimpleValues[]): string {
     if (
-      value === undefined || value === null || typeof (value) == "boolean" ||
-      typeof (value) == "number" || typeof (value) == "string"
+      value === undefined || value === null || typeof (value) == "boolean" || typeof (value) == "number" ||
+      typeof (value) == "string"
     ) {
       return stringify(value);
     } else if (typeof (value) == "object" && value instanceof Date) {

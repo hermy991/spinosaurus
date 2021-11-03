@@ -9,8 +9,8 @@ export class BuilderDrop extends BuilderBase {
   #columnsData: string[] = [];
   #constraintsData: string[] = [];
 
-  constructor(public conn: Driver) {
-    super(conn);
+  constructor(public driver: Driver) {
+    super(driver);
   }
 
   drop(
@@ -48,7 +48,7 @@ export class BuilderDrop extends BuilderBase {
     }
     const nameData = self.structuredClone(this.#nameData);
     nameData.schema = this.clearNames(nameData.schema);
-    return [this.conn.dropSchema(nameData)];
+    return [this.driver.dropSchema(nameData)];
   }
 
   getEntityQuery(type: "drop" | "alter"): string {

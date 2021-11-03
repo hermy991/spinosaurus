@@ -7,8 +7,8 @@ export class BuilderDelete extends BuilderBase {
   #whereData: Array<string> = [];
   #paramsData: ParamComplexValues = {};
 
-  constructor(public conn: Driver) {
-    super(conn);
+  constructor(public driver: Driver) {
+    super(driver);
   }
 
   delete(
@@ -86,7 +86,7 @@ export class BuilderDelete extends BuilderBase {
     let e: { schema?: string; entity?: string } = {};
     if (this.#entityData instanceof Function) {
       e = this.getEntityData(
-        this.conn.options.name,
+        this.driver.options.name,
         this.#entityData,
       );
     } else {
@@ -100,7 +100,7 @@ export class BuilderDelete extends BuilderBase {
     if (!this.#whereData.length) {
       return ``;
     }
-    const conditions: string[] = this.conn.interpolate(
+    const conditions: string[] = this.driver.interpolate(
       <[string, ...string[]]> this.#whereData,
       this.#paramsData,
     );

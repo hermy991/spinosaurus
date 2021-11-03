@@ -10,8 +10,8 @@ export class BuilderAlter extends BuilderBase {
     [string, ParamRelationDefinition] | ParamRelationDefinition
   > = [];
 
-  constructor(public conn: Driver) {
-    super(conn);
+  constructor(public driver: Driver) {
+    super(driver);
   }
 
   alter(req: { entity: string; schema?: string }): void {
@@ -74,11 +74,11 @@ export class BuilderAlter extends BuilderBase {
 
       querys = [
         ...querys,
-        ...this.conn.columnAlter({ schema, entity, name }, def),
+        ...this.driver.columnAlter({ schema, entity, name }, def),
       ];
       if (def.comment) {
         querys.push(
-          this.conn.columnComment({
+          this.driver.columnComment({
             schema,
             entity,
             name: def.name || name,
@@ -104,7 +104,7 @@ export class BuilderAlter extends BuilderBase {
     if (!this.#relationsData.length || !this.#nameData) {
       return [];
     }
-    const connName = (<any> this.conn.options).name;
+    const connName = (<any> this.driver.options).name;
     const sqls: string[] = [];
     let { entity, schema } = this.#nameData;
     for (let i = 0; i < this.#relationsData.length; i++) {
@@ -140,7 +140,7 @@ export class BuilderAlter extends BuilderBase {
       if (constraintName) {
         // Dropping constraints
         constraintName = this.clearNames(constraintName);
-        sql = this.conn.dropConstraint({
+        sql = this.driver.dropConstraint({
           entity: this.clearNames([schema, entity]),
           name: constraintName,
         });
@@ -157,7 +157,7 @@ export class BuilderAlter extends BuilderBase {
       } else {
         parentColumns = parentColumns.map((x: string) => this.clearNames(x));
       }
-      sql = this.conn.createRelation({
+      sql = this.driver.createRelation({
         schema,
         entity,
         name,

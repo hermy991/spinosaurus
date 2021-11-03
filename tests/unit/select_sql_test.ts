@@ -190,8 +190,7 @@ Deno.test("select [group by] sql", () => {
 });
 Deno.test("select [having] sql", () => {
   const db: Connection = new Connection(con1);
-  const qs1 = db.select([`u."userName"`], [`u."firstName"`])
-    .from({ entity: "User", as: "u" })
+  const qs1 = db.select([`u."userName"`], [`u."firstName"`]).from({ entity: "User", as: "u" })
     .having([`u."userName" = 'hermy991'`]);
   const q1 = qs1.getSql();
   const qe1 = `SELECT u."userName", u."firstName" FROM "User" AS "u" HAVING u."userName" = 'hermy991'`;
@@ -203,8 +202,7 @@ Deno.test("select [having] sql", () => {
     [`count(*)`, "sum"],
     [`avg(prictureQuantity)`, "avg"],
     [`sum(u."prictureQuantity")`, "prictureQuantity"],
-  )
-    .from({ entity: "User", as: "u" })
+  ).from({ entity: "User", as: "u" })
     .groupBy(`u."userName"`)
     .addGroupBy([`u."firstName"`])
     .having([`count(*) > 5`])
@@ -214,6 +212,26 @@ Deno.test("select [having] sql", () => {
   const qe2 =
     `SELECT u."userName", u."firstName", count(*) AS "sum", avg(prictureQuantity) AS "avg", sum(u."prictureQuantity") AS "prictureQuantity" FROM "User" AS "u" GROUP BY u."userName", u."firstName" HAVING count(*) > 5 AND avg(prictureQuantity) < 200 OR sum(u."prictureQuantity") < 1000`;
   assertEquals(q2, qe2);
+
+  const qs3 = db.select([`u."userName"`], [`u."firstName"`]).from({ entity: "User", as: "u" })
+    .having([`u."userName" IN (:list)`], { list: ["hermy991", "master", "xxx"] });
+  const q3 = qs3.getSql();
+  const qe3 =
+    `SELECT u."userName", u."firstName" FROM "User" AS "u" HAVING u."userName" IN ('hermy991', 'master', 'xxx')`;
+  assertEquals(q3, qe3);
+
+  const qs4 = db.select([`u."userName"`], [`u."firstName"`]).from({ entity: "User", as: "u" })
+    .having([`u."user_ID" IN (:list)`], { list: [1, 2, 3, 4, 5, 6, 7, 8, 9] });
+  const q4 = qs4.getSql();
+  const qe4 = `SELECT u."userName", u."firstName" FROM "User" AS "u" HAVING u."user_ID" IN (1, 2, 3, 4, 5, 6, 7, 8, 9)`;
+  assertEquals(q4, qe4);
+
+  const qs5 = db.select([`u."userName"`], [`u."firstName"`]).from({ entity: "User", as: "u" })
+    .having([`u."user_ID" IN (:list)`], { list: ["hermy991", "master", "xxx", 7, 8, 9] });
+  const q5 = qs5.getSql();
+  const qe5 =
+    `SELECT u."userName", u."firstName" FROM "User" AS "u" HAVING u."user_ID" IN ('hermy991', 'master', 'xxx', 7, 8, 9)`;
+  assertEquals(q5, qe5);
 });
 Deno.test("select [order by] sql", () => {
   const db: Connection = new Connection(con1);

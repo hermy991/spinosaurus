@@ -94,7 +94,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - testing for generate columns from entity in select using options
 - adding primary key column in each delete
 - throw a error when @UpdateColumn property is not a Number type
-- adding interpolation list ``addWhere( ```"primaryKey" IN(:primaryKey)```,  { primaryKey: [ 1, 2, 3, 4 ] })``
 - implement in @InsertColumn, @UpdateColumn (value) and ({options}, value) params
 - does not update object without primary key in entity mode (updating a antity), create testing too
 - create a option in update entity option witch can update without a primary key

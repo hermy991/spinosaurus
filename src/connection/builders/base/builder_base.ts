@@ -5,18 +5,18 @@ import { getMetadataChecks, getMetadataColumns, getMetadataEntityData } from "..
 export class BuilderBase {
   #printSql = false;
   get #left() {
-    return this.conn.delimiters[0];
+    return this.driver.delimiters[0];
   }
   get #right() {
-    if (this.conn.delimiters.length == 1) {
-      return this.conn.delimiters[0];
+    if (this.driver.delimiters.length == 1) {
+      return this.driver.delimiters[0];
     }
-    return this.conn.delimiters[1] + "";
+    return this.driver.delimiters[1] + "";
   }
   get delimiters() {
-    return <string[]> this.conn.delimiters;
+    return <string[]> this.driver.delimiters;
   }
-  constructor(public conn: Driver) {
+  constructor(public driver: Driver) {
   }
   printSql = () => {
     this.#printSql = true;
