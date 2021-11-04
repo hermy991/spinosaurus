@@ -97,6 +97,7 @@ deno run -qA https://code.velociraptor.run test:exec
 - implement in @InsertColumn, @UpdateColumn (value) and ({options}, value) params
 - does not update object without primary key in entity mode (updating a antity), create testing too
 - create a option in update entity option witch can update without a primary key
+- adding joinAndOne, leftAndOne, rigthAndOne and exec testing, remember include in joinAndSelect, joinAndSelect,
 - adding joinAndWrap, leftAndWrap, rigthAndWrap and exec testing, remember include in joinAndSelect, joinAndSelect,
   joinAndSelect as a option (wrap: boolean)
 - suport multiple connection
@@ -109,6 +110,7 @@ deno run -qA https://code.velociraptor.run test:exec
 - set maxExecutionTime as a option in select, insert, update, delete and transaction
 - numeric param in `groupBy`, `addGroupBy`, `orderBy`, `addOrderBy` and set select definition internally
 - change `from({ entity: Entity })` to `from(Entity, "e")` on documentation and code
+- `orderBy({ "p.passwordOrder": "DESC" })`
 - change param `orderBy` and `addOrderBy` strategic from ... to array
 - using path in Next and After in decorators and query builder
 - updating database with createConnection
@@ -121,3 +123,8 @@ deno run -qA https://code.velociraptor.run test:exec
   ``addWhere(```"primaryKey" IN(:primaryKey)```,  { primaryKey: [ 1, 2, 3, 4 ] })``
 - call from() query selector function from connection like `await conn.select().from(Entity);` to
   `await conn.from(Entity);`
+- adding param structure in all query builder
+  ```typescript
+  ... .from({ entity: User, as: "u" })                        -> ... .from(User, "u")
+  ... .join({ entity: User, as: "u", on: `u."user_ID" = 1` }) -> ... .join(User, "u", `u."user_ID" = 1`)
+  ```
