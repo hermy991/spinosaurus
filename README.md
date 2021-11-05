@@ -121,8 +121,6 @@ deno run -qA https://code.velociraptor.run test:exec
 - use a structure equals to indexDB to store entities
 - `whereInIds([ 1, 2, 3, 4 ])` transform to
   ``addWhere(```"primaryKey" IN(:primaryKey)```,  { primaryKey: [ 1, 2, 3, 4 ] })``
-- call from() query selector function from connection like `await conn.select().from(Entity);` to
-  `await conn.from(Entity);`
 - adding param structure in all query builder
   ```typescript
   ... .from({ entity: User, as: "u" })                        -> ... .from(User, "u")

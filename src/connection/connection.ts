@@ -137,6 +137,15 @@ class Connection {
     return executor;
   }
 
+  from(
+    req: { entity: string; schema?: string; as?: string } | { entity: Function; as?: string } | Function,
+  ) {
+    if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
+    const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction());
+    executor.from(req);
+    return executor;
+  }
+
   update<T>(req: ParamUpdateEntity) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorUpdate<T> = new ExecutorUpdate(this.#driver, this.getTransaction());

@@ -45,25 +45,34 @@ Deno.test("select [select * from 'Entity'] sql", async () => {
   const { SelectEntity1, SelectEntity2, SelectEntity5 } = await import(
     "./playground/decorators/SelectEntity.ts"
   );
+
   const db: Connection = new Connection(con1);
   const qs1 = db.select().from({ entity: SelectEntity1, as: "u" });
   const q1 = qs1.getSql();
   const qe1 = `SELECT "u"."test1" "test1", "u"."test2" "test2", "u"."custom" "custom" FROM "SelectEntityCustom" AS "u"`;
   assertEquals(q1, qe1);
+
   const qs2 = db.select().from({ entity: SelectEntity2 });
   const q2 = qs2.getSql();
   const qe2 =
     `SELECT "SelectEntity2"."test1" "test1", "SelectEntity2"."test2" "test2", "SelectEntity2"."test3" "test3" FROM "SelectEntity2"`;
   assertEquals(q2, qe2);
+
   const qs3 = db.select().from(SelectEntity5);
   const q3 = qs3.getSql();
   const qe3 =
     `SELECT "hello"."SelectEntity5"."test1" "test1", "hello"."SelectEntity5"."test2" "test2" FROM "hello"."SelectEntity5"`;
   assertEquals(q3, qe3);
+
   const qs4 = db.select().from({ entity: SelectEntity5, as: "u" });
   const q4 = qs4.getSql();
   const qe4 = `SELECT "u"."test1" "test1", "u"."test2" "test2" FROM "hello"."SelectEntity5" AS "u"`;
   assertEquals(q4, qe4);
+
+  const qs5 = db.from({ entity: SelectEntity5, as: "u" });
+  const q5 = qs5.getSql();
+  const qe5 = `SELECT "u"."test1" "test1", "u"."test2" "test2" FROM "hello"."SelectEntity5" AS "u"`;
+  assertEquals(q5, qe5);
 });
 Deno.test("select [select columns] sql", () => {
   const db: Connection = new Connection(con1);

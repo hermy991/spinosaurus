@@ -10,16 +10,7 @@ export class ExecutorSelect {
 
   /** DML SQL Operation*/
   select(...columns: Array<{ column: string; as?: string } | [string, string?]>): ExecutorSelect {
-    const tempColumns: Array<{ column: string; as?: string }> = [];
-    for (let i = 0; i < columns.length; i++) {
-      if (Array.isArray(columns[i])) {
-        const [column, as] = (columns[i] as [string, string?]);
-        tempColumns.push({ column, as });
-      } else {
-        tempColumns.push(columns[i] as { column: string; as?: string });
-      }
-    }
-    this.sb.select(...tempColumns);
+    this.sb.select(...columns);
     return this;
   }
 
