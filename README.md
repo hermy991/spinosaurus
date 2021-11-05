@@ -126,3 +126,13 @@ deno run -qA https://code.velociraptor.run test:exec
   ... .from({ entity: User, as: "u" })                        -> ... .from(User, "u")
   ... .join({ entity: User, as: "u", on: `u."user_ID" = 1` }) -> ... .join(User, "u", `u."user_ID" = 1`)
   ```
+- implement insert into select, update from select, maybe upsert from select
+  ```typescript
+  /*update from select*/
+  await conn.update(User).set({ { userDisplay: () => `p."firstName"` } })
+      .from(User, "u").join(Person, "p", `p."person_ID" = u."person_ID"`)
+
+  /*insert into select*/
+  await conn.insert(User).values({ userDisplay: () => `p."firstName"` })
+      .from(User, "u").join(Person, "p", `p."person_ID" = u."person_ID"`)
+  ```

@@ -57,6 +57,35 @@ Deno.test("join [join 'Entity'] sql", async () => {
   const qe4 =
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "hello"."FromEntity5" AS "u5" ON "u5"."columnKey1" = "u1"."columnKey1"`;
   assertEquals(q4, qe4);
+
+  /** new param structure */
+  const qs5 = db.from({ entity: FromEntity1, as: "u1" })
+    .join(FromEntity2, `"FromEntity2"."columnKey1" = "u1"."columnKey1"`);
+  const q5 = qs5.getSql();
+  const qe5 =
+    `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1"`;
+  assertEquals(q5, qe5);
+
+  const qs6 = db.from({ entity: FromEntity1, as: "u1" })
+    .join(FromEntity2, `"FromEntity2"."columnKey1" = "u1"."columnKey1" AND "u1"."columnKey1" = :key`, { key: "xx" });
+  const q6 = qs6.getSql();
+  const qe6 =
+    `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" ON "FromEntity2"."columnKey1" = "u1"."columnKey1" AND "u1"."columnKey1" = 'xx'`;
+  assertEquals(q6, qe6);
+
+  const qs7 = db.from({ entity: FromEntity1, as: "u1" })
+    .join(FromEntity2, "u", `"u"."columnKey1" = "u1"."columnKey1"`);
+  const q7 = qs7.getSql();
+  const qe7 =
+    `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" AS "u" ON "u"."columnKey1" = "u1"."columnKey1"`;
+  assertEquals(q7, qe7);
+
+  const qs8 = db.from({ entity: FromEntity1, as: "u1" })
+    .join(FromEntity2, "u", `"u"."columnKey1" = "u1"."columnKey1" AND "u1"."columnKey1" = :key`, { key: "xx" });
+  const q8 = qs8.getSql();
+  const qe8 =
+    `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" INNER JOIN "FromEntity2" AS "u" ON "u"."columnKey1" = "u1"."columnKey1" AND "u1"."columnKey1" = 'xx'`;
+  assertEquals(q8, qe8);
 });
 Deno.test("join [select join] sql", async () => {
   const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
