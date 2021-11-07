@@ -3,6 +3,7 @@ import { ConnectionOptions } from "./connection_options.ts";
 import { transferTemp } from "../stores/store.ts";
 import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
 import { ParamCreateEntity } from "./builders/params/param_create.ts";
+import { ParamFromEntity } from "./builders/params/param_select.ts";
 import { ParamUpdateEntity } from "./builders/params/param_update.ts";
 import { ParamInsertEntity } from "./builders/params/param_insert.ts";
 import { ParamUpsertEntity } from "./builders/params/param_upsert.ts";
@@ -137,12 +138,71 @@ class Connection {
     return executor;
   }
 
-  from(
-    req: { entity: string; schema?: string; as?: string } | { entity: Function; as?: string } | Function,
-  ) {
+  /**
+   * The SQL FROM clause is used to list the entity.
+   * @param {Function} entity Entity class
+   * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
+   *
+   * ```typescript
+   *  ... let qb = db.from(SelectEntity1);
+   * ```
+   */
+  from(entity: Function): ExecutorSelect;
+
+  /**
+   * The SQL FROM clause is used to list the entity.
+   * @param {Function} entity Entity class
+   * @param {string} as Param is used to rename a entity with an alias.
+   * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
+   *
+   * ```typescript
+   *  ... let qb = db.from(SelectEntity1, "u");
+   * ```
+   */
+  from(entity: Function, as: string): ExecutorSelect;
+
+  /**
+   * The SQL FROM clause is used to list the entity.
+   * @param {string} entityName Entity class name
+   * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
+   *
+   * ```typescript
+   *  ... let qb = db.from("User");
+   * ```
+   */
+  from(entityName: string): ExecutorSelect;
+
+  /**
+   * The SQL FROM clause is used to list the entity.
+   * @param {string} entityName Entity class name, use a period to specify a squema like `"schema.Entity"`
+   * @param {string} as Param is used to rename a entity with an alias.
+   * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
+   *
+   * ```typescript
+   *  ... let qb = db.from("User", "u");
+   * ```
+   */
+  from(entityName: string, as: string): ExecutorSelect;
+
+  /**
+   * The SQL FROM clause is used to list the entity.
+   * @param {string} fromOption From option
+   * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
+   *
+   * ```typescript
+   *  ... let qb = db.from({ entity: User, as: "u"});
+   *  ... let qb = db.from({ schema: "hello", entity: "User", as: "u"});
+   * ```
+   */
+  from(fromOption: ParamFromEntity): ExecutorSelect;
+
+  /**
+   * Base function
+   */
+  from(entity_entityName_fromOption: Function | string | ParamFromEntity, maybe_as?: string) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction());
-    executor.from(req);
+    executor.from(<any> entity_entityName_fromOption, <any> maybe_as);
     return executor;
   }
 

@@ -32,9 +32,7 @@ export class BuilderBase {
     }
     return false;
   };
-  clearNames = (
-    identifiers?: Array<string | undefined> | string | undefined,
-  ) => {
+  clearNames = (identifiers?: Array<string | undefined> | string | undefined) => {
     return clearNames({ left: this.#left, identifiers, right: this.#right });
   };
   generateName1 = (
@@ -57,5 +55,16 @@ export class BuilderBase {
   }
   getChecks(connName: string, entity: Function): Array<any> {
     return getMetadataChecks({ connName, entity });
+  }
+  splitEntity(req: { entity: string; schema?: string }): { entity: string; schema?: string } {
+    if (
+      !req.schema && typeof req.entity === "string" && req.entity.indexOf(".") >= 0 &&
+      !(req.entity.indexOf(this.driver.delimiters[0]) >= 0) &&
+      !(this.driver.delimiters.length === 2 ? req.entity.indexOf(this.driver.delimiters[1] || "") : -1 >= 0)
+    ) {
+      req.schema = req.entity.substr(0, req.entity.lastIndexOf("."));
+      req.entity = req.entity.substr(req.entity.lastIndexOf(".") + 1, req.entity.length);
+    }
+    return req;
   }
 }

@@ -219,7 +219,7 @@ export class BuilderSelect extends BuilderBase {
   getSelectQuery() {
     let sql = `SELECT${this.#distinct ? " DISTINCT" : ""} `;
     if (!this.#selectData.length && this.#fromData) {
-      const { schema, entity, as } = <any> this.#fromData;
+      let { schema, entity, as } = <any> this.#fromData;
       if (entity instanceof Function) {
         const te = this.getEntityData(this.driver.options.name, entity);
         let t = this.clearNames([te.schema, te.entity]);
@@ -230,7 +230,8 @@ export class BuilderSelect extends BuilderBase {
         sql += cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${x.name}"`)
           .join(", ");
       } else {
-        let t = this.clearNames([schema, entity]);
+        let te = this.splitEntity({ entity, schema });
+        let t = this.clearNames([te.schema, te.entity]);
         if (as) {
           t = this.clearNames(as);
         }
@@ -239,7 +240,7 @@ export class BuilderSelect extends BuilderBase {
 
       if (this.#clauseData) {
         for (let i = 0; i < this.#clauseData.length; i++) {
-          const { select, entity, schema, as } = <any> this.#clauseData[i];
+          let { select, entity, schema, as } = <any> this.#clauseData[i];
           if (!select) {
             continue;
           }
@@ -255,7 +256,8 @@ export class BuilderSelect extends BuilderBase {
               cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${t.replaceAll(`"`, "")}.${x.name}"`)
                 .join(", ");
           } else {
-            let t = this.clearNames([schema, entity]);
+            let te = this.splitEntity({ entity, schema });
+            let t = this.clearNames([te.schema, te.entity]);
             if (as) {
               t = this.clearNames(as);
             }
@@ -281,11 +283,12 @@ export class BuilderSelect extends BuilderBase {
       return ``;
     }
     const { as } = this.#fromData;
-    let te: { schema?: string; entity?: string } = {};
+    let te: { schema?: string; entity: string } = { entity: "" };
     if (this.#fromData.entity instanceof Function) {
       te = this.getEntityData(this.driver.options.name, this.#fromData.entity);
     } else {
       te = <any> this.#fromData;
+      te = this.splitEntity(te);
     }
     let query = `${this.clearNames([te.schema, te.entity])}`;
     if (as) {
@@ -306,6 +309,7 @@ export class BuilderSelect extends BuilderBase {
       if (entity instanceof Function) {
         te = this.getEntityData(this.driver.options.name, entity);
       }
+      te = this.splitEntity(<any> te);
       const t = `${this.clearNames([te.schema, te.entity])}`;
       const ton = this.driver.interpolate(on, this.#paramsData);
       sqls.push(

@@ -8,30 +8,49 @@ Deno.test("select [select *] sql", () => {
   const db: Connection = new Connection(con1);
   const qs1 = db.select().from({ entity: "User", as: "u" });
   const q1 = qs1.getSql();
-  const qe1 = `SELECT "u".* FROM "User" AS "u"`.replace(/[ \n\t]+/ig, " ")
-    .trim();
+  const qe1 = `SELECT "u".* FROM "User" AS "u"`;
   assertEquals(q1, qe1);
+
   const qs2 = db.select().from({ entity: "User" });
   const q2 = qs2.getSql();
-  const qe2 = `SELECT "User".* FROM "User"`.replace(/[ \n\t]+/ig, " ")
+  const qe2 = `SELECT "User".* FROM "User"`
     .trim();
   assertEquals(q2, qe2);
+
   const qs3 = db.select().from({ schema: "hello", entity: "User" });
   const q3 = qs3.getSql();
-  const qe3 = `SELECT "hello"."User".* FROM "hello"."User"`.replace(
-    /[ \n\t]+/ig,
-    " ",
-  )
-    .trim();
+  const qe3 = `SELECT "hello"."User".* FROM "hello"."User"`;
   assertEquals(q3, qe3);
+
   const qs4 = db.select().from({ schema: "hello", entity: "User", as: "u" });
   const q4 = qs4.getSql();
-  const qe4 = `SELECT "u".* FROM "hello"."User" AS "u"`.replace(
-    /[ \n\t]+/ig,
-    " ",
-  )
-    .trim();
+  const qe4 = `SELECT "u".* FROM "hello"."User" AS "u"`;
   assertEquals(q4, qe4);
+
+  const qs5 = db.from({ schema: "hello", entity: "User", as: "u" });
+  const q5 = qs5.getSql();
+  const qe5 = `SELECT "u".* FROM "hello"."User" AS "u"`;
+  assertEquals(q5, qe5);
+
+  const qs6 = db.from("User");
+  const q6 = qs6.getSql();
+  const qe6 = `SELECT "User".* FROM "User"`;
+  assertEquals(q6, qe6);
+
+  const qs7 = db.from("hello.User");
+  const q7 = qs7.getSql();
+  const qe7 = `SELECT "hello"."User".* FROM "hello"."User"`;
+  assertEquals(q7, qe7);
+
+  const qs8 = db.from("User", "u");
+  const q8 = qs8.getSql();
+  const qe8 = `SELECT "u".* FROM "User" AS "u"`;
+  assertEquals(q8, qe8);
+
+  const qs9 = db.from("hello.User", "u");
+  const q9 = qs9.getSql();
+  const qe9 = `SELECT "u".* FROM "hello"."User" AS "u"`;
+  assertEquals(q9, qe9);
 });
 Deno.test("select [select distinct *] sql", () => {
   const db: Connection = new Connection(con1);
@@ -42,9 +61,7 @@ Deno.test("select [select distinct *] sql", () => {
   assertEquals(query, queryExpected);
 });
 Deno.test("select [select * from 'Entity'] sql", async () => {
-  const { SelectEntity1, SelectEntity2, SelectEntity5 } = await import(
-    "./playground/decorators/SelectEntity.ts"
-  );
+  const { SelectEntity1, SelectEntity2, SelectEntity5 } = await import("./playground/decorators/SelectEntity.ts");
 
   const db: Connection = new Connection(con1);
   const qs1 = db.select().from({ entity: SelectEntity1, as: "u" });
@@ -73,6 +90,17 @@ Deno.test("select [select * from 'Entity'] sql", async () => {
   const q5 = qs5.getSql();
   const qe5 = `SELECT "u"."test1" "test1", "u"."test2" "test2" FROM "hello"."SelectEntity5" AS "u"`;
   assertEquals(q5, qe5);
+
+  const qs6 = db.from(SelectEntity1);
+  const q6 = qs6.getSql();
+  const qe6 =
+    `SELECT "SelectEntityCustom"."test1" "test1", "SelectEntityCustom"."test2" "test2", "SelectEntityCustom"."custom" "custom" FROM "SelectEntityCustom"`;
+  assertEquals(q6, qe6);
+
+  const qs7 = db.from(SelectEntity1, "u");
+  const q7 = qs7.getSql();
+  const qe7 = `SELECT "u"."test1" "test1", "u"."test2" "test2", "u"."custom" "custom" FROM "SelectEntityCustom" AS "u"`;
+  assertEquals(q7, qe7);
 });
 Deno.test("select [select columns] sql", () => {
   const db: Connection = new Connection(con1);

@@ -3,9 +3,9 @@
  * if needed.
  */
 
-export type ParamSimpleValues = string | number | boolean | Date | Function | null | undefined;
+export type ParamFromEntity = { entity: string; schema?: string; as?: string } | { entity: Function; as?: string };
 
-// export type ParamComplexOptions = { [x: string]: ParamSimpleOptions | ParamSimpleOptions[] };
+export type ParamSimpleValues = string | number | boolean | Date | Function | null | undefined;
 
 export type ParamComplexValues = Record<string, ParamSimpleValues | ParamSimpleValues[]>;
 
