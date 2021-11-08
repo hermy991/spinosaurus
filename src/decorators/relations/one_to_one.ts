@@ -4,10 +4,7 @@ import { ParamRelation } from "../../connection/builders/params/param_relation.t
 import { getColumnType, getTempMetadata } from "../metadata/metadata.ts";
 import { reflect } from "../../../deps.ts";
 
-export function OneToOne(
-  relation: ParamRelation = {},
-  options: ColumnOptions = {},
-): any {
+export function OneToOne(relation: ParamRelation = {}, options: ColumnOptions = {}): any {
   return (entityf: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const fun = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
     const type = reflect.getMetadata("design:type", entityf, propertyKey);
@@ -19,15 +16,7 @@ export function OneToOne(
     const mixeds: ColumnOptions = Object.assign(target, options, {
       uniqueOne: true,
     });
-    const column = {
-      target,
-      entity,
-      descriptor,
-      property,
-      relation,
-      options,
-      mixeds,
-    };
+    const column = { target, entity, descriptor, property, relation, options, mixeds };
     getTempMetadata().columns.push(column);
   };
 }

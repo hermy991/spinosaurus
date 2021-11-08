@@ -130,9 +130,21 @@ deno run -qA https://code.velociraptor.run test:exec
   ```typescript
   /*update from select*/
   await conn.update(User).set({ userDisplay: () => `p."firstName"` })
-      .from(User, "u").join(Person, "p", `p."person_ID" = u."person_ID"`)
+    .from(User, "u").join(Person, "p", `p."person_ID" = u."person_ID"`);
 
   /*insert into select*/
   await conn.insert(User).values({ userDisplay: () => `p."firstName"` })
-      .from(User, "u").join(Person, "p", `p."person_ID" = u."person_ID"`)
+    .from(User, "u").join(Person, "p", `p."person_ID" = u."person_ID"`);
+  ```
+- Make the next code work:
+  ```typescript
+  const profile = new Profile();
+  profile.gender = "male";
+  profile.photo = "me.jpg";
+  await conn.update(Profile).set(profile).execute();
+
+  const user = new User();
+  user.name = "Joe Smith";
+  user.profile = profile;
+  await conn.update(User).set(user).execute();
   ```
