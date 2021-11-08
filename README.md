@@ -129,7 +129,7 @@ deno run -qA https://code.velociraptor.run test:exec
 - implement insert into select, update from select, maybe upsert from select
   ```typescript
   /*update from select*/
-  await conn.update(User).set({ { userDisplay: () => `p."firstName"` } })
+  await conn.update(User).set({ userDisplay: () => `p."firstName"` })
       .from(User, "u").join(Person, "p", `p."person_ID" = u."person_ID"`)
 
   /*insert into select*/
