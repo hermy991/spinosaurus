@@ -14,7 +14,7 @@
          password: "????????"
      }
      const conn = new Connection(connOpts);
-     const users = await conn.select().from({ entity: "users"}).execute();
+     const users = await conn.from("users").getMany();
      ```
 
    - Via import file from deno option `deno run --import-file=importfile.json`
@@ -43,7 +43,7 @@
          password: "????????"
      }
      const conn = new Connection(connOpts);
-     const users = await conn.select().from({ entity: "users"}).execute();
+     const users = await conn.from("users").getMany();
      ```
 
 2. TypeScript configuration

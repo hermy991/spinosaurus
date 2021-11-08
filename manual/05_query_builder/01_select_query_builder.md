@@ -35,7 +35,7 @@ Simple example of `QueryBuilder`:
 ```typescript
 const firstUser = await conn
   .select()
-  .from({ entity: User, as: "u" })
+  .from(User, "u" )
   .where(`"u"."id" = :id`, { id: 1 })
   .getOne();
 ```
@@ -67,9 +67,8 @@ When using the `QueryBuilder`, you need to provide unique parameters in your
 
 ```TypeScript
 const result = await conn
-  .select()
-  .from({ entity: User, as: "u" })
-  .joinAndSelect({ entity: Person, on: `"person"."id" = "u"."personID"` })
+  .from(User, "u")
+  .joinAndSelect(Person, `"person"."id" = "u"."personID"`)
   .where(`"u"."id" = :id`, { id: userId })
   .andWhere(`"person"."id" = :id`, { id: personId })
   .getOne();
@@ -79,9 +78,8 @@ const result = await conn
 
 ```TypeScript
 const result = await conn
-  .select()
-  .from({ entity: User, as: "u" })
-  .joinAndSelect({ entity: Person, on: `"person"."id" = "u"."personID"` })
+  .from(User, "u")
+  .joinAndSelect(Person, `"person"."id" = "u"."personID"`)
   .where(`"u"."id" = :userId`, { userId })
   .andWhere(`"person"."id" = :personId`, { personId })
   .getOne();
