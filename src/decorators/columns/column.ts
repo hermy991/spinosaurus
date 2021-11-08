@@ -12,14 +12,7 @@ export function Column(options: ColumnOptions = {}): any {
     const property = { propertyKey, type };
     const target: ColumnOptions = { name: propertyKey, spitype: getColumnType({ type: property.type }) };
     const mixeds: ColumnOptions = Object.assign(target, options);
-    const column = {
-      target,
-      entity,
-      descriptor,
-      property,
-      options,
-      mixeds,
-    };
+    const column = { target, entity, descriptor, property, options, mixeds };
     getTempMetadata().columns.push(column);
   };
 }
