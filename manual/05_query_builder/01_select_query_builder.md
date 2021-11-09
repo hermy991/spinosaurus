@@ -1,8 +1,7 @@
 # Select using Query Builder
 
 - [What is `QueryBuilder`](#what-is-querybuilder)
-- [Important note when using the
-  `QueryBuilder`](#important-note-when-using-the-querybuilder)
+- [Important note when using the `QueryBuilder`](#important-note-when-using-the-querybuilder)
 - [How to create and use a `QueryBuilder`](#how-to-create-and-use-a-querybuilder)
 - [Getting values using QueryBuilder](#getting-values-using-querybuilder)
 - [What are aliases for?](#what-are-aliases-for)
@@ -26,16 +25,15 @@
 
 ## What is `QueryBuilder`
 
-`QueryBuilder` is one of the most powerful features of Spinosaurus - it allows
-you to build SQL queries using elegant and convenient syntax, execute them and
-get automatically transformed entities.
+`QueryBuilder` is one of the most powerful features of Spinosaurus - it allows you to build SQL queries using elegant
+and convenient syntax, execute them and get automatically transformed entities.
 
 Simple example of `QueryBuilder`:
 
 ```typescript
 const firstUser = await conn
   .select()
-  .from(User, "u" )
+  .from(User, "u")
   .where(`"u"."id" = :id`, { id: 1 })
   .getOne();
 ```
@@ -62,8 +60,8 @@ and returns you an instance of `Object`:
 
 ## Important note when using the `QueryBuilder`
 
-When using the `QueryBuilder`, you need to provide unique parameters in your
-`WHERE` expressions. **This will not work**:
+When using the `QueryBuilder`, you need to provide unique parameters in your `WHERE` expressions. **This will not
+work**:
 
 ```TypeScript
 const result = await conn
@@ -85,8 +83,7 @@ const result = await conn
   .getOne();
 ```
 
-Note that we uniquely named `:sheepId` and `:cowId` instead of using `:id` twice
-for different parameters.
+Note that we uniquely named `:sheepId` and `:cowId` instead of using `:id` twice for different parameters.
 
 ## How to create and use a `QueryBuilder`
 
@@ -98,9 +95,7 @@ There are several ways how you can create a `Query Builder`:
 import {Connection, getConnection} from `https://deno.land/x/spinosaurus/mod.ts`;
 
 Connection conn = getConnection();
-const user = await conn
-    .select()
-    .from({ entity: User, as: "u"})
+const user = await conn.from(User, "u")
     .joinAndSelect({entity: Person, on: `"person"."id" = "u"."personID"`})
     .where(`"u"."id" = :userId`, { userId })
     .andWhere(`"person"."id" = :personId`, { personId })
@@ -114,8 +109,7 @@ There are 5 different `QueryBuilder` types available:
 ```typescript
 import {getConnection} from `https://deno.land/x/spinosaurus/mod.ts`;
 
-const user = await getConnection()
-    .select().from({ entity: User, as: "u"})
+const user = await getConnection().from(User, "u")
     .joinAndSelect({entity: Person, on: `"person"."id" = "u"."personID"`})
     .where(`"u"."id" = :userId`, { userId })
     .andWhere(`"person"."id" = :personId`, { personId })
@@ -156,46 +150,37 @@ await getConnection()
   .execute();
 ```
 
-- `RelationQueryBuilder` - used to build and execute relation-specific
-  operations [TBD].
+- `RelationQueryBuilder` - used to build and execute relation-specific operations [TBD].
 
-You can switch between different types of query builder within any of them, once
-you do, you will get a new instance of query builder (unlike all other methods).
+You can switch between different types of query builder within any of them, once you do, you will get a new instance of
+query builder (unlike all other methods).
 
 ## Getting values using `QueryBuilder`
 
-To get a single result from the database, for example to get a user by id or
-name, you must use `getOne`:
+To get a single result from the database, for example to get a user by id or name, you must use `getOne`:
 
 ```typescript
 import {getConnection} from `https://deno.land/x/spinosaurus/mod.ts`;
 
-const user = await getConnection()
-    .select()
-    .from({ entity: User, as: "u"})
-    .joinAndSelect({entity: Person, on: `"person"."id" = "u"."personID"`})
+const user = await getConnection().from(User, "u")
+    .joinAndSelect(Person, `"person"."id" = "u"."personID"`)
     .where(`"u"."id" = :id OR "u"."name" = :name`, { id: 1, name: "Timber" })
     .getOne();
 ```
 
-To get multiple results from the database, for example, to get all users from
-the database, use `getMany`:
+To get multiple results from the database, for example, to get all users from the database, use `getMany`:
 
 ```typescript
 import {getConnection} from `https://deno.land/x/spinosaurus/mod.ts`;
 
-const users = await getConnection()
-    .select()
-    .getMany();
+const users = await getConnection().from(User).getMany();
 ```
 
-There are two types of results you can get using select query builder:
-**entities** or **raw results**. Most of the time, you need to select real
-entities from your database, for example, users. For this purpose, you use
-`getOne` and `getMany`. But sometimes you need to select some specific data,
-let's say the _sum of all user photos_. This data is not an entity, it's called
-raw data. To get raw data, you use `getOne` and `getMany` and modify with
-`select()` function. Examples:
+There are two types of results you can get using select query builder: **entities** or **raw results**. Most of the
+time, you need to select real entities from your database, for example, users. For this purpose, you use `getOne` and
+`getMany`. But sometimes you need to select some specific data, let's say the _sum of all user photos_. This data is not
+an entity, it's called raw data. To get raw data, you use `getOne` and `getMany` and modify with `select()` function.
+Examples:
 
 ```typescript
 import {getConnection} from `https://deno.land/x/spinosaurus/mod.ts`;
@@ -222,9 +207,8 @@ const photosSums = await getConnection()
 
 ## What are aliases for?
 
-We used `from({ entity: User, as: "user"})`. But what is "user"? It's just a
-regular SQL alias. We use aliases everywhere, except when we work with selected
-data.
+We used `from({ entity: User, as: "user"})`. But what is "user"? It's just a regular SQL alias. We use aliases
+everywhere, except when we work with selected data.
 
 ```typescript
 await getConnection()
@@ -241,13 +225,11 @@ SELECT "user"."id",
 FROM "users" as "user"
 ```
 
-In this SQL query, `users` is the table name, and `user` is an alias we assign
-to this table. Later we use this alias to access the table:
+In this SQL query, `users` is the table name, and `user` is an alias we assign to this table. Later we use this alias to
+access the table:
 
 ```typescript
-await getConnection()
-  .select()
-  .from({ entity: User, as: "user" })
+await getConnection().from(User, "user")
   .where("user.name = :name", { name: "Timber" });
 ```
 
@@ -261,24 +243,19 @@ FROM "users" as "user"
 WHERE user.name = 'Timber'
 ```
 
-See, we used the users table by using the `user` alias we assigned when we
-created a query builder.
+See, we used the users table by using the `user` alias we assigned when we created a query builder.
 
-One query builder is not limited to one alias, they can have multiple aliases.
-Each select can have its own alias, you can select from multiple tables each
-with its own alias, you can join multiple tables each with its own alias. You
-can use those aliases to access tables are you selecting (or data you are
-selecting).
+One query builder is not limited to one alias, they can have multiple aliases. Each select can have its own alias, you
+can select from multiple tables each with its own alias, you can join multiple tables each with its own alias. You can
+use those aliases to access tables are you selecting (or data you are selecting).
 
 ## Using parameters to escape data
 
-We used ``where(`"user"."name" = :name`, { name: "Timber" })``. What does
-`{ name: "Timber" }` stand for? It's a parameter we used to prevent SQL
-injection. We could have written: ``where(`"user"."name" = '${name}'`)``,
-however this is not safe, as it opens the code to SQL injections. The safe way
-is to use this special syntax:
-``where(`"user"."name" = :name`, { name: "Timber" })``, where `:name` is a
-parameter name and the value is specified in an object: `{ name: "Timber" }`.
+We used ``where(`"user"."name" = :name`, { name: "Timber" })``. What does `{ name: "Timber" }` stand for? It's a
+parameter we used to prevent SQL injection. We could have written: ``where(`"user"."name" = '${name}'`)``, however this
+is not safe, as it opens the code to SQL injections. The safe way is to use this special syntax:
+``where(`"user"."name" = :name`, { name: "Timber" })``, where `:name` is a parameter name and the value is specified in
+an object: `{ name: "Timber" }`.
 
 ```typescript
 .where(`"user"."name" = :name`, { name: "Timber" })
@@ -291,11 +268,11 @@ is a shortcut for:
 .parameter("name", "Timber")
 ```
 
-Note: do not use the same parameter name for different values across the query
-builder. Values will be overridden if you set them multiple times.
+Note: do not use the same parameter name for different values across the query builder. Values will be overridden if you
+set them multiple times.
 
-You can also supply an array of values, and have them transformed into a list of
-values in the SQL statement, by using the special expansion syntax:
+You can also supply an array of values, and have them transformed into a list of values in the SQL statement, by using
+the special expansion syntax:
 
 ```typescript
 .where("user.name IN (:names)", { names: [ "Timber", "Cristal", "Lina" ] })
@@ -313,8 +290,8 @@ Adding a `WHERE` expression is as easy as:
 
 ```typescript
 select()
-    .from({entity: User, as "user"})
-    .where("user.name = :name", { name: "Timber" })
+  .from(User, "user")
+  .where("user.name = :name", { name: "Timber" });
 ```
 
 Which will produce:
@@ -327,7 +304,7 @@ You can add `AND` into an existing `WHERE` expression:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .where("user.firstName = :firstName", { firstName: "Timber" })
   .andWhere("user.lastName = :lastName", { lastName: "Saw" });
 ```
@@ -345,7 +322,7 @@ You can add `OR` into an existing `WHERE` expression:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .where("user.firstName = :firstName", { firstName: "Timber" })
   .orWhere("user.lastName = :lastName", { lastName: "Saw" });
 ```
@@ -363,7 +340,7 @@ You can do an `IN` query with the `WHERE` expression:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .where("user.id IN (:ids)", { ids: [1, 2, 3, 4] });
 ```
 
@@ -375,12 +352,11 @@ FROM users "user"
 WHERE user.id IN (1, 2, 3, 4)
 ```
 
-You can combine as many `AND` and `OR` expressions as you need. If you use
-`.where` more than once you'll override all previous `WHERE` expressions.
+You can combine as many `AND` and `OR` expressions as you need. If you use `.where` more than once you'll override all
+previous `WHERE` expressions.
 
-Note: be careful with `orWhere` - if you use complex expressions with both `AND`
-and `OR` expressions, keep in mind that they are stacked without any pretences.
-Sometimes you'll need to create a where string instead, and avoid using
+Note: be careful with `orWhere` - if you use complex expressions with both `AND` and `OR` expressions, keep in mind that
+they are stacked without any pretences. Sometimes you'll need to create a where string instead, and avoid using
 `orWhere`.
 
 ## Adding `HAVING` expression
@@ -389,7 +365,7 @@ Adding a `HAVING` expression is easy as:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .having("user.name = :name", { name: "Timber" });
 ```
 
@@ -405,7 +381,7 @@ You can add `AND` into an exist `HAVING` expression:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .having("user.firstName = :firstName", { firstName: "Timber" })
   .andHaving("user.lastName = :lastName", { lastName: "Saw" });
 ```
@@ -423,7 +399,7 @@ You can add `OR` into a exist `HAVING` expression:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .having("user.firstName = :firstName", { firstName: "Timber" })
   .orHaving("user.lastName = :lastName", { lastName: "Saw" });
 ```
@@ -437,8 +413,8 @@ HAVING user.firstName = 'Timber'
 OR user.lastName = 'Saw'
 ```
 
-You can combine as many `AND` and `OR` expressions as you need. If you use
-`.having` more than once you'll override all previous `HAVING` expressions.
+You can combine as many `AND` and `OR` expressions as you need. If you use `.having` more than once you'll override all
+previous `HAVING` expressions.
 
 ## Adding `ORDER BY` expression
 
@@ -446,7 +422,7 @@ Adding an `ORDER BY` expression is easy as:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .orderBy("user.id");
 ```
 
@@ -462,11 +438,11 @@ You can change the ordering direction from ascending to descending (or versa):
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .orderBy("user.id", "DESC");
 
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .orderBy("user.id", "ASC");
 ```
 
@@ -474,7 +450,7 @@ You can add multiple order-by criteria:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .orderBy("user.name")
   .addOrderBy("user.id");
 ```
@@ -483,29 +459,26 @@ You can also use a map of order-by fields:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .orderBy({
     "user.name": "ASC",
     "user.id": "DESC",
   });
 ```
 
-If you use `.orderBy` more than once you'll override all previous `ORDER BY`
-expressions.
+If you use `.orderBy` more than once you'll override all previous `ORDER BY` expressions.
 
 ## Adding `DISTINCT ON` expression (Postgres only)
 
-When using both distinct-on with an order-by expression, the distinct-on
-expression must match the leftmost order-by. The distinct-on expressions are
-interpreted using the same rules as order-by. Please note that, using
-distinct-on without an order-by expression means that the first row of each set
-is unpredictable.
+When using both distinct-on with an order-by expression, the distinct-on expression must match the leftmost order-by.
+The distinct-on expressions are interpreted using the same rules as order-by. Please note that, using distinct-on
+without an order-by expression means that the first row of each set is unpredictable.
 
 Adding a `DISTINCT ON` expression is easy as:
 
 ```typescript
 selectDistinct()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .orderBy("user.id");
 ```
 
@@ -523,7 +496,7 @@ Adding a `GROUP BY` expression is easy as:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .groupBy("user.id");
 ```
 
@@ -539,13 +512,12 @@ To add more group-by criteria use `addGroupBy`:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .groupBy("user.name")
   .addGroupBy("user.id");
 ```
 
-If you use `.groupBy` more than once you'll override all previous `GROUP BY`
-expressions.
+If you use `.groupBy` more than once you'll override all previous `GROUP BY` expressions.
 
 ## Adding `LIMIT` expression
 
@@ -553,7 +525,7 @@ Adding a `LIMIT` expression is easy as:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .limit(10);
 ```
 
@@ -565,10 +537,9 @@ FROM users as "user"
 LIMIT 10
 ```
 
-The resulting SQL query depends on the type of database (SQL, mySQL, Postgres,
-etc). Note: LIMIT may not work as you may expect if you are using complex
-queries with joins or subqueries. If you are using pagination, it's recommended
-to use `take` instead.
+The resulting SQL query depends on the type of database (SQL, mySQL, Postgres, etc). Note: LIMIT may not work as you may
+expect if you are using complex queries with joins or subqueries. If you are using pagination, it's recommended to use
+`take` instead.
 
 ## Adding `OFFSET` expression
 
@@ -576,7 +547,7 @@ Adding an SQL `OFFSET` expression is easy as:
 
 ```typescript
 select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .offset(10);
 ```
 
@@ -588,10 +559,9 @@ FROM users as "user"
 OFFSET 10
 ```
 
-The resulting SQL query depends on the type of database (SQL, mySQL, Postgres,
-etc). Note: OFFSET may not work as you may expect if you are using complex
-queries with joins or subqueries. If you are using pagination, it's recommended
-to use `skip` instead.
+The resulting SQL query depends on the type of database (SQL, mySQL, Postgres, etc). Note: OFFSET may not work as you
+may expect if you are using complex queries with joins or subqueries. If you are using pagination, it's recommended to
+use `skip` instead.
 
 ## Joining relations
 
@@ -633,11 +603,7 @@ Now let's say you want to load user "Timber" with all of his photos:
 const user = await conn
   .select()
   .from({ entity: User, as: "user" })
-  .leftAndSelect({
-    entity: Photo,
-    as: "photo",
-    on: `"photo"."userId" = "user"."id"`,
-  })
+  .leftAndSelect(Photo, "photo", `"photo"."userId" = "user"."id"`)
   .where("user.name = :name", { name: "Timber" })
   .getOne();
 ```
@@ -654,20 +620,15 @@ You'll get the following result:
 }
 ```
 
-As you can see `leftAndSelect` automatically loaded all of Timber's photos. The
-first argument is the relation you want to load and the second argument is an
-alias you assign to this relation's table. You can use this alias anywhere in
+As you can see `leftAndSelect` automatically loaded all of Timber's photos. The first argument is the relation you want
+to load and the second argument is an alias you assign to this relation's table. You can use this alias anywhere in
 query builder. For example, let's take all Timber's photos which aren't removed.
 
 ```typescript
 const user = await getConnection()
   .select()
   .from({ entity: User, as: "user" })
-  .leftAndSelect({
-    entity: Photo,
-    as: "photo",
-    on: `"photo"."userId" = "user"."id"`,
-  })
+  .leftAndSelect(Photo, "photo", `"photo"."userId" = "user"."id"`)
   .where("user.name = :name", { name: "Timber" })
   .andWhere("photo.isRemoved = :isRemoved", { isRemoved: false })
   .getOne();
@@ -693,11 +654,12 @@ You can also add conditions to the join expression instead of using "where":
 const user = await getConnection()
   .select()
   .from({ entity: User, as: "user" })
-  .leftAndSelect({
-    entity: Photo,
-    as: "photo",
-    on: `"photo"."user" = "user"."id" AND "photo"."isRemoved" = :isRemoved`,
-  }, { isRemoved: false })
+  .leftAndSelect(
+    Photo,
+    "photo",
+    `"photo"."user" = "user"."id" AND "photo"."isRemoved" = :isRemoved`,
+    { isRemoved: false },
+  )
   .where("user.name = :name", { name: "Timber" })
   .getOne();
 ```
@@ -717,18 +679,18 @@ WHERE user.name = 'Timber'
 
 ## Inner and left joins
 
-If you want to use `INNER JOIN` instead of `LEFT JOIN` just use `joinAndSelect`
-instead:
+If you want to use `INNER JOIN` instead of `LEFT JOIN` just use `joinAndSelect` instead:
 
 ```typescript
 const user = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
-  .joinAndSelect({
-    entity: Photo,
-    as: "photo",
-    on: `"photo"."user" = "user"."id" AND "photo"."isRemoved" = :isRemoved`,
-  }, { isRemoved: false })
+  .from(User, "user")
+  .joinAndSelect(
+    Photo,
+    "photo",
+    `"photo"."user" = "user"."id" AND "photo"."isRemoved" = :isRemoved`,
+    { isRemoved: false },
+  )
   .where(`user.name = :name`, { name: "Timber" })
   .getOne();
 ```
@@ -746,26 +708,24 @@ INNER JOIN photos AS "photo" ON "photo"."user" = "user"."id" AND "photo"."isRemo
 WHERE user.name = 'Timber'
 ```
 
-The difference between `LEFT JOIN` and `INNER JOIN` is that `INNER JOIN` won't
-return a user if it does not have any photos. `LEFT JOIN` will return you the
-user even if it doesn't have photos. To learn more about different join types,
-refer to the
-[SQL documentation](https://msdn.microsoft.com/en-us/library/zt8wzxy4.aspx).
+The difference between `LEFT JOIN` and `INNER JOIN` is that `INNER JOIN` won't return a user if it does not have any
+photos. `LEFT JOIN` will return you the user even if it doesn't have photos. To learn more about different join types,
+refer to the [SQL documentation](https://msdn.microsoft.com/en-us/library/zt8wzxy4.aspx).
 
 ## Right joins
 
-If you want to use `RIGHT JOIN` instead of `INNER JOIN` just use
-`rightAndSelect` instead:
+If you want to use `RIGHT JOIN` instead of `INNER JOIN` just use `rightAndSelect` instead:
 
 ```typescript
 const user = await getConnection()
   .select()
-  .from({ entity: Photo, as: "photo" })
-  .rightAndSelect({
-    entity: User,
-    as: "user",
-    on: `"user"."id" = "photo"."user" AND "photo"."isRemoved" = :isRemoved`,
-  }, { isRemoved: false })
+  .from(Photo, "photo")
+  .rightAndSelect(
+    User,
+    "user",
+    `"user"."id" = "photo"."user" AND "photo"."isRemoved" = :isRemoved`,
+    { isRemoved: false },
+  )
   .where(`user.name = :name`, { name: "Timber" })
   .getOne();
 ```
@@ -783,22 +743,19 @@ RIGHT JOIN users as "user" ON "user"."id" = "photo"."user" AND "photo"."isRemove
 WHERE user.name = 'Timber'
 ```
 
-The difference between `RIGHT JOIN` and `INNER JOIN` is that `INNER JOIN` won't
-return a user if it does not have any photos. `RIGHT JOIN` will return you the
-user even if it doesn't have photos. To learn more about different join types,
-refer to the
-[SQL documentation](https://msdn.microsoft.com/en-us/library/zt8wzxy4.aspx).
+The difference between `RIGHT JOIN` and `INNER JOIN` is that `INNER JOIN` won't return a user if it does not have any
+photos. `RIGHT JOIN` will return you the user even if it doesn't have photos. To learn more about different join types,
+refer to the [SQL documentation](https://msdn.microsoft.com/en-us/library/zt8wzxy4.aspx).
 
 ## Join without selection
 
-You can join data without its selection. To do that, use `leftJoin` or
-`innerJoin`:
+You can join data without its selection. To do that, use `leftJoin` or `innerJoin`:
 
 ```typescript
 const user = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
-  .join({ entity: Photo, as: "photo", on: `"photo"."userId" = "user"."id"` })
+  .from(User, "user")
+  .join(Photo, "photo", `"photo"."userId" = "user"."id"`)
   .where("user.name = :name", { name: "Timber" })
   .getOne();
 ```
@@ -820,21 +777,20 @@ This will select Timber if he has photos, but won't return his photos.
 
 ## Joining any entity or table
 
-You can join not only relations, but also other unrelated entities or tables.
-Examples:
+You can join not only relations, but also other unrelated entities or tables. Examples:
 
 ```typescript
 const user = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
-  .leftAndSelect({ entity: Photo, as: "photo", on: "photo.userId = user.id" })
+  .from(User, "user")
+  .leftAndSelect(Photo, "photo", "photo.userId = user.id")
   .getMany();
 ```
 
 ```typescript
 const user = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .leftAndSelect({
     schema: "inter",
     entity: "photos",
@@ -846,36 +802,28 @@ const user = await getConnection()
 
 ## Joining and mapping functionality
 
-Add `profilePhoto` to `User` entity and you can map any data into that property
-using `QueryBuilder`:
+Add `profilePhoto` to `User` entity and you can map any data into that property using `QueryBuilder`:
 
 ```typescript
 const user = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
-  .leftAndWrap({
-    schema: "inter",
-    entity: "photos",
-    as: "photos",
-    on: "photos.userId = user.id",
-  })
+  .from(User, "user")
+  .leftAndWrap("inter.photos", "photos", "photos.userId = user.id")
   .getMany();
 ```
 
-This will load Timber's profile photo and set it to `user.photo`. If you want to
-load and map a single entity use `leftAndWrap`, `user.photos: Photo`. If you
-want to load and map multiple entities use `leftAndWrap`,
+This will load Timber's profile photo and set it to `user.photo`. If you want to load and map a single entity use
+`leftAndWrap`, `user.photos: Photo`. If you want to load and map multiple entities use `leftAndWrap`,
 `user.photos: Array<Photo>`.
 
 ## Getting the generated query
 
-Sometimes you may want to get the SQL query generated by `QueryBuilder`. To do
-so, use `getSql`:
+Sometimes you may want to get the SQL query generated by `QueryBuilder`. To do so, use `getSql`:
 
 ```typescript
 const sql = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .where("user.firstName = :firstName", { firstName: "Timber" })
   .orWhere("user.lastName = :lastName", { lastName: "Saw" })
   .getSql();
@@ -886,7 +834,7 @@ For debugging purposes you can use `printSql`:
 ```typescript
 const users = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .where("user.firstName = :firstName", { firstName: "Timber" })
   .orWhere("user.lastName = :lastName", { lastName: "Saw" })
   .printSql()
@@ -897,18 +845,16 @@ This query will return users and print the used sql statement to the console.
 
 ## Getting raw results
 
-There are two types of results you can get using select query builder:
-**entities** and **raw results**. Most of the time, you need to select real
-entities from your database, for example, users. For this purpose, you use
-`getOne` and `getMany`. However, sometimes you need to select specific data,
-like the _sum of all user photos_. Such data is not a entity, it's called raw
-data. To get raw data, you use `getOne` and `getMany` and use `select()` and
-`addSelect()`. Examples:
+There are two types of results you can get using select query builder: **entities** and **raw results**. Most of the
+time, you need to select real entities from your database, for example, users. For this purpose, you use `getOne` and
+`getMany`. However, sometimes you need to select specific data, like the _sum of all user photos_. Such data is not a
+entity, it's called raw data. To get raw data, you use `getOne` and `getMany` and use `select()` and `addSelect()`.
+Examples:
 
 ```typescript
 const { sum } = await getConnection()
   .select([`SUM(user."photosCount")`, "sum"])
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .where("user.id = :id", { id: 1 })
   .getOne();
 ```
@@ -917,7 +863,7 @@ const { sum } = await getConnection()
 const photosSums = await getConnection()
   .select("user.id")
   .addSelect(`SUM(user."photosCount")`, "sum")
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .groupBy("user.id")
   .getMany();
 
@@ -926,14 +872,13 @@ const photosSums = await getConnection()
 
 ## Using pagination
 
-Most of the time when you develop an application, you need pagination
-functionality. This is used if you have pagination, page slider, or infinite
-scroll components in your application.
+Most of the time when you develop an application, you need pagination functionality. This is used if you have
+pagination, page slider, or infinite scroll components in your application.
 
 ```typescript
 const users = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
+  .from(User, "user")
   .leftAndSelect({ entity: Photo, as: "photo", on: "photo.userId = user.id" })
   .take(10)
   .getMany();
@@ -944,20 +889,19 @@ This will give you the first 10 users with their photos.
 ```typescript
 const users = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
-  .leftAndSelect({ entity: Photo, as: "photo", on: "photo.userId = user.id" })
+  .from(User, "user")
+  .leftAndSelect({ Photo, "photo", "photo.userId = user.id")
   .skip(10)
   .getMany();
 ```
 
-This will give you all except the first 10 users with their photos. You can
-combine those methods:
+This will give you all except the first 10 users with their photos. You can combine those methods:
 
 ```typescript
 const users = await getConnection()
   .select()
-  .from({ entity: User, as: "user" })
-  .leftAndSelect({ entity: Photo, as: "photo", on: "photo.userId = user.id" })
+  .from({ User, "user")
+  .leftAndSelect({ Photo, "photo", "photo.userId = user.id")
   .skip(5)
   .take(10)
   .getMany();
@@ -965,15 +909,13 @@ const users = await getConnection()
 
 This will skip the first 5 users and take 10 users after them.
 
-`take` and `skip` may look like we are using `limit` and `offset`, but they
-aren't. `limit` and `offset` may not work as you expect once you have more
-complicated queries with joins or subqueries. Using `take` and `skip` will
-prevent those issues.
+`take` and `skip` may look like we are using `limit` and `offset`, but they aren't. `limit` and `offset` may not work as
+you expect once you have more complicated queries with joins or subqueries. Using `take` and `skip` will prevent those
+issues.
 
 ## Max execution time
 
-We can drop slow query to avoid crashing the server. Only Postgres driver is
-supported at the moment:
+We can drop slow query to avoid crashing the server. Only Postgres driver is supported at the moment:
 
 ```typescript
 const users = await getConnection()
@@ -985,9 +927,8 @@ const users = await getConnection()
 
 ## Hidden Columns
 
-If the model you are querying has a column with a `select: false` column, you
-must use the `addSelect` function in order to retrieve the information from the
-column.
+If the model you are querying has a column with a `select: false` column, you must use the `addSelect` function in order
+to retrieve the information from the column.
 
 Let's say you have the following entity:
 
@@ -1007,15 +948,14 @@ export class User {
 }
 ```
 
-Using a standard query, you will not receive the `password` property for the
-model. However, if you do the following:
+Using a standard query, you will not receive the `password` property for the model. However, if you do the following:
 
 ```typescript
 await getConnection()
-    .select(["user.id", "id"])
-    .addSelect(["user.password"])
-    .from({ entity: User, as: "user")
-    .getMany();
+  .select(["user.id", "id"])
+  .addSelect(["user.password"])
+  .from(User, "user")
+  .getMany();
 ```
 
 You will get the property `password` in your query.
