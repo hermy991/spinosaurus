@@ -149,11 +149,6 @@ deno run -qA https://code.velociraptor.run test:exec
   await conn.update(User).set(user).execute();
   ```
 - implementing query builder short form:
-  `await conn.update(User).set(user).execute(); - > await conn.update(user).execute();`,
-  `await conn.insert(User).values(user).execute(); - > await conn.insert(user).execute();`
-  ```typescript
-  await conn.update(User).set(user).execute();
-  - > await conn.update(user).execute();
-  await conn.update(User).set(user).execute();
-  - > await conn.update(user).execute();
-  ```
+  `await conn.update(User).set(user).execute(); -> await conn.update(user).execute();`,
+  `await conn.insert(User).values(user).execute(); -> await conn.insert(user).execute();` and
+  `await conn.upsert(User).values(user).execute(); -> await conn.upsert(user).execute();`
