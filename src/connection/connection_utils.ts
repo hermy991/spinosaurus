@@ -21,9 +21,7 @@ const VARIABLES = {
 /**
  * Reads connection options stored in spinosaurus configuration file.
  */
-export async function getConnectionOptions(
-  connectionName?: string,
-): Promise<ConnectionOptions> {
+export async function getConnectionOptions(connectionName?: string): Promise<ConnectionOptions> {
   const fileOptions = await getConnectionEnvOptions() ||
     await getConnectionFileOptions(`.env`) ||
     await getConnectionFileOptions(`env`) ||

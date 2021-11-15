@@ -95,18 +95,12 @@ export class BuilderSelect extends BuilderBase {
     }
   }
 
-  where(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ) {
+  where(conditions: [string, ...string[]] | string, params?: ParamComplexValues) {
     this.#whereData = [];
     this.addWhere(conditions, params);
   }
 
-  andWhere(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ) {
+  andWhere(conditions: [string, ...string[]] | string, params?: ParamComplexValues) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
       for (let i = 0; i < tconditions.length; i++) {
@@ -116,10 +110,7 @@ export class BuilderSelect extends BuilderBase {
     this.addWhere(tconditions, params);
   }
 
-  orWhere(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ) {
+  orWhere(conditions: [string, ...string[]] | string, params?: ParamComplexValues) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
       for (let i = 0; i < tconditions.length; i++) {
@@ -129,10 +120,7 @@ export class BuilderSelect extends BuilderBase {
     this.addWhere(tconditions, params);
   }
 
-  addWhere(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ) {
+  addWhere(conditions: [string, ...string[]] | string, params?: ParamComplexValues) {
     this.#whereData.push(
       ...(Array.isArray(conditions) ? conditions : [conditions]),
     );
@@ -150,18 +138,12 @@ export class BuilderSelect extends BuilderBase {
     tcolumns.forEach((x) => this.#groupByData.push(x));
   }
 
-  having(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ) {
+  having(conditions: [string, ...string[]] | string, params?: ParamComplexValues) {
     this.#havingData = [];
     this.addHaving(conditions, params);
   }
 
-  andHaving(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ) {
+  andHaving(conditions: [string, ...string[]] | string, params?: ParamComplexValues) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
       for (let i = 0; i < tconditions.length; i++) {
@@ -171,10 +153,7 @@ export class BuilderSelect extends BuilderBase {
     this.addHaving(tconditions, params);
   }
 
-  orHaving(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ) {
+  orHaving(conditions: [string, ...string[]] | string, params?: ParamComplexValues) {
     let tconditions = self.structuredClone(conditions);
     if (Array.isArray(tconditions)) {
       for (let i = 0; i < tconditions.length; i++) {
@@ -184,10 +163,7 @@ export class BuilderSelect extends BuilderBase {
     this.addHaving(tconditions, params);
   }
 
-  addHaving(
-    conditions: [string, ...string[]] | string,
-    params?: ParamComplexValues,
-  ) {
+  addHaving(conditions: [string, ...string[]] | string, params?: ParamComplexValues) {
     this.#havingData.push(
       ...(Array.isArray(conditions) ? conditions : [conditions]),
     );

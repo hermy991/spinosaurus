@@ -7,7 +7,7 @@ export type ParamFromEntity = { entity: string; schema?: string; as?: string } |
 
 export type ParamSimpleValues = string | number | boolean | Date | Function | null | undefined;
 
-export type ParamComplexValues = Record<string, ParamSimpleValues | ParamSimpleValues[]>;
+export type ParamComplexValues = Record<string, ParamSimpleValues | ParamSimpleValues[]> | Object;
 
 export type ParamClauseRelation =
   | { entity: string; schema?: string; as?: string; on: string | [string, ...string[]] }

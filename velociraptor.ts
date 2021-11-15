@@ -1,12 +1,17 @@
 const imap = `./tests/importmap.json`;
 const tsconfig = `./config.json`;
 const folder = "tests/unit/";
-const envs = [
-  `SPINOSAURUS_TEST_CONN_HOST`,
-  `SPINOSAURUS_TEST_CONN_PORT`,
-  `SPINOSAURUS_TEST_CONN_USERNAME`,
-  `SPINOSAURUS_TEST_CONN_PASSWORD`,
-];
+const allow = {
+  net: true,
+  read: "./",
+  write: "./",
+  env: [
+    `SPINOSAURUS_TEST_CONN_HOST`,
+    `SPINOSAURUS_TEST_CONN_PORT`,
+    `SPINOSAURUS_TEST_CONN_USERNAME`,
+    `SPINOSAURUS_TEST_CONN_PASSWORD`,
+  ].join(","),
+};
 const sqls = [
   `${folder}create_sql_test.ts`,
   `${folder}alter_sql_test.ts`,
@@ -38,6 +43,7 @@ const execs = [
   `${folder}decorator_entity_exec_test.ts`,
   `${folder}decorator_column_exec_test.ts`,
 ];
+const opts = ["--unsafely-ignore-certificate-errors=localhost"];
 export default {
   scripts: {
     "test": {
@@ -45,52 +51,32 @@ export default {
       imap,
       tsconfig,
       unstable: true,
-      allow: {
-        net: true,
-        read: "./",
-        write: "./",
-        env: envs.join(","),
-      },
-      cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${[...sqls, ...execs].join(`" "`)}" `,
+      allow,
+      cmd: `deno test ${opts.join(" ")} "${[...sqls, ...execs].join(`" "`)}" `,
     },
     "test:one": {
       desc: "Run one test",
       imap,
       tsconfig,
       unstable: true,
-      allow: {
-        net: true,
-        read: "./",
-        write: "./",
-        env: envs.join(","),
-      },
-      cmd: "deno test --unsafely-ignore-certificate-errors=localhost ",
+      allow,
+      cmd: `deno test ${opts.join(" ")} `,
     },
     "test:sql": {
       desc: "Run sql test",
       imap,
       tsconfig,
       unstable: true,
-      allow: {
-        net: true,
-        read: "./",
-        write: "./",
-        env: envs.join(","),
-      },
-      cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${sqls.join(`" "`)}" `,
+      allow,
+      cmd: `deno test ${opts.join(" ")} "${sqls.join(`" "`)}" `,
     },
     "test:exec": {
       desc: "Run executors test",
       imap,
       tsconfig,
       unstable: true,
-      allow: {
-        net: true,
-        read: "./",
-        write: "./",
-        env: envs.join(","),
-      },
-      cmd: `deno test --unsafely-ignore-certificate-errors=localhost "${execs.join(`" "`)}" `,
+      allow,
+      cmd: `deno test ${opts.join(" ")} "${execs.join(`" "`)}" `,
     },
   },
 };

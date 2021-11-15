@@ -6,41 +6,37 @@ import { StoreColumnOptions } from "../../decorators/metadata/metadata_store.ts"
 import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
 import { ParamData } from "../builders/params/param_data.ts";
-import { ParamNext } from "../builders/params/param_next.ts";
 import { ConnectionOptions } from "../connection_options.ts";
 import { Connection } from "../connection.ts";
-import { clearMetadata, getMetadata, linkMetadata } from "../../decorators/metadata/metadata.ts";
+import { clearMetadata, linkMetadata } from "../../decorators/metadata/metadata.ts";
 import { Driver } from "../connection_type.ts";
 import { MetadataStore } from "../../decorators/metadata/metadata_store.ts";
 import { getConnectionOptions, getConnectionsOptions } from "../connection_utils.ts";
 
 /**
- * Creates a new connection and registers it in the manager.
- * Only one connection from ormconfig will be created (name "default" or connection without name).
+ * When connection options were not specified, then it will try to create connection automatically,
+ * based on content of spinosaurus (env/js/ts/json/yml/xml) file or environment variables.
+ * Only one connection from spinosaurus.[format] config will be created (name "default" or connection without name).
  */
 export async function createConnection(): Promise<Connection>;
 
 /**
- * Creates a new connection from the ormconfig file with a given name.
+ * When connection name is specified it will try to create connection automatically, based on name attribute of
+ * spinosaurus (env/js/ts/json/yml/xml) file or environment variables.
  */
 export async function createConnection(name: string): Promise<Connection>;
 
 /**
- * Creates a new connection and registers it in the manager.
+ * Creates a connection based in connection options.
  */
-export async function createConnection(
-  options: ConnectionOptions,
-): Promise<Connection>;
+export async function createConnection(options: ConnectionOptions): Promise<Connection>;
 
 /**
- * Creates a new connection and registers it in the manager.
- *
- * If connection options were not specified, then it will try to create connection automatically,
- * based on content of spinosaurus (env/js/ts/json/yml/xml) file or environment variables.
- * Only one connection from ormconfig will be created (name "default" or connection without name).
+ * Base createConnection function
  */
 export async function createConnection(nameOrOptions?: any): Promise<Connection> {
   const options = typeof nameOrOptions === "object" ? nameOrOptions : await getConnectionOptions(nameOrOptions);
+  // console.log("options", options);
   const tconn = new Connection(options);
   const sql = await synchronize(tconn);
   if (sql && sql.length) {
@@ -63,9 +59,7 @@ export async function createConnections(): Promise<Connection[]>;
  *
  * All connections from the spinosaurus will be created.
  */
-export async function createConnections(
-  options?: ConnectionOptions[],
-): Promise<Connection[]> {
+export async function createConnections(options?: ConnectionOptions[]): Promise<Connection[]> {
   options = options ? options : await getConnectionsOptions();
   const arrConn: Connection[] = [];
   for (const toptions of options) {
