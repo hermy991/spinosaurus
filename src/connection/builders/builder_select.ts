@@ -4,10 +4,7 @@ import { ParamClauseRelation, ParamComplexClauseRelation, ParamComplexValues } f
 
 export class BuilderSelect extends BuilderBase {
   #selectData: Array<{ column: string; as?: string }> = [];
-  #fromData:
-    | { entity: string; schema?: string; as?: string }
-    | { entity: Function; as?: string }
-    | null = null;
+  #fromData: { entity: string; schema?: string; as?: string } | { entity: Function; as?: string } | null = null;
   #clauseData: ParamComplexClauseRelation[] = [];
   #whereData: string[] = [];
   #groupByData: string[] = [];
@@ -164,9 +161,7 @@ export class BuilderSelect extends BuilderBase {
   }
 
   addHaving(conditions: [string, ...string[]] | string, params?: ParamComplexValues) {
-    this.#havingData.push(
-      ...(Array.isArray(conditions) ? conditions : [conditions]),
-    );
+    this.#havingData.push(...(Array.isArray(conditions) ? conditions : [conditions]));
     if (params) {
       this.addParams(params);
     }
@@ -195,7 +190,7 @@ export class BuilderSelect extends BuilderBase {
   getSelectQuery() {
     let sql = `SELECT${this.#distinct ? " DISTINCT" : ""} `;
     if (!this.#selectData.length && this.#fromData) {
-      let { schema, entity, as } = <any> this.#fromData;
+      const { schema, entity, as } = <any> this.#fromData;
       if (entity instanceof Function) {
         const te = this.getEntityData(this.driver.options.name, entity);
         let t = this.clearNames([te.schema, te.entity]);
@@ -203,10 +198,9 @@ export class BuilderSelect extends BuilderBase {
           t = this.clearNames(as);
         }
         const cols = this.getColumns(this.driver.options.name, entity);
-        sql += cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${x.name}"`)
-          .join(", ");
+        sql += cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${x.name}"`).join(", ");
       } else {
-        let te = this.splitEntity({ entity, schema });
+        const te = this.splitEntity({ entity, schema });
         let t = this.clearNames([te.schema, te.entity]);
         if (as) {
           t = this.clearNames(as);
@@ -288,9 +282,7 @@ export class BuilderSelect extends BuilderBase {
       te = this.splitEntity(<any> te);
       const t = `${this.clearNames([te.schema, te.entity])}`;
       const ton = this.driver.interpolate(on, this.#paramsData);
-      sqls.push(
-        `${join.toUpperCase()} JOIN ${t}${as ? " AS " + this.clearNames(as) : ""} ON ${ton.join(" ")}`,
-      );
+      sqls.push(`${join.toUpperCase()} JOIN ${t}${as ? " AS " + this.clearNames(as) : ""} ON ${ton.join(" ")}`);
     }
     return sqls.join(" ");
   }
@@ -319,10 +311,7 @@ export class BuilderSelect extends BuilderBase {
     if (!this.#havingData.length) {
       return ``;
     }
-    const conditions: string[] = this.driver.interpolate(
-      <[string, ...string[]]> this.#havingData,
-      this.#paramsData,
-    );
+    const conditions: string[] = this.driver.interpolate(<[string, ...string[]]> this.#havingData, this.#paramsData);
     return `HAVING ${conditions.join(" ")}`;
   }
 
@@ -333,8 +322,7 @@ export class BuilderSelect extends BuilderBase {
     const orders: string[] = [];
     for (let i = 0; i < this.#orderByData.length; i++) {
       const { column, direction } = this.#orderByData[i];
-      const tempOrder = `${column}` +
-        (direction ? " " + direction.toUpperCase() : "");
+      const tempOrder = `${column}${direction ? " " + direction.toUpperCase() : ""}`;
       orders.push(tempOrder);
     }
     return `ORDER BY ${orders.join(", ")}`;

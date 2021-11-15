@@ -3,7 +3,8 @@ import { yaml } from "../../deps.ts";
 import { xml } from "../../deps.ts";
 import { ConnectionOptions } from "./connection_options.ts";
 import { error } from "../error/error_utills.ts";
-import { hash } from "../../deps.ts";
+import { LoggingOptions, LogginKeys } from "./logging/Logging.ts";
+// import { hash } from "../../deps.ts";
 
 const FILE_NAME = "spinosaurus";
 
@@ -17,6 +18,7 @@ const VARIABLES = {
   database: "SPINOSAURUS_CONN_DATABASE",
   synchronize: "SPINOSAURUS_CONN_SYNCHRONIZE",
   entities: "SPINOSAURUS_CONN_ENTITIES",
+  logging: "SPINOSAURUS_CONN_LOGGING",
 };
 /**
  * Reads connection options stored in spinosaurus configuration file.
@@ -73,25 +75,16 @@ export async function getConnectionEnvOptions() {
   let leave = false;
   for (const index in Object.entries(VARIABLES)) {
     const entry = Object.entries(VARIABLES)[index];
-    let permission = await Deno.permissions.query(
-      { name: "env", variable: entry[1] } as const,
-    );
+    let permission = await Deno.permissions.query({ name: "env", variable: entry[1] } as const);
     if (Number(index) < 3 && permission.state === "prompt") {
-      permission = await Deno.permissions.request({
-        name: "env",
-        variable: entry[1],
-      });
+      permission = await Deno.permissions.request({ name: "env", variable: entry[1] });
     }
     if (Number(index) >= 3 && permission.state === "denied") {
       leave = true;
       break;
     } else if (permission.state === "granted") {
       const value = Deno.env.get(entry[1]);
-      if (
-        value === undefined ||
-        value === null ||
-        (entry[0] === "entities" && value === "")
-      ) {
+      if (value === undefined || value === null || (entry[0] === "entities" && value === "")) {
         continue;
       }
       switch (entry[0]) {
@@ -124,16 +117,7 @@ export async function getConnectionEnvOptions() {
 }
 
 export async function getConnectionFileOptions(
-  fileNameOrExtenxion:
-    | string
-    | ".env"
-    | "env"
-    | "js"
-    | "ts"
-    | "json"
-    | "yml"
-    | "yaml"
-    | "xml",
+  fileNameOrExtenxion: string | ".env" | "env" | "js" | "ts" | "json" | "yml" | "yaml" | "xml",
 ) {
   try {
     let name = FILE_NAME;
@@ -181,12 +165,8 @@ export async function getConnectionFileOptions(
           const tdata = dotenv.dotEnvParser(text);
           const ndata: any = {};
           for (const index in VARIABLES) {
-            const value = tdata[(<any> VARIABLES)[index]];
-            if (
-              value === undefined ||
-              value === null ||
-              (index === "entities" && value === "")
-            ) {
+            let value = tdata[(<any> VARIABLES)[index]];
+            if (value === undefined || value === null || (index === "entities" && value === "")) {
               continue;
             }
             switch (index) {
@@ -198,6 +178,100 @@ export async function getConnectionFileOptions(
                 break;
               case "entities":
                 ndata[index] = parseEntities(ndata[index]);
+                break;
+              case "logging":
+                {
+                  value = value.trim();
+                  if (value === "true" || value === "false") {
+                    /**
+                     * Check if value is a boolean
+                     * options:
+                     *   true
+                     *   false
+                     */
+                    ndata[index] = value === "true";
+                  } else if (typeof value === "string" && value) {
+                    let otype = 0;
+                    const loptions: LoggingOptions = {};
+                    const lkeys: LogginKeys = [];
+                    for (const vx of value.split(",")) {
+                      if ((vx.split(":").length > 1 || vx.split("=").length > 1) && [0, 1].indexOf(otype)) {
+                        otype = 1;
+                        /**
+                         * Check if value is a json
+                         * options:
+                         *   all: ./logs/app.log
+                         *   query = ./logs/query.log, info = ./logs/info-{yyyy}-{MM}-{dd}.log
+                         *   all: true, info = ./logs/info-{yyyy}-{MM}-{dd}.log
+                         */
+                        const [p1, p2] = vx.split(":").length > 1 ? vx.split(":") : vx.split("=");
+                        const vp2 = p2 === "true" ? true : p2 === "false" ? false : p2.trim();
+                        if (vp2) {
+                          switch (p1) {
+                            case "all":
+                              loptions[<"query"> p1] = vp2;
+                              break;
+                            case "query":
+                              loptions[p1] = vp2;
+                              break;
+                            case "error":
+                              loptions[p1] = vp2;
+                              break;
+                            case "schema":
+                              loptions[p1] = vp2;
+                              break;
+                            case "warn":
+                              loptions[p1] = vp2;
+                              break;
+                            case "info":
+                              loptions[p1] = vp2;
+                              break;
+                            case "log":
+                              loptions[p1] = vp2;
+                              break;
+                          }
+                        }
+                      } else if ([0, 2].indexOf(otype)) {
+                        otype = 2;
+                        /**
+                         * Check if value is a array
+                         * options:
+                         *   query ,error,schema , warn, info, log
+                         */
+                        switch (vx) {
+                          case "all":
+                            lkeys.push(<"query"> vx);
+                            break;
+                          case "query":
+                            lkeys.push(vx);
+                            break;
+                          case "error":
+                            lkeys.push(vx);
+                            break;
+                          case "schema":
+                            lkeys.push(vx);
+                            break;
+                          case "warn":
+                            lkeys.push(vx);
+                            break;
+                          case "info":
+                            lkeys.push(vx);
+                            break;
+                          case "log":
+                            lkeys.push(vx);
+                            break;
+                        }
+                      }
+                    }
+                    if (otype === 1) {
+                      ndata[index] = loptions;
+                    } else if (otype === 2) {
+                      ndata[index] = lkeys;
+                    }
+                  } else {
+                    ndata[index] = false;
+                  }
+                }
                 break;
               default:
                 ndata[index] = value;
@@ -215,11 +289,7 @@ export async function getConnectionFileOptions(
           const ndata: any = {};
           for (const index in tdata.connection) {
             const value = tdata.connection[index];
-            if (
-              value === undefined ||
-              value === null ||
-              (index === "entities" && value === "")
-            ) {
+            if (value === undefined || value === null || (index === "entities" && value === "")) {
               continue;
             }
 

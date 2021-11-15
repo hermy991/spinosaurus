@@ -1,3 +1,5 @@
+import { LogginKeys, ParamLoggingOptions } from "./logging/Logging.ts";
+
 export type ConnectionOptionsBase = {
   name: string;
   host: string;
@@ -7,6 +9,7 @@ export type ConnectionOptionsBase = {
   database: string;
   synchronize: boolean;
   entities: string | string[];
+  logging?: ParamLoggingOptions | boolean | LogginKeys;
 };
 
 export type ConnectionOptionsPostgres = ConnectionOptionsBase & {

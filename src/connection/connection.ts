@@ -1,4 +1,5 @@
 import { Driver } from "./connection_type.ts";
+import { createLogging, Logging } from "./logging/Logging.ts";
 import { ConnectionOptions } from "./connection_options.ts";
 import { transferTemp } from "../stores/store.ts";
 import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
@@ -23,11 +24,15 @@ import { ExecuteResult } from "./execute_result.ts";
 class Connection {
   #transactions: Record<string, any> = {};
   #driver?: Driver;
+  #loggin?: Logging;
 
   constructor(options?: ConnectionOptions) {
     if (options && options.type === "postgres") {
       this.#driver = new ConnectionPostgres(options);
       transferTemp(this.getDriver().options.name);
+    }
+    if (options && options.logging) {
+      this.#loggin = createLogging(options.logging);
     }
   }
 
@@ -66,18 +71,8 @@ class Connection {
     return res;
   }
 
-  async checkObject(
-    req: { name: string; schema?: string; database?: string },
-  ): Promise<
-    {
-      name: string;
-      schema?: string;
-      database?: string;
-      exists: boolean;
-      oid?: number;
-      dbdata?: any;
-      type?: string;
-    }
+  async checkObject(req: { name: string; schema?: string; database?: string }): Promise<
+    { name: string; schema?: string; database?: string; exists: boolean; oid?: number; dbdata?: any; type?: string }
   > {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
     const res = await this.#driver.checkObject(req);
@@ -264,14 +259,14 @@ class Connection {
     transactionNameOrFun?: string | (() => Promise<T>),
     fun?: (() => Promise<T>),
   ): Promise<T | any | undefined> {
-    let transactionName =
+    const transactionName =
       (transactionNameOrFun instanceof Function
         ? `transaction_${Object.keys(this.#transactions).length + 1}`
         : transactionNameOrFun) + "";
-    let f = transactionNameOrFun instanceof Function ? transactionNameOrFun : fun;
+    const f = transactionNameOrFun instanceof Function ? transactionNameOrFun : fun;
     if (!this.#driver) return error({ name: "ErrorConnectionNull" });
     // if (!f) return error({ name: "ErrorParamIsRequired" });
-    let err = undefined;
+    const err = undefined;
     let r;
     try {
       r = await this.#driver.createAndBeginTransaction({ transactionName });
