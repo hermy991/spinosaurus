@@ -271,8 +271,10 @@ export async function getConnectionFileOptions(
           toptions.logging ? toptions.logging = parseLoggingOptions(toptions.logging) : undefined;
         }
       } else {
+        console.log("options.entity", options.entity);
         options.entity ? options.entity = parseEntitiesOptions(options.entities) : undefined;
-        options.logging ? options.logging = parseLoggingOptions(options.logging) : undefined;
+        console.log("options.logging", options.logging);
+        (typeof options.logging === "string") ? options.logging = parseLoggingOptions(options.logging) : undefined;
       }
       console.log("options", options);
       return options;
@@ -333,7 +335,11 @@ export async function getConnectionFileOptions(
                 ndata[index] = parseEntitiesOptions(ndata[index]);
                 break;
               case "logging":
-                ndata[index] = parseLoggingOptions(value);
+                ndata[index] = value;
+                console.log("ndata[index]", ndata[index]);
+                if (typeof ndata[index] === "string") {
+                  ndata[index] = parseLoggingOptions(ndata[index]);
+                }
                 break;
               default:
                 ndata[index] = value;
@@ -344,6 +350,7 @@ export async function getConnectionFileOptions(
       }
     }
   } catch (err) {
+    console.log("err", err);
     return;
   }
   return;
