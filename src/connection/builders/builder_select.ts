@@ -210,7 +210,7 @@ export class BuilderSelect extends BuilderBase {
 
       if (this.#clauseData) {
         for (let i = 0; i < this.#clauseData.length; i++) {
-          let { select, entity, schema, as } = <any> this.#clauseData[i];
+          const { select, entity, schema, as } = <any> this.#clauseData[i];
           if (!select) {
             continue;
           }
@@ -226,7 +226,7 @@ export class BuilderSelect extends BuilderBase {
               cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${t.replaceAll(`"`, "")}.${x.name}"`)
                 .join(", ");
           } else {
-            let te = this.splitEntity({ entity, schema });
+            const te = this.splitEntity({ entity, schema });
             let t = this.clearNames([te.schema, te.entity]);
             if (as) {
               t = this.clearNames(as);

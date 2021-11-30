@@ -1268,14 +1268,7 @@ export class ExecutorSelect {
     return this;
   }
 
-  orderBy(
-    ...columns: Array<
-      { column: string; direction?: "ASC" | "DESC" } | [
-        string,
-        ("ASC" | "DESC")?,
-      ]
-    >
-  ): this {
+  orderBy(...columns: Array<{ column: string; direction?: "ASC" | "DESC" } | [string, ("ASC" | "DESC")?]>): this {
     const tempColumns: Array<{ column: string; direction?: string }> = [];
     for (let i = 0; i < columns.length; i++) {
       if (Array.isArray(columns[i])) {
@@ -1289,12 +1282,7 @@ export class ExecutorSelect {
     return this;
   }
 
-  addOrderBy(
-    ...columns: Array<
-      | { column: string; direction?: "ASC" | "DESC" }
-      | [string, ("ASC" | "DESC")?]
-    >
-  ): this {
+  addOrderBy(...columns: Array<{ column: string; direction?: "ASC" | "DESC" } | [string, ("ASC" | "DESC")?]>): this {
     const tempColumns: Array<{ column: string; direction?: string }> = [];
     for (let i = 0; i < columns.length; i++) {
       if (Array.isArray(columns[i])) {
