@@ -120,11 +120,7 @@ deno run -qA https://code.velociraptor.run test:exec
 - use IndexDb, very in the future
 - use a structure equals to indexDB to store entities
 - `whereInIds([ 1, 2, 3, 4 ])` transform to
-  ``addWhere(```"primaryKey" IN(:primaryKey)```,  { primaryKey: [ 1, 2, 3, 4 ] })``
-- adding param structure in all query builder
-  ```typescript
-  ... .from({ entity: User, as: "u" })                        -> ... .from(User, "u")
-  ... .join({ entity: User, as: "u", on: `u."user_ID" = 1` }) -> ... .join(User, "u", `u."user_ID" = 1`)
+  ```
   ```
 - implement insert into select, update from select, maybe upsert from select
   ```typescript
