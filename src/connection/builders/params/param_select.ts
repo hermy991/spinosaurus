@@ -1,9 +1,13 @@
+import { ExecutorSelect } from "../../executors/executor_select.ts";
 /**
  * The name of a column in table. The column name can be qualified with a subfield name or array subscript,
  * if needed.
  */
 
-export type ParamFromEntity = { entity: string; schema?: string; as?: string } | { entity: Function; as?: string };
+export type ParamFromOptions =
+  | { entity: string; schema?: string; as?: string }
+  | { entity: Function; as?: string }
+  | { entity: ExecutorSelect; as?: string };
 
 export type ParamSimpleValues = string | number | boolean | Date | Function | null | undefined;
 

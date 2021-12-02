@@ -1,6 +1,6 @@
 import { Driver } from "../connection_type.ts";
 import { BuilderSelect } from "../builders/builder_select.ts";
-import { ParamFromEntity } from "../builders/params/param_select.ts";
+import { ParamFromOptions } from "../builders/params/param_select.ts";
 import { ParamClauseRelation, ParamComplexValues } from "../builders/params/param_select.ts";
 
 export class ExecutorSelect {
@@ -61,7 +61,7 @@ export class ExecutorSelect {
 
   /**
    * The SQL FROM clause is used to list the entity.
-   * @param {string} entityName Entity class name, use a period to specify a squema like `"schema.Entity"`
+   * @param {string} entityName Entity class name, use a period to specify a squema like `schema.Entity`
    * @param {string} as Param is used to rename a entity with an alias.
    * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
    *
@@ -70,6 +70,37 @@ export class ExecutorSelect {
    * ```
    */
   from(entityName: string, as: string): this;
+
+  /**
+   * The SQL FROM clause is used to list the entity or sub-query.
+   * @param {ExecutorSelect} subQuery Another ExecutorSelect
+   * @param {string} as Param is used to rename a sub-query with an alias.
+   * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
+   *
+   * ```typescript
+   *  ... let qb = db.from(db.from(User));
+   * ```
+   * - Result query
+   * ```sql
+   *  ... SELECT * FROM ( SELECT * FROM "User" )
+   * ```
+   */
+  from(subQuery: ExecutorSelect): this;
+
+  /**
+   * The SQL FROM clause is used to list the entity or sub-query.
+   * @param {ExecutorSelect} subQuery Another ExecutorSelect
+   * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
+   *
+   * ```typescript
+   *  ... let qb = db.from(db.from(User), "u");
+   * ```
+   * - Result query
+   * ```sql
+   *  ... SELECT "u".* FROM ( SELECT * FROM "User" ) AS "u"
+   * ```
+   */
+  from(subQuery: ExecutorSelect, as: string): this;
 
   /**
    * The SQL FROM clause is used to list the entity.
@@ -81,23 +112,32 @@ export class ExecutorSelect {
    *  ... let qb = db.from({ schema: "hello", entity: "User", as: "u"});
    * ```
    */
-  from(fromOption: ParamFromEntity): this;
+  from(fromOption: ParamFromOptions): this;
 
   /**
    * Base function
    */
-  from(entity_entityName_fromOption: Function | string | ParamFromEntity, maybe_as?: string): this {
-    if (typeof entity_entityName_fromOption === "function") {
+  from(
+    // deno-lint-ignore camelcase
+    entity_entityName_subQuery_fromOption: Function | string | ExecutorSelect | ParamFromOptions,
+    // deno-lint-ignore camelcase
+    maybe_as?: string,
+  ): this {
+    if (typeof entity_entityName_subQuery_fromOption === "function") {
       // from(entity: Function): this;
       // from(entity: Function, as: string): this;
-      this.sb.from({ entity: entity_entityName_fromOption, as: maybe_as });
-    } else if (typeof entity_entityName_fromOption === "string") {
+      this.sb.from({ entity: entity_entityName_subQuery_fromOption, as: maybe_as });
+    } else if (typeof entity_entityName_subQuery_fromOption === "string") {
       // from(entityName: string): this;
       // from(entityName: string, as: string): this;
-      this.sb.from({ entity: entity_entityName_fromOption, as: maybe_as });
-    } else if (typeof entity_entityName_fromOption === "object") {
+      this.sb.from({ entity: entity_entityName_subQuery_fromOption, as: maybe_as });
+    } else if (entity_entityName_subQuery_fromOption instanceof ExecutorSelect) {
+      // from(entityName: ExecutorSelect): this;
+      // from(entityName: ExecutorSelect, as: string): this;
+      this.sb.from({ entity: entity_entityName_subQuery_fromOption, as: maybe_as });
+    } else if (typeof entity_entityName_subQuery_fromOption === "object") {
       // from(fromOption: ParamFromEntity): this;
-      this.sb.from(entity_entityName_fromOption);
+      this.sb.from(entity_entityName_subQuery_fromOption);
     }
     return this;
   }
@@ -1171,9 +1211,13 @@ export class ExecutorSelect {
    * Base function
    */
   rightAndSelect(
+    // deno-lint-ignore camelcase
     entity_entityName_clauseOption: Function | string | ParamClauseRelation,
+    // deno-lint-ignore camelcase
     maybe_on_params_as?: string | ParamComplexValues,
+    // deno-lint-ignore camelcase
     maybe_params_on?: ParamComplexValues | string,
+    // deno-lint-ignore camelcase
     meybe_params?: ParamComplexValues,
   ): this {
     if (typeof entity_entityName_clauseOption === "function") {

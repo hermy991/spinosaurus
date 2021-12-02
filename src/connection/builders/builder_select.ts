@@ -1,10 +1,16 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { Driver } from "../connection_type.ts";
-import { ParamClauseRelation, ParamComplexClauseRelation, ParamComplexValues } from "./params/param_select.ts";
+import {
+  ParamClauseRelation,
+  ParamComplexClauseRelation,
+  ParamComplexValues,
+  ParamFromOptions,
+} from "./params/param_select.ts";
+import { ExecutorSelect } from "../executors/executor_select.ts";
 
 export class BuilderSelect extends BuilderBase {
   #selectData: Array<{ column: string; as?: string }> = [];
-  #fromData: { entity: string; schema?: string; as?: string } | { entity: Function; as?: string } | null = null;
+  #fromData: ParamFromOptions | null = null;
   #clauseData: ParamComplexClauseRelation[] = [];
   #whereData: string[] = [];
   #groupByData: string[] = [];
@@ -42,11 +48,10 @@ export class BuilderSelect extends BuilderBase {
     this.#selectData.push(...tempColumns);
   }
 
-  from(req: { entity: string; schema?: string; as?: string } | { entity: Function; as?: string } | Function): void {
-    if (typeof req === "function") {
-      this.#fromData = { entity: req };
-    } else {
-      this.#fromData = req;
+  from(req: ParamFromOptions): void {
+    this.#fromData = req;
+    if (req.entity instanceof ExecutorSelect) {
+      this.#fromData.as ||= "_1";
     }
   }
 
@@ -199,6 +204,11 @@ export class BuilderSelect extends BuilderBase {
         }
         const cols = this.getColumns(this.driver.options.name, entity);
         sql += cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${x.name}"`).join(", ");
+      } else if (entity instanceof ExecutorSelect) {
+        if (as) {
+          const t = this.clearNames(as);
+          sql += `${t}.*`;
+        }
       } else {
         const te = this.splitEntity({ entity, schema });
         let t = this.clearNames([te.schema, te.entity]);
@@ -256,6 +266,13 @@ export class BuilderSelect extends BuilderBase {
     let te: { schema?: string; entity: string } = { entity: "" };
     if (this.#fromData.entity instanceof Function) {
       te = this.getEntityData(this.driver.options.name, this.#fromData.entity);
+    } else if (this.#fromData.entity instanceof ExecutorSelect) {
+      let query = `( ${this.#fromData.entity.getSql()} )`;
+      if (as) {
+        query = `${query} AS ${this.clearNames([as])}`;
+      }
+      const sql = `FROM ${query}`;
+      return sql;
     } else {
       te = <any> this.#fromData;
       te = this.splitEntity(te);

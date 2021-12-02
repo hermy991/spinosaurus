@@ -4,7 +4,7 @@ import { ConnectionOptions } from "./connection_options.ts";
 import { transferTemp } from "../stores/store.ts";
 import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
 import { ParamCreateEntity } from "./builders/params/param_create.ts";
-import { ParamFromEntity } from "./builders/params/param_select.ts";
+import { ParamFromOptions } from "./builders/params/param_select.ts";
 import { ParamUpdateEntity } from "./builders/params/param_update.ts";
 import { ParamInsertEntity } from "./builders/params/param_insert.ts";
 import { ParamUpsertEntity } from "./builders/params/param_upsert.ts";
@@ -169,7 +169,7 @@ class Connection {
 
   /**
    * The SQL FROM clause is used to list the entity.
-   * @param {string} entityName Entity class name, use a period to specify a squema like `"schema.Entity"`
+   * @param {string} entityName Entity class name, use a period to specify a squema like `schema.Entity`
    * @param {string} as Param is used to rename a entity with an alias.
    * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
    *
@@ -178,6 +178,37 @@ class Connection {
    * ```
    */
   from(entityName: string, as: string): ExecutorSelect;
+
+  /**
+   * The SQL FROM clause is used to list the entity or sub-query.
+   * @param {ExecutorSelect} subQuery Another ExecutorSelect
+   * @param {string} as Param is used to rename a sub-query with an alias.
+   * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
+   *
+   * ```typescript
+   *  ... let qb = db.from(db.from(User));
+   * ```
+   * - Result query
+   * ```sql
+   *  ... SELECT * FROM ( SELECT * FROM "User" )
+   * ```
+   */
+  from(subQuery: ExecutorSelect): ExecutorSelect;
+
+  /**
+   * The SQL FROM clause is used to list the entity or sub-query.
+   * @param {ExecutorSelect} subQuery Another ExecutorSelect
+   * @returns {ExecutorSelect} Return ExecutorSelect to chain functions
+   *
+   * ```typescript
+   *  ... let qb = db.from(db.from(User), "u");
+   * ```
+   * - Result query
+   * ```sql
+   *  ... SELECT "u".* FROM ( SELECT * FROM "User" ) AS "u"
+   * ```
+   */
+  from(subQuery: ExecutorSelect, as: string): ExecutorSelect;
 
   /**
    * The SQL FROM clause is used to list the entity.
@@ -189,15 +220,19 @@ class Connection {
    *  ... let qb = db.from({ schema: "hello", entity: "User", as: "u"});
    * ```
    */
-  from(fromOption: ParamFromEntity): ExecutorSelect;
-
+  from(fromOption: ParamFromOptions): ExecutorSelect;
   /**
    * Base function
    */
-  from(entity_entityName_fromOption: Function | string | ParamFromEntity, maybe_as?: string) {
+  from(
+    // deno-lint-ignore camelcase
+    entity_entityName_subQuery_fromOption: Function | string | ExecutorSelect | ParamFromOptions,
+    // deno-lint-ignore camelcase
+    maybe_as?: string,
+  ): ExecutorSelect {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
     const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction());
-    executor.from(<any> entity_entityName_fromOption, <any> maybe_as);
+    executor.from(<any> entity_entityName_subQuery_fromOption, <any> maybe_as);
     return executor;
   }
 

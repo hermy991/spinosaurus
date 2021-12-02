@@ -22,6 +22,7 @@ const sqls = [
   `${folder}update_sql_test.ts`,
   `${folder}delete_sql_test.ts`,
   `${folder}upsert_sql_test.ts`,
+  `${folder}from_sql_test.ts`,
   `${folder}join_inner_sql_test.ts`,
   `${folder}join_left_sql_test.ts`,
   `${folder}join_right_sql_test.ts`,
