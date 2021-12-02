@@ -90,17 +90,6 @@ Deno.test("select [select * from 'Entity'] sql", async () => {
   const q5 = qs5.getSql();
   const qe5 = `SELECT "u"."test1" "test1", "u"."test2" "test2" FROM "hello"."SelectEntity5" AS "u"`;
   assertEquals(q5, qe5);
-
-  const qs6 = db.from(SelectEntity1);
-  const q6 = qs6.getSql();
-  const qe6 =
-    `SELECT "SelectEntityCustom"."test1" "test1", "SelectEntityCustom"."test2" "test2", "SelectEntityCustom"."custom" "custom" FROM "SelectEntityCustom"`;
-  assertEquals(q6, qe6);
-
-  const qs7 = db.from(SelectEntity1, "u");
-  const q7 = qs7.getSql();
-  const qe7 = `SELECT "u"."test1" "test1", "u"."test2" "test2", "u"."custom" "custom" FROM "SelectEntityCustom" AS "u"`;
-  assertEquals(q7, qe7);
 });
 Deno.test("select [select columns] sql", () => {
   const db: Connection = new Connection(con1);

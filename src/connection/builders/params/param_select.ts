@@ -15,6 +15,7 @@ export type ParamComplexValues = Record<string, ParamSimpleValues | ParamSimpleV
 
 export type ParamClauseRelation =
   | { entity: string; schema?: string; as?: string; on: string | [string, ...string[]] }
-  | { entity: Function; as?: string; on: string | [string, ...string[]] };
+  | { entity: Function; as?: string; on: string | [string, ...string[]] }
+  | { entity: ExecutorSelect; as?: string; on: string | [string, ...string[]] };
 
 export type ParamComplexClauseRelation = { join: "inner" | "left" | "right"; select: boolean } & ParamClauseRelation;

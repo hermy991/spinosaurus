@@ -281,48 +281,67 @@ export class ExecutorSelect {
    * Base function
    */
   join(
-    entity_entityName_clauseOption: Function | string | ParamClauseRelation,
+    // deno-lint-ignore camelcase
+    entity_entityName_subQuery_clauseOption: Function | string | ExecutorSelect | ParamClauseRelation,
+    // deno-lint-ignore camelcase
     maybe_on_params_as?: string | ParamComplexValues,
+    // deno-lint-ignore camelcase
     maybe_params_on?: ParamComplexValues | string,
+    // deno-lint-ignore camelcase
     meybe_params?: ParamComplexValues,
   ): this {
-    if (typeof entity_entityName_clauseOption === "function") {
+    if (typeof entity_entityName_subQuery_clauseOption === "function") {
       // join(entity: Function, as: string, on: string): this;
       // join(entity: Function, as: string, on: string, params: ParamComplexValues): this;
       if (typeof maybe_on_params_as === "string" && typeof maybe_params_on === "string") {
         this.sb.join(
-          { entity: entity_entityName_clauseOption, as: maybe_on_params_as, on: maybe_params_on },
+          { entity: entity_entityName_subQuery_clauseOption, as: maybe_on_params_as, on: maybe_params_on },
           meybe_params,
         );
       } // join(entity: Function, on: string, params: ParamComplexValues): this;
       else if (typeof maybe_on_params_as === "string" && typeof maybe_params_on === "object") {
-        this.sb.join({ entity: entity_entityName_clauseOption, on: maybe_on_params_as }, maybe_params_on);
+        this.sb.join({ entity: entity_entityName_subQuery_clauseOption, on: maybe_on_params_as }, maybe_params_on);
       } // join(entity: Function, on: string): this;
       else if (typeof maybe_on_params_as === "string") {
-        this.sb.join({ entity: entity_entityName_clauseOption, on: maybe_on_params_as });
+        this.sb.join({ entity: entity_entityName_subQuery_clauseOption, on: maybe_on_params_as });
       }
-    } else if (typeof entity_entityName_clauseOption === "string") {
+    } else if (typeof entity_entityName_subQuery_clauseOption === "string") {
       // join(entityName: string, as: string, on: string): this;
       // join(entityName: string, as: string, on: string, params: ParamComplexValues): this;
       if (typeof maybe_on_params_as === "string" && typeof maybe_params_on === "string") {
         this.sb.join(
-          { entity: entity_entityName_clauseOption, as: maybe_on_params_as, on: maybe_params_on },
+          { entity: entity_entityName_subQuery_clauseOption, as: maybe_on_params_as, on: maybe_params_on },
           meybe_params,
         );
       } // join(entityName: string, on: string, params: ParamComplexValues): this;
       else if (typeof maybe_on_params_as === "string" && typeof maybe_params_on === "object") {
-        this.sb.join({ entity: entity_entityName_clauseOption, on: maybe_on_params_as }, maybe_params_on);
+        this.sb.join({ entity: entity_entityName_subQuery_clauseOption, on: maybe_on_params_as }, maybe_params_on);
       } // join(entityName: string, on: string): this;
       else if (typeof maybe_on_params_as === "string") {
-        this.sb.join({ entity: entity_entityName_clauseOption, on: maybe_on_params_as });
+        this.sb.join({ entity: entity_entityName_subQuery_clauseOption, on: maybe_on_params_as });
       }
-    } else if (typeof entity_entityName_clauseOption === "object") {
+    } else if (entity_entityName_subQuery_clauseOption instanceof ExecutorSelect) {
+      // join(subQuery: ExecutorSelect, as: string, on: string): this;
+      // join(subQuery: ExecutorSelect, as: string, on: string, params: ParamComplexValues): this;
+      if (typeof maybe_on_params_as === "string" && typeof maybe_params_on === "string") {
+        this.sb.join(
+          { entity: entity_entityName_subQuery_clauseOption, as: maybe_on_params_as, on: maybe_params_on },
+          meybe_params,
+        );
+      } // join(subQuery: ExecutorSelect, on: string, params: ParamComplexValues): this;
+      else if (typeof maybe_on_params_as === "string" && typeof maybe_params_on === "object") {
+        this.sb.join({ entity: entity_entityName_subQuery_clauseOption, on: maybe_on_params_as }, maybe_params_on);
+      } // join(subQuery: ExecutorSelect, on: string): this;
+      else if (typeof maybe_on_params_as === "string") {
+        this.sb.join({ entity: entity_entityName_subQuery_clauseOption, on: maybe_on_params_as });
+      }
+    } else if (typeof entity_entityName_subQuery_clauseOption === "object") {
       // join(clauseOption: ParamClauseRelation, params?: ParamComplexValues): this;
       if (typeof maybe_on_params_as === "object") {
-        this.sb.join(entity_entityName_clauseOption, maybe_on_params_as);
+        this.sb.join(entity_entityName_subQuery_clauseOption, maybe_on_params_as);
       } // join(clauseOption: ParamClauseRelation): this;
       else {
-        this.sb.join(entity_entityName_clauseOption);
+        this.sb.join(entity_entityName_subQuery_clauseOption);
       }
     }
     return this;

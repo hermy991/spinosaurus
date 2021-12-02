@@ -49,8 +49,8 @@ export class BuilderSelect extends BuilderBase {
   }
 
   from(req: ParamFromOptions): void {
-    this.#fromData = req;
-    if (req.entity instanceof ExecutorSelect) {
+    this.#fromData = { ...req };
+    if (this.#fromData.entity instanceof ExecutorSelect) {
       this.#fromData.as ||= "_1";
     }
   }
