@@ -1,8 +1,8 @@
 import { BuilderBase } from "./base/builder_base.ts";
 import { Driver } from "../connection_type.ts";
 import {
-  ParamClauseRelation,
-  ParamComplexClauseRelation,
+  ParamClauseOptions,
+  ParamComplexClauseOptions,
   ParamComplexValues,
   ParamFromOptions,
 } from "./params/param_select.ts";
@@ -11,7 +11,7 @@ import { ExecutorSelect } from "../executors/executor_select.ts";
 export class BuilderSelect extends BuilderBase {
   #selectData: Array<{ column: string; as?: string }> = [];
   #fromData: ParamFromOptions | null = null;
-  #clauseData: ParamComplexClauseRelation[] = [];
+  #clauseData: ParamComplexClauseOptions[] = [];
   #whereData: string[] = [];
   #groupByData: string[] = [];
   #havingData: string[] = [];
@@ -55,42 +55,42 @@ export class BuilderSelect extends BuilderBase {
     }
   }
 
-  join(req: ParamClauseRelation, params?: ParamComplexValues): void {
+  join(req: ParamClauseOptions, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: false, join: "inner" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  joinAndSelect(req: ParamClauseRelation, params?: ParamComplexValues): void {
+  joinAndSelect(req: ParamClauseOptions, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: true, join: "inner" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  left(req: ParamClauseRelation, params?: ParamComplexValues): void {
+  left(req: ParamClauseOptions, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: false, join: "left" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  leftAndSelect(req: ParamClauseRelation, params?: ParamComplexValues): void {
+  leftAndSelect(req: ParamClauseOptions, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: true, join: "left" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  right(req: ParamClauseRelation, params?: ParamComplexValues): void {
+  right(req: ParamClauseOptions, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: false, join: "right" });
     if (params) {
       this.addParams(params);
     }
   }
 
-  rightAndSelect(req: ParamClauseRelation, params?: ParamComplexValues): void {
+  rightAndSelect(req: ParamClauseOptions, params?: ParamComplexValues): void {
     this.#clauseData.push({ ...req, select: true, join: "right" });
     if (params) {
       this.addParams(params);

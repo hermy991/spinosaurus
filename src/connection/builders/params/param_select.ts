@@ -13,9 +13,11 @@ export type ParamSimpleValues = string | number | boolean | Date | Function | nu
 
 export type ParamComplexValues = Record<string, ParamSimpleValues | ParamSimpleValues[]> | Object;
 
-export type ParamClauseRelation =
+export type ParamClauseOptions =
   | { entity: string; schema?: string; as?: string; on: string | [string, ...string[]] }
   | { entity: Function; as?: string; on: string | [string, ...string[]] }
   | { entity: ExecutorSelect; as?: string; on: string | [string, ...string[]] };
 
-export type ParamComplexClauseRelation = { join: "inner" | "left" | "right"; select: boolean } & ParamClauseRelation;
+export type ParamComplexClauseOptions =
+  & { join: "inner" | "left" | "right"; select: boolean }
+  & ParamClauseOptions;
