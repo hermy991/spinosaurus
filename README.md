@@ -187,3 +187,7 @@ async function save(conection: Connection, user: User) {
   await connection.upsert(User).values(user).execute();
 }
 ```
+
+- implementing caching result:
+  - files or memory storage
+  - timer and query diferences
