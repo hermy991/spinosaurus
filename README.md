@@ -154,7 +154,8 @@ deno run -qA https://code.velociraptor.run test:exec
 - escape in insert, update, and upsert like the following code:
 
 ```typescript
-await getConnection().insert(Company)
+  const db = await getConnection();
+  await db.insert(Company)
   .values({
     companyName: "Timber",
     dateFormat: () => `"dateFormat" + :dateFormat`,
@@ -164,7 +165,8 @@ await getConnection().insert(Company)
   
   ...
 
-await getConnection().insert(Company)
+  const db = await getConnection();
+  await db.insert(Company)
   .values({
     companyName: "Timber",
     dateFormat: () => [`"dateFormat" + :dateFormat`, { dateFormat: "dd/MM/yyyy" }],
@@ -177,3 +179,11 @@ await getConnection().insert(Company)
 
 - implementing `db.restoreDelete`, when you use a `@DeleteColumn` decorator in a `boolean` or `Date` types, it performes
   a update changing the column's value to maked visible.
+
+- implementing `@Transaction` decorator as follows:
+
+```typescript
+async function save(conection: Connection, user: User) {
+  await connection.upsert(User).values(user).execute();
+}
+```

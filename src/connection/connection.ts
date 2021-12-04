@@ -291,8 +291,8 @@ class Connection {
    * Wraps given function execution (and all operations made there) in a transaction.
    */
   async startTransaction<T>(
-    transactionNameOrFun?: string | (() => Promise<T>),
-    fun?: (() => Promise<T>),
+    transactionNameOrFun?: string | ((conn?: this) => Promise<T>),
+    fun?: ((conn?: this) => Promise<T>),
   ): Promise<T | any | undefined> {
     const transactionName =
       (transactionNameOrFun instanceof Function
@@ -308,7 +308,7 @@ class Connection {
       if (!r?.transaction) return error({ name: "ErrorTransactionNull" });
       this.getTransactions()[transactionName] = r;
       if (f) {
-        const data = await f();
+        const data = await f(this);
         const _ = await this.#driver.commitAndCloseTransaction(r);
         delete this.getTransactions()[transactionName];
         return data;
