@@ -132,7 +132,9 @@ deno run -qA https://code.velociraptor.run test:exec
   await conn.insert(User).values({ userDisplay: () => `p."firstName"` })
     .from(User, "u").join(Person, "p", `p."person_ID" = u."person_ID"`);
   ```
+
 - Make the next code work:
+
   ```typescript
   const profile = new Profile();
   profile.gender = "male";
@@ -148,3 +150,30 @@ deno run -qA https://code.velociraptor.run test:exec
   `await conn.update(User).set(user).execute(); -> await conn.update(user).execute();`,
   `await conn.insert(User).values(user).execute(); -> await conn.insert(user).execute();` and
   `await conn.upsert(User).values(user).execute(); -> await conn.upsert(user).execute();`
+
+- escape in insert, update, and upsert like the following code:
+
+```typescript
+await getConnection().insert(Company)
+  .values({
+    companyName: "Timber",
+    dateFormat: () => `"dateFormat" + :dateFormat`,
+  })
+  .params({ dateFormat: "dd/MM/yyyy" })
+  .execute();
+  
+  ...
+
+await getConnection().insert(Company)
+  .values({
+    companyName: "Timber",
+    dateFormat: () => [`"dateFormat" + :dateFormat`, { dateFormat: "dd/MM/yyyy" }],
+  })
+  .execute();
+```
+
+- implementing `db.softDelete`, when you use a `@DeleteColumn` decorator in a `boolean` or `Date` types, it performes a
+  update changing the column's value.
+
+- implementing `db.restoreDelete`, when you use a `@DeleteColumn` decorator in a `boolean` or `Date` types, it performes
+  a update changing the column's value to maked visible.

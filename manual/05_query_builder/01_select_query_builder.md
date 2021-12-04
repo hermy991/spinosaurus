@@ -121,7 +121,7 @@ const user = await getConnection().from(User, "u")
 - `InsertQueryBuilder` - used to build and execute `INSERT` queries. Example:
 
 ```typescript
-import { getConnection } from "typeorm";
+import { getConnection } from "https://deno.land/x/spinosaurus/mod.ts";
 
 await getConnection().insert(User).values([{
   firstName: "Timber",
@@ -132,7 +132,7 @@ await getConnection().insert(User).values([{
 - `UpdateQueryBuilder` - used to build and execute `UPDATE` queries. Example:
 
 ```typescript
-import { getConnection } from "typeorm";
+import { getConnection } from "https://deno.land/x/spinosaurus/mod.ts";
 
 await getConnection()
   .update(User)
@@ -144,7 +144,7 @@ await getConnection()
 - `DeleteQueryBuilder` - used to build and execute `DELETE` queries. Example:
 
 ```typescript
-import { getConnection } from "typeorm";
+import { getConnection } from "https://deno.land/x/spinosaurus/mod.ts";
 
 await getConnection()
   .delete(User)
@@ -959,7 +959,7 @@ to retrieve the information from the column.
 Let's say you have the following entity:
 
 ```typescript
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "https://deno.land/x/spinosaurus/mod.ts";
 
 @Entity()
 export class User {
