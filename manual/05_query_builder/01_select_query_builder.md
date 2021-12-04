@@ -12,9 +12,11 @@
 - [Adding `GROUP BY` expression](#adding-group-by-expression)
 - [Adding `LIMIT` expression](#adding-limit-expression)
 - [Adding `OFFSET` expression](#adding-offset-expression)
+- [Using Sub-Query expression](#using-sub-query-expression)
 - [Joining relations](#joining-relations)
 - [Inner and left joins](#inner-and-left-joins)
 - [Join without selection](#join-without-selection)
+- [Using Sub-Query in join](#using-sub-query-in-join)
 - [Joining any entity or table](#joining-any-entity-or-table)
 - [Joining and mapping functionality](#joining-and-mapping-functionality)
 - [Getting the generated query](#getting-the-generated-query)
@@ -563,6 +565,26 @@ The resulting SQL query depends on the type of database (SQL, mySQL, Postgres, e
 may expect if you are using complex queries with joins or subqueries. If you are using pagination, it's recommended to
 use `skip` instead.
 
+## Using Sub-Query expression
+
+Using a Sub-Query expression is easy as:
+
+```typescript
+db.select().from(db.select().from(User), "user")
+  .where(`"user"."userName" = 'master'`);
+```
+
+Which will produce the following SQL query:
+
+```sql
+SELECT "user".*
+FROM ( 
+    SELECT users.col1, users.col2, users.col3, ...
+    FROM users 
+    ) AS "user" 
+WHERE "user"."userName" = 'master'
+```
+
 ## Joining relations
 
 Let's say you have the following entities:
@@ -775,28 +797,32 @@ WHERE user.name = 'Timber'
 
 This will select Timber if he has photos, but won't return his photos.
 
+## Using Sub-Query in join
+
+You can use any sub-query in every functions `join`, `joinAndSelect`, `joinAndWrap`, `left`, `leftAndSelect`,
+`leftAndWrap`, `right`, `rightAndSelect` and `rightAndWrap`
+
+```typescript
+const users = await getConnection().select().from(User, "user")
+  .leftAndSelect(db.from(Photo), "photo", "photo.userId = user.id")
+  .getMany();
+```
+
 ## Joining any entity or table
 
 You can join not only relations, but also other unrelated entities or tables. Examples:
 
 ```typescript
-const user = await getConnection()
-  .select()
-  .from(User, "user")
+const users = await getConnection().select().from(User, "user")
   .leftAndSelect(Photo, "photo", "photo.userId = user.id")
   .getMany();
 ```
 
 ```typescript
-const user = await getConnection()
-  .select()
-  .from(User, "user")
-  .leftAndSelect({
-    schema: "inter",
-    entity: "photos",
-    as: "photo",
-    on: "photo.userId = user.id",
-  })
+const users = await getConnection().select().from(User, "user")
+  .leftAndSelect(
+    { schema: "inter", entity: "photos", as: "photo", on: "photo.userId = user.id" },
+  )
   .getMany();
 ```
 
