@@ -63,7 +63,7 @@ Deno.test("right join [right] sql", async () => {
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "hello"."User" AS "u" ON "u"."columnKey1" = "FromEntity1"."columnKey1"`;
   assertEquals(q7, qe7);
 });
-Deno.test("right join [right 'Entity'] sql", async () => {
+Deno.test("right join [right by 'class'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity5 } = await import("./playground/decorators/FromEntity.ts");
   const db: Connection = new Connection(con1);
   //Inner Join Testing
@@ -127,6 +127,24 @@ Deno.test("right join [right 'Entity'] sql", async () => {
     `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" AS "u" ON "u"."columnKey1" = "u1"."columnKey1" AND "u1"."columnKey1" = 'xx'`;
   assertEquals(q8, qe8);
 });
+Deno.test("right join [right by 'sub-query'] sql", async () => {
+  const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
+  const db: Connection = new Connection(con1);
+
+  const qs7 = db.from(FromEntity1, "u1")
+    .right(db.from(FromEntity1), `"_2"."test1" = "u1"."test1"`);
+  const q7 = qs7.getSql();
+  const qe7 =
+    `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN ( SELECT "FromEntity1"."test1" "test1" FROM "FromEntity1" ) AS "_2" ON "_2"."test1" = "u1"."test1"`;
+  assertEquals(q7, qe7);
+
+  const qs8 = db.from(FromEntity1, "u1")
+    .right(db.from(FromEntity1), `u2`, `"u2"."test1" = "u1"."test1"`);
+  const q8 = qs8.getSql();
+  const qe8 =
+    `SELECT "u1"."test1" "test1" FROM "FromEntity1" AS "u1" RIGHT JOIN ( SELECT "FromEntity1"."test1" "test1" FROM "FromEntity1" ) AS "u2" ON "u2"."test1" = "u1"."test1"`;
+  assertEquals(q8, qe8);
+});
 Deno.test("right join [select right] sql", async () => {
   const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
   const db: Connection = new Connection(con1);
@@ -186,7 +204,7 @@ Deno.test("right join [select right] sql", async () => {
     `SELECT "u1"."test1" "test1", "u".* FROM "FromEntity1" AS "u1" RIGHT JOIN "hello"."User" AS "u" ON "u"."columnKey1" = "FromEntity1"."columnKey1"`;
   assertEquals(q7, qe7);
 });
-Deno.test("right join [select right 'Entity'] sql", async () => {
+Deno.test("right join [select right by 'class'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity5 } = await import("./playground/decorators/FromEntity.ts");
   const db: Connection = new Connection(con1);
   //Left Join with Entity Testing
@@ -251,7 +269,25 @@ Deno.test("right join [select right 'Entity'] sql", async () => {
     `SELECT "u1"."test1" "test1", "u"."test1" "u.test1" FROM "FromEntity1" AS "u1" RIGHT JOIN "FromEntity2" AS "u" ON "u"."columnKey1" = "u1"."columnKey1" AND "u1"."columnKey1" = 'xx'`;
   assertEquals(q8, qe8);
 });
-Deno.test("right join [params] sql", async () => {
+Deno.test("right join [select right by 'sub-query'] sql", async () => {
+  const { FromEntity1 } = await import("./playground/decorators/FromEntity.ts");
+  const db: Connection = new Connection(con1);
+
+  const qs7 = db.from(FromEntity1, "u1")
+    .rightAndSelect(db.from(FromEntity1), `"_2"."test1" = "u1"."test1"`);
+  const q7 = qs7.getSql();
+  const qe7 =
+    `SELECT "u1"."test1" "test1", "_2".* FROM "FromEntity1" AS "u1" RIGHT JOIN ( SELECT "FromEntity1"."test1" "test1" FROM "FromEntity1" ) AS "_2" ON "_2"."test1" = "u1"."test1"`;
+  assertEquals(q7, qe7);
+
+  const qs8 = db.from(FromEntity1, "u1")
+    .rightAndSelect(db.from(FromEntity1), `u2`, `"u2"."test1" = "u1"."test1"`);
+  const q8 = qs8.getSql();
+  const qe8 =
+    `SELECT "u1"."test1" "test1", "u2".* FROM "FromEntity1" AS "u1" RIGHT JOIN ( SELECT "FromEntity1"."test1" "test1" FROM "FromEntity1" ) AS "u2" ON "u2"."test1" = "u1"."test1"`;
+  assertEquals(q8, qe8);
+});
+Deno.test("right join [params] sql", () => {
   const db: Connection = new Connection(con1);
 
   const qs1 = db.select().from({ entity: "User", as: "u1" })

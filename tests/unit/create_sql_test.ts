@@ -74,7 +74,7 @@ INSERT INTO "publicX"."User" ("column1", "column2", "column3") VALUES (1, 'row1 
 INSERT INTO "publicX"."User" ("column1", "column2", "column3") VALUES (2, 'row2 column2, this have to show', 'row2 column3, this have to show')`;
   assertEquals(q3, qe3);
 });
-Deno.test("create [create table 'Entity'] sql", async () => {
+Deno.test("create [create table by 'class'] sql", async () => {
   const { CreateEntity1, CreateEntity2 } = await import(
     "./playground/decorators/CreateEntity.ts"
   );

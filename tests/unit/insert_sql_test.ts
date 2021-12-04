@@ -12,7 +12,7 @@ Deno.test("insert [insert] sql", () => {
   assertEquals(query, queryExpected);
 });
 
-Deno.test("insert [insert 'Entity'] sql", async () => {
+Deno.test("insert [insert by 'class'] sql", async () => {
   const { InsertEntity1, InsertEntity2, InsertEntity4, InsertEntity5, InsertEntity6 } = await import(
     "./playground/decorators/InsertEntity.ts"
   );

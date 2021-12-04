@@ -50,9 +50,6 @@ export class BuilderSelect extends BuilderBase {
 
   from(req: ParamFromOptions): void {
     this.#fromData = { ...req };
-    if (this.#fromData.entity instanceof ExecutorSelect) {
-      this.#fromData.as ||= "_1";
-    }
   }
 
   join(req: ParamClauseOptions, params?: ParamComplexValues): void {
@@ -205,10 +202,8 @@ export class BuilderSelect extends BuilderBase {
         const cols = this.getColumns(this.driver.options.name, entity);
         sql += cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${x.name}"`).join(", ");
       } else if (entity instanceof ExecutorSelect) {
-        if (as) {
-          const t = this.clearNames(as);
-          sql += `${t}.*`;
-        }
+        const t = this.clearNames(as || "_1");
+        sql += `${t}.*`;
       } else {
         const te = this.splitEntity({ entity, schema });
         let t = this.clearNames([te.schema, te.entity]);
@@ -235,6 +230,10 @@ export class BuilderSelect extends BuilderBase {
             sql += ", " +
               cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${t.replaceAll(`"`, "")}.${x.name}"`)
                 .join(", ");
+          } else if (entity instanceof ExecutorSelect) {
+            let tas = as ? as : `_${this.#clauseData.filter((o, ix) => !o.as && ix <= i).length + 1}`;
+            tas = this.clearNames(tas);
+            sql += `, ${tas}.*`;
           } else {
             const te = this.splitEntity({ entity, schema });
             let t = this.clearNames([te.schema, te.entity]);
@@ -268,9 +267,7 @@ export class BuilderSelect extends BuilderBase {
       te = this.getEntityData(this.driver.options.name, this.#fromData.entity);
     } else if (this.#fromData.entity instanceof ExecutorSelect) {
       let query = `( ${this.#fromData.entity.getSql()} )`;
-      if (as) {
-        query = `${query} AS ${this.clearNames([as])}`;
-      }
+      query = `${query} AS ${this.clearNames([as || "_1"])}`;
       const sql = `FROM ${query}`;
       return sql;
     } else {
@@ -292,14 +289,20 @@ export class BuilderSelect extends BuilderBase {
     const sqls: string[] = [];
     for (let i = 0; i < this.#clauseData.length; i++) {
       const { join, entity, as, on } = this.#clauseData[i];
-      let te: { schema?: string; entity?: string } = <any> this.#clauseData[i];
-      if (entity instanceof Function) {
-        te = this.getEntityData(this.driver.options.name, entity);
+      if (entity instanceof ExecutorSelect) {
+        const tas = as ? as : `_${this.#clauseData.filter((o, ix) => !o.as && ix <= i).length + 1}`;
+        const ton = this.driver.interpolate(on, this.#paramsData);
+        sqls.push(`${join.toUpperCase()} JOIN ( ${entity.getSql()} ) AS ${this.clearNames(tas)} ON ${ton.join(" ")}`);
+      } else {
+        let te: { schema?: string; entity?: string } = <any> this.#clauseData[i];
+        if (entity instanceof Function) {
+          te = this.getEntityData(this.driver.options.name, entity);
+        }
+        te = this.splitEntity(<any> te);
+        const t = `${this.clearNames([te.schema, te.entity])}`;
+        const ton = this.driver.interpolate(on, this.#paramsData);
+        sqls.push(`${join.toUpperCase()} JOIN ${t}${as ? " AS " + this.clearNames(as) : ""} ON ${ton.join(" ")}`);
       }
-      te = this.splitEntity(<any> te);
-      const t = `${this.clearNames([te.schema, te.entity])}`;
-      const ton = this.driver.interpolate(on, this.#paramsData);
-      sqls.push(`${join.toUpperCase()} JOIN ${t}${as ? " AS " + this.clearNames(as) : ""} ON ${ton.join(" ")}`);
     }
     return sqls.join(" ");
   }

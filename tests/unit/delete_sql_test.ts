@@ -12,7 +12,7 @@ Deno.test("delete [delete] sql", () => {
   assertEquals(query, queryExpected);
 });
 
-Deno.test("delete [delete 'Entity'] sql", async () => {
+Deno.test("delete [delete by 'class'] sql", async () => {
   const { FromEntity1, FromEntity2, FromEntity4, FromEntity5 } = await import(
     "./playground/decorators/FromEntity.ts"
   );

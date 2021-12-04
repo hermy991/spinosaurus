@@ -1079,7 +1079,7 @@ export class ExecutorSelect {
       maybe_params_on,
       meybe_params,
     );
-    this.sb.join(r.e as any, r.params as any);
+    this.sb.leftAndSelect(r.e as any, r.params as any);
     return this;
   }
 

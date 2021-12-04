@@ -14,7 +14,7 @@ Deno.test("update [update] sql", () => {
   assertEquals(query, queryExpected);
 });
 
-Deno.test("update [update 'Entity'] sql", async () => {
+Deno.test("update [update by 'class'] sql", async () => {
   const { UpdateEntity1, UpdateEntity2, UpdateEntity6 } = await import("./playground/decorators/UpdateEntity.ts");
   const db: Connection = new Connection(con1);
 

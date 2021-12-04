@@ -5,7 +5,7 @@ import * as luxon from "luxon/mod.ts";
 
 const con1 = getTestConnection();
 
-Deno.test("upsert [upsert 'Entity'] sql", async () => {
+Deno.test("upsert [upsert by 'class'] sql", async () => {
   const { UpsertEntity1, UpsertEntity2 } = await import(
     "./playground/decorators/UpsertEntity.ts"
   );

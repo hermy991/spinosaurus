@@ -60,7 +60,7 @@ Deno.test("select [select distinct *] sql", () => {
   const queryExpected = `SELECT DISTINCT "u".* FROM "User" AS "u"`;
   assertEquals(query, queryExpected);
 });
-Deno.test("select [select * from 'Entity'] sql", async () => {
+Deno.test("select [select * from by 'class'] sql", async () => {
   const { SelectEntity1, SelectEntity2, SelectEntity5 } = await import("./playground/decorators/SelectEntity.ts");
 
   const db: Connection = new Connection(con1);
