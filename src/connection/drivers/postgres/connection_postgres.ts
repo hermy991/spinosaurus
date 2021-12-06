@@ -19,7 +19,7 @@ import { postgres } from "../../../../deps.ts";
 import { KEY_CONFIG } from "./connection_postgres_variables.ts";
 import { ExecuteResult, Query } from "../../execute_result.ts";
 
-class ConnectionPostgres implements IConnectionOperations {
+class DriverPostgres implements IConnectionOperations {
   #currentDatabase?: string;
   #currentSchema?: string;
   delimiters: [string, string?] = [`"`];
@@ -826,4 +826,4 @@ WHERE nsp.nspname NOT IN('pg_catalog', 'information_schema', 'pg_toast')
   }
 }
 
-export { ConnectionPostgres };
+export { DriverPostgres };

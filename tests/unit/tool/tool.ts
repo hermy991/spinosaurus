@@ -33,3 +33,26 @@ export function getTestConnection(): any {
   };
   return con1;
 }
+
+export async function clearPlayground(db: any, tables: Array<any>, schemas: Array<any>) {
+  /**
+   * Dropping tables
+   */
+  for (const table of tables) {
+    const co = await db.checkObject(table.mixeds);
+    if (co.exists) {
+      const t = { entity: co.name, schema: co.schema };
+      await db.drop(t).execute();
+    }
+  }
+  /**
+   * Dropping schemas
+   */
+  for (const schema of schemas) {
+    const cs = await db.checkSchema({ name: schema.name });
+    if (cs.exists) {
+      const t = { schema: cs.name, check: true };
+      await db.drop(t).execute();
+    }
+  }
+}

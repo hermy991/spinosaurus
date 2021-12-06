@@ -31,6 +31,7 @@ const sqls = [
   `${folder}decorator_column_sql_test.ts`,
   `${folder}decorator_entity_sql_test.ts`,
   `${folder}transaction_sql_test.ts`,
+  `${folder}logging_sql_test.ts`,
 ];
 const execs = [
   `${folder}files_exec_test.ts`,

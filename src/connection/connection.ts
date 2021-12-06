@@ -2,7 +2,7 @@ import { Driver } from "./connection_type.ts";
 import { createLogging, Logging } from "./logging/Logging.ts";
 import { ConnectionOptions } from "./connection_options.ts";
 import { transferTemp } from "../stores/store.ts";
-import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
+import { DriverPostgres } from "./drivers/postgres/connection_postgres.ts";
 import { ParamCreateEntity } from "./builders/params/param_create.ts";
 import { ParamFromOptions } from "./builders/params/param_select.ts";
 import { ParamUpdateEntity } from "./builders/params/param_update.ts";
@@ -28,7 +28,7 @@ class Connection {
 
   constructor(options?: ConnectionOptions) {
     if (options && options.type === "postgres") {
-      this.#driver = new ConnectionPostgres(options);
+      this.#driver = new DriverPostgres(options);
       transferTemp(this.getDriver().options.name);
     }
     if (options && options.logging) {
@@ -369,6 +369,15 @@ class Connection {
     const options: Record<string, any> = { changes };
     if (this.getTransaction()) {
       options.transaction = this.getTransaction();
+    }
+    if (this.#loggin) {
+      this.#loggin.write({
+        logginKey: "query",
+        file: "connection.ts",
+        className: "Connection",
+        functionName: "execute",
+        outLine: query,
+      });
     }
     const data = await this.#driver.execute(query, options);
     return data;

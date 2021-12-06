@@ -1,3 +1,4 @@
+import * as luxon from "luxon/mod.ts";
 /*
 * query - logs all queries.
 * error - logs all failed queries and errors.
@@ -7,7 +8,8 @@
 * log - logs internal orm log messages.
 */
 
-export type LogginKeys = ("query" | "error" | "schema" | "warn" | "info" | "log")[];
+export type LogginKey = "query" | "error" | "schema" | "warn" | "info" | "log";
+export type LogginKeys = LogginKey[];
 
 export type LoggingOptions = {
   query?: string | true;
@@ -23,8 +25,51 @@ export type ParamLoggingOptions =
   | Record<"all", string | true>
   | LoggingOptions;
 
+export type LoggingWriter = {
+  file: string;
+  dateTime?: Date;
+  logginKey?: LogginKey;
+  className?: string;
+  functionName?: string;
+  outLine?: string;
+};
+
 export class Logging {
-  constructor(private opts: LoggingOptions) {
+  outChannel = console.log;
+  constructor(private loggingOptions: LoggingOptions) {
+  }
+
+  write(loggingWriter: LoggingWriter): void {
+    const tloggingWriter: LoggingWriter = self.structuredClone(loggingWriter);
+    tloggingWriter.dateTime ||= new Date();
+    const _dateTime = luxon.DateTime.fromJSDate(tloggingWriter.dateTime).toFormat("yyyy-MM-dd hh:mm:ss");
+    const _logginKey = "- " + (tloggingWriter.logginKey || "log").toUpperCase().padStart(8, " ");
+    const _file = tloggingWriter.file || "";
+    const _className = tloggingWriter.className || "";
+    const _functionName = tloggingWriter.functionName || "";
+    const _outLine = tloggingWriter.outLine || "";
+    let locationTemplate = "";
+    if (!_className || _functionName) {
+      locationTemplate = "> " + [_className, _functionName].filter((x) => x).join(".");
+    }
+    let lineTemplate = `{{DATE_TIME}} {{LOGGING_KEY}} {{FILE}} {{LOCATION_CALLER}} : {{OUT_LINE}}`;
+    lineTemplate = lineTemplate.replace(/\{\{DATE_TIME\}\}/ig, _dateTime);
+    lineTemplate = lineTemplate.replace(/\{\{LOGGING_KEY\}\}/ig, _logginKey);
+    lineTemplate = lineTemplate.replace(/\{\{FILE\}\}/ig, _file);
+    lineTemplate = lineTemplate.replace(/\{\{LOCATION_CALLER\}\}/ig, locationTemplate);
+    lineTemplate = lineTemplate.replace(/\{\{CLASS_NAME\}\}/ig, _className);
+    lineTemplate = lineTemplate.replace(/\{\{FUNCTION_NAME\}\}/ig, _functionName);
+    lineTemplate = lineTemplate.replace(/\{\{OUT_LINE\}\}/ig, _outLine);
+    const line = lineTemplate.replace(/\{\{*\}\}/ig, "");
+    for (const key in this.loggingOptions) {
+      if ((tloggingWriter.logginKey || "log") === key) {
+        if (this.outChannel.name === "log") {
+          this.outChannel(line);
+        } else {
+          this.outChannel(line, tloggingWriter);
+        }
+      }
+    }
   }
 }
 

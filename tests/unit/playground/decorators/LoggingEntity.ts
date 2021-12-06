@@ -1,15 +1,15 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "spinosaurus/mod.ts";
 
-@Entity({ schema: "decorator" })
+@Entity({ schema: "logging" })
 @Unique({ columns: ["column2"] })
 @Unique({ columns: ["column2", "column3"] })
 @Unique({ columns: ["column2", "column3", "column4"] })
 @Unique({ columns: ["column4", "column5"] })
-@Unique({ name: "UQ_UniqueEntity1_1", columns: ["column2"] })
-@Unique({ name: "UQ_UniqueEntity1_2", columns: ["column2", "column3"] })
-@Unique({ name: "UQ_UniqueEntity1_3", columns: ["column2", "column3", "column4"] })
-@Unique({ name: "UQ_UniqueEntity1_4", columns: ["column4", "column5"] })
-export class UniqueEntity1 {
+@Unique({ name: "UQ_LoggingEntity1_1", columns: ["column2"] })
+@Unique({ name: "UQ_LoggingEntity1_2", columns: ["column2", "column3"] })
+@Unique({ name: "UQ_LoggingEntity1_3", columns: ["column2", "column3", "column4"] })
+@Unique({ name: "UQ_LoggingEntity1_4", columns: ["column4", "column5"] })
+export class LoggingEntity1 {
   @PrimaryGeneratedColumn()
   column1!: number;
 
@@ -44,22 +44,22 @@ export class UniqueEntity1 {
   column11!: string;
 }
 
-@Entity({ schema: "decorator" })
+@Entity({ schema: "logging" })
 @Unique({ columns: ["another1", "column3"] })
 @Unique({ columns: ["another2", "another3"] })
-export class UniqueEntity2 {
+export class LoggingEntity2 {
   @PrimaryGeneratedColumn()
   column1!: number;
 
   @ManyToOne({})
-  another1!: UniqueEntity1;
+  another1!: LoggingEntity1;
 
   @Column()
   column3!: string;
 
   @ManyToOne({}, { name: "xx" })
-  another2!: UniqueEntity1;
+  another2!: LoggingEntity1;
 
   @ManyToOne({})
-  another3!: UniqueEntity1;
+  another3!: LoggingEntity1;
 }

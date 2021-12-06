@@ -1,5 +1,5 @@
-import { ConnectionPostgres } from "./drivers/postgres/connection_postgres.ts";
+import { DriverPostgres } from "./drivers/postgres/connection_postgres.ts";
 
-export { ConnectionPostgres };
+export { DriverPostgres };
 
-export type Driver = ConnectionPostgres;
+export type Driver = DriverPostgres;

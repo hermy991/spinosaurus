@@ -1,27 +1,6 @@
-import { getTestConnection } from "./tool/tool.ts";
+import { clearPlayground, getTestConnection } from "./tool/tool.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 import { Connection } from "spinosaurus/mod.ts";
-
-async function clearPlayground(db: Connection, schema: string, tables: Array<string>) {
-  /**
-   * Dropping tables
-   */
-  for (const table of tables) {
-    const co = await db.checkObject({ name: table, schema });
-    if (co.exists) {
-      const t = { entity: co.name, schema: co.schema };
-      await db.drop(t).execute();
-    }
-  }
-  /**
-   * Dropping schemas
-   */
-  const cs = await db.checkSchema({ name: schema });
-  if (cs.exists) {
-    const t = { schema: cs.name, check: true };
-    await db.drop(t).execute();
-  }
-}
 
 const conOpts = getTestConnection();
 
@@ -77,7 +56,7 @@ Deno.test("transaction [rollback] sql", async () => {
   const data6 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data6.length, 0);
 
-  await clearPlayground(db, schema, [user1]);
+  await clearPlayground(db, [user1], [schema]);
 });
 
 Deno.test("transaction [commit] sql", async () => {
@@ -135,5 +114,5 @@ Deno.test("transaction [commit] sql", async () => {
   const data6 = await db.select().from({ entity: user1, schema }).getMany();
   assertEquals(data6.length, 4);
 
-  await clearPlayground(db, schema, [user1]);
+  await clearPlayground(db, [user1], [schema]);
 });

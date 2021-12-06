@@ -121,26 +121,18 @@ Deno.test("file logging configurations", async () => {
     }
     // const fenvOpts1 = await getConnectionFileOptions(".env");
     // assertEquals(fenvOpts1, opts);
-    console.log(`getConnectionFileOptions("env")`);
     const fenvOpts2 = await getConnectionFileOptions("env");
     assertEquals(fenvOpts2, opts);
-    console.log(`getConnectionFileOptions("js")`);
     const fjsOpts = await getConnectionFileOptions("js");
-    console.log("fjsOpts", fjsOpts);
     assertEquals(fjsOpts, opts);
-    console.log(`getConnectionFileOptions("ts")`);
     const ftsOpts = await getConnectionFileOptions("ts");
     assertEquals(ftsOpts, opts);
-    console.log(`getConnectionFileOptions("json")`);
     const fjsonOpts = await getConnectionFileOptions("json");
     assertEquals(fjsonOpts, opts);
-    console.log(`getConnectionFileOptions("yml")`);
     const fymlOpts = await getConnectionFileOptions("yml");
     assertEquals(fymlOpts, opts);
-    console.log(`getConnectionFileOptions("yaml")`);
     const fyamlOpts = await getConnectionFileOptions("yaml");
     assertEquals(fyamlOpts, opts);
-    console.log(`getConnectionFileOptions("xml")`);
     const fxmlOpts = await getConnectionFileOptions("xml");
     assertEquals(fxmlOpts, opts);
     for (const file of files) {

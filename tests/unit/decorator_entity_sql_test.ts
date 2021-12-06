@@ -1,35 +1,7 @@
-import { getTestConnection } from "./tool/tool.ts";
+import { clearPlayground, getTestConnection } from "./tool/tool.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 import { Connection, getMetadata, sqlConnection } from "spinosaurus/mod.ts";
 import * as path from "deno/path/mod.ts";
-// import * as luxon from "luxon/mod.ts";
-
-async function clearPlayground(
-  db: any,
-  tables: Array<any>,
-  schemas: Array<any>,
-) {
-  /**
-   * Dropping tables
-   */
-  for (const table of tables) {
-    const co = await db.checkObject(table.mixeds);
-    if (co.exists) {
-      const t = { entity: co.name, schema: co.schema };
-      await db.drop(t).execute();
-    }
-  }
-  /**
-   * Dropping schemas
-   */
-  for (const schema of schemas) {
-    const cs = await db.checkSchema({ name: schema.name });
-    if (cs.exists) {
-      const t = { schema: cs.name, check: true };
-      await db.drop(t).execute();
-    }
-  }
-}
 
 const conOpts = getTestConnection();
 
@@ -126,9 +98,7 @@ Deno.test("decorator [afters] sql", async () => {
   const conOptsX = self.structuredClone(conOpts);
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
-  conOptsX.entities = [
-    `${dirname}/playground/decorators/**/AfterEntity.ts`,
-  ];
+  conOptsX.entities = [`${dirname}/playground/decorators/**/AfterEntity.ts`];
   const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
