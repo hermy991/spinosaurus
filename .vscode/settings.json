@@ -25,11 +25,11 @@
   "deno.importMap": "./tests/importmap.json",
   "deno.config": "./config.json",
   "deno.lint": true,
+  "deno.suggest.imports.hosts": {
+    "https://deno.land/": true
+  },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "denoland.vscode-deno",
   "editor.guides.bracketPairs": true,
-  "deno.suggest.imports.hosts": {
-    "https://deno.land": false
-  },
   "editor.rulers": [120]
 }

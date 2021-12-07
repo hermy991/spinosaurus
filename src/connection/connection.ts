@@ -37,6 +37,10 @@ class Connection {
     }
   }
 
+  getLogging(): Logging | undefined {
+    return this.#logging;
+  }
+
   getTransactions(): Record<string, any> {
     return this.#transactions;
   }

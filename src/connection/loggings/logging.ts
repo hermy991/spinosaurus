@@ -1,3 +1,4 @@
+import * as path from "deno/path/mod.ts";
 import * as luxon from "luxon/mod.ts";
 /*
 * query - logs all queries.
@@ -35,8 +36,14 @@ export type LoggingWriter = {
 };
 
 export class Logging {
-  outChannel = console.log;
+  #channelChanged = false;
+  #logChannel = console.log;
   constructor(private loggingOptions: LoggingOptions) {
+  }
+
+  setLogChannel(logChannel: (line: string, opts?: Record<string, any>) => void) {
+    this.#logChannel = logChannel;
+    this.#channelChanged = true;
   }
 
   async write(loggingWriter: LoggingWriter): Promise<void> {
@@ -62,11 +69,18 @@ export class Logging {
     lineTemplate = lineTemplate.replace(/\{\{OUT_LINE\}\}/ig, _outLine);
     const line = lineTemplate.replace(/\{\{*\}\}/ig, "");
     for (const key in this.loggingOptions) {
-      if ((tloggingWriter.logginKey || "log") === key) {
-        if (this.outChannel.name === "log") {
-          this.outChannel(line);
+      if ((tloggingWriter.logginKey || "log") === key && this.loggingOptions[key]) {
+        const loggingOption = this.loggingOptions[key];
+        const tlogChannel = this.#logChannel;
+        if (this.#channelChanged) {
+          tlogChannel(line, tloggingWriter);
+        } else if (typeof loggingOption === "string") {
+          let fullPath = loggingOption;
+          fullPath = loggingFileNameInterpolation(fullPath);
+          await Deno.mkdir(path.dirname(fullPath), { recursive: true });
+          await Deno.writeTextFile(fullPath, line + "\n", { append: true });
         } else {
-          this.outChannel(line, tloggingWriter);
+          tlogChannel(line);
         }
       }
     }
@@ -98,7 +112,7 @@ export function createLogging(
     return new Logging(options);
   } else if (Array.isArray(enabledOptionsArrayOptions)) {
     for (const option of enabledOptionsArrayOptions) {
-      options[option] = defaultPath;
+      options[option] = true;
     }
     return new Logging(options);
   } else if (typeof enabledOptionsArrayOptions === "object") {
@@ -111,7 +125,21 @@ export function createLogging(
         options[<"query" | "error" | "schema" | "warn" | "info" | "log"> key] = (<any> enabledOptionsArrayOptions)[key];
       }
     }
+    return new Logging(options);
   } else {
     return;
   }
+}
+
+function loggingFileNameInterpolation(path: string) {
+  let tpath = path;
+  const regexp = /\{[a-zA-Z-_/\\ ]*\}/ig;
+  const matches = tpath.match(regexp);
+  if (matches) {
+    for (const match of matches) {
+      const format = match.split("").slice(1, match.split("").length - 1).join("");
+      tpath = tpath.replace(match, luxon.DateTime.now().toFormat(format));
+    }
+  }
+  return tpath;
 }

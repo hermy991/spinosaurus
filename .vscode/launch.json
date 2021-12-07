@@ -5,20 +5,20 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Deno Debug",
+      "name": "Deno test:sql (Debug)",
       "request": "launch",
       "type": "pwa-node",
-      // "program": "tests/start.ts",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "deno",
       "runtimeArgs": [
-        "run",
+        "test",
+        "--unsafely-ignore-certificate-errors=localhost",
         "--unstable",
-        "--inspect",
+        "--inspect-brk",
         "--allow-all",
         "--import-map=./tests/importmap.json",
         "--config=./config.json",
-        "./tests/unit/decorator_column_query_test.ts"
+        "tests/unit/create_sql_test.ts tests/unit/alter_sql_test.ts tests/unit/drop_sql_test.ts tests/unit/rename_sql_test.ts tests/unit/select_sql_test.ts tests/unit/insert_sql_test.ts tests/unit/update_sql_test.ts tests/unit/delete_sql_test.ts tests/unit/upsert_sql_test.ts tests/unit/from_sql_test.ts tests/unit/join_inner_sql_test.ts tests/unit/join_left_sql_test.ts tests/unit/join_right_sql_test.ts tests/unit/params_sql_test.ts tests/unit/function_sql_test.ts tests/unit/decorator_column_sql_test.ts tests/unit/decorator_entity_sql_test.ts tests/unit/transaction_sql_test.ts tests/unit/logging_sql_test.ts"
       ],
       "attachSimplePort": 9229
     }
