@@ -1,4 +1,4 @@
-import { LogginKeys, ParamLoggingOptions } from "./logging/Logging.ts";
+import { LogginKeys, ParamLoggingOptions } from "./loggings/logging.ts";
 
 export type ConnectionOptionsBase = {
   name: string;

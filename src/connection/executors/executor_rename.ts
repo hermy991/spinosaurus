@@ -1,10 +1,12 @@
+import * as path from "deno/path/mod.ts";
+import { Logging } from "../loggings/logging.ts";
 import { Driver } from "../connection_type.ts";
 import { BuilderRename } from "../builders/builder_rename.ts";
 
 export class ExecutorRename {
   rb: BuilderRename = new BuilderRename(<Driver> {});
-  constructor(public conn: Driver) {
-    this.rb = new BuilderRename(conn);
+  constructor(public conn: Driver, public logging?: Logging) {
+    this.rb = new BuilderRename(conn, logging);
   }
 
   rename(
@@ -43,6 +45,15 @@ export class ExecutorRename {
   async execute(): Promise<any> {
     const query = this.rb.getSqls();
     this.rb.usePrintSql(query);
+    if (this.logging) {
+      await this.logging.write({
+        logginKey: `schema`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `execute`,
+        outLine: query.join(";").replace(/\n\r/ig, " "),
+      });
+    }
     return await this.conn.execute(query.join(";\n"));
   }
 }

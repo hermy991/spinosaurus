@@ -1,3 +1,5 @@
+import * as path from "deno/path/mod.ts";
+import { Logging } from "../loggings/logging.ts";
 import { ParamColumnAjust, ParamColumnCreate } from "../builders/params/param_column.ts";
 import { ParamRelationDefinition } from "../builders/params/param_relation.ts";
 import { Driver } from "../connection_type.ts";
@@ -5,8 +7,8 @@ import { BuilderAlter } from "../builders/builder_alter.ts";
 
 export class ExecutorAlter {
   ab: BuilderAlter = new BuilderAlter(<Driver> {});
-  constructor(public conn: Driver) {
-    this.ab = new BuilderAlter(conn);
+  constructor(public conn: Driver, public logging?: Logging) {
+    this.ab = new BuilderAlter(conn, logging);
   }
 
   alter(req: { entity: string; schema?: string }): ExecutorAlter {
@@ -94,6 +96,15 @@ export class ExecutorAlter {
   async execute(): Promise<any> {
     const query = this.getSqls();
     this.ab.usePrintSql(query);
+    if (this.logging) {
+      await this.logging.write({
+        logginKey: `schema`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `execute`,
+        outLine: query.join(";").replace(/\n\r/ig, " "),
+      });
+    }
     return await this.conn.execute(query.join(`;\n`));
   }
 }

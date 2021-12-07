@@ -1,10 +1,12 @@
+import * as path from "deno/path/mod.ts";
+import { Logging } from "../loggings/logging.ts";
 import { Driver } from "../connection_type.ts";
 import { BuilderDrop } from "../builders/builder_drop.ts";
 
 export class ExecutorDrop {
   db: BuilderDrop = new BuilderDrop(<Driver> {});
-  constructor(public conn: Driver) {
-    this.db = new BuilderDrop(conn);
+  constructor(public conn: Driver, public logging?: Logging) {
+    this.db = new BuilderDrop(conn, logging);
   }
 
   drop(
@@ -55,6 +57,15 @@ export class ExecutorDrop {
   async execute(): Promise<any> {
     const query = this.db.getSqls();
     this.db.usePrintSql(query);
+    if (this.logging) {
+      await this.logging.write({
+        logginKey: `schema`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `execute`,
+        outLine: query.join(";").replace(/\n\r/ig, " "),
+      });
+    }
     return await this.conn.execute(query.join(";\n"));
   }
 }

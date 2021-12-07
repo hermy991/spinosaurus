@@ -1,3 +1,4 @@
+import { Logging } from "../loggings/logging.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { ParamUpdateEntity, ParamUpdateOptions, ParamUpdateParams, ParamUpdateSet } from "./params/param_update.ts";
 import { Driver } from "../connection_type.ts";
@@ -13,8 +14,8 @@ export class BuilderUpdate<T> extends BuilderBase {
   #whereData: Array<string> = [];
   #paramsData: ParamUpdateParams = {};
 
-  constructor(public driver: Driver) {
-    super(driver);
+  constructor(public driver: Driver, public logging?: Logging) {
+    super(driver, logging);
   }
 
   update(req: ParamUpdateEntity): void {

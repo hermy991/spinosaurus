@@ -1,3 +1,4 @@
+import { Logging } from "../loggings/logging.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { Driver } from "../connection_type.ts";
 
@@ -6,8 +7,8 @@ export class BuilderRename extends BuilderBase {
   #toData?: { entity: string };
   #columnsData: Array<[string, string]> = [];
 
-  constructor(public driver: Driver) {
-    super(driver);
+  constructor(public driver: Driver, public logging?: Logging) {
+    super(driver, logging);
   }
 
   rename(
@@ -77,7 +78,7 @@ export class BuilderRename extends BuilderBase {
   }
 
   getSqls(): string[] {
-    let sqls: string[] = [];
+    const sqls: string[] = [];
     if (this.#toData) {
       sqls.push(...this.getEntityQuery());
     }

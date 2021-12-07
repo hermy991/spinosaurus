@@ -1,12 +1,13 @@
+import * as path from "deno/path/mod.ts";
+import { Logging } from "../loggings/logging.ts";
 import { Driver } from "../connection_type.ts";
-// import { ConnectionPostgres } from "../drivers/postgres/connection_postgres.ts";
 import { BuilderUpdate } from "../builders/builder_update.ts";
 import { ParamUpdateEntity, ParamUpdateParams, ParamUpdateSet } from "../builders/params/param_update.ts";
 
 export class ExecutorUpdate<T> {
   ub: BuilderUpdate<T> = new BuilderUpdate(<Driver> {});
-  constructor(public driver: Driver, public transaction: any) {
-    this.ub = new BuilderUpdate(driver);
+  constructor(public driver: Driver, public transaction: any, public logging?: Logging) {
+    this.ub = new BuilderUpdate(driver, logging);
   }
 
   update(req: ParamUpdateEntity): ExecutorUpdate<T> {
@@ -63,6 +64,15 @@ export class ExecutorUpdate<T> {
     const query = this.ub.getSqls();
     this.ub.usePrintSql(query);
     const options: Record<string, any> = { changes, transaction: this.transaction };
+    if (this.logging) {
+      await this.logging.write({
+        logginKey: `query`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `execute`,
+        outLine: query.join(";").replace(/\n\r/ig, " "),
+      });
+    }
     return await this.driver.execute(query.join(";\n"), options);
   }
 }

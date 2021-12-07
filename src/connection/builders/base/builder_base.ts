@@ -1,3 +1,4 @@
+import { Logging } from "../../loggings/logging.ts";
 import { Driver } from "../../connection_type.ts";
 import { clearNames, generateName1 } from "./sql.ts";
 import { getMetadataChecks, getMetadataColumns, getMetadataEntityData } from "../../../decorators/metadata/metadata.ts";
@@ -16,7 +17,7 @@ export class BuilderBase {
   get delimiters() {
     return <string[]> this.driver.delimiters;
   }
-  constructor(public driver: Driver) {
+  constructor(public driver: Driver, public logging?: Logging) {
   }
   printSql = () => {
     this.#printSql = true;

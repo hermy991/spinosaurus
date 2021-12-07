@@ -1,3 +1,4 @@
+import { Logging } from "../loggings/logging.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { BuilderUpdate } from "./builder_update.ts";
 import { BuilderInsert } from "./builder_insert.ts";
@@ -16,8 +17,8 @@ export class BuilderUpsert<T> extends BuilderBase {
     | null = null;
   #valuesData: Array<ParamUpsertValue<T>> = [];
 
-  constructor(public driver: Driver) {
-    super(driver);
+  constructor(public driver: Driver, public logging?: Logging) {
+    super(driver, logging);
   }
 
   upsert(req: ParamUpsertEntity): void {

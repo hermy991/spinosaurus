@@ -1,3 +1,4 @@
+import { Logging } from "../loggings/logging.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { ParamInsertEntity, ParamInsertOptions, ParamInsertValue } from "./params/param_insert.ts";
 import { Driver } from "../connection_type.ts";
@@ -11,8 +12,8 @@ export class BuilderInsert<T> extends BuilderBase {
   #entityData: { entity: string; schema?: string } | Function | null = null;
   #valuesData: ParamInsertValue<T>[] = [];
 
-  constructor(public driver: Driver) {
-    super(driver);
+  constructor(public driver: Driver, public logging?: Logging) {
+    super(driver, logging);
   }
 
   insert(req: ParamInsertEntity): void {

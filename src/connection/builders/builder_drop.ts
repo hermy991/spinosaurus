@@ -1,3 +1,4 @@
+import { Logging } from "../loggings/logging.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { Driver } from "../connection_type.ts";
 
@@ -9,8 +10,8 @@ export class BuilderDrop extends BuilderBase {
   #columnsData: string[] = [];
   #constraintsData: string[] = [];
 
-  constructor(public driver: Driver) {
-    super(driver);
+  constructor(public driver: Driver, public logging?: Logging) {
+    super(driver, logging);
   }
 
   drop(

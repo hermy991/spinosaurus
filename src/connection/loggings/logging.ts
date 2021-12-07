@@ -39,11 +39,11 @@ export class Logging {
   constructor(private loggingOptions: LoggingOptions) {
   }
 
-  write(loggingWriter: LoggingWriter): void {
+  async write(loggingWriter: LoggingWriter): Promise<void> {
     const tloggingWriter: LoggingWriter = self.structuredClone(loggingWriter);
     tloggingWriter.dateTime ||= new Date();
-    const _dateTime = luxon.DateTime.fromJSDate(tloggingWriter.dateTime).toFormat("yyyy-MM-dd hh:mm:ss");
-    const _logginKey = "- " + (tloggingWriter.logginKey || "log").toUpperCase().padStart(8, " ");
+    const _dateTime = luxon.DateTime.fromJSDate(tloggingWriter.dateTime).toFormat("yyyy-MM-dd HH:mm:ss");
+    const _logginKey = "- " + (tloggingWriter.logginKey || "log").toUpperCase().padEnd(7, " ");
     const _file = tloggingWriter.file || "";
     const _className = tloggingWriter.className || "";
     const _functionName = tloggingWriter.functionName || "";
@@ -52,7 +52,7 @@ export class Logging {
     if (!_className || _functionName) {
       locationTemplate = "> " + [_className, _functionName].filter((x) => x).join(".");
     }
-    let lineTemplate = `{{DATE_TIME}} {{LOGGING_KEY}} {{FILE}} {{LOCATION_CALLER}} : {{OUT_LINE}}`;
+    let lineTemplate = `{{DATE_TIME}} {{LOGGING_KEY}}  {{FILE}} {{LOCATION_CALLER}} : {{OUT_LINE}}`;
     lineTemplate = lineTemplate.replace(/\{\{DATE_TIME\}\}/ig, _dateTime);
     lineTemplate = lineTemplate.replace(/\{\{LOGGING_KEY\}\}/ig, _logginKey);
     lineTemplate = lineTemplate.replace(/\{\{FILE\}\}/ig, _file);

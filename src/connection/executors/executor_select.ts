@@ -1,3 +1,5 @@
+import * as path from "deno/path/mod.ts";
+import { Logging } from "../loggings/logging.ts";
 import { Driver } from "../connection_type.ts";
 import { BuilderSelect } from "../builders/builder_select.ts";
 import { ParamFromOptions } from "../builders/params/param_select.ts";
@@ -97,8 +99,8 @@ export class ExecutorSelect {
     return { e, params };
   }
 
-  constructor(public driver: Driver, public transaction: any) {
-    this.sb = new BuilderSelect(driver);
+  constructor(public driver: Driver, public transaction: any, public logging?: Logging) {
+    this.sb = new BuilderSelect(driver, logging);
   }
 
   /** DML SQL Operation*/
@@ -1618,6 +1620,15 @@ export class ExecutorSelect {
     const query = this.getSqls();
     this.sb.usePrintSql(query);
     const options: Record<string, any> = { changes, transaction: this.transaction };
+    if (this.logging) {
+      await this.logging.write({
+        logginKey: `query`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `getOne`,
+        outLine: query.join(";").replace(/\n\r/ig, " "),
+      });
+    }
     const data = await this.driver.getOne(query.join(";\n"), options);
     return data;
   }
@@ -1626,11 +1637,31 @@ export class ExecutorSelect {
     const query = this.getSqls();
     this.sb.usePrintSql(query);
     const options: Record<string, any> = { changes, transaction: this.transaction };
+    if (this.logging) {
+      await this.logging.write({
+        logginKey: `query`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `getMany`,
+        outLine: query.join(";").replace(/\n\r/ig, " "),
+      });
+    }
     const data = await this.driver.getMany(query.join(";\n"), options);
     return data;
   }
 
-  getMultiple(): Promise<Array<any>> {
+  async getMultiple(): Promise<Array<any>> {
+    const query = this.getSqls();
+    this.sb.usePrintSql(query);
+    if (this.logging) {
+      await this.logging.write({
+        logginKey: `query`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `getMany`,
+        outLine: query.join(";").replace(/\n\r/ig, " "),
+      });
+    }
     throw "No implemented";
   }
 }

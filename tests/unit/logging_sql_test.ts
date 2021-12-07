@@ -12,6 +12,6 @@ Deno.test("logging [config options] sql", async () => {
   const db = (await createConnection({ ...con1x, logging: true }));
   const _metadata = getMetadata(con1x.name);
 
-  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  await clearPlayground(db, _metadata.tables.reverse(), _metadata.schemas);
   // assertEquals(q1, qe1);
 });

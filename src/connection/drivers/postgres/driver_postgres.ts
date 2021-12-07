@@ -1,4 +1,4 @@
-import * as sql from "./connection_postgres_sql.ts";
+import * as sql from "./driver_postgres_sql.ts";
 import { ConnectionOptionsPostgres } from "../../connection_options.ts";
 import { interpolate, stringify } from "../../builders/base/sql.ts";
 import { IConnectionOperations } from "../../iconnection_operations.ts";
@@ -9,14 +9,14 @@ import { ParamUniqueCreate } from "../../builders/params/param_unique.ts";
 import { ParamRelationCreate } from "../../builders/params/param_relation.ts";
 import { ParamCommentColumnDerinition } from "../../builders/params/param_comment.ts";
 import { ParamComplexValues, ParamSimpleValues } from "../../builders/params/param_select.ts";
-import { initConnection } from "./connection_postgres_pool.ts";
+import { initConnection } from "./driver_postgres_pool.ts";
 import { filterConnectionProps } from "../../connection_operations.ts";
 import { MetadataStore } from "../../../decorators/metadata/metadata_store.ts";
 import { EntityOptions } from "../../../decorators/options/entity_options.ts";
 import { ColumnOptions } from "../../../decorators/options/column_options.ts";
 import { ColumnType } from "../../../decorators/options/column_type.ts";
 import { postgres } from "../../../../deps.ts";
-import { KEY_CONFIG } from "./connection_postgres_variables.ts";
+import { KEY_CONFIG } from "./driver_postgres_variables.ts";
 import { ExecuteResult, Query } from "../../execute_result.ts";
 
 class DriverPostgres implements IConnectionOperations {

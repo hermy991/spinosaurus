@@ -1,3 +1,4 @@
+import { Logging } from "../loggings/logging.ts";
 import { ParamColumnDefinition } from "./params/param_column.ts";
 import { ParamCheck } from "./params/param_check.ts";
 import { ParamUnique } from "./params/param_unique.ts";
@@ -31,8 +32,8 @@ export class BuilderCreate extends BuilderBase {
   #initData: ParamCreateData[] = [];
   #nextData: ParamCreateNext[] = [];
   #afterData: ParamCreateAfter[] = [];
-  constructor(public driver: Driver) {
-    super(driver);
+  constructor(public driver: Driver, public logging?: Logging) {
+    super(driver, logging);
   }
 
   create(req: ParamCreateEntity): void {

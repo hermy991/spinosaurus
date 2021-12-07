@@ -1,3 +1,6 @@
+import * as path from "deno/path/mod.ts";
+import { Driver } from "../connection_type.ts";
+import { Logging } from "../loggings/logging.ts";
 import { ParamColumnDefinition } from "../builders/params/param_column.ts";
 import { ParamCheck } from "../builders/params/param_check.ts";
 import { ParamUnique } from "../builders/params/param_unique.ts";
@@ -8,13 +11,12 @@ import {
   ParamCreateEntity,
   ParamCreateNext,
 } from "../builders/params/param_create.ts";
-import { Driver } from "../connection_type.ts";
 import { BuilderCreate } from "../builders/builder_create.ts";
 
 export class ExecutorCreate {
   cb: BuilderCreate = new BuilderCreate(<Driver> {});
-  constructor(public conn: Driver) {
-    this.cb = new BuilderCreate(conn);
+  constructor(public conn: Driver, public logging?: Logging) {
+    this.cb = new BuilderCreate(conn, logging);
   }
 
   create(req: ParamCreateEntity): ExecutorCreate {
@@ -110,6 +112,15 @@ export class ExecutorCreate {
   async execute(): Promise<any> {
     const query = this.getSqls();
     this.cb.usePrintSql(query);
+    if (this.logging) {
+      await this.logging.write({
+        logginKey: `schema`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `execute`,
+        outLine: query.join(";").replace(/\n/ig, " "),
+      });
+    }
     return await this.conn.execute(query.join(";\n"));
   }
 }

@@ -1,10 +1,12 @@
+import * as path from "deno/path/mod.ts";
+import { Logging } from "../loggings/logging.ts";
 import { Driver } from "../connection_type.ts";
 import { BuilderDelete } from "../builders/builder_delete.ts";
 
 export class ExecutorDelete {
   db: BuilderDelete = new BuilderDelete(<Driver> {});
-  constructor(public driver: Driver, public transaction: any) {
-    this.db = new BuilderDelete(driver);
+  constructor(public driver: Driver, public transaction: any, public logging?: Logging) {
+    this.db = new BuilderDelete(driver, logging);
   }
 
   delete(req: { entity: string; schema?: string } | [string, string?] | Function): ExecutorDelete {
@@ -41,6 +43,15 @@ export class ExecutorDelete {
     const query = this.db.getSqls();
     this.db.usePrintSql(query);
     const options: Record<string, any> = { changes, transaction: this.transaction };
+    if (this.logging) {
+      await this.logging.write({
+        logginKey: `query`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `execute`,
+        outLine: query.join(";").replace(/\n\r/ig, " "),
+      });
+    }
     return await this.driver.execute(query.join(";\n"), options);
   }
 }

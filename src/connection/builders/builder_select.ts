@@ -1,3 +1,4 @@
+import { Logging } from "../loggings/logging.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { Driver } from "../connection_type.ts";
 import {
@@ -21,8 +22,8 @@ export class BuilderSelect extends BuilderBase {
   /*FLAGS*/
   #distinct = false;
 
-  constructor(public driver: Driver) {
-    super(driver);
+  constructor(public driver: Driver, public logging?: Logging) {
+    super(driver, logging);
   }
 
   selectDistinct(...columns: Array<{ column: string; as?: string } | [string, string?]>): void {

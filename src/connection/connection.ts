@@ -1,8 +1,9 @@
+import * as path from "deno/path/mod.ts";
 import { Driver } from "./connection_type.ts";
-import { createLogging, Logging } from "./logging/Logging.ts";
+import { createLogging, Logging } from "./loggings/logging.ts";
 import { ConnectionOptions } from "./connection_options.ts";
 import { transferTemp } from "../stores/store.ts";
-import { DriverPostgres } from "./drivers/postgres/connection_postgres.ts";
+import { DriverPostgres } from "./drivers/postgres/driver_postgres.ts";
 import { ParamCreateEntity } from "./builders/params/param_create.ts";
 import { ParamFromOptions } from "./builders/params/param_select.ts";
 import { ParamUpdateEntity } from "./builders/params/param_update.ts";
@@ -24,7 +25,7 @@ import { ExecuteResult } from "./execute_result.ts";
 class Connection {
   #transactions: Record<string, any> = {};
   #driver?: Driver;
-  #loggin?: Logging;
+  #logging?: Logging;
 
   constructor(options?: ConnectionOptions) {
     if (options && options.type === "postgres") {
@@ -32,7 +33,7 @@ class Connection {
       transferTemp(this.getDriver().options.name);
     }
     if (options && options.logging) {
-      this.#loggin = createLogging(options.logging);
+      this.#logging = createLogging(options.logging);
     }
   }
 
@@ -93,42 +94,42 @@ class Connection {
 
   create(req: ParamCreateEntity) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor = new ExecutorCreate(this.#driver);
+    const executor = new ExecutorCreate(this.#driver, this.#logging);
     executor.create(req);
     return executor;
   }
 
   alter(req: { entity: string; schema?: string }) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor = new ExecutorAlter(this.#driver);
+    const executor = new ExecutorAlter(this.#driver, this.#logging);
     executor.alter(req);
     return executor;
   }
 
   drop(req: { entity: string; schema?: string } | { schema: string; check?: boolean }) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorDrop = new ExecutorDrop(this.#driver);
+    const executor: ExecutorDrop = new ExecutorDrop(this.#driver, this.#logging);
     executor.drop(req);
     return executor;
   }
 
   rename(from: { entity: string; schema?: string }, to?: { entity: string; schema?: string }) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorRename = new ExecutorRename(this.#driver);
+    const executor: ExecutorRename = new ExecutorRename(this.#driver, this.#logging);
     executor.rename(from, to);
     return executor;
   }
 
   select(...columns: Array<{ column: string; as?: string } | [string, string?]>) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction());
+    const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction(), this.#logging);
     executor.select(...columns);
     return executor;
   }
 
   selectDistinct(...columns: Array<{ column: string; as?: string } | [string, string?]>) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction());
+    const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction(), this.#logging);
     executor.selectDistinct(...columns);
     return executor;
   }
@@ -231,21 +232,21 @@ class Connection {
     maybe_as?: string,
   ): ExecutorSelect {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction());
+    const executor: ExecutorSelect = new ExecutorSelect(this.#driver, this.getTransaction(), this.#logging);
     executor.from(<any> entity_entityName_subQuery_fromOption, <any> maybe_as);
     return executor;
   }
 
   update<T>(req: ParamUpdateEntity) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorUpdate<T> = new ExecutorUpdate(this.#driver, this.getTransaction());
+    const executor: ExecutorUpdate<T> = new ExecutorUpdate(this.#driver, this.getTransaction(), this.#logging);
     executor.update(req);
     return executor;
   }
 
   insert<T>(req: ParamInsertEntity) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorInsert<T> = new ExecutorInsert(this.#driver, this.getTransaction());
+    const executor: ExecutorInsert<T> = new ExecutorInsert(this.#driver, this.getTransaction(), this.#logging);
     executor.insert(req);
     return executor;
   }
@@ -254,14 +255,14 @@ class Connection {
     req: { entity: string; schema?: string } | [string, string?] | Function,
   ) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorDelete = new ExecutorDelete(this.#driver, this.getTransaction());
+    const executor: ExecutorDelete = new ExecutorDelete(this.#driver, this.getTransaction(), this.#logging);
     executor.delete(req);
     return executor;
   }
 
   upsert<T>(req: ParamUpsertEntity) {
     if (!this.#driver) throw error({ name: "ErrorConnectionNull" });
-    const executor: ExecutorUpsert<T> = new ExecutorUpsert(this.#driver, this.getTransaction());
+    const executor: ExecutorUpsert<T> = new ExecutorUpsert(this.#driver, this.getTransaction(), this.#logging);
     executor.upsert(req);
     return executor;
   }
@@ -370,13 +371,13 @@ class Connection {
     if (this.getTransaction()) {
       options.transaction = this.getTransaction();
     }
-    if (this.#loggin) {
-      this.#loggin.write({
-        logginKey: "query",
-        file: "connection.ts",
-        className: "Connection",
-        functionName: "execute",
-        outLine: query,
+    if (this.#logging) {
+      await this.#logging.write({
+        logginKey: `query`,
+        file: path.fromFileUrl(import.meta.url),
+        className: this.constructor.name,
+        functionName: `execute`,
+        outLine: query.replace(/\n/ig, " "),
       });
     }
     const data = await this.#driver.execute(query, options);

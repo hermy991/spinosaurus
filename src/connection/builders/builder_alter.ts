@@ -1,3 +1,4 @@
+import { Logging } from "../loggings/logging.ts";
 import { BuilderBase } from "./base/builder_base.ts";
 import { ParamColumnAjust, ParamColumnCreate } from "./params/param_column.ts";
 import { ParamRelationDefinition } from "./params/param_relation.ts";
@@ -10,8 +11,8 @@ export class BuilderAlter extends BuilderBase {
     [string, ParamRelationDefinition] | ParamRelationDefinition
   > = [];
 
-  constructor(public driver: Driver) {
-    super(driver);
+  constructor(public driver: Driver, public logging?: Logging) {
+    super(driver, logging);
   }
 
   alter(req: { entity: string; schema?: string }): void {

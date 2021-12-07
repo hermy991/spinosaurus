@@ -3,7 +3,7 @@ import { yaml } from "../../deps.ts";
 import { xml } from "../../deps.ts";
 import { ConnectionOptions } from "./connection_options.ts";
 import { error } from "../error/error_utills.ts";
-import { LoggingOptions, LogginKeys } from "./logging/Logging.ts";
+import { LoggingOptions, LogginKeys } from "./loggings/logging.ts";
 // import { hash } from "../../deps.ts";
 
 const FILE_NAME = "spinosaurus";
