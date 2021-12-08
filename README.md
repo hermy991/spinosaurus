@@ -33,7 +33,7 @@ databases - from small applications with a few tables to large scale enterprise 
 - [ ] Proper pagination for queries using joins
 - [x] Query caching
 - [ ] Streaming raw results
-- [ ] Logging
+- [x] Logging
 - [ ] Listeners and subscribers (hooks)
 - [ ] Supports closure table pattern
 - [x] Schema declaration in models or separate configuration files
