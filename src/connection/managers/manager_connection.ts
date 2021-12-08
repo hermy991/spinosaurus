@@ -36,7 +36,6 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
  */
 export async function createConnection(nameOrOptions?: any): Promise<Connection> {
   const options = typeof nameOrOptions === "object" ? nameOrOptions : await getConnectionOptions(nameOrOptions);
-  // console.log("options", options);
   const tconn = new Connection(options);
   const sql = await synchronize(tconn);
   if (sql && sql.length) {
@@ -119,11 +118,7 @@ export async function synchronize(conn: Connection): Promise<string[] | undefine
     clearMetadata(options);
     const localMetadata = await updateStore(conn.getDriver(), entities);
     const destinyMetadata = await getDestinyMetadata(conn.getDriver());
-    const script = await generateScript({
-      conn,
-      localMetadata,
-      destinyMetadata,
-    });
+    const script = await generateScript({ conn, localMetadata, destinyMetadata });
     return script || [];
   }
 }
@@ -162,11 +157,7 @@ export async function getDestinyMetadata(
 }
 
 export async function generateScript(
-  req: {
-    conn: Connection;
-    localMetadata: MetadataStore;
-    destinyMetadata: MetadataStore;
-  },
+  req: { conn: Connection; localMetadata: MetadataStore; destinyMetadata: MetadataStore },
 ): Promise<string[]> {
   const { conn, localMetadata, destinyMetadata } = req;
   const ddatabase = await conn.getCurrentDatabase();

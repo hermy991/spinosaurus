@@ -9,6 +9,12 @@ import * as luxon from "luxon/mod.ts";
 * log - logs internal orm log messages.
 */
 
+export const DEFAULT_FILENAME = "spinosaurus";
+export const DEFAULT_EXTENSION = "log";
+export const DEFAULT_FILE = `${DEFAULT_FILENAME}.${DEFAULT_EXTENSION}`;
+export const DEFAULT_PATH = `./`;
+export const DEFAULT_FULL_FILE = `${DEFAULT_PATH}${DEFAULT_FILE}`;
+
 export type LogginKey = "query" | "error" | "schema" | "warn" | "info" | "log";
 export type LogginKeys = LogginKey[];
 
@@ -47,6 +53,7 @@ export class Logging {
   }
 
   async write(loggingWriter: LoggingWriter): Promise<void> {
+    const DEFAULT_FILENAME = "";
     const tloggingWriter: LoggingWriter = self.structuredClone(loggingWriter);
     tloggingWriter.dateTime ||= new Date();
     const _dateTime = luxon.DateTime.fromJSDate(tloggingWriter.dateTime).toFormat("yyyy-MM-dd HH:mm:ss");
@@ -59,15 +66,15 @@ export class Logging {
     if (!_className || _functionName) {
       locationTemplate = "> " + [_className, _functionName].filter((x) => x).join(".");
     }
-    let lineTemplate = `{{DATE_TIME}} {{LOGGING_KEY}}  {{FILE}} {{LOCATION_CALLER}} : {{OUT_LINE}}`;
-    lineTemplate = lineTemplate.replace(/\{\{DATE_TIME\}\}/ig, _dateTime);
-    lineTemplate = lineTemplate.replace(/\{\{LOGGING_KEY\}\}/ig, _logginKey);
-    lineTemplate = lineTemplate.replace(/\{\{FILE\}\}/ig, _file);
-    lineTemplate = lineTemplate.replace(/\{\{LOCATION_CALLER\}\}/ig, locationTemplate);
-    lineTemplate = lineTemplate.replace(/\{\{CLASS_NAME\}\}/ig, _className);
-    lineTemplate = lineTemplate.replace(/\{\{FUNCTION_NAME\}\}/ig, _functionName);
-    lineTemplate = lineTemplate.replace(/\{\{OUT_LINE\}\}/ig, _outLine);
-    const line = lineTemplate.replace(/\{\{*\}\}/ig, "");
+    let lineTemplate = `{DATE_TIME} {LOGGING_KEY}  {FILE} {LOCATION_CALLER} : {OUT_LINE}`;
+    lineTemplate = lineTemplate.replace(/\{DATE_TIME\}/ig, _dateTime);
+    lineTemplate = lineTemplate.replace(/\{LOGGING_KEY\}/ig, _logginKey);
+    lineTemplate = lineTemplate.replace(/\{FILE\}/ig, _file);
+    lineTemplate = lineTemplate.replace(/\{LOCATION_CALLER\}/ig, locationTemplate);
+    lineTemplate = lineTemplate.replace(/\{CLASS_NAME\}/ig, _className);
+    lineTemplate = lineTemplate.replace(/\{FUNCTION_NAME\}/ig, _functionName);
+    lineTemplate = lineTemplate.replace(/\{OUT_LINE\}/ig, _outLine);
+    const line = lineTemplate.replace(/\{*\}/ig, "");
     for (const key in this.loggingOptions) {
       if ((tloggingWriter.logginKey || "log") === key && this.loggingOptions[key]) {
         const loggingOption = this.loggingOptions[key];
@@ -76,6 +83,11 @@ export class Logging {
           tlogChannel(line, tloggingWriter);
         } else if (typeof loggingOption === "string") {
           let fullPath = loggingOption;
+          fullPath = fullPath.replaceAll("{DEFAULT_FULL_FILE}", DEFAULT_FULL_FILE);
+          fullPath = fullPath.replaceAll("{DEFAULT_FILE}", DEFAULT_FILE);
+          fullPath = fullPath.replaceAll("{DEFAULT_PATH}", DEFAULT_PATH);
+          fullPath = fullPath.replaceAll("{DEFAULT_EXTENSION}", DEFAULT_EXTENSION);
+          fullPath = fullPath.replaceAll("{DEFAULT_FILENAME}", DEFAULT_FILENAME);
           fullPath = loggingFileNameInterpolation(fullPath);
           await Deno.mkdir(path.dirname(fullPath), { recursive: true });
           await Deno.writeTextFile(fullPath, line + "\n", { append: true });
@@ -100,14 +112,11 @@ export function createLogging(
 export function createLogging(
   enabledOptionsArrayOptions: boolean | ParamLoggingOptions | LogginKeys,
 ): Logging | undefined {
-  const fileName = "spinosaurus";
-  const extension = "log";
-  const defaultPath = `./${fileName}.${extension}`;
   const keys: LogginKeys = ["query", "error", "schema", "warn", "info", "log"];
   const options: LoggingOptions = {};
-  if (typeof enabledOptionsArrayOptions === "boolean") {
+  if (typeof enabledOptionsArrayOptions === "boolean" && enabledOptionsArrayOptions) {
     for (const option of keys) {
-      options[option] = defaultPath;
+      options[option] = true;
     }
     return new Logging(options);
   } else if (Array.isArray(enabledOptionsArrayOptions)) {
