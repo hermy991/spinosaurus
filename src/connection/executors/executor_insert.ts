@@ -2,7 +2,7 @@ import * as path from "deno/path/mod.ts";
 import { Logging } from "../loggings/logging.ts";
 import { Driver } from "../connection_type.ts";
 import { BuilderInsert } from "../builders/builder_insert.ts";
-import { ParamInsertEntity, ParamInsertValue } from "../builders/params/param_insert.ts";
+import { ParamInsertEntity, ParamInsertReturning, ParamInsertValue } from "../builders/params/param_insert.ts";
 
 export class ExecutorInsert<T> {
   ib: BuilderInsert<T> = new BuilderInsert(<Driver> {});
@@ -22,6 +22,16 @@ export class ExecutorInsert<T> {
 
   addValues<T>(data: ParamInsertValue<T> | ParamInsertValue<T>): this {
     this.ib.addValues(data);
+    return this;
+  }
+
+  returning(...clauses: Array<ParamInsertReturning>): this {
+    this.ib.returning(...clauses);
+    return this;
+  }
+
+  addReturning(...clauses: Array<ParamInsertReturning>): this {
+    this.ib.addReturning(...clauses);
     return this;
   }
 

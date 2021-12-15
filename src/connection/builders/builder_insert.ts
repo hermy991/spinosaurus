@@ -1,6 +1,11 @@
 import { Logging } from "../loggings/logging.ts";
 import { BuilderBase } from "./base/builder_base.ts";
-import { ParamInsertEntity, ParamInsertOptions, ParamInsertValue } from "./params/param_insert.ts";
+import {
+  ParamInsertEntity,
+  ParamInsertOptions,
+  ParamInsertReturning,
+  ParamInsertValue,
+} from "./params/param_insert.ts";
 import { Driver } from "../connection_type.ts";
 import { findColumn, findPrimaryColumn } from "../../stores/store.ts";
 
@@ -11,6 +16,7 @@ export class BuilderInsert<T> extends BuilderBase {
   };
   #entityData: { entity: string; schema?: string } | Function | null = null;
   #valuesData: ParamInsertValue<T>[] = [];
+  #returningData: Array<{ column: string; as?: string }> = [];
 
   constructor(public driver: Driver, public logging?: Logging) {
     super(driver, logging);
@@ -38,6 +44,27 @@ export class BuilderInsert<T> extends BuilderBase {
   addValues<T>(data: ParamInsertValue<T>[] | ParamInsertValue<T>) {
     data = Array.isArray(data) ? data : [data];
     data.forEach((d) => this.#valuesData.push(<T> d));
+  }
+
+  returning(...clauses: Array<ParamInsertReturning>) {
+    this.#returningData = [];
+    clauses.forEach((x) => this.addReturning(x));
+  }
+
+  addReturning(...clauses: Array<ParamInsertReturning>) {
+    const tempClauses: Array<{ column: string; as?: string }> = [];
+    for (let i = 0; i < clauses.length; i++) {
+      const tempClause = clauses[i];
+      if (Array.isArray(tempClause)) {
+        const [column, as] = (tempClause as [string, string?]);
+        tempClauses.push({ column, as });
+      } else if (typeof tempClause === "string") {
+        tempClauses.push({ column: tempClause });
+      } else {
+        tempClauses.push(<any> tempClause);
+      }
+    }
+    this.#returningData.push(...tempClauses);
   }
 
   getEntityQuery(e: { schema?: string; entity?: string }) {
@@ -119,6 +146,17 @@ export class BuilderInsert<T> extends BuilderBase {
     sqls.push(this.getValuesQuery(<any> Object.values(cloned)));
     return sqls.join(" ");
   }
+  getReturningQuery(
+    e: { schema?: string; entity?: string; classFunction?: Function },
+    rs: Array<{ column: string; as?: string }> = [],
+    ps: Array<any> = [],
+  ): string {
+    let sql = `RETURNING `;
+    if (rs.length && e) {
+      sql += rs.map((x) => x.column + (x.as ? " AS " + x.as : "")).join(", ");
+    }
+    return sql;
+  }
   getSqls(): string[] {
     if (!this.#entityData) {
       return [];
@@ -133,8 +171,18 @@ export class BuilderInsert<T> extends BuilderBase {
     } else {
       e = this.#entityData;
     }
+    let rs: Array<{ column: string; as?: string }> = JSON.parse(JSON.stringify(this.#returningData));
+    if (!rs.length) {
+      if (e.classFunction instanceof Function) {
+      } else {
+        rs = [{ column: "*" }];
+      }
+    }
     for (const value of this.#valuesData) {
-      const sql = `${this.getEntityValueQuery(e, value, ps)}`;
+      let sql = this.getEntityValueQuery(e, value, ps);
+      if (rs.length) {
+        sql = `${sql} ${this.getReturningQuery(e, rs, ps)}`;
+      }
       if (sql) {
         sqls.push(sql);
       }

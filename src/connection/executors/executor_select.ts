@@ -3,7 +3,7 @@ import { Logging } from "../loggings/logging.ts";
 import { Driver } from "../connection_type.ts";
 import { BuilderSelect } from "../builders/builder_select.ts";
 import { ParamFromOptions } from "../builders/params/param_select.ts";
-import { ParamClauseOptions, ParamComplexValues } from "../builders/params/param_select.ts";
+import { ParamClauseOptions, ParamComplexValues, ParamSelectColumn } from "../builders/params/param_select.ts";
 
 export class ExecutorSelect {
   sb: BuilderSelect = new BuilderSelect(<Driver> {});
@@ -104,17 +104,17 @@ export class ExecutorSelect {
   }
 
   /** DML SQL Operation*/
-  select(...columns: Array<{ column: string; as?: string } | [string, string?]>): this {
+  select(...columns: Array<ParamSelectColumn>): this {
     this.sb.select(...columns);
     return this;
   }
 
-  selectDistinct(...columns: Array<{ column: string; as?: string } | [string, string?]>): this {
+  selectDistinct(...columns: Array<ParamSelectColumn>): this {
     this.sb.selectDistinct(...columns);
     return this;
   }
 
-  addSelect(...columns: Array<{ column: string; as?: string } | [string, string?]>): this {
+  addSelect(...columns: Array<ParamSelectColumn>): this {
     this.sb.addSelect(...columns);
     return this;
   }

@@ -12,7 +12,8 @@ export type ParamInsertEntity =
   | [string, string?]
   | Function;
 
-// export type ParamInsertValue = { [x: string]: ParamSimpleOptions | { [x: string]: ParamSimpleOptions } };
 export type ParamInsertValue<T> =
   | ParamPartialEntity<T>
   | Record<string, ParamSimpleValues | Record<string, ParamSimpleValues>>;
+
+export type ParamInsertReturning = { entity: string; as?: string } | [string, string?] | string;

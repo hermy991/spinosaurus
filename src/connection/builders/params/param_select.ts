@@ -21,3 +21,5 @@ export type ParamClauseOptions =
 export type ParamComplexClauseOptions =
   & { join: "inner" | "left" | "right"; select: boolean }
   & ParamClauseOptions;
+
+export type ParamSelectColumn = { column: string; as?: string } | [string, string?] | string;

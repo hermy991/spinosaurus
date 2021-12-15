@@ -108,34 +108,13 @@ ALTER TABLE "CustomCreateEntity1" ADD CONSTRAINT "CHK_CustomCreateEntity1_cdd96d
 ALTER TABLE "CustomCreateEntity1" ADD CONSTRAINT "CHK_CheckEntity1_column2_2" CHECK (LENGTH("column2") > 0)`;
   assertEquals(q3, qe3);
 
-  const qs4 = db.create({
-    entity: CreateEntity1,
-    options: { createByEntity: true, autoGeneratePrimaryKey: false },
-  })
+  const qs4 = db.create({ entity: CreateEntity1, options: { createByEntity: true, autoGeneratePrimaryKey: false } })
     .data({ column1: 100, column2: "XX", column3: "XXX" });
   const q4 = qs4.getSql();
   const qe4 =
     `CREATE TABLE "CustomEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" TEXT NOT NULL, "column3" TEXT NOT NULL );
 INSERT INTO "CustomEntity1" ("column1", "column2", "column3") VALUES (100, 'XX', 'XXX')`;
   assertEquals(q4, qe4);
-
-  //   const qs4 = db.create(UniqueEntity1);
-  //   const q4 = qs4.getSqls() || "";
-  //   q4 = q4;
-  //   const qe4 = `CREATE SCHEMA "decorator";
-  // CREATE TABLE "decorator"."UniqueEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL, "column3" CHARACTER VARYING (100) NOT NULL, "custom4" CHARACTER VARYING (100) NOT NULL, "custom5" CHARACTER VARYING (100) NOT NULL, "column6" CHARACTER VARYING (100) NOT NULL, "column7" CHARACTER VARYING (100) NOT NULL, "column8" CHARACTER VARYING (100) NOT NULL, "custom9" CHARACTER VARYING (100) NOT NULL, "custom10" CHARACTER VARYING (100) NOT NULL, "custom11" CHARACTER VARYING (100) NOT NULL );
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_cdd96d" UNIQUE ("column8");
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_0b7e7d" UNIQUE ("custom11");
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_0b24df" UNIQUE ("column6", "column7", "custom9", "custom10");
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_f7947d" UNIQUE ("column2");
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_8b9af1" UNIQUE ("column2", "column3");
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_006d12" UNIQUE ("column2", "column3", "custom4");
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_decorator_UniqueEntity1_b523ff" UNIQUE ("custom4", "custom5");
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_1" UNIQUE ("column2");
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_2" UNIQUE ("column2", "column3"); ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_3" UNIQUE ("column2", "column3", "custom4");
-  // ALTER TABLE "decorator"."UniqueEntity1" ADD CONSTRAINT "UQ_UniqueEntity1_4" UNIQUE ("custom4", "custom5")`
-  //     ;
-  //   assertEquals(q4, qe4);
 });
 Deno.test("create [create table with primary key] sql", () => {
   const db: Connection = new Connection(con1);
@@ -234,13 +213,8 @@ Deno.test("create [create schema] sql", () => {
 Deno.test("create [create relations] sql", () => {
   const db: Connection = new Connection(con1);
   const q1 = db.create({ schema: "publicX", entity: "User" })
-    .relations([
-      { columns: ["AnotherEntity1Column_ID"], parentEntity: "AnotherEntity1" },
-    ])
-    .addRelation({
-      columns: ["AnotherEntity2Column_ID"],
-      parentEntity: "AnotherEntity2",
-    })
+    .relations([{ columns: ["AnotherEntity1Column_ID"], parentEntity: "AnotherEntity1" }])
+    .addRelation({ columns: ["AnotherEntity2Column_ID"], parentEntity: "AnotherEntity2" })
     .getSql();
   const qe1 =
     `ALTER TABLE "publicX"."User" ADD CONSTRAINT "FK_publicX_User_AnotherEntity1_cdd96d" FOREIGN KEY ("AnotherEntity1Column_ID") REFERENCES "AnotherEntity1" ("AnotherEntity1Column_ID");

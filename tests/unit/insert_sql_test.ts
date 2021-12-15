@@ -1,4 +1,4 @@
-import { getTestConnection } from "./tool/tool.ts";
+import { clearPlayground, getTestConnection } from "./tool/tool.ts";
 import { Connection } from "spinosaurus/mod.ts";
 import { assertEquals } from "deno/testing/asserts.ts";
 
@@ -83,4 +83,40 @@ Deno.test("insert [multiple insert with schema] sql", () => {
   const queryExpected = `INSERT INTO "public"."User" ("column1") VALUES ('x1');
 INSERT INTO "public"."User" ("column1") VALUES ('x2')`;
   assertEquals(query, queryExpected);
+});
+Deno.test("insert [returning] sql", async () => {
+  const conOptsX = self.structuredClone(con1);
+  const schema = "returning";
+  const user1 = "User1";
+  const db: Connection = new Connection(conOptsX);
+  const ch1 = await db.checkSchema({ name: schema });
+  if (ch1.exists) {
+    await db.drop({ schema, check: true }).execute();
+  }
+  const ch2 = await db.checkObject({ name: user1, schema });
+  if (ch2.exists) {
+    await db.drop({ entity: user1, schema, check: true }).execute();
+  }
+  await db.create({ schema, check: true }).execute();
+  await db.create({ entity: user1, schema })
+    .columns([
+      { name: "column1", spitype: "integer", primary: true, autoIncrement: "increment" },
+      { name: "column2", spitype: "varchar", length: 100 },
+      { name: "column3", spitype: "varchar", length: 100 },
+    ])
+    .execute();
+  const values1 = [
+    { column2: "Test_1_1", column3: "Test_1_2" },
+    { column2: "Test_2_2", column3: "Test_2_2" },
+  ];
+  const r1 = await db.insert({ entity: user1, schema }).values(values1).returning("*").execute();
+  console.log("r1 = ", r1);
+  const values2 = [
+    { column2: "Test_3_1", column3: "Test_3_2" },
+    { column2: "Test_4_2", column3: "Test_4_2" },
+  ];
+  const r2 = await db.insert({ entity: user1, schema }).values(values2).returning("column1").execute();
+  console.log("r2 = ", r2);
+  await db.drop({ entity: user1, schema }).execute();
+  await db.drop({ schema, check: true }).execute();
 });

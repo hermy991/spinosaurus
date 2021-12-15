@@ -52,11 +52,10 @@ Deno.test("transaction [rollback] sql", async () => {
   // Function Transaction With Transaction Name
   ck1 = "transaction execute not ok";
   const _r2 = await db.startTransaction("test_transaction_fun", f1);
-  assertEquals(ck1, "transaction execute ok");
   const data6 = await db.select().from({ entity: user1, schema }).getMany();
-  assertEquals(data6.length, 0);
-
   await clearPlayground(db, [user1], [schema]);
+  assertEquals(ck1, "transaction execute ok");
+  assertEquals(data6.length, 0);
 });
 
 Deno.test("transaction [commit] sql", async () => {

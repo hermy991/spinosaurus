@@ -6,6 +6,7 @@ import {
   ParamComplexClauseOptions,
   ParamComplexValues,
   ParamFromOptions,
+  ParamSelectColumn,
 } from "./params/param_select.ts";
 import { ExecutorSelect } from "../executors/executor_select.ts";
 
@@ -26,24 +27,25 @@ export class BuilderSelect extends BuilderBase {
     super(driver, logging);
   }
 
-  selectDistinct(...columns: Array<{ column: string; as?: string } | [string, string?]>): void {
+  selectDistinct(...columns: Array<ParamSelectColumn>): void {
     this.#distinct = true;
     this.select(...columns);
   }
 
-  select(...columns: Array<{ column: string; as?: string } | [string, string?]>): void {
+  select(...columns: Array<ParamSelectColumn>): void {
     this.#selectData = [];
     columns.forEach((x) => this.addSelect(x));
   }
 
-  addSelect(...columns: Array<{ column: string; as?: string } | [string, string?]>): void {
+  addSelect(...columns: Array<ParamSelectColumn>): void {
     const tempColumns: Array<{ column: string; as?: string }> = [];
     for (let i = 0; i < columns.length; i++) {
-      if (Array.isArray(columns[i])) {
-        const [column, as] = (columns[i] as [string, string?]);
+      const tempColumn = columns[i];
+      if (Array.isArray(tempColumn)) {
+        const [column, as] = (tempColumn as [string, string?]);
         tempColumns.push({ column, as });
       } else {
-        tempColumns.push(columns[i] as { column: string; as?: string });
+        tempColumns.push(tempColumn as { column: string; as?: string });
       }
     }
     this.#selectData.push(...tempColumns);
