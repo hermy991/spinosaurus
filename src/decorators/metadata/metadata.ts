@@ -12,6 +12,15 @@ export const GLOBAL_METADATA_KEY = "spinosaurusMetadataStore";
 
 export const GLOBAL_TEMP_METADATA_KEY = "spinosaurusTempMetadataStore";
 
+export function switchMetadata(from: MetadataStore, to: MetadataStore) {
+  for (const key in from) {
+    if (key in to) {
+      (<any> to)[key].push(...(<any> from)[key]);
+      (<any> from)[key] = [];
+    }
+  }
+}
+
 export function linkMetadata(req: { connName: string }): MetadataStore {
   const { connName } = req;
   const metadata = getMetadata(connName);
@@ -93,6 +102,8 @@ export function getMetadata(nameOrOptions?: string | ConnectionOptions): Metadat
       ? getTempMetadata()
       : new MetadataStore();
     clearTempMetadata();
+  } else if (window[GLOBAL_TEMP_METADATA_KEY][DEFAULT_CONN_NAME]) {
+    switchMetadata(window[GLOBAL_TEMP_METADATA_KEY][DEFAULT_CONN_NAME], window[GLOBAL_METADATA_KEY][name]);
   }
   const ms = window[GLOBAL_METADATA_KEY][name];
   return ms;

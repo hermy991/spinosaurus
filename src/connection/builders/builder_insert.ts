@@ -107,12 +107,12 @@ export class BuilderInsert<T> extends BuilderBase {
               (<any> value)[name] !== null &&
               !Array.isArray((<any> value)[name])
             ) {
-              let xc = findColumn({
+              const xc = findColumn({
                 entityOrClass: <Function> e.classFunction,
                 propertyKey: p.propertyKey,
                 nameOrOptions: this.driver.options,
               });
-              let fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.driver.options });
+              const fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.driver.options });
               if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in (<any> value)[name]) {
                 (<any> cloned)[xc[1].foreign.columnName] = (<any> (<any> value)[name])[fc[1].propertyKey];
               }
@@ -151,11 +151,45 @@ export class BuilderInsert<T> extends BuilderBase {
     rs: Array<{ column: string; as?: string }> = [],
     ps: Array<any> = [],
   ): string {
+    if (!rs.length) {
+      if (e.classFunction instanceof Function) {
+        ps.filter((x) => x.primary).forEach((x) => rs.push({ column: this.clearNames(x.name) }));
+      } else {
+        rs.push({ column: "*" });
+      }
+    }
     let sql = `RETURNING `;
     if (rs.length && e) {
-      sql += rs.map((x) => x.column + (x.as ? " AS " + x.as : "")).join(", ");
+      sql += rs.map((x) => x.column + (x.as ? " AS " + this.clearNames(x.as) : "")).join(", ");
+      return sql;
+    } else {
+      return "";
     }
-    return sql;
+  }
+  setPrimaryKeys(values: Record<string, any>[] = []) {
+    if (!this.#entityData) {
+      return;
+    }
+    let e: { schema?: string; entity?: string; classFunction?: Function } = {};
+    let ps = [];
+    if (this.#entityData instanceof Function) {
+      e = this.getEntityData(this.driver.options.name, this.#entityData);
+      e.classFunction = this.#entityData;
+      ps = this.getColumns(this.driver.options.name, this.#entityData);
+    } else {
+      e = this.#entityData;
+    }
+    const primaryKeyColumns = ps.filter((x) => x.primary);
+    for (let i = 0; i < values.length && values.length === this.#valuesData.length; i++) {
+      for (let y = 0; y < primaryKeyColumns.length; y++) {
+        const value2 = values[i];
+        const primaryKeyColumn = primaryKeyColumns[y];
+        if (primaryKeyColumn.name in value2) {
+          const value1 = this.#valuesData[i];
+          (<any> value1)[primaryKeyColumn.name] = value2[primaryKeyColumn.name];
+        }
+      }
+    }
   }
   getSqls(): string[] {
     if (!this.#entityData) {
@@ -171,17 +205,12 @@ export class BuilderInsert<T> extends BuilderBase {
     } else {
       e = this.#entityData;
     }
-    let rs: Array<{ column: string; as?: string }> = JSON.parse(JSON.stringify(this.#returningData));
-    if (!rs.length) {
-      if (e.classFunction instanceof Function) {
-      } else {
-        rs = [{ column: "*" }];
-      }
-    }
+    const rs: Array<{ column: string; as?: string }> = JSON.parse(JSON.stringify(this.#returningData));
     for (const value of this.#valuesData) {
       let sql = this.getEntityValueQuery(e, value, ps);
-      if (rs.length) {
-        sql = `${sql} ${this.getReturningQuery(e, rs, ps)}`;
+      const sqlReturning = this.getReturningQuery(e, rs, ps);
+      if (sql && sqlReturning) {
+        sql = `${sql} ${sqlReturning}`;
       }
       if (sql) {
         sqls.push(sql);

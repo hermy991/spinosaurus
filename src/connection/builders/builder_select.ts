@@ -231,7 +231,8 @@ export class BuilderSelect extends BuilderBase {
             // column list
             const cols = this.getColumns(this.driver.options.name, entity);
             sql += ", " +
-              cols.filter((x) => x.select).map((x) => `${t}."${x.name}" "${t.replaceAll(`"`, "")}.${x.name}"`)
+              cols.filter((x) => x.select)
+                .map((x) => `${t}.${this.clearNames(x.name)} ${this.clearNames(t.replaceAll(`"`, "") + "." + x.name)}`)
                 .join(", ");
           } else if (entity instanceof ExecutorSelect) {
             let tas = as ? as : `_${this.#clauseData.filter((o, ix) => !o.as && ix <= i).length + 1}`;
