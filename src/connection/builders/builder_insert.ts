@@ -10,10 +10,7 @@ import { Driver } from "../connection_type.ts";
 import { findColumn, findPrimaryColumn } from "../../stores/store.ts";
 
 export class BuilderInsert<T> extends BuilderBase {
-  #options: ParamInsertOptions = {
-    autoInsert: true,
-    autoGeneratePrimaryKey: true,
-  };
+  #options: ParamInsertOptions = { autoInsert: true, autoGeneratePrimaryKey: true };
   #entityData: { entity: string; schema?: string } | Function | null = null;
   #valuesData: ParamInsertValue<T>[] = [];
   #returningData: Array<{ column: string; as?: string }> = [];

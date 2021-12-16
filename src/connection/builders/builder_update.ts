@@ -1,18 +1,22 @@
 import { Logging } from "../loggings/logging.ts";
 import { BuilderBase } from "./base/builder_base.ts";
-import { ParamUpdateEntity, ParamUpdateOptions, ParamUpdateParams, ParamUpdateSet } from "./params/param_update.ts";
+import {
+  ParamUpdateEntity,
+  ParamUpdateOptions,
+  ParamUpdateParams,
+  ParamUpdateReturning,
+  ParamUpdateSet,
+} from "./params/param_update.ts";
 import { Driver } from "../connection_type.ts";
 import { findColumn, findPrimaryColumn } from "../../stores/store.ts";
 
 export class BuilderUpdate<T> extends BuilderBase {
-  #options: ParamUpdateOptions = {
-    autoUpdate: true,
-    updateWithoutPrimaryKey: false,
-  };
+  #options: ParamUpdateOptions = { autoUpdate: true, updateWithoutPrimaryKey: false };
   #entityData: { entity: string; schema?: string } | Function | null = null;
   #setData: ParamUpdateSet<T>[] = [];
   #whereData: Array<string> = [];
   #paramsData: ParamUpdateParams = {};
+  #returningData: Array<{ column: string; as?: string }> = [];
 
   constructor(public driver: Driver, public logging?: Logging) {
     super(driver, logging);
@@ -97,6 +101,27 @@ export class BuilderUpdate<T> extends BuilderBase {
 
   addParams(options: ParamUpdateParams): void {
     this.#paramsData = { ...this.#paramsData, ...options };
+  }
+
+  returning(...clauses: Array<ParamUpdateReturning>) {
+    this.#returningData = [];
+    clauses.forEach((x) => this.addReturning(x));
+  }
+
+  addReturning(...clauses: Array<ParamUpdateReturning>) {
+    const tempClauses: Array<{ column: string; as?: string }> = [];
+    for (let i = 0; i < clauses.length; i++) {
+      const tempClause = clauses[i];
+      if (Array.isArray(tempClause)) {
+        const [column, as] = (tempClause as [string, string?]);
+        tempClauses.push({ column, as });
+      } else if (typeof tempClause === "string") {
+        tempClauses.push({ column: tempClause });
+      } else {
+        tempClauses.push(<any> tempClause);
+      }
+    }
+    this.#returningData.push(...tempClauses);
   }
 
   getEntityQuery(e: { schema?: string; entity?: string }) {
@@ -190,7 +215,51 @@ export class BuilderUpdate<T> extends BuilderBase {
     }
     return sqls.join(" ");
   }
-
+  getReturningQuery(
+    e: { schema?: string; entity?: string; classFunction?: Function },
+    rs: Array<{ column: string; as?: string }> = [],
+    ps: Array<any> = [],
+  ): string {
+    if (!rs.length) {
+      if (e.classFunction instanceof Function) {
+        ps.filter((x) => x.primary).forEach((x) => rs.push({ column: this.clearNames(x.name) }));
+      } else {
+        rs.push({ column: "*" });
+      }
+    }
+    let sql = `RETURNING `;
+    if (rs.length && e) {
+      sql += rs.map((x) => x.column + (x.as ? " AS " + this.clearNames(x.as) : "")).join(", ");
+      return sql;
+    } else {
+      return "";
+    }
+  }
+  setPrimaryKeys(values: Record<string, any>[] = []) {
+    if (!this.#entityData) {
+      return;
+    }
+    let e: { schema?: string; entity?: string; classFunction?: Function } = {};
+    let ps = [];
+    if (this.#entityData instanceof Function) {
+      e = this.getEntityData(this.driver.options.name, this.#entityData);
+      e.classFunction = this.#entityData;
+      ps = this.getColumns(this.driver.options.name, this.#entityData);
+    } else {
+      e = this.#entityData;
+    }
+    const primaryKeyColumns = ps.filter((x) => x.primary);
+    for (let i = 0; i < values.length && values.length === this.#setData.length; i++) {
+      for (let y = 0; y < primaryKeyColumns.length; y++) {
+        const value2 = values[i];
+        const primaryKeyColumn = primaryKeyColumns[y];
+        if (primaryKeyColumn.name in value2) {
+          const value1 = this.#setData[i];
+          (<any> value1)[primaryKeyColumn.name] = value2[primaryKeyColumn.name];
+        }
+      }
+    }
+  }
   getSqls(): string[] {
     if (!this.#entityData) {
       return [];
@@ -205,8 +274,13 @@ export class BuilderUpdate<T> extends BuilderBase {
     } else {
       e = this.#entityData;
     }
+    const rs: Array<{ column: string; as?: string }> = JSON.parse(JSON.stringify(this.#returningData));
     for (const set of this.#setData) {
-      const sql = this.getEntitySetQuery(e, set, ps);
+      let sql = this.getEntitySetQuery(e, set, ps);
+      const sqlReturning = this.getReturningQuery(e, rs, ps);
+      if (sql && sqlReturning) {
+        sql = `${sql} ${sqlReturning}`;
+      }
       if (sql) {
         sqls.push(sql);
       }

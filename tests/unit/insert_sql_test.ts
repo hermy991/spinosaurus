@@ -86,7 +86,7 @@ INSERT INTO "public"."User" ("column1") VALUES ('x2') RETURNING *`;
   assertEquals(query, queryExpected);
 });
 Deno.test("insert [returning] sql", async () => {
-  const { ReturningEntity1 } = await import("./playground/decorators/InsertReturningEntity.ts");
+  const { InsertReturningEntity1 } = await import("./playground/decorators/InsertReturningEntity.ts");
   const conOptsX = self.structuredClone(con1);
   const schema = "returning";
   const user1 = "User1";
@@ -113,7 +113,7 @@ Deno.test("insert [returning] sql", async () => {
   const values3 = [{ column2: "5_1", column3: "5_2" }, { column2: "6_1", column3: "6_2" }];
   const r3 = await db.insert({ entity: user1, schema }).values(values3).execute();
   const values4 = [{ column2: "7_1", column3: "7_2" }, { column2: "8_1", column3: "8_2" }];
-  const r4 = await db.insert(ReturningEntity1).values(values4).execute();
+  const r4 = await db.insert(InsertReturningEntity1).values(values4).execute();
   await db.drop({ entity: user1, schema }).execute();
   await db.drop({ schema, check: true }).execute();
   assertEquals(

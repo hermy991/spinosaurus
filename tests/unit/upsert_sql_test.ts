@@ -29,10 +29,10 @@ Deno.test("upsert [upsert by 'class'] sql", async () => {
   const qe1 =
     `UPDATE "schema"."UpsertEntityCustom" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = 2, "updateColumn" = TO_TIMESTAMP('${
       luxon.DateTime.fromJSDate(updateColumn).toFormat("yyyy-MM-dd HH:mm:ss")
-    }', 'YYYY-MM-DD HH24:MI:SS') WHERE "primaryGeneratedColumn" = 1;
+    }', 'YYYY-MM-DD HH24:MI:SS') WHERE "primaryGeneratedColumn" = 1 RETURNING "primaryGeneratedColumn";
 INSERT INTO "schema"."UpsertEntityCustom" ("column2", "columnCustom", "versionColumn", "updateColumn") VALUES ('ss', 'sss', 2, TO_TIMESTAMP('${
       luxon.DateTime.fromJSDate(updateColumn).toFormat("yyyy-MM-dd HH:mm:ss")
-    }', 'YYYY-MM-DD HH24:MI:SS'))`;
+    }', 'YYYY-MM-DD HH24:MI:SS')) RETURNING "primaryGeneratedColumn"`;
   assertEquals(q1, qe1);
 
   for (const value of values) {
@@ -43,7 +43,7 @@ INSERT INTO "schema"."UpsertEntityCustom" ("column2", "columnCustom", "versionCo
     .values(values);
   let q2 = qs2.getSql();
   const qe2 =
-    `UPDATE "schema"."UpsertEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1;
-INSERT INTO "schema"."UpsertEntity2" ("column2", "columnCustom") VALUES ('ss', 'sss')`;
+    `UPDATE "schema"."UpsertEntity2" SET "column2" = 'ss', "columnCustom" = 'sss', "versionColumn" = "versionColumn" + 1, "updateColumn" = now() WHERE "primaryGeneratedColumn" = 1 RETURNING "primaryGeneratedColumn";
+INSERT INTO "schema"."UpsertEntity2" ("column2", "columnCustom") VALUES ('ss', 'sss') RETURNING "primaryGeneratedColumn"`;
   assertEquals(q2, qe2);
 });

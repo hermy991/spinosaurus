@@ -12,9 +12,10 @@ export type ParamUpdateEntity =
   | [string, string?]
   | Function;
 
-// export type ParamUpdateSet = { [x: string]: ParamSimpleValues | { [x: string]: ParamSimpleValues } };
 export type ParamUpdateSet<T> =
   | ParamPartialEntity<T>
   | Record<string, ParamSimpleValues | Record<string, ParamSimpleValues>>;
 
 export type ParamUpdateParams = ParamComplexValues;
+
+export type ParamUpdateReturning = { entity: string; as?: string } | [string, string?] | string;

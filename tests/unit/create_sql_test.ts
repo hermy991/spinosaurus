@@ -21,8 +21,8 @@ Deno.test("create [create table with data] sql", () => {
     .data([{ column1: "hola" }, { column1: "xx" }]);
   const q1 = qs1.getSql();
   const qe1 = `CREATE TABLE "public"."User" ( "column1" VARCHAR );
-INSERT INTO "public"."User" ("column1") VALUES ('hola');
-INSERT INTO "public"."User" ("column1") VALUES ('xx')`;
+INSERT INTO "public"."User" ("column1") VALUES ('hola') RETURNING *;
+INSERT INTO "public"."User" ("column1") VALUES ('xx') RETURNING *`;
   assertEquals(q1, qe1);
   const data = [{
     column1: 1,
@@ -49,8 +49,8 @@ INSERT INTO "public"."User" ("column1") VALUES ('xx')`;
     .getSql();
   const qe2 =
     `CREATE TABLE "publicX"."User" ( "column1" SERIAL PRIMARY KEY, "column2" TEXT NOT NULL, "column3" CHARACTER VARYING (100) NOT NULL );
-INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row1 column2, this have to show', 'row1 column3, this have to show');
-INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row2 column2, this have to show', 'row2 column3, this have to show')`;
+INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row1 column2, this have to show', 'row1 column3, this have to show') RETURNING *;
+INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row2 column2, this have to show', 'row2 column3, this have to show') RETURNING *`;
   assertEquals(q2, qe2);
 
   const q3 = db.create({
@@ -70,8 +70,8 @@ INSERT INTO "publicX"."User" ("column2", "column3") VALUES ('row2 column2, this 
     .getSql();
   const qe3 =
     `CREATE TABLE "publicX"."User" ( "column1" SERIAL PRIMARY KEY, "column2" TEXT NOT NULL, "column3" CHARACTER VARYING (100) NOT NULL );
-INSERT INTO "publicX"."User" ("column1", "column2", "column3") VALUES (1, 'row1 column2, this have to show', 'row1 column3, this have to show');
-INSERT INTO "publicX"."User" ("column1", "column2", "column3") VALUES (2, 'row2 column2, this have to show', 'row2 column3, this have to show')`;
+INSERT INTO "publicX"."User" ("column1", "column2", "column3") VALUES (1, 'row1 column2, this have to show', 'row1 column3, this have to show') RETURNING *;
+INSERT INTO "publicX"."User" ("column1", "column2", "column3") VALUES (2, 'row2 column2, this have to show', 'row2 column3, this have to show') RETURNING *`;
   assertEquals(q3, qe3);
 });
 Deno.test("create [create table by 'class'] sql", async () => {
@@ -88,10 +88,7 @@ Deno.test("create [create table by 'class'] sql", async () => {
   const qe1 = `CREATE TABLE "CustomEntity1" ( "column1" VARCHAR )`;
   assertEquals(q1, qe1);
 
-  const qs2 = db.create({
-    entity: CreateEntity1,
-    options: { createByEntity: true },
-  });
+  const qs2 = db.create({ entity: CreateEntity1, options: { createByEntity: true } });
   const q2 = qs2.getSql();
   const qe2 =
     `CREATE TABLE "CustomEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" TEXT NOT NULL, "column3" TEXT NOT NULL )`;
@@ -113,7 +110,7 @@ ALTER TABLE "CustomCreateEntity1" ADD CONSTRAINT "CHK_CheckEntity1_column2_2" CH
   const q4 = qs4.getSql();
   const qe4 =
     `CREATE TABLE "CustomEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" TEXT NOT NULL, "column3" TEXT NOT NULL );
-INSERT INTO "CustomEntity1" ("column1", "column2", "column3") VALUES (100, 'XX', 'XXX')`;
+INSERT INTO "CustomEntity1" ("column1", "column2", "column3") VALUES (100, 'XX', 'XXX') RETURNING "column1"`;
   assertEquals(q4, qe4);
 });
 Deno.test("create [create table with primary key] sql", () => {

@@ -2,7 +2,12 @@ import * as path from "deno/path/mod.ts";
 import { Logging } from "../loggings/logging.ts";
 import { Driver } from "../connection_type.ts";
 import { BuilderUpdate } from "../builders/builder_update.ts";
-import { ParamUpdateEntity, ParamUpdateParams, ParamUpdateSet } from "../builders/params/param_update.ts";
+import {
+  ParamUpdateEntity,
+  ParamUpdateParams,
+  ParamUpdateReturning,
+  ParamUpdateSet,
+} from "../builders/params/param_update.ts";
 
 export class ExecutorUpdate<T> {
   ub: BuilderUpdate<T> = new BuilderUpdate(<Driver> {});
@@ -45,6 +50,16 @@ export class ExecutorUpdate<T> {
     return this;
   }
 
+  returning(...clauses: Array<ParamUpdateReturning>): this {
+    this.ub.returning(...clauses);
+    return this;
+  }
+
+  addReturning(...clauses: Array<ParamUpdateReturning>): this {
+    this.ub.addReturning(...clauses);
+    return this;
+  }
+
   printSql(): this {
     this.ub.printSql();
     return this;
@@ -73,6 +88,8 @@ export class ExecutorUpdate<T> {
         outLine: query.join(";").replace(/\n\r/ig, " "),
       });
     }
-    return await this.driver.execute(query.join(";\n"), options);
+    const r = await this.driver.execute(query.join(";\n"), options);
+    this.ub.setPrimaryKeys(r.rows || []);
+    return r;
   }
 }
