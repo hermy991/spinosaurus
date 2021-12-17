@@ -74,7 +74,7 @@ Deno.test("decorator [data] sql", async () => {
   await clearPlayground(db, _metadata.tables, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
 CREATE TABLE "decorator"."DataEntity1" ( "column1" SERIAL PRIMARY KEY, "column2" CHARACTER VARYING (100) NOT NULL );
-INSERT INTO "decorator"."DataEntity1" ("column2") VALUES ('hola como estas')`;
+INSERT INTO "decorator"."DataEntity1" ("column2") VALUES ('hola como estas') RETURNING *`;
   assertEquals(s1, se1);
 });
 Deno.test("decorator [next] sql", async () => {

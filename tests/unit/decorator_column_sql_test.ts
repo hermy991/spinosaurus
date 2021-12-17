@@ -319,7 +319,8 @@ Deno.test("decorator [column many-to-one add, alter, drop] sql", async () => {
   conOptsX.entities = [`${dirname}/playground/decorators/**/ManyToOneSync*.ts`];
   const sql = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
-  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  const ttd = _metadata.tables.sort((a: any, b: any) => a.name > b.name ? 1 : -1);
+  await clearPlayground(db, ttd, _metadata.schemas);
   const sqlSpected =
     `ALTER TABLE "decorator"."ManyToOneSync4" DROP CONSTRAINT "FK_decorator_ManyToOneSync4_ManyToOneSync3_0b7e7d";
 ALTER TABLE "decorator"."ManyToOneSync4" ADD CONSTRAINT "FK_MyNewContranint" FOREIGN KEY ("ManyToOneSync3_column31") REFERENCES "decorator"."ManyToOneSync3" ("column31");
@@ -332,12 +333,11 @@ Deno.test("decorator [column one-to-one] sql", async () => {
   const conOptsX = self.structuredClone(conOpts);
   const db = new Connection(conOptsX);
   const dirname = path.dirname(path.fromFileUrl(import.meta.url));
-  conOptsX.entities = [
-    `${dirname}/playground/decorators/**/OneToOneEntity.ts`,
-  ];
+  conOptsX.entities = [`${dirname}/playground/decorators/**/OneToOneEntity.ts`];
   const s1 = (await sqlConnection(conOptsX)).join(";\n");
   const _metadata = getMetadata(conOptsX.name);
-  await clearPlayground(db, _metadata.tables, _metadata.schemas);
+  const ttd = _metadata.tables.sort((a: any, b: any) => a.name > b.name ? 1 : -1);
+  await clearPlayground(db, ttd, _metadata.schemas);
   const se1 = `CREATE SCHEMA "decorator";
 CREATE TABLE "decorator"."OneToOneEntity1" ( "column21" SERIAL PRIMARY KEY, "column22" CHARACTER VARYING (100) NOT NULL );
 CREATE TABLE "decorator"."OneToOneEntity3" ( "column11" SERIAL PRIMARY KEY, "column12" CHARACTER VARYING (100) NOT NULL );
