@@ -9,8 +9,12 @@ Deno.test("transaction [rollback] sql", async () => {
   const schema = "transaction";
   const user1 = "User1";
   const db: Connection = new Connection(conOptsX);
-  const ch = await db.checkSchema({ name: schema });
-  if (ch.exists) {
+  const ch1 = await db.checkObject({ name: schema, schema });
+  if (ch1.exists) {
+    await db.drop({ entity: user1, schema, check: true }).execute();
+  }
+  const ch2 = await db.checkSchema({ name: schema });
+  if (ch2.exists) {
     await db.drop({ schema, check: true }).execute();
   }
   const xxq = db.create({ schema, check: true });
@@ -53,7 +57,8 @@ Deno.test("transaction [rollback] sql", async () => {
   ck1 = "transaction execute not ok";
   const _r2 = await db.startTransaction("test_transaction_fun", f1);
   const data6 = await db.select().from({ entity: user1, schema }).getMany();
-  await clearPlayground(db, [user1], [schema]);
+  await db.drop({ entity: user1, schema, check: true }).execute();
+  await db.drop({ schema, check: true }).execute();
   assertEquals(ck1, "transaction execute ok");
   assertEquals(data6.length, 0);
 });
@@ -63,8 +68,12 @@ Deno.test("transaction [commit] sql", async () => {
   const schema = "transaction";
   const user1 = "User1";
   const db: Connection = new Connection(conOptsX);
-  const ch = await db.checkSchema({ name: schema });
-  if (ch.exists) {
+  const ch1 = await db.checkObject({ name: schema, schema });
+  if (ch1.exists) {
+    await db.drop({ entity: user1, schema, check: true }).execute();
+  }
+  const ch2 = await db.checkSchema({ name: schema });
+  if (ch2.exists) {
     await db.drop({ schema, check: true }).execute();
   }
   const xxq = db.create({ schema, check: true });
@@ -109,9 +118,9 @@ Deno.test("transaction [commit] sql", async () => {
     assertEquals(data.length, 4);
     ck1 = "transaction execute ok";
   });
-  assertEquals(ck1, "transaction execute ok");
   const data6 = await db.select().from({ entity: user1, schema }).getMany();
+  await db.drop({ entity: user1, schema, check: true }).execute();
+  await db.drop({ schema, check: true }).execute();
+  assertEquals(ck1, "transaction execute ok");
   assertEquals(data6.length, 4);
-
-  await clearPlayground(db, [user1], [schema]);
 });
