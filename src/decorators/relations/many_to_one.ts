@@ -1,4 +1,4 @@
-import { tsaveObject } from "../../stores/store.ts";
+import { tempStore, tsaveObject } from "../../stores/store.ts";
 import { ColumnOptions } from "../options/column_options.ts";
 import { AllColumnOptions } from "../options/all_column_options.ts";
 import { ParamRelation } from "../../connection/builders/params/param_relation.ts";
@@ -10,6 +10,13 @@ export function ManyToOne(relation: ParamRelation = {}, options: ColumnOptions =
     const fun = (entityf instanceof Function ? <Function> entityf : entityf.constructor);
     const type = reflect.getMetadata("design:type", entityf, propertyKey);
     tsaveObject({ storeType: "column_relation", params: { classFunction: fun, propertyKey, type, options, relation } });
+    // if (fun.name === "Channel" && propertyKey === "channelType") {
+    //   console.log("classFunction", fun, "propertyKey", propertyKey, "type", type);
+    //   console.log(
+    //     "tempStore",
+    //     tempStore.filter((x) => x.params.propertyKey === "channelType"),
+    //   );
+    // }
     const entity = { target: fun, name: fun.name };
     const property = { propertyKey, type };
     relation.entity ||= property.type;

@@ -171,14 +171,16 @@ export class BuilderUpdate<T> extends BuilderBase {
               (<any> set)[name] !== null &&
               !Array.isArray((<any> set)[name])
             ) {
-              let xc = findColumn({
+              const xc = findColumn({
                 entityOrClass: <Function> e.classFunction,
                 propertyKey: p.propertyKey,
                 nameOrOptions: this.driver.options,
               });
-              let fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.driver.options });
-              if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in (<any> set)[name]) {
-                (<any> cloned)[xc[1].foreign.columnName] = (<any> set)[name][fc[1].propertyKey];
+              if (xc && xc.length === 2) {
+                const fc = findPrimaryColumn({ entityOrClass: xc[1].type, nameOrOptions: this.driver.options });
+                if (fc && fc.length === 2 && fc[1].propertyKey in (<any> set)[name]) {
+                  (<any> cloned)[xc[1].foreign.columnName] = (<any> set)[name][fc[1].propertyKey];
+                }
               }
             } else if (p.update) {
               (<any> cloned)[p.name] = (<any> set)[name];

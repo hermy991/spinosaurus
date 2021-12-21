@@ -7,7 +7,7 @@ import {
   ParamInsertValue,
 } from "./params/param_insert.ts";
 import { Driver } from "../connection_type.ts";
-import { findColumn, findPrimaryColumn } from "../../stores/store.ts";
+import { findColumn, findPrimaryColumn, tempStore } from "../../stores/store.ts";
 
 export class BuilderInsert<T> extends BuilderBase {
   #options: ParamInsertOptions = { autoInsert: true, autoGeneratePrimaryKey: true };
@@ -101,17 +101,18 @@ export class BuilderInsert<T> extends BuilderBase {
           if (p.propertyKey === name) {
             if (
               p.insert && typeof (<any> value)[name] === "object" && !((<any> value)[name] instanceof Date) &&
-              (<any> value)[name] !== null &&
-              !Array.isArray((<any> value)[name])
+              (<any> value)[name] !== null && !Array.isArray((<any> value)[name])
             ) {
               const xc = findColumn({
                 entityOrClass: <Function> e.classFunction,
                 propertyKey: p.propertyKey,
                 nameOrOptions: this.driver.options,
               });
-              const fc = findPrimaryColumn({ entityOrClass: p.type, nameOrOptions: this.driver.options });
-              if (xc && xc.length === 2 && fc && fc.length === 2 && fc[1].propertyKey in (<any> value)[name]) {
-                (<any> cloned)[xc[1].foreign.columnName] = (<any> (<any> value)[name])[fc[1].propertyKey];
+              if (xc && xc.length === 2) {
+                const fc = findPrimaryColumn({ entityOrClass: xc[1].type, nameOrOptions: this.driver.options });
+                if (fc && fc.length === 2 && fc[1].propertyKey in (<any> value)[name]) {
+                  (<any> cloned)[xc[1].foreign.columnName] = (<any> (<any> value)[name])[fc[1].propertyKey];
+                }
               }
             } else if (p.insert || (p.primary && p.autoIncrement && !autoGeneratePrimaryKey)) {
               (<any> cloned)[p.name] = (<any> value)[name];

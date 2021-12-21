@@ -68,6 +68,15 @@ INSERT INTO "hello"."InsertEntity5" ("column3") VALUES ('xxx') RETURNING "column
     `INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_primaryColumn_ID", "InsertEntity2_column1", "columnPrimary_ID", "InsertEntity5_column1", "InsertEntity5_column1_2") VALUES (1, 1, 2, 4, 101, 102) RETURNING "primaryColumn_ID";
 INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_primaryColumn_ID", "InsertEntity2_column1", "columnPrimary_ID", "InsertEntity5_column1", "InsertEntity5_column1_2") VALUES (2, 6, 7, 9, 101, 102) RETURNING "primaryColumn_ID"`;
   assertEquals(q6, qe6);
+  const qs7 = db.insert({ entity: InsertEntity6, options: { autoGeneratePrimaryKey: false } }).values(tentities[0]);
+  const q7 = qs7.getSql();
+  // console.log(
+  //   `window["spinosaurusMetadataStore"]["con1"]["columns"]`,
+  //   window["spinosaurusMetadataStore"]["con1"]["columns"],
+  // );
+  const qe7 =
+    `INSERT INTO "hello"."InsertEntityCustom" ("primaryColumn_ID", "InsertEntity1_primaryColumn_ID", "InsertEntity2_column1", "columnPrimary_ID", "InsertEntity5_column1", "InsertEntity5_column1_2") VALUES (1, 1, 2, 4, 101, 102) RETURNING "primaryColumn_ID"`;
+  assertEquals(q7, qe7);
 });
 Deno.test("insert [multiple insert] sql", () => {
   const db: Connection = new Connection(con1);
