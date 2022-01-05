@@ -34,7 +34,29 @@ export class BuilderUpsert<T> extends BuilderBase {
     data = Array.isArray(data) ? data : [data];
     data.forEach((d) => this.#valuesData.push(<T> d));
   }
-
+  setPrimaryKeys(values: Record<string, any>[] = []) {
+    if (!this.#entityData) {
+      return;
+    }
+    let e: { schema?: string; entity?: string; classFunction?: Function } = {};
+    let ps = [];
+    if (this.#entityData instanceof Function) {
+      e = this.getEntityData(this.driver.options.name, this.#entityData);
+      e.classFunction = this.#entityData;
+      ps = this.getColumns(this.driver.options.name, this.#entityData);
+    }
+    const primaryKeyColumns = ps.filter((x) => x.primary);
+    for (let i = 0; i < values.length && values.length === this.#valuesData.length; i++) {
+      for (let y = 0; y < primaryKeyColumns.length; y++) {
+        const value2 = values[i];
+        const primaryKeyColumn = primaryKeyColumns[y];
+        if (primaryKeyColumn.name in value2) {
+          const value1 = this.#valuesData[i];
+          (<any> value1)[primaryKeyColumn.name] = value2[primaryKeyColumn.name];
+        }
+      }
+    }
+  }
   getSqls(): string[] {
     if (!this.#entityData) {
       return [];

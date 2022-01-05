@@ -53,6 +53,8 @@ export class ExecutorUpsert<T> {
         outLine: query.join(";").replace(/\n\r/ig, " "),
       });
     }
-    return await this.driver.execute(query.join(";\n"), options);
+    const r = await this.driver.execute(query.join(";\n"), options);
+    this.ub.setPrimaryKeys(r.rows || []);
+    return r;
   }
 }
